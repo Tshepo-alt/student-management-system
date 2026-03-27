@@ -1,0 +1,346 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Test Dashboard - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header p {
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        /* Status Messages */
+        .success {
+            color: #28a745;
+            font-weight: 600;
+            background: #d4edda;
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 4px solid #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: 600;
+            background: #f8d7da;
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .warning {
+            color: #856404;
+            font-weight: 600;
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .loading {
+            color: #718096;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Code blocks */
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220,53,69,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        /* Token info */
+        .token-info {
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        hr {
+            margin: 15px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-chart-line"></i> Admin Test Dashboard</h1>
+            <p>This page tests if your login token works without redirecting to login</p>
+        </div>
+
+        <div id="status" class="card">
+            <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+        </div>
+
+        <div id="stats" class="card">
+            <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading stats...</div>
+        </div>
+
+        <div id="debug" class="card">
+            <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading debug info...</div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="logout()" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button onclick="window.location.href='admin-dashboard.html'" class="btn btn-primary"><i class="fas fa-chart-line"></i> Go to Admin Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        
+        // Update status
+        const statusDiv = document.getElementById('status');
+        
+        if (!token) {
+            statusDiv.innerHTML = `
+                <div class="error">
+                    <i class="fas fa-times-circle"></i> No token found in localStorage!
+                </div>
+                <p style="margin-top: 10px;">Please login first: <a href="login.html" style="color: #667eea;">Go to Login</a></p>
+            `;
+        } else if (isLoggedIn !== 'true') {
+            statusDiv.innerHTML = `
+                <div class="warning">
+                    <i class="fas fa-exclamation-triangle"></i> isLoggedIn is not set to true
+                </div>
+            `;
+        } else {
+            const tokenPreview = token.length > 50 ? token.substring(0, 50) + '...' : token;
+            statusDiv.innerHTML = `
+                <div class="success">
+                    <i class="fas fa-check-circle"></i> You are logged in!
+                </div>
+                <div style="margin-top: 15px;">
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${escapeHtml(user.email || user.username || 'N/A')}</p>
+                    <p><i class="fas fa-user-tag"></i> <strong>Role:</strong> ${escapeHtml(user.role || 'N/A')}</p>
+                    <p><i class="fas fa-id-card"></i> <strong>User ID:</strong> ${user.id || 'N/A'}</p>
+                    <p><i class="fas fa-key"></i> <strong>Token exists:</strong> Yes (${tokenPreview})</p>
+                    <p><i class="fas fa-toggle-on"></i> <strong>isLoggedIn:</strong> ${isLoggedIn}</p>
+                </div>
+            `;
+        }
+        
+        // Safe API call that doesn't redirect
+        async function testApiCall(endpoint) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                return { error: 'No token' };
+            }
+            
+            try {
+                const response = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.status === 401) {
+                    return { error: '401 Unauthorized - Token invalid or expired' };
+                }
+                
+                if (!response.ok) {
+                    return { error: `HTTP ${response.status} - ${response.statusText}` };
+                }
+                
+                const data = await response.json();
+                return { success: true, data: data, status: response.status };
+            } catch (error) {
+                return { error: error.message };
+            }
+        }
+        
+        // Test stats endpoint
+        async function loadStats() {
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Testing /api/admin/stats...</div>';
+            
+            const result = await testApiCall('/api/admin/stats');
+            
+            if (result.success) {
+                statsDiv.innerHTML = `
+                    <h3><i class="fas fa-chart-simple"></i> Admin Stats API Response</h3>
+                    <p><strong>Status:</strong> ${result.status}</p>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                statsDiv.innerHTML = `
+                    <h3><i class="fas fa-exclamation-triangle"></i> Admin Stats API Failed</h3>
+                    <div class="error"><i class="fas fa-times-circle"></i> Error: ${escapeHtml(result.error)}</div>
+                    <p><strong>Demo Data (for testing):</strong></p>
+                    <pre>{
+  "total_students": 156,
+  "total_staff": 24,
+  "total_programs": 12,
+  "pending_registrations": 3,
+  "pending_payments": 5,
+  "open_tickets": 2,
+  "available_rooms": 45
+}</pre>
+                    <div class="warning"><i class="fas fa-info-circle"></i> Note: API failed, but you are NOT logged out!</div>
+                `;
+            }
+        }
+        
+        // Debug info
+        const debugDiv = document.getElementById('debug');
+        const localStorageKeys = Object.keys(localStorage);
+        debugDiv.innerHTML = `
+            <h3><i class="fas fa-bug"></i> Debug Information</h3>
+            <p><strong><i class="fas fa-link"></i> Current URL:</strong> ${window.location.href}</p>
+            <p><strong><i class="fas fa-database"></i> LocalStorage Keys:</strong></p>
+            <pre>${JSON.stringify(localStorageKeys, null, 2)}</pre>
+            <p><strong><i class="fas fa-user"></i> Full User Object:</strong></p>
+            <pre>${JSON.stringify(user, null, 2)}</pre>
+            <hr>
+            <p><strong><i class="fas fa-clock"></i> Timestamp:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong><i class="fas fa-globe"></i> User Agent:</strong> ${navigator.userAgent}</p>
+        `;
+        
+        function logout() {
+            localStorage.clear();
+            alert('Logged out! Redirecting to login...');
+            window.location.href = 'login.html';
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Load stats
+        loadStats();
+        
+        console.log('Test page loaded - Checking token:', token ? 'Present' : 'Missing');
+    </script>
+</body>
+</html>

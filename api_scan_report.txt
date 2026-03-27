@@ -1,0 +1,50 @@
+﻿📄 accomodation.html - No API calls (likely student pages with demo data)
+
+❌ admin-accommodation.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-api.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-dashboard.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-modules.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-payments.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-profile.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-programs.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-reports.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-settings.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-staff.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-students.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+❌ admin-tickets.html - ADMIN PAGE WITH NO API CALLS (using demo data)
+
+📄 admin.html - No API calls (likely student pages with demo data)
+
+📄 alumni-portal.html - No API calls (likely student pages with demo data)
+
+📄 assignments.html - No API calls (likely student pages with demo data)
+
+📄 chatbot.html - No API calls (likely student pages with demo data)
+
+📄 exam-registration.html - No API calls (likely student pages with demo data)
+
+📡 forgot-password.html - 1 API endpoints
+   ⚠️ May have logout issues - no safeApiCall
+      └─ /api/auth/forgot-password
+
+📡 login.html - 1 API endpoints
+   ⚠️ May have logout issues - no safeApiCall
+      └─ /api/auth/login
+
+📡 register.html - 1 API endpoints
+   ⚠️ May have logout issues - no safeApiCall
+      └─ /api/auth/register
+
+📄 student-dashboard.html - No API calls (likely student pages with demo data)
+

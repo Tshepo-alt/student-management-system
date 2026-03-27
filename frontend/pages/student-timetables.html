@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>My Timetable - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation (same as dashboard) */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 30px 40px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .page-header::before {
+            content: "\f0f3";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 80px;
+            opacity: 0.15;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+        }
+
+        /* Timetable controls */
+        .timetable-controls {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .week-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .week-selector button {
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4a5568;
+        }
+
+        .week-selector button:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .week-selector span {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .print-btn {
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .print-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Timetable Table */
+        .timetable-container {
+            background: white;
+            border-radius: 20px;
+            overflow-x: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .timetable {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        .timetable th,
+        .timetable td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .timetable th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #4a5568;
+            text-align: center;
+        }
+
+        .timetable td {
+            background: white;
+        }
+
+        .time-slot {
+            font-weight: 600;
+            color: #667eea;
+            background: #f9fafb;
+            width: 100px;
+        }
+
+        .course-cell {
+            min-height: 80px;
+        }
+
+        .course-title {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .course-details {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 6px;
+        }
+
+        .course-details i {
+            width: 20px;
+            color: #667eea;
+        }
+
+        .no-class {
+            color: #a0aec0;
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* Legend */
+        .legend {
+            background: white;
+            border-radius: 16px;
+            padding: 15px 20px;
+            margin-top: 25px;
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .legend h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+            .timetable th, .timetable td {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            .time-slot {
+                width: 70px;
+            }
+            .course-details {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media print {
+            .navbar, .timetable-controls, .legend, .footer {
+                display: none;
+            }
+            body {
+                background: white;
+                padding: 20px;
+            }
+            .timetable-container {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            .page-header {
+                background: white;
+                color: black;
+                box-shadow: none;
+                padding: 0 0 20px 0;
+            }
+            .page-header::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam Registration</a></li>
+                <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
+                <li><a href="student-timetables.html" class="nav-link active"><i class="fas fa-calendar-week"></i> Timetable</a></li>
+                <li><a href="results-view.html" class="nav-link"><i class="fas fa-chart-line"></i> Results</a></li>
+                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-calendar-week"></i> My Timetable</h1>
+            <p>Your weekly class schedule for the current semester</p>
+        </div>
+
+        <div class="timetable-controls">
+            <div class="week-selector">
+                <button id="prevWeekBtn"><i class="fas fa-chevron-left"></i> Prev</button>
+                <span id="currentWeek">Week of Mar 24, 2026</span>
+                <button id="nextWeekBtn">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+            <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i> Print Timetable</button>
+        </div>
+
+        <div class="timetable-container">
+            <table class="timetable" id="timetable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                    </tr>
+                </thead>
+                <tbody id="timetableBody">
+                    <!-- Filled by JS -->
+                    <tr><td colspan="6" class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading timetable...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="legend">
+            <h3><i class="fas fa-info-circle"></i> Legend</h3>
+            <div class="legend-items">
+                <div class="legend-item"><div class="legend-color" style="background: #667eea;"></div> Lecture</div>
+                <div class="legend-item"><div class="legend-color" style="background: #48bb78;"></div> Lab / Practical</div>
+                <div class="legend-item"><div class="legend-color" style="background: #ed8936;"></div> Tutorial</div>
+                <div class="legend-item"><div class="legend-color" style="background: #fbbf24;"></div> Online Class</div>
+                <div class="legend-item"><i class="fas fa-map-marker-alt"></i> Venue</div>
+                <div class="legend-item"><i class="fas fa-chalkboard-user"></i> Lecturer</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-calendar-week"></i> Stay on schedule | Timetable subject to change</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('Logged in user:', user);
+
+        // ============================================
+        // DEMO TIMETABLE DATA (would come from API)
+        // ============================================
+        // Format: [day (0=Mon), startTime, endTime, courseCode, courseName, type, venue, lecturer]
+        const timetableData = [
+            { day: 0, start: "08:00", end: "10:00", code: "CS301", name: "Artificial Intelligence", type: "Lecture", venue: "Room 201, ICT Building", lecturer: "Dr. T. Motsamai" },
+            { day: 0, start: "14:00", end: "16:00", code: "CS303", name: "Web Application Development", type: "Lab", venue: "Lab 3, ICT Building", lecturer: "Mr. K. Modise" },
+            { day: 1, start: "10:00", end: "12:00", code: "CS302", name: "Database Management Systems", type: "Lecture", venue: "Room 105, ICT Building", lecturer: "Dr. P. Ndlovu" },
+            { day: 1, start: "15:00", end: "17:00", code: "CS305", name: "Mobile App Development", type: "Lab", venue: "Lab 2, ICT Building", lecturer: "Ms. B. Dube" },
+            { day: 2, start: "09:00", end: "11:00", code: "CS304", name: "Cyber Security Fundamentals", type: "Lecture", venue: "Room 201, ICT Building", lecturer: "Dr. T. Motsamai" },
+            { day: 2, start: "13:00", end: "15:00", code: "CS301", name: "Artificial Intelligence", type: "Tutorial", venue: "Room 105, ICT Building", lecturer: "TA: John Doe" },
+            { day: 3, start: "11:00", end: "13:00", code: "CS302", name: "Database Management Systems", type: "Lab", venue: "Lab 1, ICT Building", lecturer: "Mr. K. Modise" },
+            { day: 3, start: "14:00", end: "16:00", code: "CS303", name: "Web Application Development", type: "Online", venue: "Zoom Link: https://zoom.us/j/123456", lecturer: "Ms. B. Dube" },
+            { day: 4, start: "10:00", end: "12:00", code: "CS305", name: "Mobile App Development", type: "Lecture", venue: "Room 105, ICT Building", lecturer: "Dr. P. Ndlovu" },
+            { day: 4, start: "14:00", end: "16:00", code: "CS304", name: "Cyber Security Fundamentals", type: "Tutorial", venue: "Room 201, ICT Building", lecturer: "TA: Jane Smith" }
+        ];
+
+        // Timeslots to display (in order)
+        const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+
+        // Helper to check if a course covers a given time slot
+        function courseAtTime(course, time) {
+            const startHour = parseInt(course.start.split(':')[0]);
+            const startMin = parseInt(course.start.split(':')[1]);
+            const endHour = parseInt(course.end.split(':')[0]);
+            const endMin = parseInt(course.end.split(':')[1]);
+            const timeHour = parseInt(time.split(':')[0]);
+            const timeMin = parseInt(time.split(':')[1]);
+            const startTotal = startHour * 60 + startMin;
+            const endTotal = endHour * 60 + endMin;
+            const timeTotal = timeHour * 60 + timeMin;
+            return timeTotal >= startTotal && timeTotal < endTotal;
+        }
+
+        function renderTimetable(weekOffset = 0) {
+            // For demo, we ignore weekOffset; could be used to fetch different weeks from API
+            const tbody = document.getElementById('timetableBody');
+            if (!tbody) return;
+
+            // Build table rows for each time slot
+            let html = '';
+            for (let time of timeSlots) {
+                html += '<tr>';
+                html += `<td class="time-slot">${time}</td>`;
+                for (let day = 0; day < 5; day++) {
+                    const course = timetableData.find(c => c.day === day && courseAtTime(c, time));
+                    if (course) {
+                        let typeClass = '';
+                        if (course.type === 'Lecture') typeClass = 'background: rgba(102,126,234,0.1);';
+                        else if (course.type === 'Lab') typeClass = 'background: rgba(72,187,120,0.1);';
+                        else if (course.type === 'Tutorial') typeClass = 'background: rgba(237,137,54,0.1);';
+                        else if (course.type === 'Online') typeClass = 'background: rgba(251,191,36,0.1);';
+                        html += `<td style="${typeClass}">
+                            <div class="course-title">${course.code} - ${course.name}</div>
+                            <div class="course-details">
+                                <div><i class="fas fa-chalkboard-user"></i> ${course.lecturer}</div>
+                                <div><i class="fas fa-map-marker-alt"></i> ${course.venue}</div>
+                                <div><i class="fas fa-clock"></i> ${course.start} – ${course.end}</div>
+                            </div>
+                        </td>`;
+                    } else {
+                        html += `<td class="no-class"><i class="far fa-clock"></i> No class</td>`;
+                    }
+                }
+                html += '</tr>';
+            }
+            tbody.innerHTML = html;
+        }
+
+        // Update week display (demo – static)
+        function updateWeekDisplay(offset = 0) {
+            const now = new Date();
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1)); // Monday
+            startOfWeek.setDate(startOfWeek.getDate() + offset * 7);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 4);
+            const options = { month: 'short', day: 'numeric' };
+            const weekStr = `Week of ${startOfWeek.toLocaleDateString('en-US', options)} – ${endOfWeek.toLocaleDateString('en-US', options)}`;
+            document.getElementById('currentWeek').textContent = weekStr;
+        }
+
+        // Simple week navigation (demo)
+        let currentWeekOffset = 0;
+        document.getElementById('prevWeekBtn').addEventListener('click', () => {
+            currentWeekOffset--;
+            updateWeekDisplay(currentWeekOffset);
+            // In a real app, you'd fetch data for the new week here
+            renderTimetable(currentWeekOffset);
+        });
+        document.getElementById('nextWeekBtn').addEventListener('click', () => {
+            currentWeekOffset++;
+            updateWeekDisplay(currentWeekOffset);
+            renderTimetable(currentWeekOffset);
+        });
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        renderTimetable(0);
+        updateWeekDisplay(0);
+        console.log('✅ Timetable page loaded');
+    </script>
+</body>
+</html>

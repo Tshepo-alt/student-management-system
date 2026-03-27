@@ -1,0 +1,260 @@
+<!-- lecturer-courses.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>My Courses - Lecturer Portal | GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .navbar-brand img { height: 50px; width: auto; transition: transform 0.3s; }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-link i { font-size: 1rem; }
+        .nav-link:hover, .nav-link.active { color: #667eea; }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 30px 40px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .page-header::before { content: "\f02d"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; bottom: 20px; right: 30px; font-size: 80px; opacity: 0.15; }
+        .page-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+        .page-header p { opacity: 0.9; }
+        .filter-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(102,126,234,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-bar input { flex: 1; padding: 8px 15px; border: 1px solid #e2e8f0; border-radius: 30px; background: #f9fafb; }
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+        }
+        .course-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: all 0.3s;
+        }
+        .course-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .course-code { font-weight: 600; color: #667eea; font-size: 0.85rem; display: inline-block; margin-bottom: 6px; }
+        .course-name { font-size: 1.2rem; font-weight: 600; margin: 5px 0; color: #2d3748; }
+        .course-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 12px 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .meta-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #718096; }
+        .course-description { font-size: 0.85rem; color: #4a5568; margin: 12px 0; line-height: 1.4; }
+        .timetable-section {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .timetable-title { font-weight: 600; font-size: 0.85rem; color: #2d3748; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .timetable-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.8rem;
+            padding: 4px 0;
+        }
+        .timetable-day { font-weight: 500; color: #667eea; min-width: 80px; }
+        .btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(102,126,234,0.3); }
+        .btn-secondary { background: #cbd5e0; color: #4a5568; }
+        .btn-secondary:hover { background: #a0aec0; }
+        .course-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .loading { text-align: center; padding: 40px; color: #a0aec0; }
+        .footer { background: #2d3748; color: white; text-align: center; padding: 30px 0; margin-top: 50px; }
+        @media (max-width: 768px) {
+            .container { padding: 0 20px; }
+            .navbar .container { flex-direction: column; }
+            .nav-menu { justify-content: center; gap: 0.25rem; }
+            .courses-grid { grid-template-columns: 1fr; }
+            .timetable-entry { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'"></div>
+            <ul class="nav-menu">
+                <li><a href="lecturer-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="lecturer-courses.html" class="nav-link active"><i class="fas fa-book-open"></i> My Courses</a></li>
+                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="lecturer-grades.html" class="nav-link"><i class="fas fa-graduation-cap"></i> Grading</a></li>
+                <li><a href="lecturer-students.html" class="nav-link"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><button id="logoutBtn" class="nav-link" style="background: none; color:#ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-book-open"></i> My Courses</h1>
+            <p>View and manage the courses you are teaching this semester.</p>
+        </div>
+        <div class="filter-bar"><i class="fas fa-search"></i><input type="text" id="searchCourses" placeholder="Search by course code or name..."></div>
+        <div id="coursesContainer" class="courses-grid"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading courses...</div></div>
+    </div>
+
+    <footer class="footer"><div class="container"><p>&copy; 2026 GIPS College. All rights reserved.</p><p><i class="fas fa-book-open"></i> Lecturer Portal | Course Management</p></div></footer>
+
+    <script>
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'lecturer') window.location.href = 'student-dashboard.html';
+        const logoImage = document.getElementById('logoImage'); if (logoImage) logoImage.onerror = () => logoImage.style.display = 'none';
+
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return response;
+            } catch (error) { console.error(`API call error to ${endpoint}:`, error); return null; }
+        }
+
+        let courses = [];
+
+        async function loadCourses() {
+            const container = document.getElementById('coursesContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading courses...</div>';
+            const response = await safeApiCall('/api/lecturer/courses');
+            if (response && response.ok) {
+                courses = await response.json();
+                // ensure schedule exists
+                courses = courses.map(c => ({ ...c, schedule: c.schedule || [] }));
+                renderCourses(courses);
+            } else {
+                // demo data
+                courses = [
+                    { id: 1, code: 'CS101', name: 'Introduction to Programming', description: 'Fundamentals of programming using Python.', semester: 1, credits: 12, students: 35, assignments: 3, schedule: [{ day: 'Monday', time: '10:00 - 12:00', room: 'Lab 1' },{ day: 'Wednesday', time: '10:00 - 12:00', room: 'Lab 1' }] },
+                    { id: 2, code: 'CS201', name: 'Database Systems', description: 'Introduction to relational databases, SQL, and database design.', semester: 2, credits: 12, students: 28, assignments: 2, schedule: [{ day: 'Tuesday', time: '14:00 - 16:00', room: 'Lecture Hall 2' },{ day: 'Thursday', time: '14:00 - 16:00', room: 'Lecture Hall 2' }] },
+                    { id: 3, code: 'CS301', name: 'Web Development', description: 'Full-stack web development with HTML, CSS, JavaScript, and React.', semester: 2, credits: 12, students: 32, assignments: 4, schedule: [{ day: 'Wednesday', time: '09:00 - 11:00', room: 'Computer Lab 3' },{ day: 'Friday', time: '09:00 - 11:00', room: 'Computer Lab 3' }] }
+                ];
+                renderCourses(courses);
+            }
+        }
+
+        function renderCourses(coursesList) {
+            const container = document.getElementById('coursesContainer');
+            if (!coursesList.length) { container.innerHTML = '<div class="loading">No courses found.</div>'; return; }
+            container.innerHTML = coursesList.map(course => `
+                <div class="course-card">
+                    <div class="course-code">${course.code}</div>
+                    <div class="course-name">${escapeHtml(course.name)}</div>
+                    <div class="course-meta">
+                        <span class="meta-item"><i class="fas fa-calendar-alt"></i> Semester ${course.semester}</span>
+                        <span class="meta-item"><i class="fas fa-chart-line"></i> ${course.credits} credits</span>
+                        <span class="meta-item"><i class="fas fa-users"></i> ${course.students} students</span>
+                        <span class="meta-item"><i class="fas fa-tasks"></i> ${course.assignments} assignments</span>
+                    </div>
+                    <div class="course-description">${escapeHtml(course.description)}</div>
+                    <div class="timetable-section">
+                        <div class="timetable-title"><i class="fas fa-clock"></i> Schedule</div>
+                        ${course.schedule.map(s => `<div class="timetable-entry"><span class="timetable-day">${s.day}</span><span><i class="fas fa-hourglass-half"></i> ${s.time}</span><span><i class="fas fa-map-marker-alt"></i> ${s.room}</span></div>`).join('')}
+                    </div>
+                    <div class="course-actions">
+                        <button class="btn btn-primary" onclick="viewCourseDetails(${course.id})"><i class="fas fa-eye"></i> Details</button>
+                        <button class="btn btn-secondary" onclick="viewStudents(${course.id})"><i class="fas fa-users"></i> Students</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCourses() {
+            const term = document.getElementById('searchCourses').value.toLowerCase();
+            const filtered = courses.filter(c => c.code.toLowerCase().includes(term) || c.name.toLowerCase().includes(term));
+            renderCourses(filtered);
+        }
+
+        window.viewCourseDetails = function(id) { const c = courses.find(c => c.id === id); if (c) alert(`📚 ${c.code} - ${c.name}\n\n${c.description}\nSchedule: ${c.schedule.map(s => `${s.day} ${s.time} - ${s.room}`).join(', ')}`); };
+        window.viewStudents = function(id) { window.location.href = `lecturer-students.html?course=${id}`; };
+        document.getElementById('searchCourses').addEventListener('input', filterCourses);
+        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = 'login.html'; });
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+        loadCourses();
+    </script>
+</body>
+</html>

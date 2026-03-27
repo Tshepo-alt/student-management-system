@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Program Management - Admin | GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header img {
+            height: 60px;
+            width: auto;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu-item i {
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-menu-item:hover,
+        .sidebar-menu-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .top-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: #2d3748;
+        }
+
+        .page-title p {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-header h2 {
+            font-size: 1.2rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(102,126,234,0.3);
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-active {
+            background: #c6f6d5;
+            color: #276749;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+
+        .status-inactive {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .close {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #a0aec0;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar-header h3,
+            .sidebar-menu-item span {
+                display: none;
+            }
+            .sidebar-menu-item i {
+                margin: 0 auto;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <h3>Admin Portal</h3>
+            </div>
+            <div class="sidebar-menu">
+                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
+                <a href="admin-programs.html" class="sidebar-menu-item active"><i class="fas fa-book-open"></i> <span>Programs</span></a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> <span>Modules</span></a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> <span>Accommodation</span></a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1><i class="fas fa-book-open"></i> Program Management</h1>
+                    <p>Manage academic programs, courses, and curriculum</p>
+                </div>
+                <div class="admin-avatar" id="adminAvatar">A</div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-list-ul"></i> Academic Programs</h2>
+                    <button class="btn btn-primary" onclick="openAddProgramModal()"><i class="fas fa-plus"></i> Add New Program</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                             <tr>
+                                <th>ID</th><th>Code</th><th>Program Name</th><th>Duration</th><th>Credits</th><th>Min BGCSE</th><th>Status</th><th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="programsTableBody">
+                            <tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading programs...</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Program Modal -->
+    <div id="addProgramModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addProgramModal')">&times;</span>
+            <h2><i class="fas fa-plus-circle"></i> Add New Program</h2>
+            <form id="addProgramForm">
+                <div class="form-group"><label>Program Code *</label><input type="text" id="programCode" required placeholder="e.g., BSC-CS, BBA-BM"></div>
+                <div class="form-group"><label>Program Name *</label><input type="text" id="programName" required placeholder="e.g., Bachelor of Computer Science"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Duration (Years) *</label><input type="number" id="duration" required min="1" max="5"></div>
+                    <div class="form-group"><label>Total Credits</label><input type="number" id="credits" placeholder="e.g., 480"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Min BGCSE Points</label><input type="number" id="minBgcse" value="32" placeholder="32"></div>
+                    <div class="form-group"><label>Faculty</label><select id="faculty"></select></div>
+                </div>
+                <div class="form-group"><label>Description</label><textarea id="description" rows="3" placeholder="Program description..."></textarea></div>
+                <div class="form-group"><label>Career Opportunities</label><textarea id="careerOpportunities" rows="2" placeholder="Career opportunities for graduates..."></textarea></div>
+                <div class="form-group"><label>Entry Requirements</label><textarea id="entryRequirements" rows="2" placeholder="Entry requirements..."></textarea></div>
+                <div class="form-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Create Program</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Program Modal -->
+    <div id="editProgramModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editProgramModal')">&times;</span>
+            <h2><i class="fas fa-edit"></i> Edit Program</h2>
+            <form id="editProgramForm">
+                <input type="hidden" id="editProgramId">
+                <div class="form-group"><label>Program Code</label><input type="text" id="editProgramCode" required></div>
+                <div class="form-group"><label>Program Name</label><input type="text" id="editProgramName" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Duration (Years)</label><input type="number" id="editDuration" required></div>
+                    <div class="form-group"><label>Total Credits</label><input type="number" id="editCredits"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Min BGCSE Points</label><input type="number" id="editMinBgcse"></div>
+                    <div class="form-group"><label>Faculty</label><select id="editFaculty"></select></div>
+                </div>
+                <div class="form-group"><label>Description</label><textarea id="editDescription" rows="3"></textarea></div>
+                <div class="form-group"><label>Career Opportunities</label><textarea id="editCareerOpportunities" rows="2"></textarea></div>
+                <div class="form-group"><label>Entry Requirements</label><textarea id="editEntryRequirements" rows="2"></textarea></div>
+                <div class="form-group"><label>Status</label><select id="editStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Update Program</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        if (user.role !== 'admin' && user.role !== 'administrator') {
+            window.location.href = 'student-dashboard.html';
+        }
+
+        // Avatar
+        const adminInitial = (user.first_name ? user.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
+        document.getElementById('adminAvatar').textContent = adminInitial;
+
+        // ============================================
+        // GLOBAL DATA
+        // ============================================
+        let programs = [];
+        let faculties = [];
+
+        // ============================================
+        // SAFE API CALL
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // LOAD FACULTIES
+        // ============================================
+        async function loadFaculties() {
+            const response = await safeApiCall('/api/admin/faculties');
+            if (response && response.ok) {
+                faculties = await response.json();
+            } else {
+                faculties = [
+                    { id: 1, faculty_code: 'FICT', faculty_name: 'Faculty of Information & Communication Technology' },
+                    { id: 2, faculty_code: 'FBA', faculty_name: 'Faculty of Business Administration' },
+                    { id: 3, faculty_code: 'FCA', faculty_name: 'Faculty of Commerce & Accounting' }
+                ];
+            }
+
+            const facultySelects = ['faculty', 'editFaculty'];
+            facultySelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = faculties.map(f => `<option value="${f.id}">${escapeHtml(f.faculty_name)}</option>`).join('');
+                }
+            });
+        }
+
+        // ============================================
+        // LOAD PROGRAMS
+        // ============================================
+        async function loadPrograms() {
+            const tbody = document.getElementById('programsTableBody');
+            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading programs...</div></td></tr>';
+
+            const response = await safeApiCall('/api/admin/programs');
+            if (response && response.ok) {
+                programs = await response.json();
+                displayPrograms();
+            } else {
+                // Demo data
+                programs = [
+                    { id: 1, program_code: 'BSC-CS', program_name: 'Bachelor of Computer Science', duration_years: 4, total_credits: 490, min_bgcse_points: 32, description: 'Comprehensive computer science program', career_opportunities: 'Software Developer, IT Consultant', entry_requirements: 'BGCSE with 32 points', is_active: true },
+                    { id: 2, program_code: 'BBA-BM', program_name: 'Bachelor of Business Administration', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Business management program', career_opportunities: 'Business Manager, Consultant', entry_requirements: 'BGCSE with 32 points', is_active: true },
+                    { id: 3, program_code: 'BAF', program_name: 'Bachelor of Accounting and Finance', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Professional accounting program', career_opportunities: 'Accountant, Auditor', entry_requirements: 'BGCSE with 32 points', is_active: true },
+                    { id: 4, program_code: 'DIP-IT', program_name: 'Diploma in Information Technology', duration_years: 3, total_credits: 240, min_bgcse_points: 28, description: 'Practical IT skills', career_opportunities: 'IT Technician, Support Specialist', entry_requirements: 'BGCSE with 28 points', is_active: true }
+                ];
+                displayPrograms();
+            }
+        }
+
+        function displayPrograms() {
+            const tbody = document.getElementById('programsTableBody');
+            if (!programs.length) {
+                tbody.innerHTML = '<tr><td colspan="8">No programs found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = programs.map(p => {
+                const isActive = p.is_active !== false;
+                const code = p.program_code || p.code;
+                const name = p.program_name || p.name;
+                const duration = p.duration_years || p.duration || 3;
+                const credits = p.total_credits || p.credits || 'N/A';
+                const minBgcse = p.min_bgcse_points || p.min_bgcse || 32;
+
+                return `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td><strong>${escapeHtml(code)}</strong></td>
+                        <td>${escapeHtml(name)}</td>
+                        <td>${duration} years</td>
+                        <td>${credits}</td>
+                        <td>${minBgcse}</td>
+                        <td><span class="status-${isActive ? 'active' : 'inactive'}">${isActive ? 'active' : 'inactive'}</span></td>
+                        <td>
+                            <button class="btn btn-warning" onclick="editProgram(${p.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn btn-danger" onclick="deleteProgram(${p.id})"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ============================================
+        // CRUD OPERATIONS
+        // ============================================
+        async function addProgram(programData) {
+            const response = await safeApiCall('/api/admin/programs', {
+                method: 'POST',
+                body: JSON.stringify(programData)
+            });
+            if (response && response.ok) {
+                const newProgram = await response.json();
+                programs.push(newProgram);
+                displayPrograms();
+                alert(`Program "${programData.program_name}" created successfully!`);
+                return true;
+            } else {
+                // Demo mode
+                const newId = programs.length + 1;
+                programs.push({ id: newId, ...programData });
+                displayPrograms();
+                alert(`Program "${programData.program_name}" created successfully! (Demo Mode)`);
+                return true;
+            }
+        }
+
+        async function updateProgram(id, programData) {
+            const response = await safeApiCall(`/api/admin/programs/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(programData)
+            });
+            if (response && response.ok) {
+                const updated = await response.json();
+                const index = programs.findIndex(p => p.id === id);
+                if (index !== -1) programs[index] = updated;
+                displayPrograms();
+                alert('Program updated successfully!');
+                return true;
+            } else {
+                // Demo mode
+                const index = programs.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    programs[index] = { ...programs[index], ...programData };
+                    displayPrograms();
+                    alert('Program updated successfully! (Demo Mode)');
+                }
+                return true;
+            }
+        }
+
+        async function deleteProgram(id) {
+            const program = programs.find(p => p.id === id);
+            if (!program) return;
+            if (!confirm(`Delete "${program.program_name || program.name}"? This will affect enrolled students.`)) return;
+
+            const response = await safeApiCall(`/api/admin/programs/${id}`, { method: 'DELETE' });
+            if (response && response.ok) {
+                programs = programs.filter(p => p.id !== id);
+                displayPrograms();
+                alert('Program deleted successfully!');
+            } else {
+                // Demo mode
+                programs = programs.filter(p => p.id !== id);
+                displayPrograms();
+                alert('Program deleted successfully! (Demo Mode)');
+            }
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function openAddProgramModal() {
+            document.getElementById('addProgramForm').reset();
+            document.getElementById('addProgramModal').style.display = 'flex';
+        }
+
+        function editProgram(id) {
+            const p = programs.find(p => p.id === id);
+            if (p) {
+                document.getElementById('editProgramId').value = p.id;
+                document.getElementById('editProgramCode').value = p.program_code || p.code || '';
+                document.getElementById('editProgramName').value = p.program_name || p.name || '';
+                document.getElementById('editDuration').value = p.duration_years || p.duration || 3;
+                document.getElementById('editCredits').value = p.total_credits || p.credits || '';
+                document.getElementById('editMinBgcse').value = p.min_bgcse_points || p.min_bgcse || 32;
+                document.getElementById('editDescription').value = p.description || '';
+                document.getElementById('editCareerOpportunities').value = p.career_opportunities || '';
+                document.getElementById('editEntryRequirements').value = p.entry_requirements || '';
+                document.getElementById('editStatus').value = p.is_active !== false ? 'active' : 'inactive';
+                if (p.faculty_id) document.getElementById('editFaculty').value = p.faculty_id;
+                document.getElementById('editProgramModal').style.display = 'flex';
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // ============================================
+        // FORM SUBMISSIONS
+        // ============================================
+        document.getElementById('addProgramForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const programData = {
+                program_code: document.getElementById('programCode').value.toUpperCase(),
+                program_name: document.getElementById('programName').value,
+                duration_years: parseInt(document.getElementById('duration').value),
+                total_credits: parseInt(document.getElementById('credits').value) || null,
+                min_bgcse_points: parseInt(document.getElementById('minBgcse').value) || 32,
+                faculty_id: parseInt(document.getElementById('faculty').value) || null,
+                description: document.getElementById('description').value,
+                career_opportunities: document.getElementById('careerOpportunities').value,
+                entry_requirements: document.getElementById('entryRequirements').value,
+                is_active: document.getElementById('status').value === 'active'
+            };
+            await addProgram(programData);
+            closeModal('addProgramModal');
+        });
+
+        document.getElementById('editProgramForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('editProgramId').value);
+            const programData = {
+                program_code: document.getElementById('editProgramCode').value.toUpperCase(),
+                program_name: document.getElementById('editProgramName').value,
+                duration_years: parseInt(document.getElementById('editDuration').value),
+                total_credits: parseInt(document.getElementById('editCredits').value) || null,
+                min_bgcse_points: parseInt(document.getElementById('editMinBgcse').value) || 32,
+                faculty_id: parseInt(document.getElementById('editFaculty').value) || null,
+                description: document.getElementById('editDescription').value,
+                career_opportunities: document.getElementById('editCareerOpportunities').value,
+                entry_requirements: document.getElementById('editEntryRequirements').value,
+                is_active: document.getElementById('editStatus').value === 'active'
+            };
+            await updateProgram(id, programData);
+            closeModal('editProgramModal');
+        });
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // HELPER
+        // ============================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        async function init() {
+            await loadFaculties();
+            await loadPrograms();
+        }
+        init();
+    </script>
+</body>
+</html>

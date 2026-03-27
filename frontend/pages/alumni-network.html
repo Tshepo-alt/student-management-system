@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Alumni Network - GIPS College | Connect & Share</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+
+        /* Network Layout */
+        .network-container {
+            max-width: 1280px;
+            margin: 30px auto;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 25px;
+        }
+
+        @media (max-width: 1024px) {
+            .network-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Left Card (Profile) */
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            position: sticky;
+            top: 100px;
+        }
+
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .profile-title {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            padding: 12px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #718096;
+            text-transform: uppercase;
+        }
+
+        /* Feed Column */
+        .create-post {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .post-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 12px;
+            transition: border 0.2s;
+        }
+
+        .post-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .post-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .post-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .post-author {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .post-time {
+            font-size: 0.7rem;
+            color: #a0aec0;
+        }
+
+        .post-content {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            color: #4a5568;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 24px;
+            padding: 10px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            margin: 12px 0;
+            color: #718096;
+            font-size: 0.85rem;
+        }
+
+        .post-action {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #718096;
+            border-radius: 30px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .post-action:hover {
+            background: #f0f4f8;
+            color: #667eea;
+        }
+
+        .comment-section {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .comment-input input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            font-family: inherit;
+        }
+
+        .comment {
+            background: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin: 6px 0;
+            font-size: 0.85rem;
+        }
+
+        /* Right Card */
+        .connections-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            position: sticky;
+            top: 100px;
+        }
+
+        .connections-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2d3748;
+        }
+
+        .connection-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .connection-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .connection-info {
+            flex: 1;
+        }
+
+        .connection-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .connection-title {
+            font-size: 0.7rem;
+            color: #718096;
+        }
+
+        .connection-action {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .connection-action:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #a0aec0;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #276749;
+            border-left: 4px solid #38a169;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+            .nav-link {
+                padding: 0.4rem 0.8rem;
+            }
+            .profile-card, .connections-card {
+                position: static;
+            }
+            .post-stats {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <span>GIPS Alumni Network</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="alumni-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="alumni-network.html" class="nav-link active"><i class="fas fa-users"></i> Network</a></li>
+                <li><a href="alumni-jobs.html" class="nav-link"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li><a href="alumni-profile.html" class="nav-link"><i class="fas fa-id-card"></i> Profile</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="network-container" id="networkContainer">
+        <!-- Left Sidebar: Profile Card -->
+        <div class="profile-card">
+            <div class="profile-avatar" id="profileAvatar">👤</div>
+            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-title" id="profileTitle"></div>
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-number" id="connectionsCount">0</div>
+                    <div class="stat-label">Connections</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="postsCount">0</div>
+                    <div class="stat-label">Posts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="followersCount">0</div>
+                    <div class="stat-label">Followers</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Feed -->
+        <div class="feed-column">
+            <div class="create-post">
+                <textarea class="post-input" id="postContent" rows="2" placeholder="What's on your mind? Share updates, achievements, or opportunities..."></textarea>
+                <button class="post-btn" onclick="createPost()"><i class="fas fa-paper-plane"></i> Post</button>
+            </div>
+            <div id="feedPosts"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading posts...</div></div>
+        </div>
+
+        <!-- Right Sidebar: Connections & Online -->
+        <div class="connections-card">
+            <h3><i class="fas fa-user-plus"></i> Suggested Connections</h3>
+            <div id="suggestedConnections"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading suggestions...</div></div>
+            <hr>
+            <h3><i class="fas fa-circle"></i> Online Now</h3>
+            <div id="onlineUsers"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div></div>
+            <hr>
+            <button class="post-btn" style="width:100%; margin-top:5px;" onclick="alert('Video call feature coming soon')"><i class="fas fa-video"></i> Start Video Call</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-graduation-cap"></i> Alumni Network | Stay Connected</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        let currentUser = {
+            id: user.id,
+            name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'Alumni',
+            email: user.email,
+            role: user.role
+        };
+
+        // ============================================
+        // SAFE API CALL
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // DEMO DATA
+        // ============================================
+        let posts = [
+            {
+                id: 1,
+                author_name: "Thabo Motsamai",
+                author_avatar: "T",
+                content: "Excited to announce that I've joined TechCorp as a Senior Software Developer!",
+                created_at: new Date(Date.now() - 2 * 24 * 3600000).toISOString(),
+                likes: 24,
+                comments: [
+                    { author_name: "Jane Smith", text: "Congratulations, Thabo!", created_at: new Date().toISOString() }
+                ]
+            },
+            {
+                id: 2,
+                author_name: "Kelebogile Modise",
+                author_avatar: "K",
+                content: "Looking for alumni in the finance sector. Would love to connect!",
+                created_at: new Date(Date.now() - 1 * 24 * 3600000).toISOString(),
+                likes: 12,
+                comments: []
+            }
+        ];
+
+        let connections = [
+            { id: 2, name: "Kelebogile Modise", title: "Financial Analyst", avatar: "K" }
+        ];
+
+        let suggestedUsers = [
+            { id: 3, name: "Onalenna Seth", title: "Data Scientist", avatar: "O" },
+            { id: 4, name: "Mpho Nkosi", title: "Project Manager", avatar: "M" },
+            { id: 5, name: "Boitumelo Dube", title: "Entrepreneur", avatar: "B" }
+        ];
+
+        // ============================================
+        // RENDER FEED
+        // ============================================
+        function renderFeed() {
+            const container = document.getElementById('feedPosts');
+            if (!posts.length) {
+                container.innerHTML = '<div class="loading">No posts yet. Be the first to share something!</div>';
+                return;
+            }
+
+            container.innerHTML = posts.map(post => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">${post.author_avatar || post.author_name.charAt(0)}</div>
+                        <div>
+                            <div class="post-author">${escapeHtml(post.author_name)}</div>
+                            <div class="post-time">${formatTime(post.created_at)}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    <div class="post-stats">
+                        <span><i class="fas fa-heart"></i> ${post.likes} likes</span>
+                        <span><i class="fas fa-comment"></i> ${post.comments?.length || 0} comments</span>
+                    </div>
+                    <div>
+                        <button class="post-action" onclick="likePost(${post.id})"><i class="fas fa-thumbs-up"></i> Like</button>
+                        <button class="post-action" onclick="toggleComments(${post.id})"><i class="fas fa-reply"></i> Comment</button>
+                    </div>
+                    <div id="comments-${post.id}" class="comment-section">
+                        <div class="comment-input">
+                            <input type="text" id="comment-${post.id}" placeholder="Write a comment...">
+                            <button class="post-btn" onclick="addComment(${post.id})"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                        ${post.comments?.map(c => `<div class="comment"><strong>${escapeHtml(c.author_name)}</strong> ${escapeHtml(c.text)}</div>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // CREATE POST
+        // ============================================
+        async function createPost() {
+            const content = document.getElementById('postContent').value.trim();
+            if (!content) {
+                alert('Please write something');
+                return;
+            }
+
+            const newPost = {
+                id: Date.now(),
+                author_name: currentUser.name,
+                author_avatar: currentUser.name.charAt(0),
+                content: content,
+                created_at: new Date().toISOString(),
+                likes: 0,
+                comments: []
+            };
+
+            const response = await safeApiCall('/api/alumni/posts', {
+                method: 'POST',
+                body: JSON.stringify({ content })
+            });
+
+            if (response && response.ok) {
+                const saved = await response.json();
+                posts.unshift(saved);
+                showMessage('Post created!', 'success');
+            } else {
+                posts.unshift(newPost);
+                showMessage('Post created (demo mode)', 'success');
+            }
+
+            document.getElementById('postContent').value = '';
+            renderFeed();
+            updateStats();
+        }
+
+        // ============================================
+        // LIKE POST
+        // ============================================
+        async function likePost(id) {
+            const response = await safeApiCall(`/api/alumni/posts/${id}/like`, { method: 'POST' });
+            if (response && response.ok) {
+                const data = await response.json();
+                const post = posts.find(p => p.id === id);
+                if (post) post.likes = data.likes;
+                renderFeed();
+            } else {
+                const post = posts.find(p => p.id === id);
+                if (post) post.likes = (post.likes || 0) + 1;
+                renderFeed();
+                showMessage('Liked (demo)', 'success');
+            }
+        }
+
+        // ============================================
+        // ADD COMMENT
+        // ============================================
+        async function addComment(id) {
+            const input = document.getElementById(`comment-${id}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const response = await safeApiCall(`/api/alumni/posts/${id}/comments`, {
+                method: 'POST',
+                body: JSON.stringify({ text })
+            });
+
+            if (response && response.ok) {
+                const newComment = await response.json();
+                const post = posts.find(p => p.id === id);
+                if (post) post.comments.push(newComment);
+                renderFeed();
+            } else {
+                const post = posts.find(p => p.id === id);
+                if (post) post.comments.push({ author_name: currentUser.name, text: text });
+                renderFeed();
+                showMessage('Comment added (demo)', 'success');
+            }
+            input.value = '';
+        }
+
+        // ============================================
+        // TOGGLE COMMENTS
+        // ============================================
+        function toggleComments(id) {
+            const el = document.getElementById(`comments-${id}`);
+            if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // ============================================
+        // LOAD PROFILE & STATS
+        // ============================================
+        async function loadProfile() {
+            const response = await safeApiCall('/api/alumni/profile');
+            if (response && response.ok) {
+                const data = await response.json();
+                document.getElementById('profileName').textContent = data.first_name + ' ' + data.last_name || currentUser.name;
+                document.getElementById('profileTitle').textContent = data.job_title ? `${data.job_title} at ${data.company || ''}` : 'Update your profile';
+                document.getElementById('profileAvatar').textContent = (data.first_name?.charAt(0) || currentUser.name.charAt(0)).toUpperCase();
+            } else {
+                document.getElementById('profileName').textContent = currentUser.name;
+                document.getElementById('profileTitle').textContent = 'Alumni Member';
+                document.getElementById('profileAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            }
+        }
+
+        async function updateStats() {
+            const response = await safeApiCall('/api/alumni/stats');
+            if (response && response.ok) {
+                const stats = await response.json();
+                document.getElementById('connectionsCount').textContent = stats.connections || connections.length;
+                document.getElementById('postsCount').textContent = stats.posts || posts.length;
+                document.getElementById('followersCount').textContent = stats.followers || 0;
+            } else {
+                document.getElementById('connectionsCount').textContent = connections.length;
+                document.getElementById('postsCount').textContent = posts.length;
+                document.getElementById('followersCount').textContent = '0';
+            }
+        }
+
+        // ============================================
+        // SUGGESTED CONNECTIONS
+        // ============================================
+        function renderSuggestedConnections() {
+            const container = document.getElementById('suggestedConnections');
+            const existingIds = connections.map(c => c.id);
+            const suggestions = suggestedUsers.filter(u => !existingIds.includes(u.id) && u.id !== currentUser.id);
+
+            if (!suggestions.length) {
+                container.innerHTML = '<p>No suggestions at the moment</p>';
+                return;
+            }
+
+            container.innerHTML = suggestions.map(u => `
+                <div class="connection-item">
+                    <div class="connection-avatar">${u.avatar}</div>
+                    <div class="connection-info">
+                        <div class="connection-name">${escapeHtml(u.name)}</div>
+                        <div class="connection-title">${escapeHtml(u.title || '')}</div>
+                    </div>
+                    <button class="connection-action" onclick="sendRequest(${u.id})"><i class="fas fa-user-plus"></i> Connect</button>
+                </div>
+            `).join('');
+        }
+
+        async function sendRequest(id) {
+            const response = await safeApiCall(`/api/alumni/connect/${id}`, { method: 'POST' });
+            if (response && response.ok) {
+                showMessage('Connection request sent!', 'success');
+                await loadSuggestedConnections();
+                await updateStats();
+            } else {
+                showMessage('Request sent (demo)', 'success');
+                suggestedUsers = suggestedUsers.filter(u => u.id !== id);
+                renderSuggestedConnections();
+                connections.push({ id: id, name: suggestedUsers.find(u => u.id === id)?.name });
+                updateStats();
+            }
+        }
+
+        async function loadSuggestedConnections() {
+            const response = await safeApiCall('/api/alumni/suggestions');
+            if (response && response.ok) {
+                suggestedUsers = await response.json();
+                renderSuggestedConnections();
+            } else {
+                renderSuggestedConnections(); // uses local demo
+            }
+        }
+
+        // ============================================
+        // ONLINE USERS
+        // ============================================
+        async function loadOnlineUsers() {
+            const response = await safeApiCall('/api/alumni/online');
+            if (response && response.ok) {
+                const users = await response.json();
+                const container = document.getElementById('onlineUsers');
+                if (users.length) {
+                    container.innerHTML = users.map(u => `
+                        <div class="connection-item">
+                            <div class="connection-avatar">${u.name.charAt(0)}</div>
+                            <div>${escapeHtml(u.name)}</div>
+                            <span style="color:#38a169;"><i class="fas fa-circle"></i> Online</span>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p>No one online right now</p>';
+                }
+            } else {
+                document.getElementById('onlineUsers').innerHTML = '<p>No users online</p>';
+            }
+        }
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function formatTime(dateStr) {
+            if (!dateStr) return 'Just now';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return `${diff}s ago`;
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            msgDiv.textContent = msg;
+            msgDiv.style.display = 'block';
+            document.querySelector('.feed-column').prepend(msgDiv);
+            setTimeout(() => msgDiv.remove(), 3000);
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        async function init() {
+            await loadProfile();
+            await updateStats();
+            await loadSuggestedConnections();
+            await loadOnlineUsers();
+            renderFeed();
+        }
+        init();
+
+        // Make functions global for onclick
+        window.createPost = createPost;
+        window.likePost = likePost;
+        window.addComment = addComment;
+        window.toggleComments = toggleComments;
+        window.sendRequest = sendRequest;
+    </script>
+</body>
+</html>

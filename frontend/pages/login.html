@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GIPS College Portal</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #5e2a84 0%, #2e1a47 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated bubbles with text */
+        .bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 50%;
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+            white-space: nowrap;
+            animation: floatBubble linear infinite;
+        }
+
+        @keyframes floatBubble {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Welcome overlay (hourglass animation) */
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .hourglass {
+            width: 100px;
+            height: 150px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .hourglass .top, .hourglass .bottom {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+        }
+        .hourglass .top {
+            top: 0;
+            border-bottom: 60px solid #ffd966;
+            animation: sandFall 2s infinite ease-in-out;
+        }
+        .hourglass .bottom {
+            bottom: 0;
+            border-top: 60px solid #ffb347;
+            animation: sandFill 2s infinite ease-in-out;
+        }
+        @keyframes sandFall {
+            0% { opacity: 0.2; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(30px); }
+            100% { opacity: 0.2; transform: translateY(60px); }
+        }
+        @keyframes sandFill {
+            0% { opacity: 0.2; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-30px); }
+            100% { opacity: 0.2; transform: translateY(-60px); }
+        }
+
+        .welcome-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); opacity: 0.7; }
+            to { transform: scale(1.05); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Rest of the existing styles – only colour changes */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #ffb347 0%, #ffd966 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #ffb347;
+        }
+
+        .animated-slogan {
+            background: linear-gradient(135deg, #ffb347 0%, #ffd966 100%);
+            padding: 12px 0;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .slogan-wrapper {
+            display: flex;
+            animation: slideText 20s linear infinite;
+            white-space: nowrap;
+        }
+
+        .slogan-text {
+            display: inline-block;
+            padding: 0 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2e1a47;
+        }
+
+        @keyframes slideText {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .auth-section {
+            min-height: calc(100vh - 200px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 480px;
+            padding: 45px 40px;
+            animation: fadeInUp 0.6s ease-out;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .auth-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-card h2 {
+            text-align: center;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ffb347 0%, #ffd966 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+            text-align: center;
+            width: 100%;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffb34720 0%, #ffd96620 100%);
+            color: #ffb347;
+            transition: all 0.3s;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffb347;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(255, 180, 71, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffb347 0%, #ffd966 100%);
+            color: #2e1a47;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 180, 71, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #2e1a47;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message,
+        .success-message,
+        .info-message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3a6;
+            border-left: 4px solid #3a6;
+        }
+
+        .info-message {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .demo-buttons {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+        }
+
+        .demo-buttons p {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            color: #555;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            font-family: inherit;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .demo-btn.admin i, .demo-btn.staff i, .demo-btn.student i { margin-right: 4px; }
+
+        .footer {
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+            .auth-card {
+                padding: 30px 25px;
+                margin: 0 20px;
+            }
+            .navbar-brand img {
+                height: 40px;
+            }
+            .demo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles" id="bubbles"></div>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="login.html" class="nav-link active">Login</a></li>
+                <li><a href="register.html" class="nav-link">Register</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="animated-slogan">
+        <div class="slogan-wrapper">
+            <div class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to a Higher Education | 35 Years of Excellence | Your Success Starts Here</div>
+            <div class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to a Higher Education | 35 Years of Excellence | Your Success Starts Here</div>
+        </div>
+    </div>
+
+    <section class="auth-section">
+        <div class="container">
+            <div class="auth-card">
+                <h2>Welcome Back!</h2>
+                <div class="role-badge" id="roleBadge"><i class="fas fa-graduation-cap"></i> Student Portal Access</div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> Email / Username</label>
+                        <input type="text" id="email" name="email" required placeholder="Enter your email or username" autocomplete="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Enter your password" autocomplete="current-password">
+                    </div>
+
+                    <button type="submit" id="loginBtn" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
+                </form>
+
+                <div id="loginMessage" class="error-message"></div>
+                <div id="loginSuccessMessage" class="success-message"></div>
+
+                <div class="demo-buttons">
+                    <p><i class="fas fa-key"></i> Quick Login</p>
+                    <div class="demo-grid">
+                        <button type="button" class="demo-btn admin" onclick="fillCredentials('admin@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-user-cog"></i> Admin</button>
+                        <button type="button" class="demo-btn staff" onclick="fillCredentials('registrar@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-address-card"></i> Registrar</button>
+                        <button type="button" class="demo-btn staff" onclick="fillCredentials('finance@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-chart-line"></i> Finance</button>
+                        <button type="button" class="demo-btn staff" onclick="fillCredentials('lecturer@example.com', 'Admin123!')"><i class="fas fa-chalkboard-user"></i> Lecturer</button>
+                        <button type="button" class="demo-btn staff" onclick="fillCredentials('accommodation@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-building"></i> Accommodation</button>
+                        <button type="button" class="demo-btn student" onclick="fillCredentials('student@example.com', 'Student123!')"><i class="fas fa-user-graduate"></i> Student</button>
+                        <button type="button" class="demo-btn student" onclick="fillCredentials('alumni@example.com', 'Student123!')"><i class="fas fa-users"></i> Alumni</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-map-marker-alt"></i> Excellence in Higher Learning | The Ultimate Journey to Higher Education</p>
+        </div>
+    </footer>
+
+    <!-- Welcome Overlay (hourglass animation) -->
+    <div id="welcomeOverlay" class="welcome-overlay">
+        <div class="hourglass">
+            <div class="top"></div>
+            <div class="bottom"></div>
+        </div>
+        <div class="welcome-text" id="welcomeMessage">Welcome!</div>
+    </div>
+
+    <script>
+        // ========== BUBBLES WITH TEXT ==========
+        function createBubbles() {
+            const container = document.getElementById('bubbles');
+            const texts = ["Excellence in Higher Learning", "The Ultimate Journey", "35 Years of Excellence", "Your Success Starts Here"];
+            for (let i = 0; i < 40; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = Math.random() * 100 + 50;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDuration = Math.random() * 12 + 8 + 's';
+                bubble.style.animationDelay = Math.random() * 10 + 's';
+                bubble.style.background = `rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 55}, 0, 0.2)`;
+                bubble.style.borderColor = `rgba(255, ${Math.random() * 100 + 155}, 0, 0.6)`;
+                const text = texts[Math.floor(Math.random() * texts.length)];
+                bubble.innerText = text;
+                container.appendChild(bubble);
+            }
+        }
+
+        // ========== DOM ELEMENTS ==========
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessageDiv = document.getElementById('loginMessage');
+        const successMessageDiv = document.getElementById('loginSuccessMessage');
+        const roleBadge = document.getElementById('roleBadge');
+        const welcomeOverlay = document.getElementById('welcomeOverlay');
+        const welcomeMsgSpan = document.getElementById('welcomeMessage');
+
+        // ========== FILL CREDENTIALS ==========
+        function fillCredentials(email, password) {
+            emailInput.value = email;
+            passwordInput.value = password;
+            updateRoleBadge();
+        }
+
+        // ========== ROLE BADGE DETECTION ==========
+        function updateRoleBadge() {
+            const email = emailInput.value.trim().toLowerCase();
+            if (email.includes('admin')) {
+                roleBadge.innerHTML = '<i class="fas fa-crown"></i> Admin Portal Access';
+                roleBadge.style.background = 'linear-gradient(135deg, #f59e0b20 0%, #ef444420 100%)';
+                roleBadge.style.color = '#f59e0b';
+            } else if (email.includes('registrar')) {
+                roleBadge.innerHTML = '<i class="fas fa-address-card"></i> Registrar Portal Access';
+                roleBadge.style.background = 'linear-gradient(135deg, #3b82f620 0%, #8b5cf620 100%)';
+                roleBadge.style.color = '#3b82f6';
+            } else if (email.includes('finance')) {
+                roleBadge.innerHTML = '<i class="fas fa-chart-line"></i> Finance Portal Access';
+                roleBadge.style.background = 'linear-gradient(135deg, #10b98120 0%, #34d39920 100%)';
+                roleBadge.style.color = '#10b981';
+            } else if (email.includes('accommodation')) {
+                roleBadge.innerHTML = '<i class="fas fa-building"></i> Accommodation Portal Access';
+                roleBadge.style.background = 'linear-gradient(135deg, #8b5cf620 0%, #a855f720 100%)';
+                roleBadge.style.color = '#8b5cf6';
+            } else if (email.includes('lecturer')) {
+                roleBadge.innerHTML = '<i class="fas fa-chalkboard-user"></i> Lecturer Portal Access';
+                roleBadge.style.background = 'linear-gradient(135deg, #3b82f620 0%, #8b5cf620 100%)';
+                roleBadge.style.color = '#3b82f6';
+            } else if (email.includes('alumni')) {
+                roleBadge.innerHTML = '<i class="fas fa-users"></i> Alumni Portal Access';
+                roleBadge.style.background = 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)';
+                roleBadge.style.color = '#667eea';
+            } else if (email.includes('staff')) {
+                roleBadge.innerHTML = '<i class="fas fa-user-tie"></i> Staff Portal Access';
+                roleBadge.style.background = 'linear-gradient(135deg, #3b82f620 0%, #8b5cf620 100%)';
+                roleBadge.style.color = '#3b82f6';
+            } else {
+                roleBadge.innerHTML = '<i class="fas fa-graduation-cap"></i> Student Portal Access';
+                roleBadge.style.background = 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)';
+                roleBadge.style.color = '#667eea';
+            }
+        }
+        emailInput.addEventListener('input', updateRoleBadge);
+
+        // ========== MESSAGE HELPERS ==========
+        function showError(message) {
+            errorMessageDiv.textContent = message;
+            errorMessageDiv.style.display = 'block';
+            successMessageDiv.style.display = 'none';
+            setTimeout(() => errorMessageDiv.style.display = 'none', 5000);
+        }
+
+        function showSuccess(message) {
+            successMessageDiv.textContent = message;
+            successMessageDiv.style.display = 'block';
+            errorMessageDiv.style.display = 'none';
+            setTimeout(() => successMessageDiv.style.display = 'none', 5000);
+        }
+
+        function hideMessages() {
+            errorMessageDiv.style.display = 'none';
+            successMessageDiv.style.display = 'none';
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
+            } else {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            }
+        }
+
+        // ========== API CALL ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        ...options.headers
+                    }
+                });
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ========== ROLE TO REDIRECT MAP ==========
+        function getRedirectUrl(role) {
+            const roleLower = (role || '').toLowerCase();
+            console.log('Redirecting based on role:', roleLower);
+            switch (roleLower) {
+                case 'admin':
+                case 'administrator':
+                    return 'admin-dashboard.html';
+                case 'registrar':
+                    return 'registrar-dashboard.html';
+                case 'finance':
+                    return 'finance-dashboard.html';
+                case 'lecturer':
+                    return 'lecturer-dashboard.html';
+                case 'alumni':
+                    return 'alumni-dashboard.html';
+                case 'staff':
+                    return 'admin-accommodation.html';
+                default:
+                    return 'student-dashboard.html';
+            }
+        }
+
+        // ========== SHOW WELCOME OVERLAY ==========
+        function showWelcomeOverlay(role, name) {
+            let welcomeText = '';
+            switch (role) {
+                case 'admin':
+                case 'administrator':
+                    welcomeText = `Welcome, Administrator ${name}!<br><i class="fas fa-hourglass-half"></i> Redirecting to Admin Portal...`;
+                    break;
+                case 'registrar':
+                    welcomeText = `Welcome, Registrar ${name}!<br><i class="fas fa-hourglass-half"></i> Redirecting to Registrar Portal...`;
+                    break;
+                case 'finance':
+                    welcomeText = `Welcome, Finance Officer ${name}!<br><i class="fas fa-hourglass-half"></i> Redirecting to Finance Portal...`;
+                    break;
+                case 'lecturer':
+                    welcomeText = `Welcome, Lecturer ${name}!<br><i class="fas fa-hourglass-half"></i> Redirecting to Lecturer Portal...`;
+                    break;
+                case 'alumni':
+                    welcomeText = `Welcome back, Alumni ${name}!<br><i class="fas fa-hourglass-half"></i> Redirecting to Alumni Network...`;
+                    break;
+                case 'staff':
+                    welcomeText = `Welcome, Staff ${name}!<br><i class="fas fa-hourglass-half"></i> Redirecting to Staff Portal...`;
+                    break;
+                default:
+                    welcomeText = `Welcome to Student Portal, ${name}!<br><i class="fas fa-hourglass-half"></i> Redirecting to Dashboard...`;
+            }
+            welcomeMsgSpan.innerHTML = welcomeText;
+            welcomeOverlay.style.display = 'flex';
+            setTimeout(() => {
+                welcomeOverlay.style.display = 'none';
+            }, 2000);
+        }
+
+        // ========== LOGIN HANDLER ==========
+        async function handleLogin(email, password) {
+            try {
+                const response = await safeApiCall('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                if (!response) throw new Error('Network error - Server may be offline');
+
+                const data = await response.json();
+                if (response.ok && data.access_token) {
+                    // Store tokens and user data
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                    localStorage.setItem('token_expiry', Date.now() + 3600000);
+
+                    const userData = data.user;
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('user_id', userData.id);
+                    localStorage.setItem('user_email', userData.email);
+                    localStorage.setItem('user_role', userData.role);
+                    const fullName = userData.first_name && userData.last_name ? `${userData.first_name} ${userData.last_name}` : (userData.username || userData.email);
+                    localStorage.setItem('user_name', fullName);
+
+                    // Extra fields
+                    if (userData.student_number) localStorage.setItem('student_number', userData.student_number);
+                    if (userData.is_government_sponsored !== undefined) localStorage.setItem('is_government_sponsored', userData.is_government_sponsored);
+                    if (userData.campus_id) localStorage.setItem('campus_id', userData.campus_id);
+                    if (userData.wants_accommodation !== undefined) localStorage.setItem('wants_accommodation', userData.wants_accommodation);
+
+                    console.log('✅ Login successful!', userData);
+                    console.log('Role from server:', userData.role);
+
+                    const redirectUrl = getRedirectUrl(userData.role);
+                    console.log('Redirecting to:', redirectUrl);
+
+                    // Show welcome overlay with hourglass animation
+                    showWelcomeOverlay(userData.role, fullName);
+
+                    // Delay redirect to let overlay show
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 2200);
+                    return true;
+                } else {
+                    let errorMsg = 'Invalid email or password. Please try again.';
+                    if (response.status === 401) errorMsg = 'Invalid email or password.';
+                    else if (response.status === 403) errorMsg = 'Account is disabled. Contact IT.';
+                    else if (response.status === 404) errorMsg = 'User not found. Register first.';
+                    else if (data.error) errorMsg = data.error;
+                    else if (data.message) errorMsg = data.message;
+                    showError(errorMsg);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                let msg = 'Network error. Check connection.';
+                if (error.message === 'Failed to fetch') msg = 'Cannot connect to server. Ensure backend is running on http://localhost:5000';
+                showError(msg);
+                return false;
+            }
+        }
+
+        // ========== FORM SUBMIT ==========
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            if (!email) { showError('Please enter your email or username.'); emailInput.focus(); return; }
+            if (!password) { showError('Please enter your password.'); passwordInput.focus(); return; }
+            hideMessages();
+            setLoading(true);
+            await handleLogin(email, password);
+            setLoading(false);
+        });
+
+        // ========== ENTER KEY SUPPORT ==========
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginForm.dispatchEvent(new Event('submit'));
+        });
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginForm.dispatchEvent(new Event('submit'));
+        });
+
+        // ========== CHECK EXISTING SESSION ==========
+        function checkExistingSession() {
+            const token = localStorage.getItem('access_token');
+            const expiry = localStorage.getItem('token_expiry');
+            const isLogged = localStorage.getItem('isLoggedIn');
+            const role = localStorage.getItem('user_role');
+            if (token && isLogged === 'true' && Date.now() < parseInt(expiry || '0')) {
+                const redirectUrl = getRedirectUrl(role);
+                console.log('Existing session found, redirecting to:', redirectUrl);
+                window.location.href = redirectUrl;
+            } else if (token && Date.now() >= parseInt(expiry || '0')) {
+                console.log('Token expired, clearing storage');
+                localStorage.clear();
+            }
+        }
+
+        // ========== INIT ==========
+        function init() {
+            createBubbles();
+            updateRoleBadge();
+            checkExistingSession();
+            window.fillCredentials = fillCredentials;
+            console.log('✅ Login page ready – click demo buttons to fill credentials.');
+        }
+        init();
+    </script>
+</body>
+</html>

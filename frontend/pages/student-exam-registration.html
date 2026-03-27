@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Exam Registration - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation (consistent) */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 30px 40px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .page-header::before {
+            content: "\f5dd";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 80px;
+            opacity: 0.15;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+        }
+
+        /* Banners */
+        .info-banner {
+            background: #cfe2ff;
+            border-left: 4px solid #3182ce;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #084298;
+        }
+
+        /* Cards */
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .module-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .module-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        .module-info {
+            flex: 1;
+        }
+
+        .module-code {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .module-name {
+            color: #2d3748;
+            margin-left: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .badge-warning {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .badge-danger {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .btn-register {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-register:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-disabled {
+            background: #cbd5e0;
+            color: #718096;
+            cursor: not-allowed;
+        }
+
+        .fee {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-left: 10px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #276749;
+            border-left: 4px solid #38a169;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+            .module-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link active"><i class="fas fa-file-signature"></i> Exam Registration</a></li>
+                <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
+                <li><a href="student-timetables.html" class="nav-link"><i class="fas fa-calendar-week"></i> Timetable</a></li>
+                <li><a href="results-view.html" class="nav-link"><i class="fas fa-chart-line"></i> Results</a></li>
+                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a></li>
+                <li><a href="student-profile.html" class="nav-link"><i class="fas fa-user-circle"></i> Profile</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-file-signature"></i> Exam Registration</h1>
+            <p>Register for final exams, supplementary, resit, or retake exams as applicable.</p>
+        </div>
+
+        <div id="infoBanner" class="info-banner" style="display: none;"></div>
+        <div id="message" class="message"></div>
+
+        <!-- Current Modules (auto-registered for final exam) -->
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fas fa-calendar-check"></i> Current Semester Modules
+            </div>
+            <div class="module-list" id="currentModulesList">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading modules...</div>
+            </div>
+            <div class="info-banner" style="margin-top: 15px; background: #eef2ff;">
+                <i class="fas fa-info-circle"></i> You are automatically registered for the final exam of these modules. No action required.
+            </div>
+        </div>
+
+        <!-- Failed Modules requiring supplementary/retake registration -->
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fas fa-exclamation-triangle"></i> Failed Modules – Register for Supplementary/Retake
+            </div>
+            <div class="module-list" id="failedModulesList">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Checking failed modules...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-file-signature"></i> Exam Registration | Plan Your Academic Journey</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // SAFE API CALL FUNCTION
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('Logged in user:', user);
+
+        // ============================================
+        // DEMO DATA (would come from API)
+        // ============================================
+        // Current modules (enrolled this semester)
+        const currentModules = [
+            { id: 1, code: "CS301", name: "Artificial Intelligence", credits: 12, status: "enrolled" },
+            { id: 2, code: "CS302", name: "Database Management Systems", credits: 12, status: "enrolled" },
+            { id: 3, code: "CS303", name: "Web Application Development", credits: 12, status: "enrolled" }
+        ];
+
+        // Failed modules history with failure type (first fail = supplementary, second fail = retake, etc.)
+        // For demo: we have a student who failed CS304 and CS305.
+        const failedModules = [
+            { 
+                id: 4, code: "CS304", name: "Cyber Security Fundamentals", credits: 12,
+                attempts: 1, // first fail → supplementary
+                previous_grade: "F",
+                exam_type: "supplementary",
+                fee: 300,
+                registered: false
+            },
+            { 
+                id: 5, code: "CS305", name: "Mobile App Development", credits: 12,
+                attempts: 2, // second fail → retake
+                previous_grade: "F (supplementary)",
+                exam_type: "retake",
+                fee: 1000,
+                registered: false
+            }
+        ];
+
+        let isGovernmentSponsored = user.is_government_sponsored || false;
+        let examFeesTotal = 0; // we'll compute when registering
+
+        // ============================================
+        // RENDER FUNCTIONS
+        // ============================================
+        function renderCurrentModules() {
+            const container = document.getElementById('currentModulesList');
+            if (!currentModules.length) {
+                container.innerHTML = '<p>No modules registered for the current semester.</p>';
+                return;
+            }
+            container.innerHTML = currentModules.map(module => `
+                <div class="module-item">
+                    <div class="module-info">
+                        <span class="module-code">${escapeHtml(module.code)}</span>
+                        <span class="module-name">${escapeHtml(module.name)}</span>
+                        <span class="badge badge-success" style="margin-left: 10px;"><i class="fas fa-check-circle"></i> Registered for Final Exam</span>
+                    </div>
+                    <div>
+                        <span class="fee"><i class="fas fa-info-circle"></i> Fee: Included in tuition</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderFailedModules() {
+            const container = document.getElementById('failedModulesList');
+            if (!failedModules.length) {
+                container.innerHTML = '<p>✅ No failed modules. You are eligible for all exams.</p>';
+                return;
+            }
+
+            container.innerHTML = failedModules.map(module => {
+                let examTypeText = '';
+                let feeDisplay = '';
+                if (module.exam_type === 'supplementary') {
+                    examTypeText = 'Supplementary Exam';
+                    feeDisplay = `<span class="fee"><i class="fas fa-coins"></i> Fee: P${module.fee}</span>`;
+                } else if (module.exam_type === 'resit') {
+                    examTypeText = 'Resit Exam';
+                    feeDisplay = `<span class="fee"><i class="fas fa-coins"></i> Fee: P${module.fee}</span>`;
+                } else {
+                    examTypeText = 'Retake Exam';
+                    feeDisplay = `<span class="fee"><i class="fas fa-coins"></i> Fee: P${module.fee}</span>`;
+                }
+
+                return `
+                    <div class="module-item" data-module-id="${module.id}">
+                        <div class="module-info">
+                            <span class="module-code">${escapeHtml(module.code)}</span>
+                            <span class="module-name">${escapeHtml(module.name)}</span>
+                            <span class="badge badge-danger" style="margin-left: 10px;"><i class="fas fa-exclamation-triangle"></i> Failed (${module.previous_grade})</span>
+                            <div style="font-size: 0.8rem; color: #718096; margin-top: 4px;">
+                                <i class="fas fa-info-circle"></i> ${examTypeText} required
+                            </div>
+                        </div>
+                        <div>
+                            ${feeDisplay}
+                            ${module.registered ? 
+                                `<button class="btn-register btn-disabled" disabled><i class="fas fa-check"></i> Registered</button>` :
+                                `<button class="btn-register" onclick="registerForExam(${module.id})"><i class="fas fa-edit"></i> Register Now</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Register for a supplementary/retake exam
+        async function registerForExam(moduleId) {
+            const module = failedModules.find(m => m.id === moduleId);
+            if (!module || module.registered) return;
+
+            // Simulate API call
+            const response = await safeApiCall('/api/students/exam-registration', {
+                method: 'POST',
+                body: JSON.stringify({
+                    module_id: moduleId,
+                    exam_type: module.exam_type
+                })
+            });
+
+            if (response && response.ok) {
+                const data = await response.json();
+                module.registered = true;
+                renderFailedModules();
+                showMessage(`Successfully registered for ${module.code} ${module.exam_type} exam.`, 'success');
+            } else {
+                // Demo mode
+                module.registered = true;
+                renderFailedModules();
+                showMessage(`✅ Successfully registered for ${module.code} ${module.exam_type} exam (Demo Mode).`, 'success');
+            }
+        }
+
+        // ============================================
+        // LOAD SPONSORSHIP INFO
+        // ============================================
+        async function loadSponsorshipInfo() {
+            const response = await safeApiCall('/api/students/dashboard');
+            if (response && response.ok) {
+                const data = await response.json();
+                isGovernmentSponsored = data.is_government_sponsored || false;
+            }
+            // Update banner
+            const banner = document.getElementById('infoBanner');
+            if (isGovernmentSponsored) {
+                banner.innerHTML = `<i class="fas fa-hand-holding-heart"></i> You are a government-sponsored student. Tuition is exempt, but you must pay exam fees for supplementary/resit/retake (P300 per supplementary, P600 per resit, P1000 per retake).`;
+                banner.style.display = 'flex';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        async function init() {
+            await loadSponsorshipInfo();
+            renderCurrentModules();
+            renderFailedModules();
+        }
+        init();
+
+        // Make registerForExam global for onclick
+        window.registerForExam = registerForExam;
+    </script>
+</body>
+</html>

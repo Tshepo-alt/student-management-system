@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Dashboard - GIPS College</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated bubbles */
+        .bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(255, 180, 71, 0.3);
+            border-radius: 50%;
+            backdrop-filter: blur(1px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(102, 126, 234, 0.4);
+            white-space: nowrap;
+            animation: floatBubble linear infinite;
+        }
+
+        @keyframes floatBubble {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            20% { opacity: 0.4; }
+            80% { opacity: 0.4; }
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 35px 40px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-header::before {
+            content: "\f19d";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 100px;
+            opacity: 0.15;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            border: 1px solid rgba(102,126,234,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 35px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+        }
+
+        .action-btn {
+            padding: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .action-btn i {
+            font-size: 1.2rem;
+            color: #667eea;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+        }
+
+        .action-btn:hover i {
+            color: white;
+        }
+
+        /* Course Grid */
+        .courses-section {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 35px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .courses-section h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 18px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .course-card:hover {
+            transform: translateX(5px);
+            background: white;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+        }
+
+        .course-code {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .course-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 10px 0;
+            color: #2d3748;
+        }
+
+        .course-details {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .course-details span i {
+            margin-right: 6px;
+            color: #667eea;
+        }
+
+        /* Assignments Section */
+        .assignments-section {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 35px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .assignments-section h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .assignment-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .assignment-card {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 18px;
+            border-left: 4px solid #f59e0b;
+            transition: all 0.3s;
+        }
+
+        .assignment-card:hover {
+            transform: translateX(5px);
+            background: white;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+        }
+
+        .assignment-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .assignment-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        .assignment-meta i {
+            width: 20px;
+            color: #f59e0b;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 14px;
+            width: 100%;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-sm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(102,126,234,0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .course-grid, .assignment-list {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles" id="bubbles"></div>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="lecturer-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="lecturer-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a></li>
+                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="lecturer-grades.html" class="nav-link"><i class="fas fa-graduation-cap"></i> Grading</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-chalkboard-user"></i> Welcome, <span id="lecturerName">Lecturer</span>!</h1>
+            <p><i class="fas fa-chart-line"></i> Manage your courses, assignments, and student submissions.</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-book"></i></div>
+                <div class="stat-number" id="courseCount">--</div>
+                <div class="stat-label">Active Courses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="stat-number" id="assignmentCount">--</div>
+                <div class="stat-label">Open Assignments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-number" id="pendingSubmissions">--</div>
+                <div class="stat-label">Pending Submissions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-number" id="studentCount">--</div>
+                <div class="stat-label">Enrolled Students</div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="lecturer-assignments.html?action=create" class="action-btn"><i class="fas fa-plus-circle"></i> Create Assignment</a>
+                <a href="lecturer-grades.html" class="action-btn"><i class="fas fa-edit"></i> Grade Submissions</a>
+                <a href="lecturer-students.html" class="action-btn"><i class="fas fa-users-viewfinder"></i> View Students</a>
+                <a href="lecturer-courses.html" class="action-btn"><i class="fas fa-folder-open"></i> Course Materials</a>
+            </div>
+        </div>
+
+        <div class="courses-section">
+            <h3><i class="fas fa-chalkboard"></i> My Courses</h3>
+            <div id="coursesList" class="course-grid">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading courses...</div>
+            </div>
+        </div>
+
+        <div class="assignments-section">
+            <h3><i class="fas fa-list-ul"></i> Recent Assignments</h3>
+            <div id="assignmentsList" class="assignment-list">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading assignments...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-graduation-cap"></i> Lecturer Portal | Empowering Education</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // BUBBLES WITH TEXT
+        // ============================================
+        function createBubbles() {
+            const container = document.getElementById('bubbles');
+            const texts = ["Excellence in Higher Learning", "The Ultimate Journey", "35 Years of Excellence", "Your Success Starts Here"];
+            for (let i = 0; i < 30; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = Math.random() * 120 + 60;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDuration = Math.random() * 14 + 8 + 's';
+                bubble.style.animationDelay = Math.random() * 12 + 's';
+                bubble.style.fontSize = (size * 0.12) + 'px';
+                bubble.innerText = texts[Math.floor(Math.random() * texts.length)];
+                container.appendChild(bubble);
+            }
+        }
+
+        // ============================================
+        // AUTHENTICATION & ROLE CHECK
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        if (user.role !== 'lecturer') {
+            const redirectMap = {
+                'admin': 'admin-dashboard.html',
+                'administrator': 'admin-dashboard.html',
+                'student': 'student-dashboard.html',
+                'staff': 'staff-dashboard.html',
+                'finance': 'finance-dashboard.html',
+                'registrar': 'registrar-dashboard.html'
+            };
+            window.location.href = redirectMap[user.role] || 'student-dashboard.html';
+        }
+
+        // Set lecturer name
+        const lecturerNameSpan = document.getElementById('lecturerName');
+        if (lecturerNameSpan) {
+            lecturerNameSpan.textContent = user.first_name || user.username || 'Lecturer';
+        }
+
+        // Logo fallback
+        const logoImage = document.getElementById('logoImage');
+        if (logoImage) {
+            logoImage.onerror = function() { this.style.display = 'none'; };
+        }
+
+        // ============================================
+        // DEMO DATA (Replace with API calls)
+        // ============================================
+        const demoCourses = [
+            { id: 1, code: 'CS101', name: 'Introduction to Programming', students: 35, semester: 'Semester 1' },
+            { id: 2, code: 'CS201', name: 'Database Systems', students: 28, semester: 'Semester 1' },
+            { id: 3, code: 'CS301', name: 'Web Development', students: 32, semester: 'Semester 2' }
+        ];
+
+        const demoAssignments = [
+            { id: 1, title: 'Programming Assignment 1', course: 'CS101', due: '2026-04-15', submissions: 12, total: 35 },
+            { id: 2, title: 'Database Design Project', course: 'CS201', due: '2026-04-20', submissions: 8, total: 28 },
+            { id: 3, title: 'JavaScript Quiz', course: 'CS301', due: '2026-04-10', submissions: 25, total: 32 }
+        ];
+
+        // ============================================
+        // LOAD STATS
+        // ============================================
+        function loadStats() {
+            document.getElementById('courseCount').textContent = demoCourses.length;
+            document.getElementById('assignmentCount').textContent = demoAssignments.length;
+            const pending = demoAssignments.reduce((sum, a) => sum + (a.total - a.submissions), 0);
+            document.getElementById('pendingSubmissions').textContent = pending;
+            const totalStudents = demoCourses.reduce((sum, c) => sum + c.students, 0);
+            document.getElementById('studentCount').textContent = totalStudents;
+        }
+
+        // ============================================
+        // LOAD COURSES
+        // ============================================
+        function loadCourses() {
+            const container = document.getElementById('coursesList');
+            if (!demoCourses.length) {
+                container.innerHTML = '<div class="course-card"><i class="fas fa-info-circle"></i> No courses assigned.</div>';
+                return;
+            }
+            container.innerHTML = demoCourses.map(course => `
+                <div class="course-card">
+                    <div class="course-code">${course.code}</div>
+                    <div class="course-name">${course.name}</div>
+                    <div class="course-details">
+                        <span><i class="fas fa-user-graduate"></i> ${course.students} students</span>
+                        <span><i class="fas fa-calendar-alt"></i> ${course.semester}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // LOAD ASSIGNMENTS
+        // ============================================
+        function loadAssignments() {
+            const container = document.getElementById('assignmentsList');
+            if (!demoAssignments.length) {
+                container.innerHTML = '<div class="assignment-card"><i class="fas fa-info-circle"></i> No assignments created.</div>';
+                return;
+            }
+            container.innerHTML = demoAssignments.map(assignment => `
+                <div class="assignment-card">
+                    <div class="assignment-title">${assignment.title}</div>
+                    <div class="assignment-meta">
+                        <div><i class="fas fa-chalkboard"></i> ${assignment.course}</div>
+                        <div><i class="fas fa-calendar-day"></i> Due: ${assignment.due}</div>
+                        <div><i class="fas fa-file-upload"></i> Submissions: ${assignment.submissions}/${assignment.total}</div>
+                    </div>
+                    <button class="btn-sm" onclick="viewAssignment(${assignment.id})"><i class="fas fa-eye"></i> View Details</button>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // VIEW ASSIGNMENT (placeholder)
+        // ============================================
+        window.viewAssignment = function(id) {
+            alert(`📌 View assignment details for ID ${id}.\n\nThis will integrate with the backend.`);
+        };
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // WELCOME OVERLAY (optional hourglass)
+        // ============================================
+        function showWelcomeOverlay() {
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            overlay.style.backdropFilter = 'blur(8px)';
+            overlay.style.zIndex = '2000';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.flexDirection = 'column';
+            overlay.style.animation = 'fadeIn 0.5s ease';
+            overlay.innerHTML = `
+                <div class="hourglass" style="width: 80px; height: 120px; position: relative; margin-bottom: 30px;">
+                    <div style="position: absolute; width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 48px solid #ffd966; top: 0; animation: sandFall 2s infinite;"></div>
+                    <div style="position: absolute; width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-top: 48px solid #ffb347; bottom: 0; animation: sandFill 2s infinite;"></div>
+                </div>
+                <div style="color: white; font-size: 1.5rem; text-align: center;" id="welcomeMsg">Welcome back, Lecturer!</div>
+            `;
+            document.body.appendChild(overlay);
+            setTimeout(() => {
+                overlay.remove();
+            }, 2000);
+        }
+
+        // Check if this is the first visit (could store a flag in localStorage)
+        const hasSeenWelcome = localStorage.getItem('lecturer_welcome_shown');
+        if (!hasSeenWelcome) {
+            showWelcomeOverlay();
+            localStorage.setItem('lecturer_welcome_shown', 'true');
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        createBubbles();
+        loadStats();
+        loadCourses();
+        loadAssignments();
+
+        console.log('✅ Lecturer Dashboard loaded – Role verified.');
+    </script>
+</body>
+</html>

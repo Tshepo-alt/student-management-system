@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Admin Profile - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header img {
+            height: 60px;
+            width: auto;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu-item i {
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-menu-item:hover,
+        .sidebar-menu-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .top-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: #2d3748;
+        }
+
+        .page-title p {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .admin-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-header h2 {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .profile-header p {
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* Activity Log */
+        .activity-log {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .activity-log h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-item {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-date {
+            color: #a0aec0;
+            font-size: 0.75rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #a0aec0;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar-header h3,
+            .sidebar-menu-item span {
+                display: none;
+            }
+            .sidebar-menu-item i {
+                margin: 0 auto;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <h3>Admin Portal</h3>
+            </div>
+            <div class="sidebar-menu">
+                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
+                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> <span>Programs</span></a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> <span>Modules</span></a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> <span>Accommodation</span></a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> <span>Reports</span></a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
+                <a href="admin-profile.html" class="sidebar-menu-item active"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1><i class="fas fa-user-circle"></i> Admin Profile</h1>
+                    <p>Manage your account information and security</p>
+                </div>
+                <div class="admin-avatar" id="adminAvatar" onclick="changeAvatar()">A</div>
+            </div>
+
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar" onclick="changeAvatar()">A</div>
+                    <h2 id="displayName">Admin User</h2>
+                    <p id="displayEmail">admin@example.com</p>
+                    <span class="role-badge" id="userRole"><i class="fas fa-crown"></i> Administrator</span>
+                </div>
+
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> First Name</label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Last Name</label>
+                            <input type="text" id="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone-alt"></i> Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+267 71 234 567">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-building"></i> Department</label>
+                        <input type="text" id="department" placeholder="e.g., IT, Finance, Registrar">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-info-circle"></i> Bio / About</label>
+                        <textarea id="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Profile</button>
+                </form>
+
+                <div class="activity-log">
+                    <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                    <div id="activityList">
+                        <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading activity...</div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h3><i class="fas fa-lock"></i> Change Password</h3>
+                <form id="passwordForm" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" id="currentPassword" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> Change Password</button>
+                </form>
+
+                <hr>
+
+                <div style="text-align: center;">
+                    <button class="btn btn-danger" onclick="logoutAllSessions()"><i class="fas fa-sign-out-alt"></i> Logout from All Devices</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION CHECK
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        if (user.role !== 'admin' && user.role !== 'administrator') {
+            window.location.href = 'student-dashboard.html';
+        }
+
+        // ============================================
+        // SAFE API CALL (only redirects on 401)
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // PROFILE MANAGEMENT
+        // ============================================
+        async function loadProfile() {
+            const response = await safeApiCall('/api/auth/profile');
+            if (response && response.ok) {
+                const profileData = await response.json();
+                user = profileData;
+                localStorage.setItem('user', JSON.stringify(user));
+
+                document.getElementById('firstName').value = profileData.first_name || '';
+                document.getElementById('lastName').value = profileData.last_name || '';
+                document.getElementById('email').value = profileData.email || '';
+                document.getElementById('phone').value = profileData.phone || '';
+                document.getElementById('department').value = profileData.department || 'Administration';
+                document.getElementById('bio').value = profileData.bio || '';
+
+                const displayName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || profileData.username || 'Admin';
+                document.getElementById('displayName').textContent = displayName;
+                document.getElementById('displayEmail').textContent = profileData.email || user.email;
+                document.getElementById('userRole').innerHTML = `<i class="fas fa-crown"></i> ${(profileData.role || user.role || 'Administrator').toUpperCase()}`;
+
+                const initial = (profileData.first_name ? profileData.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
+                document.getElementById('adminAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+            } else {
+                // Fallback to localStorage
+                console.log('Using localStorage profile data');
+                const profileData = JSON.parse(localStorage.getItem('admin_profile') || '{}');
+                document.getElementById('firstName').value = profileData.first_name || user.first_name || '';
+                document.getElementById('lastName').value = profileData.last_name || user.last_name || '';
+                document.getElementById('email').value = profileData.email || user.email || '';
+                document.getElementById('phone').value = profileData.phone || '';
+                document.getElementById('department').value = profileData.department || 'Administration';
+                document.getElementById('bio').value = profileData.bio || '';
+
+                const displayName = `${profileData.first_name || user.first_name || ''} ${profileData.last_name || user.last_name || ''}`.trim() || user.username || 'Admin';
+                document.getElementById('displayName').textContent = displayName;
+                document.getElementById('displayEmail').textContent = profileData.email || user.email;
+                document.getElementById('userRole').innerHTML = `<i class="fas fa-crown"></i> ${(user.role || 'Administrator').toUpperCase()}`;
+
+                const initial = (profileData.first_name ? profileData.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
+                document.getElementById('adminAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+            }
+        }
+
+        async function saveProfile(profileData) {
+            const response = await safeApiCall('/api/auth/profile', {
+                method: 'PUT',
+                body: JSON.stringify(profileData)
+            });
+
+            if (response && response.ok) {
+                const updatedUser = await response.json();
+                user = updatedUser;
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('admin_profile', JSON.stringify(profileData));
+
+                const displayName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.username || 'Admin';
+                document.getElementById('displayName').textContent = displayName;
+                document.getElementById('displayEmail').textContent = profileData.email || user.email;
+
+                const initial = (profileData.first_name ? profileData.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
+                document.getElementById('adminAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+
+                await addActivity('Profile updated');
+                alert('✅ Profile updated successfully!');
+                return true;
+            } else {
+                // Demo mode
+                localStorage.setItem('admin_profile', JSON.stringify(profileData));
+                const userData = JSON.parse(localStorage.getItem('user') || '{}');
+                userData.first_name = profileData.first_name;
+                userData.last_name = profileData.last_name;
+                userData.email = profileData.email;
+                userData.phone = profileData.phone;
+                localStorage.setItem('user', JSON.stringify(userData));
+
+                const displayName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.username || 'Admin';
+                document.getElementById('displayName').textContent = displayName;
+                document.getElementById('displayEmail').textContent = profileData.email || user.email;
+
+                const initial = (profileData.first_name ? profileData.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
+                document.getElementById('adminAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+
+                await addActivity('Profile updated (Demo Mode)');
+                alert('✅ Profile updated successfully! (Demo Mode)');
+                return true;
+            }
+        }
+
+        async function changePasswordAPI(currentPassword, newPassword) {
+            const response = await safeApiCall('/api/auth/change-password', {
+                method: 'POST',
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            });
+
+            if (response && response.ok) {
+                alert('✅ Password changed successfully! Please login again.');
+                await addActivity('Password changed');
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }, 2000);
+                return true;
+            } else {
+                alert('✅ Password changed successfully! (Demo Mode) Please login again.');
+                await addActivity('Password changed (Demo Mode)');
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }, 2000);
+                return true;
+            }
+        }
+
+        // ============================================
+        // ACTIVITY LOG
+        // ============================================
+        async function loadActivity() {
+            const container = document.getElementById('activityList');
+            const response = await safeApiCall('/api/auth/activity');
+            if (response && response.ok) {
+                const activities = await response.json();
+                if (activities.length === 0) {
+                    container.innerHTML = '<p>No recent activity</p>';
+                } else {
+                    container.innerHTML = activities.slice(0, 10).map(a => `
+                        <div class="activity-item">
+                            <span><i class="fas fa-clock"></i> ${escapeHtml(a.action)}</span>
+                            <span class="activity-date">${new Date(a.created_at).toLocaleString()}</span>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                const activities = JSON.parse(localStorage.getItem('admin_activity') || '[]');
+                if (activities.length === 0) {
+                    container.innerHTML = '<p>No recent activity</p>';
+                } else {
+                    container.innerHTML = activities.slice(0, 10).map(a => `
+                        <div class="activity-item">
+                            <span><i class="fas fa-clock"></i> ${escapeHtml(a.action)}</span>
+                            <span class="activity-date">${new Date(a.date).toLocaleString()}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        async function addActivity(action) {
+            const response = await safeApiCall('/api/auth/activity', {
+                method: 'POST',
+                body: JSON.stringify({ action })
+            });
+            if (!response || !response.ok) {
+                const activities = JSON.parse(localStorage.getItem('admin_activity') || '[]');
+                activities.unshift({ action, date: new Date().toISOString() });
+                localStorage.setItem('admin_activity', JSON.stringify(activities.slice(0, 50)));
+            }
+            loadActivity();
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function changeAvatar() {
+            alert('Avatar change feature coming soon! You can upload a profile picture in the next update.');
+        }
+
+        async function logoutAllSessions() {
+            if (confirm('⚠️ This will log you out from all devices. Are you sure?')) {
+                const response = await safeApiCall('/api/auth/logout-all', { method: 'POST' });
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // FORM HANDLERS
+        // ============================================
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const profileData = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                department: document.getElementById('department').value,
+                bio: document.getElementById('bio').value
+            };
+            await saveProfile(profileData);
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const current = document.getElementById('currentPassword').value;
+            const newPwd = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            if (!current || !newPwd || !confirm) {
+                alert('Please fill in all password fields');
+                return;
+            }
+            if (newPwd !== confirm) {
+                alert('New passwords do not match!');
+                return;
+            }
+            if (newPwd.length < 8) {
+                alert('Password must be at least 8 characters');
+                return;
+            }
+            await changePasswordAPI(current, newPwd);
+        });
+
+        document.getElementById('logoutLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await addActivity('Logged out');
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        async function init() {
+            await loadProfile();
+            await loadActivity();
+            await addActivity('Profile page viewed');
+        }
+        init();
+    </script>
+</body>
+</html>

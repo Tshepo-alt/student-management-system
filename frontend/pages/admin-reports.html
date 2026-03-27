@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Admin Wrapper */
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header img {
+            height: 60px;
+            width: auto;
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-header img:hover {
+            transform: scale(1.05);
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-menu-item i {
+            width: 20px;
+            font-size: 1rem;
+        }
+
+        .sidebar-menu-item:hover,
+        .sidebar-menu-item.active {
+            background: rgba(102,126,234,0.2);
+            color: white;
+            border-left: 3px solid #667eea;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title p {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Date Range */
+        .date-range {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .date-range input {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .date-range input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+
+        /* Report Grid */
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .report-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .report-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .report-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .report-desc {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+
+        /* Report Preview */
+        .report-preview {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        /* Status Message */
+        .status-message {
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .error-badge {
+            background: #ffc107;
+            color: #2d3748;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar-header h3,
+            .sidebar-menu-item span {
+                display: none;
+            }
+            .sidebar-menu-item i {
+                margin: 0;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <h3 id="portalTitle">Admin Portal</h3>
+            </div>
+            <div class="sidebar-menu" id="sidebarMenu">
+                <!-- Links will be populated dynamically by JavaScript -->
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1><i class="fas fa-chart-bar"></i> Reports & Analytics</h1>
+                    <p>Generate comprehensive reports and insights</p>
+                </div>
+                <div class="admin-avatar" id="adminAvatar">A</div>
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <!-- Date Range Selector -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-calendar-alt"></i> Select Date Range</h2>
+                </div>
+                <div class="date-range">
+                    <input type="date" id="startDate" value="2026-01-01">
+                    <input type="date" id="endDate" value="2026-12-31">
+                    <button class="btn btn-primary" onclick="updateReports()"><i class="fas fa-sync-alt"></i> Update Range</button>
+                </div>
+            </div>
+
+            <!-- Report Cards -->
+            <div class="report-grid">
+                <div class="report-card" onclick="generateReport('students')">
+                    <div class="report-icon"><i class="fas fa-users"></i></div>
+                    <div class="report-title">Student Enrollment Report</div>
+                    <div class="report-desc">Registration trends, demographics, program distribution</div>
+                </div>
+                <div class="report-card" onclick="generateReport('payments')">
+                    <div class="report-icon"><i class="fas fa-credit-card"></i></div>
+                    <div class="report-title">Financial Summary</div>
+                    <div class="report-desc">Revenue breakdown, payment trends, outstanding balances</div>
+                </div>
+                <div class="report-card" onclick="generateReport('academic')">
+                    <div class="report-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="report-title">Academic Performance</div>
+                    <div class="report-desc">GPA distribution, pass rates, top programs</div>
+                </div>
+                <div class="report-card" onclick="generateReport('accommodation')">
+                    <div class="report-icon"><i class="fas fa-bed"></i></div>
+                    <div class="report-title">Accommodation Occupancy</div>
+                    <div class="report-desc">Room utilization, application trends, GIPS Student Village</div>
+                </div>
+                <div class="report-card" onclick="generateReport('government')">
+                    <div class="report-icon"><i class="fas fa-crown"></i></div>
+                    <div class="report-title">Government Sponsored Students</div>
+                    <div class="report-desc">DTEF sponsored students, exemption status</div>
+                </div>
+                <div class="report-card" onclick="generateReport('self-sponsored')">
+                    <div class="report-icon"><i class="fas fa-briefcase"></i></div>
+                    <div class="report-title">Self Sponsored Students</div>
+                    <div class="report-desc">Fee-paying students, payment status, balances</div>
+                </div>
+            </div>
+
+            <!-- Report Preview -->
+            <div class="content-card" id="reportPreview" style="display: none;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <h2 id="reportTitle"><i class="fas fa-file-alt"></i> Report Preview</h2>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-success" onclick="exportReportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+                        <button class="btn btn-primary" onclick="exportReport()"><i class="fas fa-file-code"></i> Export HTML</button>
+                        <button class="btn btn-primary" onclick="printReport()"><i class="fas fa-print"></i> Print</button>
+                    </div>
+                </div>
+                <div id="reportContent">
+                    <div class="loading">Select a report to view...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== AUTHENTICATION & ROLE CHECK ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        // Allowed roles: admin, administrator, finance, registrar
+        const allowedRoles = ['admin', 'administrator', 'finance', 'registrar'];
+        if (!allowedRoles.includes(user.role)) {
+            console.warn('Unauthorized access. Redirecting to student dashboard.');
+            window.location.href = 'student-dashboard.html';
+        }
+        
+        // Role‑specific sidebar (using Font Awesome icons)
+        const isFinance = user.role === 'finance';
+        const isRegistrar = user.role === 'registrar';
+        const portalTitle = document.getElementById('portalTitle');
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        
+        if (isFinance) {
+            portalTitle.textContent = 'Finance Portal';
+            sidebarMenu.innerHTML = `
+                <a href="finance-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
+                <a href="admin-reports.html" class="sidebar-menu-item active"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            `;
+        } else if (isRegistrar) {
+            portalTitle.textContent = 'Registrar Portal';
+            sidebarMenu.innerHTML = `
+                <a href="registrar-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
+                <a href="admin-reports.html" class="sidebar-menu-item active"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            `;
+        } else {
+            portalTitle.textContent = 'Admin Portal';
+            sidebarMenu.innerHTML = `
+                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
+                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-graduation-cap"></i> <span>Programs</span></a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-book"></i> <span>Modules</span></a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-bed"></i> <span>Accommodation</span></a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
+                <a href="admin-reports.html" class="sidebar-menu-item active"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+            `;
+        }
+        
+        // Avatar
+        const initial = (user.first_name ? user.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
+        document.getElementById('adminAvatar').textContent = initial;
+        
+        // ========== GLOBAL VARIABLES ==========
+        let currentReportType = '';
+        let currentReportData = null;
+        let startDate = '2026-01-01';
+        let endDate = '2026-12-31';
+        
+        // ========== SAFE API CALL ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+        
+        // ========== UI HELPERS ==========
+        function showMessage(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.innerHTML = message;
+            statusDiv.style.display = 'block';
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function updateReports() {
+            startDate = document.getElementById('startDate').value;
+            endDate = document.getElementById('endDate').value;
+            if (currentReportType) {
+                generateReport(currentReportType);
+            } else {
+                showMessage(`Date range updated to ${startDate} - ${endDate}`, 'info');
+            }
+        }
+        
+        // ========== REPORT GENERATION ==========
+        async function generateReport(type) {
+            currentReportType = type;
+            const reportPreview = document.getElementById('reportPreview');
+            const reportTitle = document.getElementById('reportTitle');
+            const reportContent = document.getElementById('reportContent');
+            
+            reportPreview.style.display = 'block';
+            reportContent.innerHTML = '<div class="loading">Loading report data...</div>';
+            
+            const apiEndpoints = {
+                'students': '/api/admin/reports/students',
+                'payments': '/api/admin/reports/payments',
+                'academic': '/api/admin/reports/academic',
+                'accommodation': '/api/admin/reports/accommodation',
+                'government': '/api/admin/export/government-sponsored',
+                'self-sponsored': '/api/admin/export/self-sponsored'
+            };
+            
+            if (type === 'government' || type === 'self-sponsored') {
+                const apiEndpoint = apiEndpoints[type];
+                const response = await safeApiCall(apiEndpoint);
+                if (response && response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${type}_report_${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    showMessage(`✅ ${getReportTitle(type)} exported successfully!`, 'success');
+                    renderDemoReport(type);
+                } else {
+                    renderDemoReport(type);
+                    showMessage(`⚠️ Using demo data for ${getReportTitle(type)}`, 'info');
+                }
+            } else {
+                const apiEndpoint = `${apiEndpoints[type]}?start=${startDate}&end=${endDate}`;
+                const response = await safeApiCall(apiEndpoint);
+                if (response && response.ok) {
+                    currentReportData = await response.json();
+                    renderReportFromData(type, currentReportData);
+                    showMessage(`✅ ${getReportTitle(type)} loaded successfully!`, 'success');
+                } else {
+                    renderDemoReport(type);
+                    showMessage(`⚠️ Using demo data - API not available. Showing sample ${getReportTitle(type).toLowerCase()}.`, 'info');
+                }
+            }
+            reportPreview.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function getReportTitle(type) {
+            const titles = {
+                'students': 'Student Enrollment Report',
+                'payments': 'Financial Summary Report',
+                'academic': 'Academic Performance Report',
+                'accommodation': 'Accommodation Occupancy Report',
+                'government': 'Government Sponsored Students Report',
+                'self-sponsored': 'Self Sponsored Students Report'
+            };
+            return titles[type] || 'Report';
+        }
+        
+        function getReportIcon(type) {
+            const icons = {
+                'students': '<i class="fas fa-users"></i>',
+                'payments': '<i class="fas fa-credit-card"></i>',
+                'academic': '<i class="fas fa-graduation-cap"></i>',
+                'accommodation': '<i class="fas fa-bed"></i>',
+                'government': '<i class="fas fa-crown"></i>',
+                'self-sponsored': '<i class="fas fa-briefcase"></i>'
+            };
+            return icons[type] || '<i class="fas fa-chart-bar"></i>';
+        }
+        
+        function renderReportFromData(type, data) {
+            const reportTitle = document.getElementById('reportTitle');
+            const reportContent = document.getElementById('reportContent');
+            reportTitle.innerHTML = `${getReportIcon(type)} ${getReportTitle(type)}`;
+            
+            let html = `
+                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <strong><i class="fas fa-calendar-alt"></i> Report Period:</strong> ${startDate} to ${endDate}<br>
+                    <strong><i class="fas fa-clock"></i> Generated:</strong> ${new Date().toLocaleString()}
+                </div>
+            `;
+            
+            if (type === 'students') {
+                html += `
+                    <h3><i class="fas fa-chart-line"></i> Enrollment Summary</h3>
+                    <table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+                        <tr><td>Total Students</td><td><strong>${data.total_students || 0}</strong></td></tr>
+                        <tr><td>Government Sponsored</td><td><strong>${data.government_sponsored || 0}</strong></td></tr>
+                        <tr><td>Self Sponsored</td><td><strong>${data.self_sponsored || 0}</strong></td></tr>
+                        <tr><td>New Enrollments</td><td>${data.new_enrollments || 0}</td></tr>
+                        <tr><td>Active Students</td><td>${data.active_students || 0}</td></tr>
+                        <tr><td>Graduated</td><td>${data.graduated || 0}</td></tr>
+                    </tbody></table>
+                    
+                    <h3 style="margin-top: 20px;"><i class="fas fa-graduation-cap"></i> Program Distribution</h3>
+                    <table><thead><tr><th>Program</th><th>Students</th><th>Percentage</th></tr></thead><tbody>
+                        ${data.program_distribution && data.program_distribution.length ? 
+                            data.program_distribution.map(p => `<tr><td>${p.program_name}</td><td>${p.count}</td><td>${p.percentage}%</td></tr>`).join('') : 
+                            '<tr><td colspan="3">No data available</td></tr>'}
+                    </tbody></table>
+                    
+                    <h3 style="margin-top: 20px;"><i class="fas fa-university"></i> Campus Distribution</h3>
+                    <table><thead><tr><th>Campus</th><th>Students</th><th>Percentage</th></tr></thead><tbody>
+                        ${data.campus_distribution && data.campus_distribution.length ? 
+                            data.campus_distribution.map(c => `<tr><td>${c.campus_name}</td><td>${c.count}</td><td>${c.percentage}%</td></tr>`).join('') : 
+                            '<tr><td colspan="3">No data available</td></tr>'}
+                    </tbody></table>
+                `;
+            } else if (type === 'payments') {
+                html += `
+                    <h3><i class="fas fa-coins"></i> Revenue Summary</h3>
+                    <table><thead><tr><th>Metric</th><th>Amount (BWP)</th></tr></thead><tbody>
+                        <tr><td>Total Revenue</td><td><strong>P ${(data.total_revenue || 0).toLocaleString()}</strong></td></tr>
+                        <tr><td>Tuition Fees</td><td>P ${(data.tuition_fees || 0).toLocaleString()}</td></tr>
+                        <tr><td>Accommodation Fees</td><td>P ${(data.accommodation_fees || 0).toLocaleString()}</td></tr>
+                        <tr><td>Exam Fees</td><td>P ${(data.exam_fees || 0).toLocaleString()}</td></tr>
+                        <tr><td>Pending Payments</td><td>P ${(data.pending_amount || 0).toLocaleString()}</td></tr>
+                    </tbody></table>
+                    
+                    <h3 style="margin-top: 20px;"><i class="fas fa-credit-card"></i> Payment Methods</h3>
+                    <table><thead><tr><th>Method</th><th>Amount</th><th>Percentage</th></tr></thead><tbody>
+                        ${data.payment_methods && data.payment_methods.length ? 
+                            data.payment_methods.map(m => `<tr><td>${m.method}</td><td>P ${m.amount.toLocaleString()}</td><td>${m.percentage}%</td></tr>`).join('') : 
+                            '<tr><td colspan="3">No data available</td></tr>'}
+                    </tbody></table>
+                `;
+            } else if (type === 'academic') {
+                html += `
+                    <h3><i class="fas fa-chart-simple"></i> GPA Distribution</h3>
+                    <table><thead><tr><th>GPA Range</th><th>Students</th><th>Percentage</th></tr></thead><tbody>
+                        ${data.gpa_distribution && data.gpa_distribution.length ? 
+                            data.gpa_distribution.map(g => `<tr><td>${g.range}</td><td>${g.count}</td><td>${g.percentage}%</td></tr>`).join('') : 
+                            '<tr><td colspan="3">No data available</td></tr>'}
+                    </tbody></table>
+                    
+                    <h3 style="margin-top: 20px;"><i class="fas fa-chart-line"></i> Program Performance</h3>
+                    <table><thead><tr><th>Program</th><th>Average GPA</th><th>Pass Rate</th></tr></thead><tbody>
+                        ${data.program_performance && data.program_performance.length ? 
+                            data.program_performance.map(p => `<tr><td>${p.program}</td><td>${p.avg_gpa}</td><td>${p.pass_rate}%</td></tr>`).join('') : 
+                            '<tr><td colspan="3">No data available</td></tr>'}
+                    </tbody></table>
+                `;
+            } else if (type === 'accommodation') {
+                html += `
+                    <h3><i class="fas fa-building"></i> GIPS Student Village Occupancy</h3>
+                    <table><thead><tr><th>Block</th><th>Total Rooms</th><th>Occupied</th><th>Available</th><th>Occupancy Rate</th></tr></thead><tbody>
+                        ${data.blocks && data.blocks.length ? 
+                            data.blocks.map(b => `<tr><td>${b.block}</td><td>${b.total}</td><td>${b.occupied}</td><td>${b.available}</td><td>${b.rate}%</td></tr>`).join('') : 
+                            '<tr><td colspan="5">No data available</td></tr>'}
+                    </tbody></table>
+                    
+                    <h3 style="margin-top: 20px;"><i class="fas fa-clipboard-list"></i> Application Statistics</h3>
+                    <table><thead><tr><th>Status</th><th>Count</th></tr></thead><tbody>
+                        ${data.applications && data.applications.length ? 
+                            data.applications.map(a => `<tr><td>${a.status}</td><td>${a.count}</td></tr>`).join('') : 
+                            '<tr><td colspan="2">No data available</td></tr>'}
+                    </tbody></table>
+                `;
+            }
+            
+            reportContent.innerHTML = html;
+        }
+        
+        function renderDemoReport(type) {
+            const reportTitle = document.getElementById('reportTitle');
+            const reportContent = document.getElementById('reportContent');
+            reportTitle.innerHTML = `${getReportIcon(type)} ${getReportTitle(type)} (Demo Data)`;
+            
+            const demoData = {
+                students: `
+                    <div class="error-badge"><i class="fas fa-info-circle"></i> Using demo data - API not available</div>
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                        <strong><i class="fas fa-calendar-alt"></i> Report Period:</strong> ${startDate} to ${endDate}<br>
+                        <strong><i class="fas fa-clock"></i> Generated:</strong> ${new Date().toLocaleString()}
+                    </div>
+                    <h3><i class="fas fa-chart-line"></i> Enrollment Summary</h3>
+                    <table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+                        <tr><td>Total Students</td><td><strong>1,234</strong></td></tr>
+                        <tr><td>Government Sponsored</td><td><strong>456</strong></td></tr>
+                        <tr><td>Self Sponsored</td><td><strong>778</strong></td></tr>
+                        <tr><td>New Enrollments</td><td>456</td></tr>
+                        <tr><td>Active Students</td><td>1,089</td></tr>
+                        <tr><td>Graduated</td><td>234</td></tr>
+                    </tbody></table>
+                    <h3 style="margin-top: 20px;"><i class="fas fa-graduation-cap"></i> Program Distribution</h3>
+                    <table><thead><tr><th>Program</th><th>Students</th><th>Percentage</th></tr></thead><tbody>
+                        <tr><td>Computer Science</td><td>450</td><td>36.5%</td></tr>
+                        <tr><td>Business Administration</td><td>380</td><td>30.8%</td></tr>
+                        <tr><td>Accounting</td><td>220</td><td>17.8%</td></tr>
+                        <tr><td>Information Technology</td><td>184</td><td>14.9%</td></tr>
+                    </tbody></table>
+                    <h3 style="margin-top: 20px;"><i class="fas fa-university"></i> Campus Distribution</h3>
+                    <table><thead><tr><th>Campus</th><th>Students</th><th>Percentage</th></tr></thead><tbody>
+                        <tr><td>Gaborone Main Campus</td><td>650</td><td>52.7%</td></tr>
+                        <tr><td>Gaborone Main Mall</td><td>234</td><td>19.0%</td></tr>
+                        <tr><td>Francistown Campus</td><td>198</td><td>16.0%</td></tr>
+                        <tr><td>Maun Campus</td><td>152</td><td>12.3%</td></tr>
+                    </tbody></table>
+                `,
+                payments: `
+                    <div class="error-badge"><i class="fas fa-info-circle"></i> Using demo data - API not available</div>
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                        <strong><i class="fas fa-calendar-alt"></i> Report Period:</strong> ${startDate} to ${endDate}<br>
+                        <strong><i class="fas fa-clock"></i> Generated:</strong> ${new Date().toLocaleString()}
+                    </div>
+                    <h3><i class="fas fa-coins"></i> Revenue Summary</h3>
+                    <table><thead><tr><th>Metric</th><th>Amount (BWP)</th></tr></thead><tbody>
+                        <tr><td>Total Revenue</td><td><strong>P 2,450,000</strong></td></tr>
+                        <tr><td>Tuition Fees</td><td>P 1,850,000</td></tr>
+                        <tr><td>Accommodation Fees</td><td>P 450,000</td></tr>
+                        <tr><td>Exam Fees</td><td>P 150,000</td></tr>
+                        <tr><td>Pending Payments</td><td>P 89,500</td></tr>
+                    </tbody></table>
+                    <h3 style="margin-top: 20px;"><i class="fas fa-credit-card"></i> Payment Methods</h3>
+                    <table><thead><tr><th>Method</th><th>Amount</th><th>Percentage</th></tr></thead><tbody>
+                        <tr><td>Mobile Money</td><td>P 980,000</td><td>40%</td></tr>
+                        <tr><td>Bank Transfer</td><td>P 735,000</td><td>30%</td></tr>
+                        <tr><td>Card</td><td>P 490,000</td><td>20%</td></tr>
+                        <tr><td>Cash</td><td>P 245,000</td><td>10%</td></tr>
+                    </tbody></table>
+                `,
+                academic: `
+                    <div class="error-badge"><i class="fas fa-info-circle"></i> Using demo data - API not available</div>
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                        <strong><i class="fas fa-calendar-alt"></i> Report Period:</strong> ${startDate} to ${endDate}<br>
+                        <strong><i class="fas fa-clock"></i> Generated:</strong> ${new Date().toLocaleString()}
+                    </div>
+                    <h3><i class="fas fa-chart-simple"></i> GPA Distribution</h3>
+                    <table><thead><tr><th>GPA Range</th><th>Students</th><th>Percentage</th></tr></thead><tbody>
+                        <tr><td>3.5 - 4.0 (Excellent)</td><td>234</td><td>21.5%</td></tr>
+                        <tr><td>3.0 - 3.4 (Good)</td><td>456</td><td>41.8%</td></tr>
+                        <tr><td>2.5 - 2.9 (Satisfactory)</td><td>289</td><td>26.5%</td></tr>
+                        <tr><td>Below 2.5 (Warning)</td><td>111</td><td>10.2%</td></tr>
+                    </tbody></table>
+                    <h3 style="margin-top: 20px;"><i class="fas fa-chart-line"></i> Program Performance</h3>
+                    <table><thead><tr><th>Program</th><th>Average GPA</th><th>Pass Rate</th></tr></thead><tbody>
+                        <tr><td>Computer Science</td><td>3.2</td><td>92%</td></tr>
+                        <tr><td>Business Administration</td><td>3.1</td><td>89%</td></tr>
+                        <tr><td>Accounting</td><td>3.0</td><td>87%</td></tr>
+                        <tr><td>Information Technology</td><td>3.3</td><td>94%</td></tr>
+                    </tbody></table>
+                `,
+                accommodation: `
+                    <div class="error-badge"><i class="fas fa-info-circle"></i> Using demo data - API not available</div>
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                        <strong><i class="fas fa-calendar-alt"></i> Report Period:</strong> ${startDate} to ${endDate}<br>
+                        <strong><i class="fas fa-clock"></i> Generated:</strong> ${new Date().toLocaleString()}
+                    </div>
+                    <h3><i class="fas fa-building"></i> GIPS Student Village Occupancy</h3>
+                    <table><thead><tr><th>Block</th><th>Total Rooms</th><th>Occupied</th><th>Available</th><th>Occupancy Rate</th></tr></thead><tbody>
+                        <tr><td>Block A</td><td>32</td><td>28</td><td>4</td><td>87.5%</td></tr>
+                        <tr><td>Block B</td><td>32</td><td>30</td><td>2</td><td>93.8%</td></tr>
+                        <tr><td>Block C</td><td>32</td><td>25</td><td>7</td><td>78.1%</td></tr>
+                        <tr><td>Block D</td><td>32</td><td>22</td><td>10</td><td>68.8%</td></tr>
+                        <tr><td>Block E</td><td>32</td><td>18</td><td>14</td><td>56.3%</td></tr>
+                    </tbody></table>
+                    <h3 style="margin-top: 20px;"><i class="fas fa-clipboard-list"></i> Application Statistics</h3>
+                    <table><thead><tr><th>Status</th><th>Count</th></tr></thead><tbody>
+                        <tr><td>Approved</td><td>156</td></tr>
+                        <tr><td>Pending</td><td>23</td></tr>
+                        <tr><td>Waitlist</td><td>45</td></tr>
+                    </tbody></table>
+                `,
+                government: `
+                    <div class="error-badge"><i class="fas fa-info-circle"></i> Using demo data - API not available</div>
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                        <strong><i class="fas fa-calendar-alt"></i> Report Period:</strong> ${startDate} to ${endDate}<br>
+                        <strong><i class="fas fa-clock"></i> Generated:</strong> ${new Date().toLocaleString()}
+                    </div>
+                    <h3><i class="fas fa-crown"></i> Government Sponsored Students</h3>
+                    <table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+                        <tr><td>Total Government Sponsored</td><td><strong>456</strong></td></tr>
+                        <tr><td>DTEF Sponsored</td><td>412</td></tr>
+                        <tr><td>Reinstatement</td><td>28</td></tr>
+                        <tr><td>Retake</td><td>16</td></tr>
+                        <tr><td>Average GPA</td><td>3.15</td></tr>
+                        <tr><td>Pass Rate</td><td>91%</td></tr>
+                    </tbody></table>
+                    <h3 style="margin-top: 20px;"><i class="fas fa-graduation-cap"></i> Program Distribution</h3>
+                    <table><thead><tr><th>Program</th><th>Students</th></tr></thead><tbody>
+                        <tr><td>Computer Science</td><td>178</td></tr>
+                        <tr><td>Business Administration</td><td>142</td></tr>
+                        <tr><td>Accounting</td><td>86</td></tr>
+                        <tr><td>Information Technology</td><td>50</td></tr>
+                    </tbody></table>
+                `,
+                'self-sponsored': `
+                    <div class="error-badge"><i class="fas fa-info-circle"></i> Using demo data - API not available</div>
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                        <strong><i class="fas fa-calendar-alt"></i> Report Period:</strong> ${startDate} to ${endDate}<br>
+                        <strong><i class="fas fa-clock"></i> Generated:</strong> ${new Date().toLocaleString()}
+                    </div>
+                    <h3><i class="fas fa-briefcase"></i> Self Sponsored Students</h3>
+                    <table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+                        <tr><td>Total Self Sponsored</td><td><strong>778</strong></td></tr>
+                        <tr><td>Fully Paid</td><td>534</td></tr>
+                        <tr><td>Partial Payment</td><td>156</td></tr>
+                        <tr><td>Outstanding Balance</td><td><strong>P 1,245,000</strong></td></tr>
+                        <tr><td>Average GPA</td><td>2.98</td></tr>
+                        <tr><td>Pass Rate</td><td>86%</td></tr>
+                    </tbody></table>
+                    <h3 style="margin-top: 20px;"><i class="fas fa-chart-pie"></i> Payment Status</h3>
+                    <table><thead><tr><th>Status</th><th>Students</th><th>Amount</th></tr></thead><tbody>
+                        <tr><td>Fully Paid</td><td>534</td><td>P 4,890,000</td></tr>
+                        <tr><td>Partial Payment</td><td>156</td><td>P 1,245,000</td></tr>
+                        <tr><td>Pending</td><td>88</td><td>P 890,000</td></tr>
+                    </tbody></table>
+                `
+            };
+            reportContent.innerHTML = demoData[type] || `<div class="loading">No demo data available for this report type.</div>`;
+        }
+        
+        // ========== EXPORT FUNCTIONS ==========
+        async function exportReportCSV() {
+            if (currentReportType === 'government' || currentReportType === 'self-sponsored') {
+                generateReport(currentReportType);
+                return;
+            }
+            const tables = document.querySelectorAll('#reportContent table');
+            let csvRows = [];
+            tables.forEach(table => {
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('th, td');
+                    const rowData = Array.from(cells).map(cell => cell.innerText.trim());
+                    csvRows.push(rowData.join(','));
+                });
+                csvRows.push('');
+            });
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentReportType}_report_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('✅ Report exported as CSV successfully!', 'success');
+        }
+        
+        function exportReport() {
+            const content = document.getElementById('reportContent').innerHTML;
+            const title = document.getElementById('reportTitle').innerHTML.replace(/<[^>]*>/g, '');
+            const fullReport = `<!DOCTYPE html><html><head><title>${title}</title><meta charset="UTF-8"><style>body{font-family:Arial;padding:40px} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px;text-align:left} th{background:#f5f5f5}</style></head><body><div><h1>GIPS College</h1><h2>${title}</h2><p>Period: ${startDate} to ${endDate}</p><p>Generated: ${new Date().toLocaleString()}</p></div>${content}</body></html>`;
+            const blob = new Blob([fullReport], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentReportType}_report_${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('✅ Report exported successfully!', 'success');
+        }
+        
+        function printReport() {
+            const content = document.getElementById('reportContent').innerHTML;
+            const title = document.getElementById('reportTitle').innerHTML.replace(/<[^>]*>/g, '');
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>body{font-family:Arial;padding:40px} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px;text-align:left} th{background:#f5f5f5}</style></head><body><div><h1>GIPS College</h1><h2>${title}</h2><p>Period: ${startDate} to ${endDate}</p><p>Generated: ${new Date().toLocaleString()}</p></div>${content}</body></html>`);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+        
+        // ========== INIT ==========
+        console.log('✅ Reports page loaded – accessible by admin, finance, and registrar roles.');
+    </script>
+</body>
+</html>

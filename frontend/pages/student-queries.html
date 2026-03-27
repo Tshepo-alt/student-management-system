@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Student Queries - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 30px 40px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .page-header::before {
+            content: "\f059";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 80px;
+            opacity: 0.15;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .form-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+        }
+
+        /* Queries List */
+        .queries-list {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .queries-list h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .query-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .query-item:hover {
+            background: #f9fafb;
+            margin: 0 -12px;
+            padding: 15px 12px;
+        }
+
+        .query-info {
+            flex: 1;
+        }
+
+        .query-title {
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .query-meta {
+            font-size: 0.75rem;
+            color: #a0aec0;
+            margin-top: 6px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: #feebc8;
+            color: #c05621;
+        }
+        .badge-resolved {
+            background: #c6f6d5;
+            color: #276749;
+        }
+        .badge-progress {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .query-date {
+            font-size: 0.7rem;
+            color: #a0aec0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: #2d3748;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .response-item {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 12px;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+        }
+
+        .response-staff {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .response-date {
+            font-size: 0.7rem;
+            color: #a0aec0;
+            margin-top: 4px;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+            .query-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam Registration</a></li>
+                <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
+                <li><a href="student-timetables.html" class="nav-link"><i class="fas fa-calendar-week"></i> Timetable</a></li>
+                <li><a href="results-view.html" class="nav-link"><i class="fas fa-chart-line"></i> Results</a></li>
+                <li><a href="student-queries.html" class="nav-link active"><i class="fas fa-question-circle"></i> Queries</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-question-circle"></i> Student Queries</h1>
+            <p>Submit your questions, concerns, or feedback. Our team will get back to you.</p>
+        </div>
+
+        <!-- Submit Query Form -->
+        <div class="form-card">
+            <h2><i class="fas fa-pen-alt"></i> Submit New Query</h2>
+            <form id="queryForm">
+                <div class="form-group">
+                    <label for="queryTitle">Title / Subject</label>
+                    <input type="text" id="queryTitle" placeholder="e.g., Issue with exam registration" required>
+                </div>
+                <div class="form-group">
+                    <label for="queryCategory">Category</label>
+                    <select id="queryCategory" required>
+                        <option value="Academic">Academic</option>
+                        <option value="Fee">Fee / Payment</option>
+                        <option value="Technical">Technical</option>
+                        <option value="Accommodation">Accommodation</option>
+                        <option value="General">General</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="queryMessage">Message / Description</label>
+                    <textarea id="queryMessage" rows="4" placeholder="Please provide detailed information..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Submit Query</button>
+            </form>
+        </div>
+
+        <!-- My Queries List -->
+        <div class="queries-list">
+            <h2><i class="fas fa-list-ul"></i> My Queries</h2>
+            <div id="queriesContainer">
+                <!-- Dynamic list of queries -->
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading queries...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Query Details Modal -->
+    <div id="queryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Query Details</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-question-circle"></i> We're here to help | Response within 48 hours</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // DEMO QUERIES DATA (would come from API)
+        // ============================================
+        let queries = [
+            {
+                id: 1,
+                title: "Issue with exam registration portal",
+                category: "Technical",
+                message: "I am unable to log into the exam registration page. It shows 'access denied'.",
+                status: "pending",
+                date: "2026-03-20T10:30:00",
+                responses: []
+            },
+            {
+                id: 2,
+                title: "Fee payment confirmation not received",
+                category: "Fee",
+                message: "Paid tuition fees on March 15, but the system still shows pending payment.",
+                status: "in-progress",
+                date: "2026-03-18T14:15:00",
+                responses: [
+                    { staff: "Finance Office", message: "We are verifying with the bank. Please allow 2-3 business days.", date: "2026-03-19T09:00:00" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Accommodation allocation status",
+                category: "Accommodation",
+                message: "I applied for accommodation on March 1. When will I know the allocation?",
+                status: "resolved",
+                date: "2026-03-10T11:20:00",
+                responses: [
+                    { staff: "Accommodation Office", message: "Your application is processed and you have been allocated Block A, Room 102.", date: "2026-03-12T15:30:00" }
+                ]
+            }
+        ];
+
+        // Function to render the list of queries
+        function renderQueries() {
+            const container = document.getElementById('queriesContainer');
+            if (!queries.length) {
+                container.innerHTML = '<div class="query-item">No queries submitted yet.</div>';
+                return;
+            }
+
+            // Sort by date descending (newest first)
+            const sorted = [...queries].sort((a,b) => new Date(b.date) - new Date(a.date));
+            container.innerHTML = sorted.map(q => `
+                <div class="query-item" onclick="viewQuery(${q.id})">
+                    <div class="query-info">
+                        <div class="query-title">
+                            <strong>${escapeHtml(q.title)}</strong>
+                            <span class="badge badge-${q.status}">${getStatusText(q.status)}</span>
+                        </div>
+                        <div class="query-meta">
+                            <span><i class="fas fa-tag"></i> ${q.category}</span>
+                            <span><i class="fas fa-calendar-alt"></i> ${formatDate(q.date)}</span>
+                        </div>
+                    </div>
+                    <div class="query-date">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'Pending';
+                case 'in-progress': return 'In Progress';
+                case 'resolved': return 'Resolved';
+                default: return status;
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // View query details in modal
+        window.viewQuery = function(queryId) {
+            const query = queries.find(q => q.id === queryId);
+            if (!query) return;
+
+            let responsesHtml = '';
+            if (query.responses && query.responses.length > 0) {
+                responsesHtml = '<h4><i class="fas fa-reply-all"></i> Responses</h4>';
+                query.responses.forEach(r => {
+                    responsesHtml += `
+                        <div class="response-item">
+                            <div class="response-staff">${escapeHtml(r.staff)}</div>
+                            <div>${escapeHtml(r.message)}</div>
+                            <div class="response-date">${formatDate(r.date)}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                responsesHtml = '<p><i class="fas fa-info-circle"></i> No responses yet. Our team will get back to you soon.</p>';
+            }
+
+            const modalBody = `
+                <div><strong>Category:</strong> ${query.category}</div>
+                <div><strong>Submitted:</strong> ${formatDate(query.date)}</div>
+                <div><strong>Status:</strong> <span class="badge badge-${query.status}">${getStatusText(query.status)}</span></div>
+                <div style="margin: 15px 0;"><strong>Message:</strong><br>${escapeHtml(query.message)}</div>
+                <hr>
+                ${responsesHtml}
+            `;
+            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-envelope-open-text"></i> ${escapeHtml(query.title)}`;
+            document.getElementById('modalBody').innerHTML = modalBody;
+            document.getElementById('queryModal').style.display = 'flex';
+        };
+
+        window.closeModal = function() {
+            document.getElementById('queryModal').style.display = 'none';
+        };
+
+        // Submit new query
+        document.getElementById('queryForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('queryTitle').value.trim();
+            const category = document.getElementById('queryCategory').value;
+            const message = document.getElementById('queryMessage').value.trim();
+
+            if (!title || !message) {
+                alert('Please fill in both title and message.');
+                return;
+            }
+
+            const newQuery = {
+                id: Date.now(),
+                title: title,
+                category: category,
+                message: message,
+                status: 'pending',
+                date: new Date().toISOString(),
+                responses: []
+            };
+
+            queries.unshift(newQuery);
+            renderQueries();
+
+            // Reset form
+            document.getElementById('queryTitle').value = '';
+            document.getElementById('queryMessage').value = '';
+            document.getElementById('queryCategory').selectedIndex = 0;
+
+            // Show success message (simple)
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'success-banner';
+            msgDiv.innerHTML = '<i class="fas fa-check-circle"></i> Query submitted successfully!';
+            msgDiv.style.background = '#c6f6d5';
+            msgDiv.style.color = '#276749';
+            msgDiv.style.padding = '12px';
+            msgDiv.style.borderRadius = '12px';
+            msgDiv.style.marginBottom = '20px';
+            msgDiv.style.display = 'flex';
+            msgDiv.style.alignItems = 'center';
+            msgDiv.style.gap = '8px';
+            document.querySelector('.form-card').prepend(msgDiv);
+            setTimeout(() => msgDiv.remove(), 3000);
+        });
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        renderQueries();
+
+        // Close modal on outside click
+        window.onclick = function(e) {
+            if (e.target === document.getElementById('queryModal')) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>

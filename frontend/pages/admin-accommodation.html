@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Accommodation Management - GIPS College | GIPS Student Village</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header img {
+            height: 60px;
+            width: auto;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu-item i {
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-menu-item:hover,
+        .sidebar-menu-item.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .top-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: #2d3748;
+        }
+
+        .page-title p {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Search Box */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .search-box input,
+        .search-box select {
+            padding: 8px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            background: #f9fafb;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .status-pending { background: #feebc8; color: #c05621; }
+        .status-approved { background: #c6f6d5; color: #276749; }
+        .status-allocated { background: #cfe2ff; color: #084298; }
+        .status-rejected { background: #fed7d7; color: #c53030; }
+        .status-waitlisted { background: #e2e8f0; color: #4a5568; }
+        .status-checked-in { background: #c6f6d5; color: #276749; }
+
+        .room-available { color: #38a169; font-weight: bold; }
+        .room-full { color: #e53e3e; font-weight: bold; }
+        .room-partial { color: #f59e0b; font-weight: bold; }
+
+        /* Buttons */
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(102,126,234,0.3); }
+        .btn-success { background: #38a169; color: white; }
+        .btn-success:hover { background: #2f855a; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-info { background: #3182ce; color: white; }
+        .btn-info:hover { background: #2c5282; }
+        .btn-sm { padding: 4px 10px; font-size: 0.7rem; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .close {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #a0aec0;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar-header h3,
+            .sidebar-menu-item span {
+                display: none;
+            }
+            .sidebar-menu-item i {
+                margin: 0 auto;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="sidebar" id="sidebar"></div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1><i class="fas fa-building"></i> GIPS Student Village Management</h1>
+                    <p>Manage rooms, allocations, and accommodation applications</p>
+                </div>
+                <div class="admin-avatar" id="adminAvatar">A</div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card"><div class="stat-number" id="totalRooms">0</div><div class="stat-label">Total Rooms</div></div>
+                <div class="stat-card"><div class="stat-number" id="availableRooms">0</div><div class="stat-label">Available Rooms</div></div>
+                <div class="stat-card"><div class="stat-number" id="occupancyRate">0%</div><div class="stat-label">Occupancy Rate</div></div>
+                <div class="stat-card"><div class="stat-number" id="pendingApps">0</div><div class="stat-label">Pending Applications</div></div>
+                <div class="stat-card"><div class="stat-number" id="allocatedRooms">0</div><div class="stat-label">Allocated Students</div></div>
+            </div>
+
+            <!-- Content Card -->
+            <div class="content-card">
+                <div class="tabs">
+                    <div class="tab active" data-tab="applications"><i class="fas fa-clipboard-list"></i> Applications</div>
+                    <div class="tab" data-tab="rooms"><i class="fas fa-bed"></i> Rooms & Blocks</div>
+                    <div class="tab" data-tab="allocations"><i class="fas fa-check-circle"></i> Room Allocations</div>
+                </div>
+
+                <!-- Applications Tab -->
+                <div id="applications-tab" class="tab-content active">
+                    <div class="card-header">
+                        <h2><i class="fas fa-file-alt"></i> Accommodation Applications</h2>
+                        <div class="search-box">
+                            <input type="text" id="searchApplications" placeholder="Search by name or student number...">
+                            <select id="filterStatus">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="allocated">Allocated</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="waitlisted">Waitlisted</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table id="applicationsTable">
+                            <thead>
+                                <tr><th>ID</th><th>Student</th><th>Student Number</th><th>Room Type</th><th>Block Pref</th><th>Status</th><th>Applied Date</th><th>Actions</th>
+                                </thead>
+                            <tbody id="applicationsTableBody"><tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading applications...</div></td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Rooms Tab -->
+                <div id="rooms-tab" class="tab-content">
+                    <div class="card-header">
+                        <h2><i class="fas fa-bed"></i> Rooms & Blocks</h2>
+                        <button class="btn btn-primary" onclick="openAddRoomModal()"><i class="fas fa-plus"></i> Add Room</button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="searchRooms" placeholder="Search by block or room number...">
+                        <select id="filterBlock">
+                            <option value="all">All Blocks</option>
+                            <option value="A">Block A</option>
+                            <option value="B">Block B</option>
+                            <option value="C">Block C</option>
+                            <option value="D">Block D</option>
+                            <option value="E">Block E</option>
+                        </select>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table id="roomsTable">
+                            <thead> <tr><th>Block</th><th>Room No</th><th>Type</th><th>Capacity</th><th>Occupants</th><th>Status</th><th>Amenities</th><th>Actions</th></tr> </thead>
+                            <tbody id="roomsTableBody"><tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading rooms...</div></td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Allocations Tab -->
+                <div id="allocations-tab" class="tab-content">
+                    <div class="card-header">
+                        <h2><i class="fas fa-check-circle"></i> Current Room Allocations</h2>
+                        <button class="btn btn-primary" onclick="openAllocateModal()"><i class="fas fa-plus"></i> New Allocation</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table id="allocationsTable">
+                            <thead> <tr><th>Student</th><th>Student No</th><th>Block</th><th>Room No</th><th>Room Type</th><th>Allocated Date</th><th>Status</th><th>Actions</th></tr> </thead>
+                            <tbody id="allocationsTableBody"><tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading allocations...</div></td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Allocate Room Modal -->
+    <div id="allocateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('allocateModal')">&times;</span>
+            <h2><i class="fas fa-home"></i> Allocate Room</h2>
+            <form id="allocateForm">
+                <div class="form-group"><label>Select Application *</label><select id="allocateApplicationId" required></select></div>
+                <div class="form-group"><label>Select Block *</label><select id="allocateBlock" required onchange="loadRoomsForBlock()"><option value="">Select Block</option><option value="A">Block A</option><option value="B">Block B</option><option value="C">Block C</option><option value="D">Block D</option><option value="E">Block E</option></select></div>
+                <div class="form-group"><label>Select Room *</label><select id="allocateRoomNumber" required><option value="">First select block</option></select></div>
+                <div class="form-group"><label>Check-in Date</label><input type="date" id="allocateCheckin" value="2026-07-01"></div>
+                <div class="form-group"><label>Check-out Date</label><input type="date" id="allocateCheckout" value="2026-12-15"></div>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-check"></i> Allocate Room</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Room Modal -->
+    <div id="addRoomModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addRoomModal')">&times;</span>
+            <h2><i class="fas fa-plus-circle"></i> Add New Room</h2>
+            <form id="addRoomForm">
+                <div class="form-group"><label>Block *</label><select id="roomBlock" required><option value="A">Block A</option><option value="B">Block B</option><option value="C">Block C</option><option value="D">Block D</option><option value="E">Block E</option></select></div>
+                <div class="form-group"><label>Room Number *</label><input type="text" id="roomNumber" required placeholder="e.g., 101"></div>
+                <div class="form-group"><label>Room Type *</label><select id="roomType" required><option value="bachelor_pad">Bachelor Pad (2 students)</option><option value="three_bed">Three-Bed Room (6 students)</option></select></div>
+                <div class="form-group"><label>Capacity</label><input type="number" id="roomCapacity" readonly></div>
+                <div class="checkbox-group"><label><input type="checkbox" id="roomKitchen" checked> <i class="fas fa-utensils"></i> Has Kitchen</label></div>
+                <div class="checkbox-group"><label><input type="checkbox" id="roomShower" checked> <i class="fas fa-shower"></i> Has Shower</label></div>
+                <div class="checkbox-group"><label><input type="checkbox" id="roomStudyTable" checked> <i class="fas fa-book"></i> Has Study Table</label></div>
+                <div class="checkbox-group"><label><input type="checkbox" id="roomBed" checked> <i class="fas fa-bed"></i> Has Bed</label></div>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Add Room</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Applicant Modal -->
+    <div id="viewApplicantModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('viewApplicantModal')">&times;</span>
+            <h2><i class="fas fa-user-circle"></i> Applicant Details</h2>
+            <div id="applicantDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION & ROLE CHECK
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userRole = user.role || localStorage.getItem('user_role');
+
+        if (!token) window.location.href = 'login.html';
+
+        // Allow admin, administrator, and staff
+        const allowedRoles = ['admin', 'administrator', 'staff'];
+        if (!allowedRoles.includes(userRole)) {
+            window.location.href = 'student-dashboard.html';
+        }
+
+        // Build sidebar based on role
+        const isStaff = userRole === 'staff';
+        const sidebar = document.getElementById('sidebar');
+        if (isStaff) {
+            sidebar.innerHTML = `
+                <div class="sidebar-header">
+                    <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                    <h3>Staff Portal</h3>
+                </div>
+                <div class="sidebar-menu">
+                    <a href="staff-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
+                    <a href="admin-accommodation.html" class="sidebar-menu-item active"><i class="fas fa-building"></i> <span>Accommodation</span></a>
+                    <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
+                    <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                </div>
+            `;
+        } else {
+            sidebar.innerHTML = `
+                <div class="sidebar-header">
+                    <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                    <h3>Admin Portal</h3>
+                </div>
+                <div class="sidebar-menu">
+                    <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
+                    <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
+                    <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
+                    <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> <span>Programs</span></a>
+                    <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> <span>Modules</span></a>
+                    <a href="admin-accommodation.html" class="sidebar-menu-item active"><i class="fas fa-building"></i> <span>Accommodation</span></a>
+                    <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
+                    <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
+                    <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                </div>
+            `;
+        }
+
+        // Avatar
+        const avatarInitial = (user.first_name ? user.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
+        document.getElementById('adminAvatar').textContent = avatarInitial;
+
+        // ============================================
+        // DATA STORAGE
+        // ============================================
+        let applications = [];
+        let rooms = [];
+        let allocations = [];
+
+        const roomCapacity = { bachelor_pad: 2, three_bed: 6 };
+        document.getElementById('roomType')?.addEventListener('change', function() {
+            document.getElementById('roomCapacity').value = roomCapacity[this.value];
+        });
+
+        // ============================================
+        // SAFE API CALL
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // LOAD DATA
+        // ============================================
+        async function loadApplications() {
+            const tbody = document.getElementById('applicationsTableBody');
+            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading applications...</div></td></tr>';
+
+            const response = await safeApiCall('/api/accommodation/admin/applications');
+            if (response && response.ok) {
+                applications = await response.json();
+            } else {
+                // Demo data
+                applications = [
+                    { id: 1, student_name: 'Thabo Motsamai', student_number: 'GIPS/2026/00001', email: 'thabo@gipscollege.edu.bw', room_type: 'bachelor_pad', room_type_display: 'Bachelor Pad', block_preference: 'A', status: 'pending', created_at: '2026-03-20T10:30:00', medical_conditions: 'None', dietary_requirements: 'No pork', emergency_contact: { name: 'Kefilwe Motsamai', phone: '+267 71234567', relationship: 'Mother' } },
+                    { id: 2, student_name: 'Kelebogile Modise', student_number: 'GIPS/2026/00002', email: 'kele@gipscollege.edu.bw', room_type: 'three_bed', room_type_display: 'Three-Bed Room', block_preference: 'B', status: 'pending', created_at: '2026-03-21T14:15:00', medical_conditions: 'Asthma', dietary_requirements: 'Vegetarian', emergency_contact: { name: 'Mpho Modise', phone: '+267 72345678', relationship: 'Father' } },
+                    { id: 3, student_name: 'Onalenna Seth', student_number: 'GIPS/2026/00003', email: 'onalenna@gipscollege.edu.bw', room_type: 'bachelor_pad', room_type_display: 'Bachelor Pad', block_preference: 'C', status: 'approved', created_at: '2026-03-19T09:00:00', medical_conditions: 'None', dietary_requirements: 'None', emergency_contact: { name: 'Tebogo Seth', phone: '+267 73456789', relationship: 'Sister' } }
+                ];
+            }
+            renderApplications();
+        }
+
+        async function loadRooms() {
+            const tbody = document.getElementById('roomsTableBody');
+            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading rooms...</div></td></tr>';
+
+            const response = await safeApiCall('/api/accommodation/admin/rooms');
+            if (response && response.ok) {
+                rooms = await response.json();
+            } else {
+                // Demo data
+                rooms = [];
+                const blocks = ['A', 'B', 'C', 'D', 'E'];
+                for (let block of blocks) {
+                    for (let i = 1; i <= 16; i++) {
+                        rooms.push({ id: rooms.length + 1, block_name: block, room_number: `${i}01`, room_type: 'bachelor_pad', capacity: 2, current_occupants: Math.random() > 0.7 ? 2 : (Math.random() > 0.5 ? 1 : 0), is_available: Math.random() > 0.6, has_kitchen: true, has_shower: true, has_study_table: true, has_bed: true });
+                    }
+                    for (let i = 1; i <= 16; i++) {
+                        rooms.push({ id: rooms.length + 1, block_name: block, room_number: `${i}02`, room_type: 'three_bed', capacity: 6, current_occupants: Math.random() > 0.7 ? 6 : (Math.random() > 0.5 ? 3 : 0), is_available: Math.random() > 0.6, has_kitchen: true, has_shower: true, has_study_table: true, has_bed: true });
+                    }
+                }
+            }
+            renderRooms();
+            updateStats();
+        }
+
+        async function loadAllocations() {
+            const tbody = document.getElementById('allocationsTableBody');
+            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading allocations...</div></td></tr>';
+
+            const response = await safeApiCall('/api/accommodation/admin/allocations');
+            if (response && response.ok) {
+                allocations = await response.json();
+            } else {
+                allocations = [
+                    { id: 1, student_name: 'Thabo Motsamai', student_number: 'GIPS/2026/00001', block: 'A', room_number: '101', room_type: 'bachelor_pad', allocated_date: '2026-03-25', status: 'allocated', check_in_date: '2026-07-01', check_out_date: '2026-12-15' }
+                ];
+            }
+            renderAllocations();
+        }
+
+        function renderApplications() {
+            const tbody = document.getElementById('applicationsTableBody');
+            const searchTerm = document.getElementById('searchApplications')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('filterStatus')?.value || 'all';
+
+            let filtered = applications.filter(a => {
+                const matchesSearch = a.student_name.toLowerCase().includes(searchTerm) || a.student_number.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || a.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8">No applications found</td></tr>';
+                return;
+            }
+
+            const statusClass = { pending: 'status-pending', approved: 'status-approved', allocated: 'status-allocated', rejected: 'status-rejected', waitlisted: 'status-waitlisted' };
+
+            tbody.innerHTML = filtered.map(a => `
+                <tr>
+                    <td>${a.id}</td>
+                    <td><strong>${escapeHtml(a.student_name)}</strong><br><small>${escapeHtml(a.email || '')}</small></td>
+                    <td>${escapeHtml(a.student_number)}</td>
+                    <td>${escapeHtml(a.room_type_display || a.room_type)}</td>
+                    <td>${escapeHtml(a.block_preference || 'Any')}</td>
+                    <td><span class="status-badge ${statusClass[a.status] || 'status-pending'}">${a.status.toUpperCase()}</span></td>
+                    <td>${new Date(a.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" onclick="viewApplicant(${a.id})"><i class="fas fa-eye"></i> View</button>
+                        ${a.status === 'pending' ? `
+                            <button class="btn btn-success btn-sm" onclick="approveApplication(${a.id})"><i class="fas fa-check"></i> Approve</button>
+                            <button class="btn btn-danger btn-sm" onclick="rejectApplication(${a.id})"><i class="fas fa-times"></i> Reject</button>
+                            <button class="btn btn-warning btn-sm" onclick="waitlistApplication(${a.id})"><i class="fas fa-list"></i> Waitlist</button>
+                        ` : ''}
+                        ${a.status === 'approved' ? `<button class="btn btn-primary btn-sm" onclick="openAllocateModal(${a.id})"><i class="fas fa-home"></i> Allocate</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderRooms() {
+            const tbody = document.getElementById('roomsTableBody');
+            const searchTerm = document.getElementById('searchRooms')?.value.toLowerCase() || '';
+            const blockFilter = document.getElementById('filterBlock')?.value || 'all';
+
+            let filtered = rooms.filter(r => {
+                const matchesSearch = r.room_number.toLowerCase().includes(searchTerm) || r.block_name.toLowerCase().includes(searchTerm);
+                const matchesBlock = blockFilter === 'all' || r.block_name === blockFilter;
+                return matchesSearch && matchesBlock;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8">No rooms found</td></tr>';
+                return;
+            }
+
+            const occupancyClass = (occ, cap) => {
+                if (occ >= cap) return 'room-full';
+                if (occ > 0) return 'room-partial';
+                return 'room-available';
+            };
+
+            tbody.innerHTML = filtered.map(r => `
+                <tr>
+                    <td><strong>Block ${escapeHtml(r.block_name)}</strong></td>
+                    <td>${escapeHtml(r.room_number)}</td>
+                    <td>${r.room_type === 'bachelor_pad' ? 'Bachelor Pad (2)' : 'Three-Bed Room (6)'}</td>
+                    <td>${r.capacity}</td>
+                    <td class="${occupancyClass(r.current_occupants, r.capacity)}">${r.current_occupants} / ${r.capacity}</td>
+                    <td><span class="status-badge ${r.is_available ? 'status-approved' : 'status-rejected'}">${r.is_available ? 'Available' : 'Full'}</span></td>
+                    <td>
+                        ${r.has_kitchen ? '<i class="fas fa-utensils"></i>' : ''}
+                        ${r.has_shower ? '<i class="fas fa-shower"></i>' : ''}
+                        ${r.has_study_table ? '<i class="fas fa-book"></i>' : ''}
+                        ${r.has_bed ? '<i class="fas fa-bed"></i>' : ''}
+                    </td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editRoom(${r.id})"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteRoom(${r.id})"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAllocations() {
+            const tbody = document.getElementById('allocationsTableBody');
+            if (allocations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8">No allocations found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allocations.map(a => `
+                <tr>
+                    <td><strong>${escapeHtml(a.student_name)}</strong></td>
+                    <td>${escapeHtml(a.student_number)}</td>
+                    <td>Block ${escapeHtml(a.block)}</td>
+                    <td>${escapeHtml(a.room_number)}</td>
+                    <td>${a.room_type === 'bachelor_pad' ? 'Bachelor Pad' : 'Three-Bed'}</td>
+                    <td>${new Date(a.allocated_date).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-allocated">ALLOCATED</span></td>
+                    <td><button class="btn btn-danger btn-sm" onclick="cancelAllocation(${a.id})"><i class="fas fa-trash-alt"></i> Cancel</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const totalRooms = rooms.length;
+            const availableRooms = rooms.filter(r => r.is_available).length;
+            const occupancyRate = totalRooms > 0 ? ((totalRooms - availableRooms) / totalRooms * 100).toFixed(1) : 0;
+            const pendingApps = applications.filter(a => a.status === 'pending').length;
+            const allocatedRooms = allocations.length;
+
+            document.getElementById('totalRooms').textContent = totalRooms;
+            document.getElementById('availableRooms').textContent = availableRooms;
+            document.getElementById('occupancyRate').textContent = `${occupancyRate}%`;
+            document.getElementById('pendingApps').textContent = pendingApps;
+            document.getElementById('allocatedRooms').textContent = allocatedRooms;
+        }
+
+        // ============================================
+        // APPLICATION ACTIONS
+        // ============================================
+        window.viewApplicant = function(id) {
+            const app = applications.find(a => a.id === id);
+            if (app) {
+                document.getElementById('applicantDetails').innerHTML = `
+                    <div class="form-group"><label><i class="fas fa-user"></i> Name:</label><div>${escapeHtml(app.student_name)}</div></div>
+                    <div class="form-group"><label><i class="fas fa-id-card"></i> Student Number:</label><div>${escapeHtml(app.student_number)}</div></div>
+                    <div class="form-group"><label><i class="fas fa-envelope"></i> Email:</label><div>${escapeHtml(app.email)}</div></div>
+                    <div class="form-group"><label><i class="fas fa-bed"></i> Room Type:</label><div>${escapeHtml(app.room_type_display || app.room_type)}</div></div>
+                    <div class="form-group"><label><i class="fas fa-building"></i> Block Preference:</label><div>${escapeHtml(app.block_preference || 'Any')}</div></div>
+                    <div class="form-group"><label><i class="fas fa-notes-medical"></i> Medical Conditions:</label><div>${escapeHtml(app.medical_conditions || 'None')}</div></div>
+                    <div class="form-group"><label><i class="fas fa-utensils"></i> Dietary Requirements:</label><div>${escapeHtml(app.dietary_requirements || 'None')}</div></div>
+                    <div class="form-group"><label><i class="fas fa-phone-alt"></i> Emergency Contact:</label><div>${escapeHtml(app.emergency_contact?.name || 'N/A')} (${escapeHtml(app.emergency_contact?.relationship || '')})<br>${escapeHtml(app.emergency_contact?.phone || '')}</div></div>
+                `;
+                document.getElementById('viewApplicantModal').style.display = 'flex';
+            }
+        };
+
+        window.approveApplication = async function(id) {
+            if (confirm('Approve this application?')) {
+                const app = applications.find(a => a.id === id);
+                if (app) {
+                    app.status = 'approved';
+                    renderApplications();
+                    updateStats();
+                    alert(`Application for ${app.student_name} approved. You can now allocate a room.`);
+                }
+            }
+        };
+
+        window.rejectApplication = async function(id) {
+            if (confirm('Reject this application?')) {
+                const app = applications.find(a => a.id === id);
+                if (app) {
+                    app.status = 'rejected';
+                    renderApplications();
+                    updateStats();
+                    alert(`Application for ${app.student_name} rejected.`);
+                }
+            }
+        };
+
+        window.waitlistApplication = async function(id) {
+            if (confirm('Add this application to waitlist?')) {
+                const app = applications.find(a => a.id === id);
+                if (app) {
+                    app.status = 'waitlisted';
+                    renderApplications();
+                    updateStats();
+                    alert(`Application for ${app.student_name} added to waitlist.`);
+                }
+            }
+        };
+
+        // ============================================
+        // ROOM ACTIONS
+        // ============================================
+        function openAddRoomModal() {
+            document.getElementById('addRoomForm').reset();
+            document.getElementById('roomCapacity').value = 2;
+            document.getElementById('addRoomModal').style.display = 'flex';
+        }
+
+        window.editRoom = function(id) {
+            const room = rooms.find(r => r.id === id);
+            if (room) {
+                alert(`Edit room functionality - Room ${room.block_name}${room.room_number}`);
+            }
+        };
+
+        window.deleteRoom = function(id) {
+            if (confirm('Delete this room?')) {
+                rooms = rooms.filter(r => r.id !== id);
+                renderRooms();
+                updateStats();
+            }
+        };
+
+        // ============================================
+        // ALLOCATION ACTIONS
+        // ============================================
+        function loadRoomsForBlock() {
+            const block = document.getElementById('allocateBlock').value;
+            const roomSelect = document.getElementById('allocateRoomNumber');
+            const availableRooms = rooms.filter(r => r.block_name === block && r.is_available);
+
+            roomSelect.innerHTML = '<option value="">Select Room</option>';
+            availableRooms.forEach(r => {
+                roomSelect.innerHTML += `<option value="${r.room_number}" data-room-type="${r.room_type}" data-room-id="${r.id}">${r.room_number} (${r.room_type === 'bachelor_pad' ? 'Bachelor Pad, 2 beds' : '3-Bed Room, 6 beds'}) - ${r.current_occupants}/${r.capacity} occupied</option>`;
+            });
+        }
+
+        window.openAllocateModal = function(applicationId = null) {
+            const appSelect = document.getElementById('allocateApplicationId');
+            const pendingApprovedApps = applications.filter(a => a.status === 'approved');
+            appSelect.innerHTML = '<option value="">Select Application</option>';
+            pendingApprovedApps.forEach(a => {
+                appSelect.innerHTML += `<option value="${a.id}" ${applicationId == a.id ? 'selected' : ''}>${a.student_name} (${a.student_number}) - ${a.room_type_display}</option>`;
+            });
+            document.getElementById('allocateForm').reset();
+            document.getElementById('allocateModal').style.display = 'flex';
+        };
+
+        document.getElementById('allocateForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const applicationId = document.getElementById('allocateApplicationId').value;
+            const block = document.getElementById('allocateBlock').value;
+            const roomNumber = document.getElementById('allocateRoomNumber').value;
+            const checkin = document.getElementById('allocateCheckin').value;
+            const checkout = document.getElementById('allocateCheckout').value;
+
+            if (!applicationId || !block || !roomNumber) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            const app = applications.find(a => a.id == applicationId);
+            const room = rooms.find(r => r.block_name === block && r.room_number === roomNumber);
+
+            if (app && room) {
+                app.status = 'allocated';
+                room.current_occupants++;
+                if (room.current_occupants >= room.capacity) room.is_available = false;
+
+                allocations.push({
+                    id: allocations.length + 1,
+                    student_name: app.student_name,
+                    student_number: app.student_number,
+                    block: block,
+                    room_number: roomNumber,
+                    room_type: room.room_type,
+                    allocated_date: new Date().toISOString().split('T')[0],
+                    status: 'allocated',
+                    check_in_date: checkin,
+                    check_out_date: checkout
+                });
+
+                renderApplications();
+                renderRooms();
+                renderAllocations();
+                updateStats();
+                closeModal('allocateModal');
+                alert(`Room allocated to ${app.student_name} - Block ${block}, Room ${roomNumber}`);
+            }
+        });
+
+        window.cancelAllocation = function(id) {
+            if (confirm('Cancel this allocation?')) {
+                const allocation = allocations.find(a => a.id === id);
+                if (allocation) {
+                    const room = rooms.find(r => r.block_name === allocation.block && r.room_number === allocation.room_number);
+                    if (room) {
+                        room.current_occupants--;
+                        if (room.current_occupants < room.capacity) room.is_available = true;
+                    }
+                    allocations = allocations.filter(a => a.id !== id);
+                    const app = applications.find(a => a.student_number === allocation.student_number);
+                    if (app) app.status = 'approved';
+                    renderApplications();
+                    renderRooms();
+                    renderAllocations();
+                    updateStats();
+                    alert('Allocation cancelled');
+                }
+            }
+        };
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        document.getElementById('addRoomForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const block = document.getElementById('roomBlock').value;
+            const roomNumber = document.getElementById('roomNumber').value;
+            const roomType = document.getElementById('roomType').value;
+            const capacity = roomCapacity[roomType];
+
+            rooms.push({
+                id: rooms.length + 1,
+                block_name: block,
+                room_number: roomNumber,
+                room_type: roomType,
+                capacity: capacity,
+                current_occupants: 0,
+                is_available: true,
+                has_kitchen: document.getElementById('roomKitchen').checked,
+                has_shower: document.getElementById('roomShower').checked,
+                has_study_table: document.getElementById('roomStudyTable').checked,
+                has_bed: document.getElementById('roomBed').checked
+            });
+
+            renderRooms();
+            updateStats();
+            closeModal('addRoomModal');
+            alert(`Room ${block}${roomNumber} added successfully`);
+        });
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        document.getElementById('searchApplications')?.addEventListener('input', renderApplications);
+        document.getElementById('filterStatus')?.addEventListener('change', renderApplications);
+        document.getElementById('searchRooms')?.addEventListener('input', renderRooms);
+        document.getElementById('filterBlock')?.addEventListener('change', renderRooms);
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        document.getElementById('logoutLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        window.closeModal = closeModal;
+        window.loadRoomsForBlock = loadRoomsForBlock;
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        loadApplications();
+        loadRooms();
+        loadAllocations();
+
+        console.log('✅ Admin Accommodation page loaded - GIPS Student Village Management');
+    </script>
+</body>
+</html>

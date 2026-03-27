@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Alumni Jobs - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 35px 40px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .page-header::before {
+            content: "\f0b1";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 100px;
+            opacity: 0.15;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* Job Header and Filters */
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .job-header h2 {
+            font-size: 1.4rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 18px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f9fafb;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .filter-bar select:focus,
+        .filter-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .filter-bar input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Job Grid */
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .job-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: all 0.3s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .job-card-header {
+            background: #f9fafb;
+            padding: 18px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .job-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .job-company {
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .job-details {
+            padding: 18px;
+        }
+
+        .job-info {
+            font-size: 0.85rem;
+            color: #718096;
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .job-info i {
+            width: 20px;
+            color: #667eea;
+        }
+
+        .job-description {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin: 12px 0;
+            line-height: 1.5;
+        }
+
+        .job-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            background: #f9fafb;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+        }
+
+        .btn-secondary {
+            background: #cbd5e0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #a0aec0;
+        }
+
+        .btn-success {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            transition: border 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #a0aec0;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #276749;
+            border-left: 4px solid #38a169;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+            .nav-link {
+                padding: 0.4rem 0.8rem;
+            }
+            .job-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-bar {
+                flex-direction: column;
+            }
+            .filter-bar input {
+                width: 100%;
+            }
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <span>GIPS Alumni Jobs</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="alumni-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="alumni-network.html" class="nav-link"><i class="fas fa-users"></i> Network</a></li>
+                <li><a href="alumni-jobs.html" class="nav-link active"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li><a href="alumni-events.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="alumni-profile.html" class="nav-link"><i class="fas fa-id-card"></i> Profile</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-briefcase"></i> Alumni Job Board</h1>
+            <p>Explore job opportunities posted by fellow alumni and partner employers.</p>
+        </div>
+
+        <div class="job-header">
+            <h2><i class="fas fa-list-ul"></i> Available Positions</h2>
+            <button id="postJobBtn" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Post a Job</button>
+        </div>
+
+        <div class="filter-bar">
+            <select id="filterType">
+                <option value="all">All Types</option>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
+                <option value="remote">Remote</option>
+            </select>
+            <select id="filterIndustry">
+                <option value="all">All Industries</option>
+                <option value="Technology">Technology</option>
+                <option value="Finance">Finance</option>
+                <option value="Business">Business</option>
+                <option value="Education">Education</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="text" id="searchJobs" placeholder="Search by title, company...">
+        </div>
+
+        <div id="jobsContainer" class="job-grid">
+            <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading jobs...</div>
+        </div>
+    </div>
+
+    <!-- Apply Modal -->
+    <div id="applyModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-paper-plane"></i> Apply for Job</h2>
+            <form id="applyForm">
+                <input type="hidden" id="applyJobId">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="applicantName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="applicantEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone (Optional)</label>
+                    <input type="tel" id="applicantPhone">
+                </div>
+                <div class="form-group">
+                    <label>Cover Letter</label>
+                    <textarea id="coverLetter" rows="4" placeholder="Tell us why you're a great fit..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Resume/CV (link or upload)</label>
+                    <input type="url" id="resumeUrl" placeholder="Link to resume (Google Drive, LinkedIn, etc.)">
+                    <small style="color:#718096;">Or upload file below</small>
+                    <input type="file" id="resumeFile" accept=".pdf,.doc,.docx">
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Submit</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeApplyModal()"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+            </form>
+            <div id="applyMessage" class="message"></div>
+        </div>
+    </div>
+
+    <!-- Post Job Modal -->
+    <div id="postJobModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-plus-circle"></i> Post a Job</h2>
+            <form id="postJobForm">
+                <div class="form-group">
+                    <label>Job Title *</label>
+                    <input type="text" id="jobTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" id="companyName" required>
+                </div>
+                <div class="form-group">
+                    <label>Location *</label>
+                    <input type="text" id="jobLocation" required>
+                </div>
+                <div class="form-group">
+                    <label>Job Type</label>
+                    <select id="jobType">
+                        <option value="full-time">Full-time</option>
+                        <option value="part-time">Part-time</option>
+                        <option value="contract">Contract</option>
+                        <option value="internship">Internship</option>
+                        <option value="remote">Remote</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Industry</label>
+                    <input type="text" id="jobIndustry" placeholder="e.g., Technology, Finance">
+                </div>
+                <div class="form-group">
+                    <label>Salary Range (Optional)</label>
+                    <input type="text" id="jobSalary" placeholder="e.g., P 8,000 - 12,000">
+                </div>
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="jobDescription" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>How to Apply *</label>
+                    <textarea id="howToApply" rows="3" placeholder="Instructions for applicants..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Application Deadline (Optional)</label>
+                    <input type="date" id="jobDeadline">
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Post Job</button>
+                    <button type="button" class="btn btn-secondary" onclick="closePostJobModal()"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+            </form>
+            <div id="postJobMessage" class="message"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-briefcase"></i> Alumni Jobs | Career Opportunities</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        let currentUser = {
+            id: user.id,
+            name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'Alumni',
+            email: user.email,
+            role: user.role
+        };
+
+        // ============================================
+        // DEMO JOB DATA
+        // ============================================
+        let jobs = [
+            {
+                id: 1,
+                title: "Senior Software Developer",
+                company: "Tech Solutions Botswana",
+                location: "Gaborone",
+                type: "full-time",
+                industry: "Technology",
+                salary: "P 18,000 - 25,000",
+                description: "We are looking for an experienced developer to lead our web development team. Must have 5+ years experience with Python/Django and React.",
+                how_to_apply: "Send CV and cover letter to careers@techsolutions.co.bw",
+                deadline: "2026-05-15",
+                posted_by: 2,
+                posted_date: "2026-03-20"
+            },
+            {
+                id: 2,
+                title: "Financial Analyst",
+                company: "Botswana Finance Corporation",
+                location: "Gaborone",
+                type: "full-time",
+                industry: "Finance",
+                salary: "P 12,000 - 16,000",
+                description: "Analyze financial data, prepare reports, and assist in investment decisions. Fresh graduates with strong analytical skills welcome.",
+                how_to_apply: "Apply online at https://bfc.bw/careers",
+                deadline: "2026-05-10",
+                posted_by: 3,
+                posted_date: "2026-03-18"
+            },
+            {
+                id: 3,
+                title: "Marketing Coordinator",
+                company: "Creative Agency BW",
+                location: "Francistown",
+                type: "part-time",
+                industry: "Business",
+                salary: "P 6,000 - 8,000",
+                description: "Coordinate social media campaigns, content creation, and event marketing. 20 hours/week.",
+                how_to_apply: "Send portfolio to hr@creativeagency.bw",
+                deadline: "2026-04-30",
+                posted_by: 1,
+                posted_date: "2026-03-22"
+            },
+            {
+                id: 4,
+                title: "Data Scientist Intern",
+                company: "AI Hub Botswana",
+                location: "Remote",
+                type: "internship",
+                industry: "Technology",
+                salary: "P 3,000 stipend",
+                description: "Work on machine learning projects with a team of experts. Good opportunity for recent graduates.",
+                how_to_apply: "Apply via LinkedIn or email resume@aihub.bw",
+                deadline: "2026-05-01",
+                posted_by: 2,
+                posted_date: "2026-03-15"
+            }
+        ];
+
+        let myApplications = []; // IDs of jobs user has applied to (demo)
+
+        // ============================================
+        // SAFE API CALL
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // LOAD JOBS (Real API or demo)
+        // ============================================
+        async function loadJobs() {
+            const container = document.getElementById('jobsContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading jobs...</div>';
+            const response = await safeApiCall('/api/alumni/jobs');
+            let jobsData = [];
+            if (response && response.ok) {
+                jobsData = await response.json();
+            } else {
+                jobsData = [...jobs];
+            }
+            applyFiltersAndRender(jobsData);
+        }
+
+        function applyFiltersAndRender(jobsData) {
+            const typeFilter = document.getElementById('filterType').value;
+            const industryFilter = document.getElementById('filterIndustry').value;
+            const searchTerm = document.getElementById('searchJobs').value.toLowerCase();
+
+            let filtered = jobsData;
+            if (typeFilter !== 'all') {
+                filtered = filtered.filter(j => j.type === typeFilter);
+            }
+            if (industryFilter !== 'all') {
+                filtered = filtered.filter(j => j.industry === industryFilter);
+            }
+            if (searchTerm) {
+                filtered = filtered.filter(j =>
+                    j.title.toLowerCase().includes(searchTerm) ||
+                    j.company.toLowerCase().includes(searchTerm) ||
+                    j.location.toLowerCase().includes(searchTerm)
+                );
+            }
+            renderJobs(filtered);
+        }
+
+        function renderJobs(jobsList) {
+            const container = document.getElementById('jobsContainer');
+            if (!jobsList.length) {
+                container.innerHTML = '<div class="loading">No jobs found.</div>';
+                return;
+            }
+            container.innerHTML = jobsList.map(job => `
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="job-title">${escapeHtml(job.title)}</div>
+                        <div class="job-company">${escapeHtml(job.company)}</div>
+                    </div>
+                    <div class="job-details">
+                        <div class="job-info"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(job.location)}</div>
+                        <div class="job-info"><i class="fas fa-briefcase"></i> ${formatJobType(job.type)} | <i class="fas fa-industry"></i> ${escapeHtml(job.industry)}</div>
+                        <div class="job-info"><i class="fas fa-money-bill-wave"></i> ${escapeHtml(job.salary || 'Not specified')}</div>
+                        <div class="job-description">${escapeHtml(job.description.substring(0, 100))}...</div>
+                    </div>
+                    <div class="job-footer">
+                        <span><i class="fas fa-calendar-alt"></i> Posted: ${formatDate(job.posted_date)}</span>
+                        ${myApplications.includes(job.id) ?
+                            `<button class="btn btn-secondary" disabled><i class="fas fa-check-circle"></i> Applied</button>` :
+                            `<button class="btn btn-primary" onclick="openApplyModal(${job.id})"><i class="fas fa-paper-plane"></i> Apply Now</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatJobType(type) {
+            const types = {
+                'full-time': 'Full-time',
+                'part-time': 'Part-time',
+                'contract': 'Contract',
+                'internship': 'Internship',
+                'remote': 'Remote'
+            };
+            return types[type] || type;
+        }
+
+        // ============================================
+        // APPLY FOR JOB
+        // ============================================
+        function openApplyModal(jobId) {
+            const job = jobs.find(j => j.id === jobId);
+            if (!job) return;
+            document.getElementById('applyJobId').value = jobId;
+            document.getElementById('applicantName').value = currentUser.name;
+            document.getElementById('applicantEmail').value = currentUser.email;
+            document.getElementById('applicantPhone').value = '';
+            document.getElementById('coverLetter').value = '';
+            document.getElementById('resumeUrl').value = '';
+            document.getElementById('resumeFile').value = '';
+            document.getElementById('applyModal').style.display = 'flex';
+            document.getElementById('applyMessage').style.display = 'none';
+        }
+
+        function closeApplyModal() {
+            document.getElementById('applyModal').style.display = 'none';
+        }
+
+        document.getElementById('applyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const jobId = parseInt(document.getElementById('applyJobId').value);
+            const name = document.getElementById('applicantName').value;
+            const email = document.getElementById('applicantEmail').value;
+            const phone = document.getElementById('applicantPhone').value;
+            const coverLetter = document.getElementById('coverLetter').value;
+            const resumeUrl = document.getElementById('resumeUrl').value;
+            const resumeFile = document.getElementById('resumeFile').files[0];
+            const messageDiv = document.getElementById('applyMessage');
+
+            const formData = new FormData();
+            formData.append('job_id', jobId);
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('phone', phone);
+            formData.append('cover_letter', coverLetter);
+            if (resumeUrl) formData.append('resume_url', resumeUrl);
+            if (resumeFile) formData.append('resume_file', resumeFile);
+
+            const response = await safeApiCall('/api/alumni/jobs/apply', {
+                method: 'POST',
+                body: formData,
+                headers: {}
+            });
+
+            if (response && response.ok) {
+                const data = await response.json();
+                myApplications.push(jobId);
+                messageDiv.className = 'message success-message';
+                messageDiv.textContent = 'Application submitted successfully!';
+                messageDiv.style.display = 'block';
+                setTimeout(() => closeApplyModal(), 1500);
+                loadJobs();
+            } else {
+                // Demo mode
+                myApplications.push(jobId);
+                messageDiv.className = 'message success-message';
+                messageDiv.textContent = 'Application submitted (demo mode)!';
+                messageDiv.style.display = 'block';
+                setTimeout(() => closeApplyModal(), 1500);
+                loadJobs();
+            }
+        });
+
+        // ============================================
+        // POST A JOB
+        // ============================================
+        document.getElementById('postJobBtn').addEventListener('click', () => {
+            document.getElementById('postJobModal').style.display = 'flex';
+            document.getElementById('postJobMessage').style.display = 'none';
+        });
+
+        function closePostJobModal() {
+            document.getElementById('postJobModal').style.display = 'none';
+        }
+
+        document.getElementById('postJobForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newJob = {
+                title: document.getElementById('jobTitle').value,
+                company: document.getElementById('companyName').value,
+                location: document.getElementById('jobLocation').value,
+                type: document.getElementById('jobType').value,
+                industry: document.getElementById('jobIndustry').value,
+                salary: document.getElementById('jobSalary').value,
+                description: document.getElementById('jobDescription').value,
+                how_to_apply: document.getElementById('howToApply').value,
+                deadline: document.getElementById('jobDeadline').value,
+                posted_by: currentUser.id,
+                posted_date: new Date().toISOString().split('T')[0]
+            };
+
+            const response = await safeApiCall('/api/alumni/jobs', {
+                method: 'POST',
+                body: JSON.stringify(newJob)
+            });
+
+            const messageDiv = document.getElementById('postJobMessage');
+            if (response && response.ok) {
+                const saved = await response.json();
+                jobs.unshift(saved);
+                messageDiv.className = 'message success-message';
+                messageDiv.textContent = 'Job posted successfully!';
+                messageDiv.style.display = 'block';
+                setTimeout(() => closePostJobModal(), 1500);
+                loadJobs();
+            } else {
+                // Demo mode
+                newJob.id = jobs.length + 1;
+                jobs.unshift(newJob);
+                messageDiv.className = 'message success-message';
+                messageDiv.textContent = 'Job posted (demo mode)!';
+                messageDiv.style.display = 'block';
+                setTimeout(() => closePostJobModal(), 1500);
+                loadJobs();
+            }
+        });
+
+        // ============================================
+        // FILTER EVENT LISTENERS
+        // ============================================
+        document.getElementById('filterType').addEventListener('change', () => loadJobs());
+        document.getElementById('filterIndustry').addEventListener('change', () => loadJobs());
+        document.getElementById('searchJobs').addEventListener('input', () => loadJobs());
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function formatDate(dateStr) {
+            if (!dateStr) return 'Recently';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        loadJobs();
+
+        // Make functions global for onclick
+        window.openApplyModal = openApplyModal;
+        window.closeApplyModal = closeApplyModal;
+        window.closePostJobModal = closePostJobModal;
+    </script>
+</body>
+</html>

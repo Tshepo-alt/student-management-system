@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Management - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Admin Wrapper with Sidebar */
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header img {
+            height: 60px;
+            width: auto;
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-header img:hover {
+            transform: scale(1.05);
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-menu-item i {
+            width: 20px;
+            font-size: 1rem;
+        }
+
+        .sidebar-menu-item:hover,
+        .sidebar-menu-item.active {
+            background: rgba(102,126,234,0.2);
+            color: white;
+            border-left: 3px solid #667eea;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title p {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-box h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+
+        .stat-box p {
+            color: #718096;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input,
+        .search-bar select {
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .search-bar input:focus,
+        .search-bar select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #2d3748;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Ticket Status & Priority Badges */
+        .ticket-open,
+        .ticket-in-progress,
+        .ticket-resolved,
+        .priority-high,
+        .priority-medium,
+        .priority-low {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .ticket-open { background: #fff3cd; color: #856404; }
+        .ticket-in-progress { background: #cfe2ff; color: #084298; }
+        .ticket-resolved { background: #d4edda; color: #155724; }
+        .priority-high { background: #f8d7da; color: #721c24; }
+        .priority-medium { background: #fff3cd; color: #856404; }
+        .priority-low { background: #d4edda; color: #155724; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #a0aec0;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .reply-item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar-header h3,
+            .sidebar-menu-item span {
+                display: none;
+            }
+            .sidebar-menu-item i {
+                margin: 0;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <h3 id="portalTitle">Admin Portal</h3>
+            </div>
+            <div class="sidebar-menu" id="sidebarMenu">
+                <!-- Links populated dynamically -->
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1><i class="fas fa-ticket-alt"></i> Support Ticket Management</h1>
+                    <p id="pageSubtitle">Manage student support tickets, assign to staff, and track resolutions</p>
+                </div>
+                <div class="admin-avatar" id="adminAvatar">A</div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-box">
+                    <h3 id="openTickets">0</h3>
+                    <p><i class="fas fa-inbox"></i> Open Tickets</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="inProgressTickets">0</h3>
+                    <p><i class="fas fa-spinner"></i> In Progress</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="resolvedTickets">0</h3>
+                    <p><i class="fas fa-check-circle"></i> Resolved</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="avgResponseTime">0</h3>
+                    <p><i class="fas fa-clock"></i> Avg Response (hrs)</p>
+                </div>
+            </div>
+
+            <!-- Tickets List -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-list-ul"></i> Support Tickets</h2>
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search by student, issue...">
+                        <select id="statusFilter">
+                            <option value="all">All Status</option>
+                            <option value="open">Open</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="searchTickets()"><i class="fas fa-search"></i> Search</button>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Student</th><th>Student #</th><th>Issue</th><th>Priority</th><th>Status</th><th>Created</th><th>Actions</th>
+                            </thead>
+                        <tbody id="ticketsTableBody">
+                            72<td colspan="8"><div class="loading">Loading tickets...</div>72</tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Details Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('ticketModal')"><i class="fas fa-times"></i></span>
+            <h2><i class="fas fa-ticket-alt"></i> Ticket Details</h2>
+            <div id="ticketDetails"></div>
+            <hr style="margin: 15px 0;">
+            <h3><i class="fas fa-reply"></i> Add Response</h3>
+            <textarea id="responseMessage" rows="3" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:12px;" placeholder="Type your response..."></textarea>
+            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="addResponse()"><i class="fas fa-paper-plane"></i> Send Response</button>
+                <button class="btn btn-success" onclick="resolveTicket()"><i class="fas fa-check"></i> Mark as Resolved</button>
+                <button class="btn btn-warning" onclick="assignToStaff()"><i class="fas fa-user-plus"></i> Assign to Staff</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== AUTHENTICATION & ROLE HANDLING ==========
+        const token = localStorage.getItem('access_token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        // Determine allowed roles
+        const role = user.role || '';
+        const email = (user.email || '').toLowerCase();
+        const isAdmin = ['admin', 'administrator'].includes(role);
+        const isLecturer = role === 'lecturer';
+        const isFinance = role === 'finance';
+        const isStaff = role === 'staff';
+        const isAccommodationStaff = isStaff && email.includes('accommodation');
+        const isGeneralStaff = isStaff && !isAccommodationStaff;
+        
+        // Redirect if not allowed
+        if (!isAdmin && !isLecturer && !isFinance && !isStaff) {
+            console.log('Not authorized, redirecting to student dashboard');
+            window.location.href = 'student-dashboard.html';
+        }
+        
+        // Role‑specific portal title and subtitle
+        let portalTitle = '';
+        let pageSubtitle = '';
+        let sidebarLinks = [];
+        
+        if (isAdmin) {
+            portalTitle = 'Admin Portal';
+            pageSubtitle = 'Manage student support tickets, assign to staff, and track resolutions';
+            sidebarLinks = [
+                { href: 'admin-dashboard.html', icon: 'fas fa-chart-line', text: 'Dashboard' },
+                { href: 'admin-students.html', icon: 'fas fa-users', text: 'Students' },
+                { href: 'admin-staff.html', icon: 'fas fa-user-tie', text: 'Staff' },
+                { href: 'admin-programs.html', icon: 'fas fa-graduation-cap', text: 'Programs' },
+                { href: 'admin-modules.html', icon: 'fas fa-book', text: 'Modules' },
+                { href: 'admin-accommodation.html', icon: 'fas fa-bed', text: 'Accommodation' },
+                { href: 'admin-payments.html', icon: 'fas fa-credit-card', text: 'Payments' },
+                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Tickets', active: true }
+            ];
+        } else if (isLecturer) {
+            portalTitle = 'Lecturer Portal';
+            pageSubtitle = 'View and respond to course‑related support tickets';
+            sidebarLinks = [
+                { href: 'lecturer-dashboard.html', icon: 'fas fa-chart-line', text: 'Dashboard' },
+                { href: 'lecturer-courses.html', icon: 'fas fa-book', text: 'My Courses' },
+                { href: 'lecturer-assignments.html', icon: 'fas fa-tasks', text: 'Assignments' },
+                { href: 'lecturer-students.html', icon: 'fas fa-users', text: 'My Students' },
+                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Support Tickets', active: true }
+            ];
+        } else if (isFinance) {
+            portalTitle = 'Finance Portal';
+            pageSubtitle = 'Manage payment‑related support tickets';
+            sidebarLinks = [
+                { href: 'finance-dashboard.html', icon: 'fas fa-chart-line', text: 'Dashboard' },
+                { href: 'admin-payments.html', icon: 'fas fa-credit-card', text: 'Payments' },
+                { href: 'admin-reports.html', icon: 'fas fa-file-alt', text: 'Reports' },
+                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Support Tickets', active: true }
+            ];
+        } else if (isAccommodationStaff) {
+            portalTitle = 'Accommodation Portal';
+            pageSubtitle = 'Manage accommodation‑related support tickets';
+            sidebarLinks = [
+                { href: 'admin-accommodation.html', icon: 'fas fa-bed', text: 'Accommodation' },
+                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Support Tickets', active: true }
+            ];
+        } else if (isGeneralStaff) {
+            portalTitle = 'Staff Portal';
+            pageSubtitle = 'Manage support tickets';
+            sidebarLinks = [
+                { href: 'staff-dashboard.html', icon: 'fas fa-chart-line', text: 'Dashboard' },
+                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Support Tickets', active: true }
+            ];
+        }
+        
+        document.getElementById('portalTitle').textContent = portalTitle;
+        document.getElementById('pageSubtitle').textContent = pageSubtitle;
+        
+        // Build sidebar dynamically
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        sidebarMenu.innerHTML = sidebarLinks.map(link => `
+            <a href="${link.href}" class="sidebar-menu-item ${link.active ? 'active' : ''}">
+                <i class="${link.icon}"></i> <span>${link.text}</span>
+            </a>
+        `).join('');
+        
+        // Add logout link separately
+        const logoutLink = document.createElement('a');
+        logoutLink.href = '#';
+        logoutLink.id = 'logoutLink';
+        logoutLink.className = 'sidebar-menu-item';
+        logoutLink.innerHTML = '<i class="fas fa-sign-out-alt"></i> <span>Logout</span>';
+        sidebarMenu.appendChild(logoutLink);
+        
+        // Avatar
+        const initial = (user.first_name ? user.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
+        document.getElementById('adminAvatar').textContent = initial;
+        
+        // ========== TICKET DATA (demo, role‑filtered) ==========
+        const allTickets = [
+            { id: 1, student_name: 'John Doe', student_number: 'GIPS/2026/00001', category: 'login', issue: 'Cannot login to portal', description: 'Keep getting "Invalid credentials" even after password reset.', priority: 'high', status: 'open', created: '2026-03-20T10:30:00', responses: [] },
+            { id: 2, student_name: 'Jane Smith', student_number: 'GIPS/2026/00002', category: 'payment', issue: 'Payment not reflecting', description: 'Made payment 2 days ago but status still pending.', priority: 'medium', status: 'in-progress', created: '2026-03-21T14:15:00', responses: [{ admin: 'Admin', message: 'Checking with finance department.', date: '2026-03-22T09:00:00' }] },
+            { id: 3, student_name: 'Mike Johnson', student_number: 'GIPS/2026/00003', category: 'accommodation', issue: 'Accommodation application stuck', description: 'Applied for accommodation but no response yet.', priority: 'low', status: 'open', created: '2026-03-22T11:45:00', responses: [] },
+            { id: 4, student_name: 'Alice Brown', student_number: 'GIPS/2026/00004', category: 'course', issue: 'Assignment grade dispute', description: 'I believe my assignment was graded incorrectly.', priority: 'medium', status: 'open', created: '2026-03-23T09:20:00', responses: [] },
+            { id: 5, student_name: 'Bob Williams', student_number: 'GIPS/2026/00005', category: 'payment', issue: 'Refund request', description: 'I overpaid tuition fees, need refund.', priority: 'high', status: 'in-progress', created: '2026-03-21T16:00:00', responses: [{ admin: 'Finance', message: 'Processing refund request.', date: '2026-03-22T10:30:00' }] },
+            { id: 6, student_name: 'Carol Davis', student_number: 'GIPS/2026/00006', category: 'course', issue: 'Course material missing', description: 'Cannot access lecture notes for CS101.', priority: 'medium', status: 'resolved', created: '2026-03-19T12:00:00', responses: [{ admin: 'Lecturer', message: 'Material uploaded.', date: '2026-03-20T08:00:00' }] }
+        ];
+        
+        // Filter tickets based on role
+        let filteredTickets = [];
+        if (isAdmin) {
+            filteredTickets = allTickets;
+        } else if (isLecturer) {
+            filteredTickets = allTickets.filter(t => t.category === 'course');
+        } else if (isFinance) {
+            filteredTickets = allTickets.filter(t => t.category === 'payment');
+        } else if (isAccommodationStaff) {
+            filteredTickets = allTickets.filter(t => t.category === 'accommodation');
+        } else {
+            filteredTickets = allTickets;
+        }
+        
+        let tickets = filteredTickets.map(t => ({ ...t })); // copy
+        
+        // ========== UTILITY FUNCTIONS ==========
+        function updateStats() {
+            const open = tickets.filter(t => t.status === 'open').length;
+            const inProgress = tickets.filter(t => t.status === 'in-progress').length;
+            const resolved = tickets.filter(t => t.status === 'resolved').length;
+            document.getElementById('openTickets').textContent = open;
+            document.getElementById('inProgressTickets').textContent = inProgress;
+            document.getElementById('resolvedTickets').textContent = resolved;
+            // Dummy avg response (simulate)
+            document.getElementById('avgResponseTime').textContent = Math.floor(Math.random() * 5) + 1;
+        }
+        
+        function displayTickets(search = '', status = 'all') {
+            const tbody = document.getElementById('ticketsTableBody');
+            let filtered = tickets;
+            if (search) {
+                const term = search.toLowerCase();
+                filtered = filtered.filter(t => 
+                    (t.student_name || '').toLowerCase().includes(term) || 
+                    (t.issue || '').toLowerCase().includes(term) ||
+                    (t.student_number || '').includes(term)
+                );
+            }
+            if (status !== 'all') {
+                filtered = filtered.filter(t => t.status === status);
+            }
+            if (filtered.length === 0) {
+                tbody.innerHTML = '的人<td colspan="8"><div class="loading">No tickets found</div></tr>';
+                return;
+            }
+            tbody.innerHTML = filtered.map(t => `
+                <tr>
+                    <td>#${t.id}</td>
+                    <td><strong>${t.student_name || 'Unknown'}</strong></td>
+                    <td>${t.student_number || 'N/A'}</td>
+                    <td>${t.issue || 'No issue specified'}</td>
+                    <td><span class="priority-${t.priority || 'medium'}">${(t.priority || 'medium').toUpperCase()}</span></td>
+                    <td><span class="ticket-${t.status || 'open'}">${(t.status || 'open').toUpperCase()}</span></td>
+                    <td>${t.created ? new Date(t.created).toLocaleDateString() : 'N/A'}</td>
+                    <td><button class="btn btn-primary" onclick="viewTicket(${t.id})"><i class="fas fa-eye"></i> View</button></td>
+                </tr>
+            `).join('');
+        }
+        
+        function searchTickets() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            displayTickets(searchTerm, status);
+        }
+        
+        // ========== TICKET MODAL ==========
+        let currentTicketId = null;
+        
+        function viewTicket(id) {
+            currentTicketId = id;
+            const ticket = tickets.find(t => t.id === id);
+            if (!ticket) return;
+            
+            let responsesHtml = '';
+            if (ticket.responses && ticket.responses.length > 0) {
+                responsesHtml = '<h3><i class="fas fa-history"></i> Conversation History</h3>';
+                ticket.responses.forEach(r => {
+                    responsesHtml += `
+                        <div class="reply-item">
+                            <strong>${r.admin || r.sender || 'Staff'}</strong> - ${new Date(r.date).toLocaleString()}<br>
+                            ${r.message}
+                        </div>
+                    `;
+                });
+            } else {
+                responsesHtml = '<p>No responses yet.</p>';
+            }
+            
+            const detailsHtml = `
+                <div style="margin-bottom: 15px;">
+                    <p><strong><i class="fas fa-hashtag"></i> Ticket #:</strong> ${ticket.id}</p>
+                    <p><strong><i class="fas fa-user-graduate"></i> Student:</strong> ${ticket.student_name || 'Unknown'} (${ticket.student_number || 'N/A'})</p>
+                    <p><strong><i class="fas fa-exclamation-triangle"></i> Issue:</strong> ${ticket.issue || 'No issue specified'}</p>
+                    <p><strong><i class="fas fa-align-left"></i> Description:</strong> ${ticket.description || 'No description provided'}</p>
+                    <p><strong><i class="fas fa-flag"></i> Priority:</strong> <span class="priority-${ticket.priority || 'medium'}">${(ticket.priority || 'medium').toUpperCase()}</span></p>
+                    <p><strong><i class="fas fa-chart-simple"></i> Status:</strong> <span class="ticket-${ticket.status || 'open'}">${(ticket.status || 'open').toUpperCase()}</span></p>
+                    <p><strong><i class="fas fa-calendar-alt"></i> Created:</strong> ${ticket.created ? new Date(ticket.created).toLocaleString() : 'N/A'}</p>
+                </div>
+                ${responsesHtml}
+            `;
+            document.getElementById('ticketDetails').innerHTML = detailsHtml;
+            document.getElementById('responseMessage').value = '';
+            document.getElementById('ticketModal').style.display = 'flex';
+        }
+        
+        async function addResponse() {
+            const message = document.getElementById('responseMessage').value.trim();
+            if (!message) {
+                alert('Please enter a response message');
+                return;
+            }
+            const ticket = tickets.find(t => t.id === currentTicketId);
+            if (!ticket) return;
+            
+            if (!ticket.responses) ticket.responses = [];
+            ticket.responses.push({
+                admin: user.first_name || user.username || 'Staff',
+                message: message,
+                date: new Date().toISOString()
+            });
+            if (ticket.status === 'open') ticket.status = 'in-progress';
+            displayTickets();
+            updateStats();
+            viewTicket(currentTicketId);
+            document.getElementById('responseMessage').value = '';
+            alert('Response added successfully! (Demo Mode)');
+        }
+        
+        async function resolveTicket() {
+            if (!confirm('Mark this ticket as resolved?')) return;
+            const ticket = tickets.find(t => t.id === currentTicketId);
+            if (ticket) {
+                ticket.status = 'resolved';
+                displayTickets();
+                updateStats();
+                closeModal('ticketModal');
+                alert('Ticket marked as resolved! (Demo Mode)');
+            }
+        }
+        
+        async function assignToStaff() {
+            const staffName = prompt('Enter staff member name to assign this ticket:');
+            if (staffName) {
+                const ticket = tickets.find(t => t.id === currentTicketId);
+                if (ticket) {
+                    if (!ticket.responses) ticket.responses = [];
+                    ticket.responses.push({
+                        admin: 'System',
+                        message: `Assigned to ${staffName} for handling.`,
+                        date: new Date().toISOString()
+                    });
+                    ticket.status = 'in-progress';
+                    ticket.assigned_to = staffName;
+                    displayTickets();
+                    updateStats();
+                    viewTicket(currentTicketId);
+                    alert(`Ticket assigned to ${staffName} (Demo Mode)`);
+                }
+            }
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // ========== INIT ==========
+        function init() {
+            displayTickets();
+            updateStats();
+            document.getElementById('logoutLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.href = 'login.html';
+            });
+            console.log('✅ Ticket page loaded for role:', role);
+        }
+        
+        init();
+    </script>
+</body>
+</html>

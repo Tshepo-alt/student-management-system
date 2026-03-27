@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Queries - Registrar | GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #3b82f6;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '\f059';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 80px;
+            opacity: 0.15;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(59,130,246,0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(59,130,246,0.1);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input,
+        .search-bar select {
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .search-bar input:focus,
+        .search-bar select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59,130,246,0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #2d3748;
+        }
+
+        .query-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+
+        .query-card {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 18px;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s;
+        }
+
+        .query-card:hover {
+            transform: translateY(-3px);
+            background: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .query-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .query-meta {
+            font-size: 0.8rem;
+            color: #718096;
+            margin: 8px 0;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-pending {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .badge-resolved {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .badge-high {
+            background: #fed7d7;
+            color: #9b2c2c;
+        }
+
+        .badge-medium {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .badge-low {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #a0aec0;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        .reply-item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .query-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="registrar-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="registrar-students.html" class="nav-link"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="registrar-documents.html" class="nav-link"><i class="fas fa-file-alt"></i> Documents</a></li>
+                <li><a href="registrar-reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
+                <li><a href="staff-queries.html" class="nav-link active"><i class="fas fa-question-circle"></i> Staff Queries</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-question-circle"></i> Staff Queries</h1>
+            <p>Manage and respond to inquiries from staff members.</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalQueries">--</div>
+                <div class="stat-label"><i class="fas fa-envelope"></i> Total Queries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingQueries">--</div>
+                <div class="stat-label"><i class="fas fa-clock"></i> Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="resolvedQueries">--</div>
+                <div class="stat-label"><i class="fas fa-check-circle"></i> Resolved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="highPriorityQueries">--</div>
+                <div class="stat-label"><i class="fas fa-exclamation-triangle"></i> High Priority</div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <h2><i class="fas fa-list-ul"></i> All Staff Queries</h2>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search by staff name, department, subject...">
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                    <select id="priorityFilter">
+                        <option value="all">All Priority</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="searchQueries()"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-primary" onclick="exportQueries()"><i class="fas fa-download"></i> Export</button>
+                </div>
+            </div>
+            <div id="queriesList" class="query-grid">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading queries...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Query Details Modal -->
+    <div id="queryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('queryModal')"><i class="fas fa-times"></i></span>
+            <h2><i class="fas fa-question-circle"></i> Query Details</h2>
+            <div id="queryDetails"></div>
+            <hr style="margin: 15px 0;">
+            <h3><i class="fas fa-reply"></i> Add Response</h3>
+            <textarea id="responseMessage" rows="3" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:12px;" placeholder="Type your response..."></textarea>
+            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="sendResponse()"><i class="fas fa-paper-plane"></i> Send Response</button>
+                <button class="btn btn-success" onclick="resolveQuery()"><i class="fas fa-check"></i> Mark as Resolved</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-question-circle"></i> Staff Query Management</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userRole = localStorage.getItem('user_role') || user.role;
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        if (userRole !== 'registrar') {
+            window.location.href = 'student-dashboard.html';
+        }
+
+        const logoImage = document.getElementById('logoImage');
+        if (logoImage) logoImage.onerror = function() { this.style.display = 'none'; };
+
+        // ========== DEMO DATA ==========
+        let queries = [
+            { id: 1, staff_name: 'Dr. Sarah Johnson', staff_email: 'sarah.johnson@gipscollege.edu.bw', department: 'Computer Science', subject: 'Student Registration Issue', message: 'A student is unable to register for CS301. The system shows prerequisite not met, but the student completed the required module.', priority: 'high', status: 'pending', created_at: '2026-03-24T09:30:00', responses: [] },
+            { id: 2, staff_name: 'Prof. Michael Brown', staff_email: 'michael.brown@gipscollege.edu.bw', department: 'Business Administration', subject: 'Grade Upload Error', message: 'I cannot upload final grades for BBA 401. The system keeps timing out.', priority: 'medium', status: 'pending', created_at: '2026-03-23T14:15:00', responses: [] },
+            { id: 3, staff_name: 'Dr. Emily Davis', staff_email: 'emily.davis@gipscollege.edu.bw', department: 'Accounting', subject: 'Transcript Request', message: 'A graduating student needs an official transcript by next week. Can we expedite?', priority: 'high', status: 'pending', created_at: '2026-03-22T11:20:00', responses: [] },
+            { id: 4, staff_name: 'Mr. David Wilson', staff_email: 'david.wilson@gipscollege.edu.bw', department: 'Library Services', subject: 'Library System Access', message: 'Staff library accounts are not syncing with the new system.', priority: 'medium', status: 'resolved', created_at: '2026-03-21T09:45:00', responses: [{ admin: 'Registrar', message: 'Issue resolved. Accounts synchronized.', date: '2026-03-22T10:30:00' }] },
+            { id: 5, staff_name: 'Ms. Linda Taylor', staff_email: 'linda.taylor@gipscollege.edu.bw', department: 'Admissions', subject: 'Document Upload Problem', message: 'Applicants are reporting errors when uploading documents. Please check the portal.', priority: 'high', status: 'pending', created_at: '2026-03-25T08:00:00', responses: [] }
+        ];
+
+        // ========== HELPER FUNCTIONS ==========
+        function showMessage(message, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.style.position = 'fixed';
+            msgDiv.style.top = '20px';
+            msgDiv.style.right = '20px';
+            msgDiv.style.zIndex = '2000';
+            msgDiv.style.backgroundColor = type === 'success' ? '#28a745' : (type === 'error' ? '#dc3545' : '#ffc107');
+            msgDiv.style.color = type === 'warning' ? '#2d3748' : 'white';
+            msgDiv.style.padding = '12px 20px';
+            msgDiv.style.borderRadius = '12px';
+            msgDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+            msgDiv.style.display = 'flex';
+            msgDiv.style.alignItems = 'center';
+            msgDiv.style.gap = '8px';
+            msgDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle')}"></i> ${message}`;
+            document.body.appendChild(msgDiv);
+            setTimeout(() => msgDiv.remove(), 3000);
+        }
+
+        function updateStats() {
+            const total = queries.length;
+            const pending = queries.filter(q => q.status === 'pending').length;
+            const resolved = queries.filter(q => q.status === 'resolved').length;
+            const highPriority = queries.filter(q => q.priority === 'high' && q.status === 'pending').length;
+            document.getElementById('totalQueries').textContent = total;
+            document.getElementById('pendingQueries').textContent = pending;
+            document.getElementById('resolvedQueries').textContent = resolved;
+            document.getElementById('highPriorityQueries').textContent = highPriority;
+        }
+
+        function renderQueries(search = '', statusFilter = 'all', priorityFilter = 'all') {
+            const container = document.getElementById('queriesList');
+            let filtered = queries;
+
+            if (search) {
+                const term = search.toLowerCase();
+                filtered = filtered.filter(q => 
+                    q.staff_name.toLowerCase().includes(term) ||
+                    q.department.toLowerCase().includes(term) ||
+                    q.subject.toLowerCase().includes(term)
+                );
+            }
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(q => q.status === statusFilter);
+            }
+            if (priorityFilter !== 'all') {
+                filtered = filtered.filter(q => q.priority === priorityFilter);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading"><i class="fas fa-info-circle"></i> No queries found.</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(q => {
+                const statusClass = q.status === 'pending' ? 'badge-pending' : 'badge-resolved';
+                const statusText = q.status.charAt(0).toUpperCase() + q.status.slice(1);
+                const priorityClass = `badge-${q.priority}`;
+                const priorityText = q.priority.charAt(0).toUpperCase() + q.priority.slice(1);
+                return `
+                    <div class="query-card" onclick="viewQuery(${q.id})">
+                        <div class="query-title">
+                            <i class="fas fa-user-tie"></i> ${escapeHtml(q.staff_name)}
+                            <span class="badge ${statusClass}" style="margin-left: auto;">${statusText}</span>
+                        </div>
+                        <div class="query-meta">
+                            <i class="fas fa-building"></i> ${escapeHtml(q.department)}<br>
+                            <i class="fas fa-tag"></i> ${escapeHtml(q.subject)}<br>
+                            <i class="fas fa-calendar-alt"></i> ${new Date(q.created_at).toLocaleDateString()}
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span class="badge ${priorityClass}"><i class="fas fa-flag"></i> ${priorityText}</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); viewQuery(${q.id})" style="padding: 4px 12px; font-size: 0.75rem;"><i class="fas fa-eye"></i> View</button>
+                            ${q.status === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); resolveQueryQuick(${q.id})" style="padding: 4px 12px; font-size: 0.75rem;"><i class="fas fa-check"></i> Resolve</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function searchQueries() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            renderQueries(searchTerm, status, priority);
+        }
+
+        // ========== QUERY ACTIONS ==========
+        let currentQueryId = null;
+
+        function viewQuery(id) {
+            const query = queries.find(q => q.id === id);
+            if (!query) return;
+
+            currentQueryId = id;
+
+            const modal = document.getElementById('queryModal');
+            const detailsDiv = document.getElementById('queryDetails');
+
+            let responsesHtml = '';
+            if (query.responses && query.responses.length > 0) {
+                responsesHtml = '<h4><i class="fas fa-history"></i> Conversation History</h4>';
+                query.responses.forEach(r => {
+                    responsesHtml += `
+                        <div class="reply-item">
+                            <strong>${escapeHtml(r.admin)}</strong> - ${new Date(r.date).toLocaleString()}<br>
+                            ${escapeHtml(r.message)}
+                        </div>
+                    `;
+                });
+            } else {
+                responsesHtml = '<p>No responses yet.</p>';
+            }
+
+            const statusClass = query.status === 'pending' ? 'badge-pending' : 'badge-resolved';
+            const priorityClass = `badge-${query.priority}`;
+
+            detailsDiv.innerHTML = `
+                <div style="margin: 15px 0;">
+                    <p><strong><i class="fas fa-user-tie"></i> Staff:</strong> ${escapeHtml(query.staff_name)} (${escapeHtml(query.staff_email)})</p>
+                    <p><strong><i class="fas fa-building"></i> Department:</strong> ${escapeHtml(query.department)}</p>
+                    <p><strong><i class="fas fa-tag"></i> Subject:</strong> ${escapeHtml(query.subject)}</p>
+                    <p><strong><i class="fas fa-align-left"></i> Message:</strong> ${escapeHtml(query.message)}</p>
+                    <p><strong><i class="fas fa-flag"></i> Priority:</strong> <span class="badge ${priorityClass}">${query.priority.toUpperCase()}</span></p>
+                    <p><strong><i class="fas fa-chart-simple"></i> Status:</strong> <span class="badge ${statusClass}">${query.status.toUpperCase()}</span></p>
+                    <p><strong><i class="fas fa-calendar-alt"></i> Created:</strong> ${new Date(query.created_at).toLocaleString()}</p>
+                </div>
+                <h4><i class="fas fa-comments"></i> Conversation</h4>
+                ${responsesHtml}
+            `;
+
+            document.getElementById('responseMessage').value = '';
+            modal.style.display = 'flex';
+        }
+
+        function sendResponse() {
+            const message = document.getElementById('responseMessage').value.trim();
+            if (!message) {
+                showMessage('Please enter a response message', 'warning');
+                return;
+            }
+
+            const query = queries.find(q => q.id === currentQueryId);
+            if (!query) return;
+
+            if (!query.responses) query.responses = [];
+            query.responses.push({
+                admin: user.first_name || user.username || 'Registrar',
+                message: message,
+                date: new Date().toISOString()
+            });
+
+            showMessage('Response added successfully!', 'success');
+            // Update the modal to show new response
+            viewQuery(currentQueryId);
+            // Refresh list if needed
+            searchQueries();
+            updateStats();
+        }
+
+        function resolveQuery() {
+            if (!confirm('Mark this query as resolved?')) return;
+            const query = queries.find(q => q.id === currentQueryId);
+            if (query) {
+                query.status = 'resolved';
+                showMessage('Query marked as resolved!', 'success');
+                closeModal('queryModal');
+                searchQueries();
+                updateStats();
+            }
+        }
+
+        function resolveQueryQuick(id) {
+            if (!confirm('Mark this query as resolved?')) return;
+            const query = queries.find(q => q.id === id);
+            if (query) {
+                query.status = 'resolved';
+                showMessage('Query marked as resolved!', 'success');
+                searchQueries();
+                updateStats();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // ========== EXPORT ==========
+        function exportQueries() {
+            const data = queries.map(q => ({
+                'Staff Name': q.staff_name,
+                'Staff Email': q.staff_email,
+                'Department': q.department,
+                'Subject': q.subject,
+                'Message': q.message,
+                'Priority': q.priority,
+                'Status': q.status,
+                'Created': new Date(q.created_at).toLocaleString(),
+                'Responses': q.responses.map(r => `${r.admin}: ${r.message}`).join(' | ')
+            }));
+            const csv = convertToCSV(data);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `staff_queries_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('Export started!', 'success');
+        }
+
+        function convertToCSV(arr) {
+            if (!arr.length) return '';
+            const headers = Object.keys(arr[0]).join(',');
+            const rows = arr.map(obj => Object.values(obj).map(v => `"${v}"`).join(','));
+            return [headers, ...rows].join('\n');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
+        function init() {
+            updateStats();
+            renderQueries();
+        }
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grading Dashboard - Lecturer Portal | GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '\f0c0';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 80px;
+            opacity: 0.2;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .filter-bar select:focus,
+        .filter-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .filter-bar input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Assignments Grid */
+        .assignments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .assignment-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: all 0.3s;
+        }
+
+        .assignment-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .assignment-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .assignment-course {
+            color: #667eea;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .assignment-stats {
+            font-size: 0.85rem;
+            color: #718096;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .assignment-stats span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+        }
+
+        .submission-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .grade-input {
+            width: 90px;
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-right: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        .footer p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1024px) {
+            .assignments-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="lecturer-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="lecturer-courses.html" class="nav-link"><i class="fas fa-book"></i> My Courses</a></li>
+                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="lecturer-grades.html" class="nav-link active"><i class="fas fa-chart-line"></i> Grading</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-chart-line"></i> Grading Dashboard</h1>
+            <p>View and grade student submissions for your assignments.</p>
+        </div>
+
+        <div class="filter-bar">
+            <select id="courseFilter">
+                <option value="all">All Courses</option>
+            </select>
+            <input type="text" id="searchAssignments" placeholder="Search by assignment title...">
+        </div>
+
+        <div id="assignmentsContainer" class="assignments-grid">
+            <div class="loading">Loading assignments...</div>
+        </div>
+    </div>
+
+    <!-- Modal for Grading Submissions -->
+    <div id="submissionsModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle"><i class="fas fa-graduation-cap"></i> Submissions</h3>
+            <div id="modalBody"></div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-primary" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-chalkboard-teacher"></i> Lecturer Portal | Grading Dashboard</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        if (user.role !== 'lecturer') {
+            window.location.href = 'student-dashboard.html';
+        }
+
+        // ============================================
+        // DEMO DATA (assignments with submissions)
+        // ============================================
+        let assignments = [
+            {
+                id: 1,
+                title: 'Programming Assignment 1',
+                courseId: 1,
+                courseName: 'CS101 - Introduction to Programming',
+                dueDate: '2026-04-15',
+                maxPoints: 100,
+                submissions: [
+                    { studentId: 1, studentName: 'John Doe', submittedAt: '2026-04-10', grade: null },
+                    { studentId: 2, studentName: 'Jane Smith', submittedAt: '2026-04-12', grade: null }
+                ]
+            },
+            {
+                id: 2,
+                title: 'Database Design Project',
+                courseId: 2,
+                courseName: 'CS201 - Database Systems',
+                dueDate: '2026-04-20',
+                maxPoints: 100,
+                submissions: [
+                    { studentId: 1, studentName: 'John Doe', submittedAt: '2026-04-18', grade: 85 }
+                ]
+            },
+            {
+                id: 3,
+                title: 'JavaScript Quiz',
+                courseId: 3,
+                courseName: 'CS301 - Web Development',
+                dueDate: '2026-04-10',
+                maxPoints: 50,
+                submissions: [
+                    { studentId: 2, studentName: 'Jane Smith', submittedAt: '2026-04-09', grade: 42 }
+                ]
+            }
+        ];
+
+        let courses = [
+            { id: 1, name: 'CS101 - Introduction to Programming' },
+            { id: 2, name: 'CS201 - Database Systems' },
+            { id: 3, name: 'CS301 - Web Development' }
+        ];
+
+        // ============================================
+        // Helper: Render Assignment Cards
+        // ============================================
+        function renderAssignments() {
+            const container = document.getElementById('assignmentsContainer');
+            const courseFilter = document.getElementById('courseFilter').value;
+            const searchTerm = document.getElementById('searchAssignments').value.toLowerCase();
+
+            let filtered = assignments;
+            if (courseFilter !== 'all') {
+                filtered = filtered.filter(a => a.courseId == courseFilter);
+            }
+            if (searchTerm) {
+                filtered = filtered.filter(a => a.title.toLowerCase().includes(searchTerm));
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading">No assignments found.</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(assignment => {
+                const totalSubmissions = assignment.submissions.length;
+                const gradedCount = assignment.submissions.filter(s => s.grade !== null).length;
+                const averageGrade = totalSubmissions > 0
+                    ? (assignment.submissions.reduce((sum, s) => sum + (s.grade || 0), 0) / totalSubmissions).toFixed(1)
+                    : 0;
+
+                return `
+                    <div class="assignment-card">
+                        <div class="assignment-title">${escapeHtml(assignment.title)}</div>
+                        <div class="assignment-course">
+                            <i class="fas fa-book-open"></i> ${assignment.courseName}
+                        </div>
+                        <div class="assignment-stats">
+                            <span><i class="fas fa-calendar-alt"></i> Due: ${assignment.dueDate}</span>
+                            <span><i class="fas fa-star"></i> Max: ${assignment.maxPoints} pts</span>
+                        </div>
+                        <div class="assignment-stats">
+                            <span><i class="fas fa-inbox"></i> Submissions: ${totalSubmissions}</span>
+                            <span><i class="fas fa-check-circle"></i> Graded: ${gradedCount}</span>
+                            <span><i class="fas fa-chart-line"></i> Avg: ${averageGrade}</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="gradeAssignment(${assignment.id})">
+                            <i class="fas fa-edit"></i> Grade Submissions
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================================
+        // Grade Assignment (show modal)
+        // ============================================
+        window.gradeAssignment = function(assignmentId) {
+            const assignment = assignments.find(a => a.id === assignmentId);
+            if (!assignment) return;
+
+            const modal = document.getElementById('submissionsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.innerHTML = `<i class="fas fa-edit"></i> Grade Submissions: ${escapeHtml(assignment.title)}`;
+
+            if (assignment.submissions.length === 0) {
+                modalBody.innerHTML = '<p>No submissions yet.</p>';
+            } else {
+                modalBody.innerHTML = `
+                    <div>
+                        ${assignment.submissions.map(sub => `
+                            <div class="submission-item" data-student-id="${sub.studentId}" data-assignment-id="${assignment.id}">
+                                <div>
+                                    <strong><i class="fas fa-user-graduate"></i> ${escapeHtml(sub.studentName)}</strong><br>
+                                    <small><i class="fas fa-clock"></i> Submitted: ${sub.submittedAt}</small>
+                                </div>
+                                <div>
+                                    <input type="number" class="grade-input" placeholder="Grade" value="${sub.grade !== null ? sub.grade : ''}" step="1" min="0" max="${assignment.maxPoints}">
+                                    <button class="btn btn-primary btn-sm" onclick="saveGrade(${assignment.id}, ${sub.studentId}, this)">
+                                        <i class="fas fa-save"></i> Save
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            modal.style.display = 'flex';
+        };
+
+        // ============================================
+        // Save Grade
+        // ============================================
+        window.saveGrade = function(assignmentId, studentId, button) {
+            const item = button.closest('.submission-item');
+            const gradeInput = item.querySelector('.grade-input');
+            const grade = parseInt(gradeInput.value, 10);
+            if (isNaN(grade)) {
+                alert('Please enter a valid grade.');
+                return;
+            }
+            const assignment = assignments.find(a => a.id === assignmentId);
+            if (!assignment) return;
+            const submission = assignment.submissions.find(s => s.studentId === studentId);
+            if (submission) {
+                submission.grade = grade;
+                alert(`Grade saved: ${submission.studentName} - ${grade}/${assignment.maxPoints}`);
+                renderAssignments(); // refresh the cards to update counts and average
+            }
+        };
+
+        // ============================================
+        // Populate course filter
+        // ============================================
+        function populateCourseFilter() {
+            const filterSelect = document.getElementById('courseFilter');
+            filterSelect.innerHTML = '<option value="all">All Courses</option>' +
+                courses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        // ============================================
+        // Filter listeners
+        // ============================================
+        document.getElementById('courseFilter').addEventListener('change', renderAssignments);
+        document.getElementById('searchAssignments').addEventListener('input', renderAssignments);
+
+        // ============================================
+        // Modal close
+        // ============================================
+        function closeModal() {
+            document.getElementById('submissionsModal').style.display = 'none';
+        }
+        window.closeModal = closeModal;
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        };
+
+        // ============================================
+        // Logout
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // Helper
+        // ============================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // Initialise
+        // ============================================
+        populateCourseFilter();
+        renderAssignments();
+
+        console.log('✅ Lecturer Grading page loaded');
+    </script>
+</body>
+</html>

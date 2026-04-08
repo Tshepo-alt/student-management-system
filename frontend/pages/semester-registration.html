@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Semester Registration - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Registration Card */
+        .registration-container {
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .card-header {
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            color: #2d3748;
+        }
+
+        .info-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 16px;
+        }
+
+        .info-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .info-item label {
+            font-weight: 600;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item span {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        /* Course Selection */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .course-checkbox {
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 15px;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .course-checkbox:hover {
+            background: white;
+            border-color: #667eea;
+            transform: translateX(3px);
+        }
+
+        .course-checkbox input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .course-info {
+            flex: 1;
+        }
+
+        .course-code {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 0.85rem;
+        }
+
+        .course-name {
+            font-weight: 600;
+            margin: 5px 0;
+            color: #2d3748;
+        }
+
+        .course-credits {
+            font-size: 0.75rem;
+            color: #718096;
+        }
+
+        /* Fee Breakdown */
+        .fee-table {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .fee-row:last-child {
+            border-bottom: none;
+        }
+
+        .fee-total {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #667eea;
+        }
+
+        .sponsorship-note {
+            background: #c6f6d5;
+            color: #276749;
+            padding: 12px;
+            border-radius: 12px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .navbar .container {
+                flex-direction: column;
+            }
+
+            .nav-menu {
+                justify-content: center;
+            }
+
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="semester-registration.html" class="nav-link active"><i class="fas fa-edit"></i> Semester
+                        Registration</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container registration-container">
+        <div id="registrationContent">
+            <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading registration data...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-edit"></i> Semester Registration | Academic Affairs</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // SAFE API CALL
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
+        let studentData = {};
+        let courses = [];
+        let selectedCourses = new Set();
+        let feeStructure = {
+            registration_fee: 630,
+            tuition_per_semester: 32550,
+            exam_fee_per_module: 5145
+        };
+
+        // ============================================
+        // LOAD REGISTRATION DATA
+        // ============================================
+        async function loadRegistrationData() {
+            const container = document.getElementById('registrationContent');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading registration data...</div>';
+
+            try {
+                // Get student info and check admission status
+                const studentRes = await safeApiCall('/api/students/profile');
+                if (!studentRes || !studentRes.ok) throw new Error('Failed to load student data');
+                studentData = await studentRes.json();
+
+                // Check if already registered for current semester
+                const regCheckRes = await safeApiCall('/api/students/current-registration');
+                if (regCheckRes && regCheckRes.ok) {
+                    const regData = await regCheckRes.json();
+                    if (regData.has_registration && regData.status !== 'rejected') {
+                        // Already registered, redirect to dashboard or waiting page
+                        if (regData.status === 'approved') {
+                            window.location.href = 'student-dashboard.html';
+                        } else {
+                            window.location.href = 'registration-waiting.html';
+                        }
+                        return;
+                    }
+                }
+
+                // Load available courses for the student's program
+                const coursesRes = await safeApiCall(`/api/students/available-courses?program_id=${studentData.program_id}`);
+                if (coursesRes && coursesRes.ok) {
+                    courses = await coursesRes.json();
+                } else {
+                    // Demo courses if API not ready
+                    courses = [
+                        { id: 1, code: 'CS101', name: 'Introduction to Programming', credits: 12, semester: 1, year: 1 },
+                        { id: 2, code: 'CS102', name: 'Computer Architecture', credits: 12, semester: 1, year: 1 },
+                        { id: 3, code: 'CS103', name: 'Mathematics for Computing', credits: 12, semester: 1, year: 1 },
+                        { id: 4, code: 'BA101', name: 'Principles of Management', credits: 12, semester: 1, year: 1 }
+                    ];
+                }
+
+                renderRegistrationForm();
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-header"><h2><i class="fas fa-exclamation-triangle"></i> Error</h2></div>
+                        <p>Unable to load registration data. Please try again later.</p>
+                        <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderRegistrationForm() {
+            const container = document.getElementById('registrationContent');
+            const isGovSponsored = studentData.is_government_sponsored;
+            const totalTuition = isGovSponsored ? 0 : feeStructure.tuition_per_semester;
+            const registrationFee = isGovSponsored ? 0 : feeStructure.registration_fee;
+
+            let feeBreakdownHtml = `
+                <div class="fee-table">
+                    <div class="fee-row"><span>Registration Fee:</span><span>P ${registrationFee.toFixed(2)}</span></div>
+                    <div class="fee-row"><span>Tuition Fee (per semester):</span><span>P ${totalTuition.toFixed(2)}</span></div>
+                    <div id="examFeeRow" class="fee-row"><span>Exam Fees (per module):</span><span>P 0.00</span></div>
+                    <div id="totalFeeRow" class="fee-total"><span>Total Fees Due:</span><span>P ${(registrationFee + totalTuition).toFixed(2)}</span></div>
+                </div>
+            `;
+
+            if (isGovSponsored) {
+                feeBreakdownHtml = `
+                    <div class="sponsorship-note">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        <span>You are a government-sponsored student. Registration and tuition fees are exempt. Only exam fees (if any) may apply.</span>
+                    </div>
+                    <div class="fee-table">
+                        <div class="fee-row"><span>Registration Fee:</span><span>P 0.00 (Exempted)</span></div>
+                        <div class="fee-row"><span>Tuition Fee (per semester):</span><span>P 0.00 (Exempted)</span></div>
+                        <div id="examFeeRow" class="fee-row"><span>Exam Fees (per module):</span><span>P 0.00</span></div>
+                        <div id="totalFeeRow" class="fee-total"><span>Total Fees Due:</span><span>P 0.00</span></div>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-user-graduate"></i>
+                        <h2>Semester Registration</h2>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-item"><label><i class="fas fa-id-card"></i> Student Number</label><span>${studentData.student_number || 'N/A'}</span></div>
+                        <div class="info-item"><label><i class="fas fa-user"></i> Full Name</label><span>${studentData.first_name || ''} ${studentData.last_name || ''}</span></div>
+                        <div class="info-item"><label><i class="fas fa-graduation-cap"></i> Program</label><span>${studentData.program_name || 'N/A'}</span></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-item"><label><i class="fas fa-chart-line"></i> Academic Year</label><span>2024/2025</span></div>
+                        <div class="info-item"><label><i class="fas fa-calendar-alt"></i> Semester</label><span>First Semester</span></div>
+                        <div class="info-item"><label><i class="fas fa-hand-holding-usd"></i> Sponsorship</label><span>${isGovSponsored ? 'Government Sponsored' : 'Self Sponsored'}</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-book-open"></i>
+                        <h2>Select Courses</h2>
+                    </div>
+                    <div id="coursesContainer" class="course-grid">
+                        ${courses.map(course => `
+                            <label class="course-checkbox">
+                                <input type="checkbox" value="${course.id}" data-credits="${course.credits}" onchange="updateCourseSelection(this)">
+                                <div class="course-info">
+                                    <div class="course-code">${course.code}</div>
+                                    <div class="course-name">${course.name}</div>
+                                    <div class="course-credits"><i class="fas fa-star"></i> ${course.credits} credits</div>
+                                </div>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div class="fee-section">
+                        <h3><i class="fas fa-receipt"></i> Fee Summary</h3>
+                        ${feeBreakdownHtml}
+                    </div>
+                    <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="window.location.href='application-status.html'"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn btn-primary" onclick="submitRegistration()"><i class="fas fa-paper-plane"></i> Submit Registration</button>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+            updateFeeCalculation();
+        }
+
+        function updateCourseSelection(checkbox) {
+            const courseId = parseInt(checkbox.value);
+            if (checkbox.checked) {
+                selectedCourses.add(courseId);
+            } else {
+                selectedCourses.delete(courseId);
+            }
+            updateFeeCalculation();
+        }
+
+        function updateFeeCalculation() {
+            const selectedModules = Array.from(selectedCourses);
+            const examFeePerModule = feeStructure.exam_fee_per_module;
+            const isGovSponsored = studentData.is_government_sponsored;
+
+            let examFees = selectedModules.length * examFeePerModule;
+            if (isGovSponsored) {
+                examFees = 0; // Government sponsored students exempt from exam fees? Actually they pay exam fees, but according to earlier logic, they pay only supplementary/resit/retake. Regular exam fees are exempt. We'll set exam fees to 0 for regular registration.
+            }
+
+            const registrationFee = isGovSponsored ? 0 : feeStructure.registration_fee;
+            const tuition = isGovSponsored ? 0 : feeStructure.tuition_per_semester;
+            const total = registrationFee + tuition + examFees;
+
+            const examFeeRow = document.getElementById('examFeeRow');
+            const totalRow = document.getElementById('totalFeeRow');
+            if (examFeeRow) {
+                examFeeRow.innerHTML = `<span>Exam Fees (${selectedModules.length} module${selectedModules.length !== 1 ? 's' : ''}):</span><span>P ${examFees.toFixed(2)}</span>`;
+            }
+            if (totalRow) {
+                totalRow.innerHTML = `<span>Total Fees Due:</span><span>P ${total.toFixed(2)}</span>`;
+            }
+        }
+
+        async function submitRegistration() {
+            if (selectedCourses.size === 0) {
+                alert('Please select at least one course to register.');
+                return;
+            }
+
+            const courseIds = Array.from(selectedCourses);
+            const isGovSponsored = studentData.is_government_sponsored;
+
+            // Confirm registration
+            if (!confirm(`You are about to register for ${courseIds.length} course(s). Total fees: P ${calculateTotalFees()}. Do you wish to proceed?`)) {
+                return;
+            }
+
+            const submitBtn = document.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Submitting...';
+
+            try {
+                const response = await safeApiCall('/api/students/register-semester', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        course_ids: courseIds,
+                        semester: 1,
+                        academic_year: '2024/2025'
+                    })
+                });
+
+                if (response && response.ok) {
+                    const data = await response.json();
+                    alert('Registration submitted successfully! Your registration will be reviewed by the finance office. You will be notified once approved.');
+                    window.location.href = 'registration-waiting.html';
+                } else {
+                    const error = await response.json();
+                    alert('Registration failed: ' + (error.error || 'Unknown error'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Network error. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        function calculateTotalFees() {
+            const selectedModules = selectedCourses.size;
+            const isGovSponsored = studentData.is_government_sponsored;
+            const examFees = isGovSponsored ? 0 : selectedModules * feeStructure.exam_fee_per_module;
+            const registrationFee = isGovSponsored ? 0 : feeStructure.registration_fee;
+            const tuition = isGovSponsored ? 0 : feeStructure.tuition_per_semester;
+            return registrationFee + tuition + examFees;
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        loadRegistrationData();
+    </script>
+</body>
+
+</html>

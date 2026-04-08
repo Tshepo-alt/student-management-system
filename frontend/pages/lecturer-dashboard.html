@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lecturer Dashboard - GIPS College</title>
-    <!-- Font Awesome 6 (free) -->
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -54,8 +55,15 @@
                 transform: translateY(100vh) rotate(0deg);
                 opacity: 0;
             }
-            20% { opacity: 0.4; }
-            80% { opacity: 0.4; }
+
+            20% {
+                opacity: 0.4;
+            }
+
+            80% {
+                opacity: 0.4;
+            }
+
             100% {
                 transform: translateY(-20vh) rotate(360deg);
                 opacity: 0;
@@ -65,7 +73,7 @@
         /* Navigation */
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -153,7 +161,7 @@
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         .dashboard-header::before {
@@ -189,16 +197,16 @@
             background: white;
             padding: 22px;
             border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             transition: all 0.3s;
-            border: 1px solid rgba(102,126,234,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             position: relative;
             overflow: hidden;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
             border-color: #667eea;
         }
 
@@ -227,7 +235,7 @@
             border-radius: 24px;
             padding: 25px;
             margin-bottom: 35px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .quick-actions h3 {
@@ -271,7 +279,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
 
         .action-btn:hover i {
@@ -284,7 +292,7 @@
             border-radius: 24px;
             padding: 25px;
             margin-bottom: 35px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .courses-section h3 {
@@ -298,7 +306,7 @@
 
         .course-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
         }
 
@@ -313,7 +321,7 @@
         .course-card:hover {
             transform: translateX(5px);
             background: white;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
         }
 
         .course-code {
@@ -338,11 +346,85 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .course-details span i {
             margin-right: 6px;
             color: #667eea;
+        }
+
+        .meeting-status {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .btn-meeting {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-join {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+
+        .btn-join:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+        }
+
+        .btn-end {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-end:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .meeting-active {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .meeting-inactive {
+            background: #e2e8f0;
+            color: #718096;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
 
         /* Assignments Section */
@@ -351,7 +433,7 @@
             border-radius: 24px;
             padding: 25px;
             margin-bottom: 35px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .assignments-section h3 {
@@ -380,7 +462,7 @@
         .assignment-card:hover {
             transform: translateX(5px);
             background: white;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
         }
 
         .assignment-title {
@@ -420,7 +502,7 @@
 
         .btn-sm:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(102,126,234,0.4);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
         }
 
         .loading {
@@ -441,38 +523,50 @@
             .container {
                 padding: 0 20px;
             }
+
             .navbar .container {
                 flex-direction: column;
             }
+
             .nav-menu {
                 justify-content: center;
                 gap: 0.5rem;
             }
+
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-            .course-grid, .assignment-list {
+
+            .course-grid,
+            .assignment-list {
                 grid-template-columns: 1fr;
             }
+
             .dashboard-header h1 {
                 font-size: 1.5rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="bubbles" id="bubbles"></div>
 
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
-                <li><a href="lecturer-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
-                <li><a href="lecturer-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a></li>
-                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
-                <li><a href="lecturer-grades.html" class="nav-link"><i class="fas fa-graduation-cap"></i> Grading</a></li>
+                <li><a href="lecturer-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i>
+                        Dashboard</a></li>
+                <li><a href="lecturer-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+                </li>
+                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+                </li>
+                <li><a href="lecturer-grades.html" class="nav-link"><i class="fas fa-graduation-cap"></i> Grading</a>
+                </li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -482,7 +576,7 @@
     <div class="container">
         <div class="dashboard-header">
             <h1><i class="fas fa-chalkboard-user"></i> Welcome, <span id="lecturerName">Lecturer</span>!</h1>
-            <p><i class="fas fa-chart-line"></i> Manage your courses, assignments, and student submissions.</p>
+            <p><i class="fas fa-chart-line"></i> Manage your courses, assignments, and online classes.</p>
         </div>
 
         <div class="stats-grid" id="statsGrid">
@@ -506,15 +600,23 @@
                 <div class="stat-number" id="studentCount">--</div>
                 <div class="stat-label">Enrolled Students</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-video"></i></div>
+                <div class="stat-number" id="activeClasses">--</div>
+                <div class="stat-label">Active Live Classes</div>
+            </div>
         </div>
 
         <div class="quick-actions">
             <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
             <div class="action-buttons">
-                <a href="lecturer-assignments.html?action=create" class="action-btn"><i class="fas fa-plus-circle"></i> Create Assignment</a>
+                <a href="lecturer-assignments.html?action=create" class="action-btn"><i class="fas fa-plus-circle"></i>
+                    Create Assignment</a>
                 <a href="lecturer-grades.html" class="action-btn"><i class="fas fa-edit"></i> Grade Submissions</a>
-                <a href="lecturer-students.html" class="action-btn"><i class="fas fa-users-viewfinder"></i> View Students</a>
-                <a href="lecturer-courses.html" class="action-btn"><i class="fas fa-folder-open"></i> Course Materials</a>
+                <a href="lecturer-students.html" class="action-btn"><i class="fas fa-users-viewfinder"></i> View
+                    Students</a>
+                <a href="lecturer-courses.html" class="action-btn"><i class="fas fa-folder-open"></i> Course
+                    Materials</a>
             </div>
         </div>
 
@@ -593,67 +695,161 @@
         // Logo fallback
         const logoImage = document.getElementById('logoImage');
         if (logoImage) {
-            logoImage.onerror = function() { this.style.display = 'none'; };
+            logoImage.onerror = function () { this.style.display = 'none'; };
         }
 
         // ============================================
-        // DEMO DATA (Replace with API calls)
+        // API HELPER
         // ============================================
-        const demoCourses = [
-            { id: 1, code: 'CS101', name: 'Introduction to Programming', students: 35, semester: 'Semester 1' },
-            { id: 2, code: 'CS201', name: 'Database Systems', students: 28, semester: 'Semester 1' },
-            { id: 3, code: 'CS301', name: 'Web Development', students: 32, semester: 'Semester 2' }
-        ];
-
-        const demoAssignments = [
-            { id: 1, title: 'Programming Assignment 1', course: 'CS101', due: '2026-04-15', submissions: 12, total: 35 },
-            { id: 2, title: 'Database Design Project', course: 'CS201', due: '2026-04-20', submissions: 8, total: 28 },
-            { id: 3, title: 'JavaScript Quiz', course: 'CS301', due: '2026-04-10', submissions: 25, total: 32 }
-        ];
-
-        // ============================================
-        // LOAD STATS
-        // ============================================
-        function loadStats() {
-            document.getElementById('courseCount').textContent = demoCourses.length;
-            document.getElementById('assignmentCount').textContent = demoAssignments.length;
-            const pending = demoAssignments.reduce((sum, a) => sum + (a.total - a.submissions), 0);
-            document.getElementById('pendingSubmissions').textContent = pending;
-            const totalStudents = demoCourses.reduce((sum, c) => sum + c.students, 0);
-            document.getElementById('studentCount').textContent = totalStudents;
+        async function apiCall(endpoint, options = {}) {
+            const response = await fetch(endpoint, {
+                ...options,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+                return null;
+            }
+            return response;
         }
 
         // ============================================
-        // LOAD COURSES
+        // LOAD DATA FROM BACKEND (REAL API)
         // ============================================
-        function loadCourses() {
+        let coursesData = [];
+        let assignmentsData = [];
+        let courseMeetings = {};
+
+        async function loadDashboardData() {
+            try {
+                // Load courses taught by lecturer
+                const coursesRes = await apiCall('/api/lecturer/courses');
+                if (coursesRes && coursesRes.ok) {
+                    const data = await coursesRes.json();
+                    coursesData = data.courses || [];
+                    document.getElementById('courseCount').textContent = coursesData.length;
+                } else {
+                    // Fallback to demo data if API not ready
+                    coursesData = [
+                        { id: 1, code: 'CS101', name: 'Introduction to Programming', students: 35, semester: 'Semester 1' },
+                        { id: 2, code: 'CS201', name: 'Database Systems', students: 28, semester: 'Semester 1' },
+                        { id: 3, code: 'CS301', name: 'Web Development', students: 32, semester: 'Semester 2' },
+                        { id: 4, code: 'CS401', name: 'Artificial Intelligence', students: 24, semester: 'Semester 2' }
+                    ];
+                    document.getElementById('courseCount').textContent = coursesData.length;
+                }
+
+                // Load assignments
+                const assignRes = await apiCall('/api/lecturer/assignments');
+                if (assignRes && assignRes.ok) {
+                    const data = await assignRes.json();
+                    assignmentsData = data.assignments || [];
+                    document.getElementById('assignmentCount').textContent = assignmentsData.length;
+                    const pending = assignmentsData.reduce((sum, a) => sum + (a.total - a.submissions), 0);
+                    document.getElementById('pendingSubmissions').textContent = pending;
+                    const totalStudents = coursesData.reduce((sum, c) => sum + (c.students || 0), 0);
+                    document.getElementById('studentCount').textContent = totalStudents;
+                } else {
+                    // Demo assignments
+                    assignmentsData = [
+                        { id: 1, title: 'Programming Assignment 1', course: 'CS101', due: '2026-04-15', submissions: 12, total: 35 },
+                        { id: 2, title: 'Database Design Project', course: 'CS201', due: '2026-04-20', submissions: 8, total: 28 },
+                        { id: 3, title: 'JavaScript Quiz', course: 'CS301', due: '2026-04-10', submissions: 25, total: 32 },
+                        { id: 4, title: 'AI Final Project', course: 'CS401', due: '2026-05-01', submissions: 5, total: 24 }
+                    ];
+                    document.getElementById('assignmentCount').textContent = assignmentsData.length;
+                    const pending = assignmentsData.reduce((sum, a) => sum + (a.total - a.submissions), 0);
+                    document.getElementById('pendingSubmissions').textContent = pending;
+                    const totalStudents = coursesData.reduce((sum, c) => sum + (c.students || 0), 0);
+                    document.getElementById('studentCount').textContent = totalStudents;
+                }
+
+                // Fetch meeting status for each course
+                for (const course of coursesData) {
+                    try {
+                        const meetingRes = await apiCall(`/api/classes/course/${course.id}/meeting`);
+                        if (meetingRes && meetingRes.ok) {
+                            const meetingData = await meetingRes.json();
+                            courseMeetings[course.id] = {
+                                isActive: meetingData.is_active,
+                                meetingLink: meetingData.meeting_link
+                            };
+                        } else {
+                            courseMeetings[course.id] = { isActive: false, meetingLink: null };
+                        }
+                    } catch (e) {
+                        courseMeetings[course.id] = { isActive: false, meetingLink: null };
+                    }
+                }
+                const activeClasses = Object.values(courseMeetings).filter(m => m.isActive).length;
+                document.getElementById('activeClasses').textContent = activeClasses;
+
+                // Render UI
+                renderCourses();
+                renderAssignments();
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                // Fallback to demo
+                renderCourses();
+                renderAssignments();
+            }
+        }
+
+        // ============================================
+        // RENDER COURSES WITH MEETING STATUS
+        // ============================================
+        function renderCourses() {
             const container = document.getElementById('coursesList');
-            if (!demoCourses.length) {
+            if (!coursesData.length) {
                 container.innerHTML = '<div class="course-card"><i class="fas fa-info-circle"></i> No courses assigned.</div>';
                 return;
             }
-            container.innerHTML = demoCourses.map(course => `
-                <div class="course-card">
-                    <div class="course-code">${course.code}</div>
-                    <div class="course-name">${course.name}</div>
-                    <div class="course-details">
-                        <span><i class="fas fa-user-graduate"></i> ${course.students} students</span>
-                        <span><i class="fas fa-calendar-alt"></i> ${course.semester}</span>
+
+            container.innerHTML = coursesData.map(course => {
+                const meeting = courseMeetings[course.id];
+                const isActive = meeting?.isActive || false;
+                const meetingLink = meeting?.meetingLink || '';
+                return `
+                    <div class="course-card" id="course-card-${course.id}">
+                        <div class="course-code">${course.code}</div>
+                        <div class="course-name">${course.name}</div>
+                        <div class="course-details">
+                            <span><i class="fas fa-user-graduate"></i> ${course.students || 0} students</span>
+                            <span><i class="fas fa-calendar-alt"></i> ${course.semester || 'Semester 1'}</span>
+                        </div>
+                        <div class="meeting-status" id="meeting-status-${course.id}">
+                            ${isActive ? `
+                                <span class="meeting-active"><i class="fas fa-video"></i> Live Now</span>
+                                <button class="btn-meeting btn-join" onclick="joinMeeting(${course.id}, '${meetingLink}')">
+                                    <i class="fas fa-door-open"></i> Join Meeting
+                                </button>
+                                <button class="btn-meeting btn-end" onclick="endMeeting(${course.id})">
+                                    <i class="fas fa-stop"></i> End Class
+                                </button>
+                            ` : `
+                                <span class="meeting-inactive"><i class="fas fa-video-slash"></i> Not Started</span>
+                                <button class="btn-meeting btn-start" onclick="startMeeting(${course.id})">
+                                    <i class="fas fa-play"></i> Start Live Class
+                                </button>
+                            `}
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        // ============================================
-        // LOAD ASSIGNMENTS
-        // ============================================
-        function loadAssignments() {
+        function renderAssignments() {
             const container = document.getElementById('assignmentsList');
-            if (!demoAssignments.length) {
+            if (!assignmentsData.length) {
                 container.innerHTML = '<div class="assignment-card"><i class="fas fa-info-circle"></i> No assignments created.</div>';
                 return;
             }
-            container.innerHTML = demoAssignments.map(assignment => `
+            container.innerHTML = assignmentsData.map(assignment => `
                 <div class="assignment-card">
                     <div class="assignment-title">${assignment.title}</div>
                     <div class="assignment-meta">
@@ -667,9 +863,76 @@
         }
 
         // ============================================
-        // VIEW ASSIGNMENT (placeholder)
+        // MEETING ACTIONS (USE BACKEND API)
         // ============================================
-        window.viewAssignment = function(id) {
+        async function startMeeting(courseId) {
+            try {
+                const response = await apiCall(`/api/classes/course/${courseId}/start`, {
+                    method: 'POST',
+                    body: JSON.stringify({ platform: 'google_meet' })
+                });
+                if (response && response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        // Update local status
+                        courseMeetings[courseId] = {
+                            isActive: true,
+                            meetingLink: data.meeting_link
+                        };
+                        renderCourses();
+                        // Update active classes count
+                        const activeClasses = Object.values(courseMeetings).filter(m => m.isActive).length;
+                        document.getElementById('activeClasses').textContent = activeClasses;
+                        alert(`✅ Meeting started!\n\nLink: ${data.meeting_link}\n\nShare this link with your students.`);
+                        window.open(data.meeting_link, '_blank');
+                    } else {
+                        alert('Error starting meeting: ' + (data.error || 'Unknown error'));
+                    }
+                } else {
+                    alert('Failed to start meeting. Please try again.');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Network error. Please try again.');
+            }
+        }
+
+        async function endMeeting(courseId) {
+            if (!confirm('Are you sure you want to end this live class?')) return;
+            try {
+                const response = await apiCall(`/api/classes/course/${courseId}/end`, { method: 'POST' });
+                if (response && response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        courseMeetings[courseId] = { isActive: false, meetingLink: null };
+                        renderCourses();
+                        const activeClasses = Object.values(courseMeetings).filter(m => m.isActive).length;
+                        document.getElementById('activeClasses').textContent = activeClasses;
+                        alert('Live class ended.');
+                    } else {
+                        alert('Error ending meeting: ' + (data.error || 'Unknown error'));
+                    }
+                } else {
+                    alert('Failed to end meeting.');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Network error.');
+            }
+        }
+
+        function joinMeeting(courseId, meetingLink) {
+            if (meetingLink) {
+                window.open(meetingLink, '_blank');
+            } else {
+                alert('Meeting link not available. Please start the meeting first.');
+            }
+        }
+
+        // ============================================
+        // ASSIGNMENT VIEW (placeholder)
+        // ============================================
+        window.viewAssignment = function (id) {
             alert(`📌 View assignment details for ID ${id}.\n\nThis will integrate with the backend.`);
         };
 
@@ -683,7 +946,7 @@
         });
 
         // ============================================
-        // WELCOME OVERLAY (optional hourglass)
+        // WELCOME OVERLAY (first visit only)
         // ============================================
         function showWelcomeOverlay() {
             const overlay = document.createElement('div');
@@ -708,12 +971,9 @@
                 <div style="color: white; font-size: 1.5rem; text-align: center;" id="welcomeMsg">Welcome back, Lecturer!</div>
             `;
             document.body.appendChild(overlay);
-            setTimeout(() => {
-                overlay.remove();
-            }, 2000);
+            setTimeout(() => overlay.remove(), 2000);
         }
 
-        // Check if this is the first visit (could store a flag in localStorage)
         const hasSeenWelcome = localStorage.getItem('lecturer_welcome_shown');
         if (!hasSeenWelcome) {
             showWelcomeOverlay();
@@ -721,14 +981,13 @@
         }
 
         // ============================================
-        // INIT
+        // INITIALISE
         // ============================================
         createBubbles();
-        loadStats();
-        loadCourses();
-        loadAssignments();
+        loadDashboardData();
 
-        console.log('✅ Lecturer Dashboard loaded – Role verified.');
+        console.log('✅ Lecturer Dashboard loaded – Google Meet integration ready.');
     </script>
 </body>
+
 </html>

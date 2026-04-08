@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "gips-492113",
+  "private_key_id": "0fbbee0ab1279b4b60daeb1497395b017475df34",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDhqpYWysUPQtcg\nK+EI3g+ylWv5McTygDYksc0kCARqeMy8Otr7Vl+62xFhCQyr8qFIvz0Cp2Cr89A6\n778C2kTXlwA7j3smR1UtGoS4e/mSlf0vSXlO8fYCzMRjcaLKeQtegFunPlaulvkR\n74kRaWvlCtnbBfQ2ss9mTSRrsOQvAifYxFJoeaYeiwSFRFR9tr56o2jOhlMWKPEH\nPHvuTRC/UeVszkPW/n7uF5//dBIs4Ej3vLYKeD77bUmUd13hUG2hNdPwbPBdGLpr\nSdkJY1IlgMqOqjJ8AsNHdtzj72FI70P4+gtCUwh6yweQbwQ1biNI4bcY+FRL+PWs\n/eUeOjnBAgMBAAECggEAaHUOBH7XuLi326xz/ibMHV4NHMxs3dN7PIEQ9BzB7ob8\nPiUAOFdC+Ltuz/vgYbdt8L6U/yV7Gh1BxgYz5J4kP6cl9Gv2FUHvq3Ea/kpku/Wx\nvLHF9UULG0Ctp1pygEaHfLbttfylIyu/Hw5B5E1oJB1huoCHCsq6NiB/O1omRZtb\nBe73rSUwqel+bTi1L9zMXNTWRtX7OMlSnCJmkF7/LaxuJm0YG0NZiLJ3/AC3Sp46\nyErLtDox0lrSigYcOyG2g5Q4AhVHCEH3rcTAWgXr4v8Hgo6Wv6UMRKrGBUojpcvH\n6Y1VftLwF1bQdzz9rWyb5vq8QyeQpRylEt+OykjiAQKBgQD9IPwhnKTvzRiFpMrG\nsdg0Rk2aV0iEi3sQloIt99HJ/Ts6m4L5yb4oQXKJzKSWvpRfevfZ4TQdu+vCA0/E\nh0VnhrAYo19qwuYskGUF7zC+izzNuvuB4K8g8AALuVdzm+vPwNW9nVxTj6E8JqND\nmBRe02aVHCVSEuO4vB2W8MUNGwKBgQDkOdunYKaNrzOBYrXAwxN//yByavxwcUHD\nf/Fe0Ss2ct5DgJd0G5oWTX0dXhQuGmbe5pQVaxtNbdi2PlBSlxcG3nuB3SSrKLQs\nxvDbe+Zf8wRwZD0PAFuih5tz3cPesGTS0vd7/TJCmqHlwkGVlw2JbKYKyCI757Ao\nBEe3rlaOUwKBgQDj4WYa/GKgYAvLhOfoqQLzTLdgU2O9r7RC4ryflZMQPSGtSYNI\nTQ8cPo9W7xzdeQUqUBIB3HSGsD82krSlQQKCiQbPp4SnIH8Hb5cDGKrRX5iFvefe\nrN/8zxO7ekf4lE5e4kOKSLhtociN1lr051yvYbHgW05d7ROFpBUfZfKAMQKBgHuA\n193uzpKzsdKdoS+MIVxNqrhgLvWGRIlQDkU6OgFADglHaC471ZmmG0OuKot8XBjZ\nfF9O07qF7BVLCVp4Ssy7zuhKzNIWt9HXYnXTyao4rzlG9UfN8Mi2S6ha5Oj4WcdA\nxQ6CyRUD6wKTqbwSvw+UDRKelPAIA+rTzh+XJ13jAoGBAOrTVudRoeJbyRKR5ip0\n7SDuHh2nnc9kAX2LCgwDG8niAlTNwbrhVTcjx9gxwYRtB8SloGXnXBxXRKR+ywOu\nWoZm8AYHW8WpZ0W22WUp3pjA36VVBn1RqBSTY32zgsRdziH4fhC/jCnKAwscbeg1\nfAzt67ToqAydkt37SBTyaEmY\n-----END PRIVATE KEY-----\n",
+  "client_email": "gips-meet-service@gips-492113.iam.gserviceaccount.com",
+  "client_id": "108114406205374512235",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gips-meet-service%40gips-492113.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

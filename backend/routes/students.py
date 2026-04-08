@@ -6,7 +6,7 @@ import csv
 import io
 import traceback
 
-from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User
+from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User, Course, AcademicYear, Semester, ProgramModule
 
 students_bp = Blueprint('students', __name__)
 
@@ -648,5 +648,226 @@ def get_accommodation_status():
 
     except Exception as e:
         print(f"Get accommodation status error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# NEW ENDPOINTS FOR APPLICATION & REGISTRATION FLOW
+# ============================================
+
+@students_bp.route('/application-status', methods=['GET'])
+@jwt_required()
+def get_application_status():
+    """Get student's admission application status"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+
+        if not student:
+            return jsonify({'error': 'Student record not found'}), 404
+
+        return jsonify({
+            'admission_status': student.admission_status,
+            'student_number': student.student_number,
+            'program_name': student.program.program_name if student.program else None,
+            'message': 'Your application is being processed.' if student.admission_status == 'pending' else None
+        }), 200
+
+    except Exception as e:
+        print(f"Get application status error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@students_bp.route('/current-registration', methods=['GET'])
+@jwt_required()
+def get_current_registration():
+    """Check if student has an active registration for the current semester"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+
+        if not student:
+            return jsonify({'error': 'Student record not found'}), 404
+
+        # Get the most recent registration
+        current_reg = Registration.query.filter_by(
+            student_id=student.id
+        ).order_by(Registration.created_at.desc()).first()
+
+        if not current_reg:
+            return jsonify({
+                'has_registration': False,
+                'status': None,
+                'registration_id': None
+            }), 200
+
+        return jsonify({
+            'has_registration': True,
+            'status': current_reg.registration_status,
+            'registration_id': current_reg.id,
+            'year_of_study': current_reg.year_of_study,
+            'created_at': current_reg.created_at.isoformat()
+        }), 200
+
+    except Exception as e:
+        print(f"Get current registration error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@students_bp.route('/available-courses', methods=['GET'])
+@jwt_required()
+def get_available_courses():
+    """Get courses/modules available for the student's program and year level"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+
+        if not student:
+            return jsonify({'error': 'Student record not found'}), 404
+
+        program_id = request.args.get('program_id', type=int)
+        if not program_id:
+            program_id = student.program_id
+
+        # Get modules for the student's program and current year level
+        program_modules = ProgramModule.query.filter_by(program_id=program_id).all()
+        module_ids = [pm.module_id for pm in program_modules]
+
+        modules = Module.query.filter(
+            Module.id.in_(module_ids),
+            Module.year_level == student.current_year,
+            Module.is_active == True
+        ).all()
+
+        # If no modules found via program_modules, fallback to all modules for the year level
+        if not modules:
+            modules = Module.query.filter_by(
+                year_level=student.current_year,
+                is_active=True
+            ).limit(10).all()
+
+        courses_data = []
+        for module in modules:
+            courses_data.append({
+                'id': module.id,
+                'code': module.module_code,
+                'name': module.module_name,
+                'credits': module.credits,
+                'semester': module.semester,
+                'year_level': module.year_level,
+                'has_practicals': module.has_practicals,
+                'module_type': module.module_type,
+                'description': module.description
+            })
+
+        return jsonify(courses_data), 200
+
+    except Exception as e:
+        print(f"Get available courses error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@students_bp.route('/register-semester', methods=['POST'])
+@jwt_required()
+def register_semester():
+    """Create a semester registration for the student (after admission)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+
+        if not student:
+            return jsonify({'error': 'Student record not found'}), 404
+
+        # Check if student is admitted
+        if student.admission_status != 'accepted':
+            return jsonify({'error': 'Your application has not been accepted yet. Please wait for admission decision.'}), 400
+
+        # Check if already registered for current semester
+        existing_reg = Registration.query.filter_by(
+            student_id=student.id
+        ).order_by(Registration.created_at.desc()).first()
+        
+        if existing_reg and existing_reg.registration_status in ['pending', 'approved', 'completed']:
+            return jsonify({'error': 'You already have a pending or approved registration for this semester.'}), 400
+
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid request data'}), 400
+
+        course_ids = data.get('course_ids', [])
+        semester = data.get('semester', 1)
+        academic_year = data.get('academic_year', '2024/2025')
+
+        if not course_ids:
+            return jsonify({'error': 'Please select at least one course to register.'}), 400
+
+        # Calculate fees based on sponsorship
+        is_gov_sponsored = student.is_government_sponsored
+        # These values should come from fees_config or yearly_fees table
+        registration_fee = 630 if not is_gov_sponsored else 0
+        tuition_fee = 32550 if not is_gov_sponsored else 0
+        exam_fee_per_module = 5145 if not is_gov_sponsored else 0
+        total_fees = registration_fee + tuition_fee + (len(course_ids) * exam_fee_per_module)
+
+        # Get current academic year and semester IDs
+        academic_year_obj = AcademicYear.query.filter_by(is_current=True).first()
+        if not academic_year_obj:
+            academic_year_obj = AcademicYear.query.first()
+        semester_obj = Semester.query.filter_by(academic_year_id=academic_year_obj.id, semester_number=semester).first() if academic_year_obj else None
+
+        # Create registration
+        registration = Registration(
+            student_id=student.id,
+            academic_year_id=academic_year_obj.id if academic_year_obj else 1,
+            semester_id=semester_obj.id if semester_obj else 1,
+            year_of_study=student.current_year,
+            registration_date=date.today(),
+            sponsorship_type='government_sponsored' if is_gov_sponsored else 'private',
+            registration_status='pending',
+            payment_status='pending' if total_fees > 0 else 'exempted',
+            total_fees=total_fees,
+            paid_amount=0,
+            exempted_amount=0 if not is_gov_sponsored else registration_fee + tuition_fee,
+            bgcse_points_verified=True,
+            documents_verified=True
+        )
+
+        db.session.add(registration)
+        db.session.flush()  # to get registration.id
+
+        # Create enrollments for selected courses
+        for course_id in course_ids:
+            module = Module.query.get(course_id)
+            if module:
+                enrollment = Enrollment(
+                    registration_id=registration.id,
+                    student_id=student.id,
+                    module_id=module.id,
+                    enrollment_date=date.today(),
+                    status='registered'
+                )
+                db.session.add(enrollment)
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Semester registration submitted successfully. Pending finance approval.',
+            'registration_id': registration.id,
+            'total_fees': total_fees,
+            'status': registration.registration_status
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Register semester error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500

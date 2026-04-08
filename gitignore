@@ -1,16 +1,111 @@
+# ====================
+# Python & Virtual Environment
+# ====================
 venv/
+env/
+ENV/
+.venv/
 __pycache__/
+*.py[cod]
 *.pyc
 *.pyo
 *.pyd
 .Python
-.DS_Store
-.env
+*.so
+*.egg
 *.egg-info/
 dist/
 build/
+develop-eggs/
+downloads/
+eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.whl
+
+# ====================
+# Environment & Secrets
+# ====================
+.env
+.env.local
+.env.production
+.flaskenv
+config.local.py
+secrets.py
+
+# ====================
+# IDE & Editor Files
+# ====================
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-*
+.project
+.pydevproject
+.settings/
+
+# ====================
+# Logs & Databases (SQLite)
+# ====================
+logs/
 *.log
-.pytest_cache/
+*.db
+*.sqlite
+*.sqlite3
+database/*.db
 instance/
+*.pid
+
+# ====================
+# Uploads & File Storage
+# ====================
+uploads/
+media/
+static/uploads/
+static/media/
+backups/
+*.zip
+*.tar.gz
+
+# ====================
+# Testing & Coverage
+# ====================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytest_cache/
+coverage.xml
+*.cover
+.hypothesis/
+
+# ====================
+# Flask & JWT
+# ====================
+flask_session/
+jwt_cache/
+session/
+
+# ====================
+# Deployment & Misc
+# ====================
+*.pid
+*.seed
+*.pid.lock
+.cache/
+.mypy_cache/
+.dockerignore
+Dockerfile
+docker-compose*.yml
+.terraform/
+*.tfstate*

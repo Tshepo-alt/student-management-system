@@ -5,7 +5,6 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 
-# Initialize SQLAlchemy
 db = SQLAlchemy()
 
 # ==================== USER AUTHENTICATION MODELS ====================
@@ -31,8 +30,7 @@ class User(UserMixin, db.Model):
     
     # Relationships
     student = db.relationship('Student', backref='user', uselist=False, cascade='all, delete-orphan')
-    user_roles = db.relationship('UserRole', back_populates='user', cascade='all, delete-orphan', 
-                                 foreign_keys='UserRole.user_id')
+    user_roles = db.relationship('UserRole', back_populates='user', cascade='all, delete-orphan')
     tokens = db.relationship('JWTToken', backref='user', cascade='all, delete-orphan')
     approved_registrations = db.relationship('Registration', foreign_keys='Registration.approved_by', backref='approver')
     processed_payments = db.relationship('Payment', foreign_keys='Payment.processed_by', backref='processor')
@@ -41,18 +39,13 @@ class User(UserMixin, db.Model):
     audit_logs = db.relationship('AuditLog', foreign_keys='AuditLog.user_id', backref='user')
     supervised_projects = db.relationship('ResearchProject', foreign_keys='ResearchProject.supervisor_id', backref='supervisor')
     verified_documents = db.relationship('StudentDocument', foreign_keys='StudentDocument.verified_by', backref='verifier')
-    # ADDED: events created by this user
     created_events = db.relationship('AlumniEvent', foreign_keys='AlumniEvent.created_by', backref='creator')
-    # ADDED: job applications submitted by this user
     job_applications = db.relationship('JobApplication', foreign_keys='JobApplication.applicant_id', backref='applicant')
-    # ADDED: job applications reviewed by this user
     reviewed_applications = db.relationship('JobApplication', foreign_keys='JobApplication.reviewed_by', backref='reviewer')
-    # ADDED: event registrations made by this user
     event_registrations = db.relationship('EventRegistration', foreign_keys='EventRegistration.user_id', backref='user')
-    # ADDED: system config updates by this user
     system_config_updates = db.relationship('SystemConfig', foreign_keys='SystemConfig.updated_by', backref='updater')
-    # ADDED: token blocklist entries for this user
     blocklist_entries = db.relationship('TokenBlocklist', foreign_keys='TokenBlocklist.user_id', backref='user')
+    taught_courses = db.relationship('Course', foreign_keys='Course.lecturer_id', backref='lecturer')
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -136,7 +129,6 @@ class Campus(db.Model):
     is_main_campus = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships
     programs = db.relationship('Program', backref='campus', lazy=True)
     students = db.relationship('Student', backref='campus', lazy=True)
     
@@ -208,8 +200,57 @@ class Program(db.Model):
     
     students = db.relationship('Student', backref='program', cascade='all, delete-orphan')
     program_modules = db.relationship('ProgramModule', backref='program', cascade='all, delete-orphan')
-    # ADDED: alumni of this program
     alumni = db.relationship('Alumni', backref='program', cascade='all, delete-orphan')
+    courses = db.relationship('Course', backref='program', cascade='all, delete-orphan')
+    yearly_fees = db.relationship('YearlyFees', backref='program', cascade='all, delete-orphan')
+
+
+class YearlyFees(db.Model):
+    __tablename__ = 'yearly_fees'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    program_id = db.Column(db.Integer, db.ForeignKey('programs.id'), nullable=False)
+    year_number = db.Column(db.Integer, nullable=False)
+    registration_fee = db.Column(db.Numeric(10,2), nullable=False)
+    id_card_fee = db.Column(db.Numeric(10,2), nullable=False)
+    e_library_fee = db.Column(db.Numeric(10,2), nullable=False)
+    exam_fee = db.Column(db.Numeric(10,2), nullable=False)
+    tuition_fee = db.Column(db.Numeric(10,2), nullable=False)
+    total_fee = db.Column(db.Numeric(10,2))
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('program_id', 'year_number', name='unique_program_year'),)
+
+
+class Course(db.Model):
+    __tablename__ = 'courses'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    course_code = db.Column(db.String(20), unique=True, nullable=False)
+    course_name = db.Column(db.String(255), nullable=False)
+    credits = db.Column(db.Integer, nullable=False)
+    program_id = db.Column(db.Integer, db.ForeignKey('programs.id'))
+    lecturer_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    semester = db.Column(db.Integer)
+    year_level = db.Column(db.Integer)
+    description = db.Column(db.Text)
+    meeting_link = db.Column(db.String(500))
+    meeting_platform = db.Column(db.Enum('google_meet', 'zoom', 'none'), default='none')
+    meeting_id = db.Column(db.String(100))
+    meeting_password = db.Column(db.String(50))
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    student_courses = db.relationship('StudentCourse', backref='course', cascade='all, delete-orphan')
+    online_meetings = db.relationship('OnlineMeeting', backref='course', cascade='all, delete-orphan')
+    exam_registrations = db.relationship('ExamRegistration', backref='course', cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<Course {self.course_code}>'
 
 
 class Module(db.Model):
@@ -248,6 +289,45 @@ class ProgramModule(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     __table_args__ = (db.UniqueConstraint('program_id', 'module_id', name='unique_program_module'),)
+
+
+# ==================== ONLINE CLASSES MODELS ====================
+
+class OnlineMeeting(db.Model):
+    __tablename__ = 'online_meetings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    lecturer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    meeting_link = db.Column(db.String(500), nullable=False)
+    meeting_platform = db.Column(db.Enum('google_meet', 'zoom'), nullable=False)
+    meeting_id = db.Column(db.String(100))
+    meeting_password = db.Column(db.String(50))
+    scheduled_start = db.Column(db.DateTime)
+    scheduled_end = db.Column(db.DateTime)
+    duration_minutes = db.Column(db.Integer, default=60)
+    is_active = db.Column(db.Boolean, default=True)
+    recorded = db.Column(db.Boolean, default=False)
+    recording_url = db.Column(db.String(500))
+    attendees_count = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    ended_at = db.Column(db.DateTime)
+    
+    attendees = db.relationship('MeetingAttendee', backref='meeting', cascade='all, delete-orphan')
+
+
+class MeetingAttendee(db.Model):
+    __tablename__ = 'meeting_attendees'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey('online_meetings.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    joined_at = db.Column(db.DateTime)
+    left_at = db.Column(db.DateTime)
+    duration_seconds = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('meeting_id', 'student_id', name='unique_meeting_student'),)
 
 
 # ==================== STUDENT MODELS ====================
@@ -309,8 +389,7 @@ class Student(db.Model):
     # Relationships
     documents = db.relationship('StudentDocument', backref='student', cascade='all, delete-orphan')
     registrations = db.relationship('Registration', backref='student', cascade='all, delete-orphan')
-    enrollments = db.relationship('Enrollment', backref='student', cascade='all, delete-orphan', 
-                                  primaryjoin='Student.id == Enrollment.student_id')
+    enrollments = db.relationship('Enrollment', backref='student', cascade='all, delete-orphan')
     payments = db.relationship('Payment', foreign_keys='Payment.student_id', backref='student', cascade='all, delete-orphan')
     academic_records = db.relationship('AcademicRecord', backref='student', cascade='all, delete-orphan')
     research_projects = db.relationship('ResearchProject', backref='student', cascade='all, delete-orphan')
@@ -321,6 +400,8 @@ class Student(db.Model):
     exam_registrations = db.relationship('ExamRegistration', backref='student', cascade='all, delete-orphan')
     accommodation_applications = db.relationship('AccommodationRegistration', backref='student', cascade='all, delete-orphan')
     alumni_profile = db.relationship('Alumni', backref='student', uselist=False, cascade='all, delete-orphan')
+    student_courses = db.relationship('StudentCourse', backref='student', cascade='all, delete-orphan')
+    meeting_attendances = db.relationship('MeetingAttendee', backref='student', cascade='all, delete-orphan')
     
     @property
     def full_name(self):
@@ -328,6 +409,22 @@ class Student(db.Model):
     
     def __repr__(self):
         return f'<Student {self.student_number}>'
+
+
+class StudentCourse(db.Model):
+    __tablename__ = 'student_courses'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    enrollment_date = db.Column(db.Date)
+    status = db.Column(db.Enum('registered', 'dropped', 'completed', 'failed'), default='registered')
+    grade = db.Column(db.String(5))
+    grade_points = db.Column(db.Numeric(3,2))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('student_id', 'course_id', name='unique_student_course'),)
 
 
 class StudentDocument(db.Model):
@@ -364,9 +461,6 @@ class Accommodation(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f'<Accommodation {self.name}>'
 
 
 class AccommodationRoom(db.Model):
@@ -386,13 +480,9 @@ class AccommodationRoom(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
     registrations = db.relationship('AccommodationRegistration', backref='allocated_room', foreign_keys='AccommodationRegistration.allocated_room_id')
     
     __table_args__ = (db.UniqueConstraint('block_name', 'room_number', name='unique_block_room'),)
-    
-    def __repr__(self):
-        return f'<Room {self.block_name}-{self.room_number}>'
 
 
 class AccommodationRule(db.Model):
@@ -404,9 +494,6 @@ class AccommodationRule(db.Model):
     is_mandatory = db.Column(db.Boolean, default=True)
     display_order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return f'<Rule {self.rule_title}>'
 
 
 class AccommodationRegistration(db.Model):
@@ -586,7 +673,7 @@ class ExamRegistration(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
-    module_id = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     exam_type = db.Column(db.Enum('regular', 'supplementary', 'resit', 'retake'), default='regular')
     semester_id = db.Column(db.Integer, db.ForeignKey('semesters.id'))
     academic_year_id = db.Column(db.Integer, db.ForeignKey('academic_years.id'))
@@ -603,7 +690,7 @@ class ExamRegistration(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    __table_args__ = (db.UniqueConstraint('student_id', 'module_id', 'exam_type', name='unique_exam_registration'),)
+    __table_args__ = (db.UniqueConstraint('student_id', 'course_id', 'exam_type', name='unique_exam_registration'),)
 
 
 # ==================== FEES CONFIGURATION ====================
@@ -620,9 +707,6 @@ class FeesConfig(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f'<FeesConfig {self.fee_type}: P{self.amount}>'
 
 
 # ==================== PAYMENT MODELS ====================

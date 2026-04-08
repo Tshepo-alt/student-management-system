@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -19,10 +20,10 @@
             min-height: 100vh;
         }
 
-        /* Navigation (same as before) */
+        /* Navigation */
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -99,7 +100,7 @@
             width: 70%;
         }
 
-        /* Welcome Banner (same) */
+        /* Welcome Banner */
         .welcome-banner {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 24px;
@@ -108,7 +109,7 @@
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         .welcome-banner::before {
@@ -137,7 +138,7 @@
             opacity: 0.8;
         }
 
-        /* Dashboard Stats (same) */
+        /* Dashboard Stats */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -149,8 +150,8 @@
             background: white;
             padding: 20px;
             border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
@@ -168,7 +169,7 @@
 
         .stat-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card h3 {
@@ -194,9 +195,21 @@
             border-radius: 30px;
         }
 
-        .trend-up { background: #c6f6d5; color: #276749; }
-        .trend-down { background: #fed7d7; color: #c53030; }
-        .trend-steady { background: #feebc8; color: #c05621; }
+        .trend-up {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .trend-down {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .trend-steady {
+            background: #feebc8;
+            color: #c05621;
+        }
+
         .exempted-badge {
             background: #28a745;
             color: white;
@@ -207,7 +220,9 @@
         }
 
         /* Banners */
-        .warning-banner, .info-banner, .success-banner {
+        .warning-banner,
+        .info-banner,
+        .success-banner {
             padding: 12px 16px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -215,11 +230,26 @@
             align-items: center;
             gap: 10px;
         }
-        .warning-banner { background: #fed7d7; border-left: 4px solid #e53e3e; color: #c53030; }
-        .info-banner { background: #cfe2ff; border-left: 4px solid #3182ce; color: #084298; }
-        .success-banner { background: #c6f6d5; border-left: 4px solid #38a169; color: #276749; }
 
-        /* Dashboard Grid (existing cards) */
+        .warning-banner {
+            background: #fed7d7;
+            border-left: 4px solid #e53e3e;
+            color: #c53030;
+        }
+
+        .info-banner {
+            background: #cfe2ff;
+            border-left: 4px solid #3182ce;
+            color: #084298;
+        }
+
+        .success-banner {
+            background: #c6f6d5;
+            border-left: 4px solid #38a169;
+            color: #276749;
+        }
+
+        /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -231,14 +261,14 @@
             background: white;
             border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             transition: all 0.3s;
         }
 
         .info-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
 
         .info-card h3 {
@@ -277,10 +307,100 @@
             color: #2d3748;
         }
 
+        /* Course List with Meeting Status */
+        .course-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .course-item {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .course-code {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .course-credits {
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+
+        .course-name {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .meeting-status-student {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .meeting-active-badge {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .meeting-inactive-badge {
+            background: #e2e8f0;
+            color: #718096;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-join-meeting {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-join-meeting:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+
         /* Progress Bar */
         .progress-section {
             margin: 15px 0;
         }
+
         .progress-label {
             display: flex;
             justify-content: space-between;
@@ -288,6 +408,7 @@
             font-size: 0.8rem;
             color: #718096;
         }
+
         .progress-bar {
             width: 100%;
             height: 8px;
@@ -295,6 +416,7 @@
             border-radius: 10px;
             overflow: hidden;
         }
+
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #667eea, #764ba2);
@@ -306,12 +428,14 @@
         .fee-breakdown {
             margin-top: 12px;
         }
+
         .fee-item {
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
             border-bottom: 1px solid #e2e8f0;
         }
+
         .fee-total {
             margin-top: 10px;
             padding-top: 8px;
@@ -321,33 +445,11 @@
             justify-content: space-between;
         }
 
-        /* Course List */
-        .course-list {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        .course-item {
-            padding: 10px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .course-code {
-            font-weight: bold;
-            color: #667eea;
-        }
-        .course-credits {
-            background: #e2e8f0;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-        }
-
         /* Actions Section */
         .actions-section {
             margin: 35px 0;
         }
+
         .actions-section h3 {
             font-size: 1.3rem;
             margin-bottom: 20px;
@@ -356,11 +458,13 @@
             align-items: center;
             gap: 8px;
         }
+
         .actions-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
         }
+
         .action-card {
             background: white;
             padding: 20px;
@@ -369,25 +473,29 @@
             text-decoration: none;
             color: #4a5568;
             transition: all 0.3s;
-            border: 1px solid rgba(102,126,234,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             display: block;
         }
+
         .action-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(102,126,234,0.15);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.15);
             border-color: #667eea;
         }
+
         .action-card i {
             font-size: 2rem;
             color: #667eea;
             margin-bottom: 12px;
             display: inline-block;
         }
+
         .action-card h4 {
             font-size: 1rem;
             margin-bottom: 6px;
             color: #2d3748;
         }
+
         .action-card p {
             font-size: 0.75rem;
             color: #718096;
@@ -399,7 +507,7 @@
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 35px;
-            border: 1px solid rgba(102,126,234,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .community-section h3 {
@@ -421,7 +529,7 @@
         }
 
         .post-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .post-header {
@@ -517,7 +625,7 @@
             background: white;
             border-radius: 20px;
             padding: 20px;
-            border: 1px solid rgba(102,126,234,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .suggestions-sidebar h4 {
@@ -584,7 +692,7 @@
             border: none;
         }
 
-        /* Activity Feed (existing) */
+        /* Activity Feed */
         .activity-section h3 {
             font-size: 1.3rem;
             margin-bottom: 20px;
@@ -593,12 +701,14 @@
             align-items: center;
             gap: 8px;
         }
+
         .activity-list {
             background: white;
             border-radius: 20px;
             padding: 20px;
-            border: 1px solid rgba(102,126,234,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
+
         .activity-item {
             padding: 12px;
             border-bottom: 1px solid #e2e8f0;
@@ -607,12 +717,15 @@
             gap: 15px;
             transition: background 0.2s;
         }
+
         .activity-item:last-child {
             border-bottom: none;
         }
+
         .activity-item:hover {
             background: #f9fafb;
         }
+
         .activity-icon {
             width: 40px;
             height: 40px;
@@ -623,14 +736,17 @@
             justify-content: center;
             color: #667eea;
         }
+
         .activity-content {
             flex: 1;
         }
+
         .activity-date {
             font-size: 0.7rem;
             color: #a0aec0;
             margin-top: 4px;
         }
+
         .activity-desc {
             color: #4a5568;
         }
@@ -649,10 +765,12 @@
             align-items: center;
             gap: 8px;
         }
+
         .btn-secondary:hover {
             background: #a0aec0;
             transform: translateY(-1px);
         }
+
         .btn-sm {
             padding: 6px 12px;
             font-size: 0.8rem;
@@ -662,13 +780,16 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(102,126,234,0.2);
+            border: 2px solid rgba(102, 126, 234, 0.2);
             border-radius: 50%;
             border-top-color: #667eea;
             animation: spin 0.8s linear infinite;
         }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .footer {
@@ -679,50 +800,117 @@
             margin-top: 50px;
         }
 
+        /* Embedded Meeting Modal */
+        .meeting-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .meeting-modal-content {
+            width: 95%;
+            height: 90%;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meeting-modal-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meeting-modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .meeting-modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .meeting-iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 0 20px;
             }
+
             .navbar .container {
                 flex-direction: column;
             }
+
             .nav-menu {
                 justify-content: center;
                 gap: 0.25rem;
             }
+
             .welcome-banner h2 {
                 font-size: 1.3rem;
             }
+
             .dashboard-stats {
                 grid-template-columns: 1fr;
             }
+
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
+
             .actions-grid {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
+
             .community-section .suggestions-sidebar {
                 margin-top: 20px;
             }
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
-                <li><a href="student-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="student-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i>
+                        Dashboard</a></li>
                 <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
-                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam Registration</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam
+                        Registration</a></li>
                 <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
-                <li><a href="accommodation-status.html" class="nav-link"><i class="fas fa-check-circle"></i> Acc. Status</a></li>
-                <li><a href="student-timetables.html" class="nav-link"><i class="fas fa-calendar-week"></i> Timetable</a></li>
+                <li><a href="accommodation-status.html" class="nav-link"><i class="fas fa-check-circle"></i> Acc.
+                        Status</a></li>
+                <li><a href="student-timetables.html" class="nav-link"><i class="fas fa-calendar-week"></i>
+                        Timetable</a></li>
                 <li><a href="results-view.html" class="nav-link"><i class="fas fa-chart-line"></i> Results</a></li>
-                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a></li>
+                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a>
+                </li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -737,7 +925,7 @@
             <div class="date" id="currentDate"></div>
         </div>
 
-        <!-- Banners (dynamically filled) -->
+        <!-- Banners -->
         <div id="warningBanner" style="display: none;"></div>
         <div id="infoBanner" style="display: none;"></div>
         <div id="successBanner" style="display: none;"></div>
@@ -771,13 +959,20 @@
             <!-- Student Information -->
             <div class="info-card">
                 <h3><i class="fas fa-id-card"></i> Student Information</h3>
-                <div class="info-item"><label><i class="fas fa-hashtag"></i> Student Number:</label><span id="studentNumber">-</span></div>
-                <div class="info-item"><label><i class="fas fa-envelope"></i> Email:</label><span id="studentEmail">-</span></div>
-                <div class="info-item"><label><i class="fas fa-book"></i> Program:</label><span id="programName">-</span></div>
-                <div class="info-item"><label><i class="fas fa-map-marker-alt"></i> Campus:</label><span id="campusName">-</span></div>
-                <div class="info-item"><label><i class="fas fa-hand-holding-usd"></i> Sponsorship:</label><span id="sponsorshipType">-</span></div>
-                <div class="info-item"><label><i class="fas fa-chart-simple"></i> Academic Status:</label><span id="academicStatus">-</span></div>
-                <div class="info-item"><label><i class="fas fa-calendar-alt"></i> Year of Study:</label><span id="yearOfStudy">-</span></div>
+                <div class="info-item"><label><i class="fas fa-hashtag"></i> Student Number:</label><span
+                        id="studentNumber">-</span></div>
+                <div class="info-item"><label><i class="fas fa-envelope"></i> Email:</label><span
+                        id="studentEmail">-</span></div>
+                <div class="info-item"><label><i class="fas fa-book"></i> Program:</label><span
+                        id="programName">-</span></div>
+                <div class="info-item"><label><i class="fas fa-map-marker-alt"></i> Campus:</label><span
+                        id="campusName">-</span></div>
+                <div class="info-item"><label><i class="fas fa-hand-holding-usd"></i> Sponsorship:</label><span
+                        id="sponsorshipType">-</span></div>
+                <div class="info-item"><label><i class="fas fa-chart-simple"></i> Academic Status:</label><span
+                        id="academicStatus">-</span></div>
+                <div class="info-item"><label><i class="fas fa-calendar-alt"></i> Year of Study:</label><span
+                        id="yearOfStudy">-</span></div>
             </div>
 
             <!-- Fee Summary -->
@@ -790,32 +985,44 @@
             <div class="info-card">
                 <h3><i class="fas fa-chart-line"></i> Academic Progress</h3>
                 <div class="progress-section">
-                    <div class="progress-label"><span>Program Completion</span><span id="completionPercent">0%</span></div>
-                    <div class="progress-bar"><div id="completionProgress" class="progress-fill" style="width:0%"></div></div>
+                    <div class="progress-label"><span>Program Completion</span><span id="completionPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="completionProgress" class="progress-fill" style="width:0%"></div>
+                    </div>
                 </div>
-                <div class="info-item"><label><i class="fas fa-file-alt"></i> Registered Exams:</label><span id="registeredExams">0</span></div>
-                <div class="info-item"><label><i class="fas fa-coins"></i> Exam Fees Due:</label><span id="examFeesDue">P 0.00</span></div>
-                <div id="examFeeNote" style="display:none;" class="info-item"><label><i class="fas fa-info-circle"></i> Note:</label><span style="color:#38a169;">Government sponsored: Only exam fees apply</span></div>
+                <div class="info-item"><label><i class="fas fa-file-alt"></i> Registered Exams:</label><span
+                        id="registeredExams">0</span></div>
+                <div class="info-item"><label><i class="fas fa-coins"></i> Exam Fees Due:</label><span
+                        id="examFeesDue">P 0.00</span></div>
+                <div id="examFeeNote" style="display:none;" class="info-item"><label><i class="fas fa-info-circle"></i>
+                        Note:</label><span style="color:#38a169;">Government sponsored: Only exam fees apply</span>
+                </div>
             </div>
 
-            <!-- Current Courses -->
+            <!-- Current Courses with Live Class Integration -->
             <div class="info-card">
                 <h3><i class="fas fa-book-open"></i> Current Courses</h3>
                 <div id="currentCoursesList" class="course-list">
                     <div class="loading-spinner"></div>
                     <p style="margin-top:8px;">Loading courses...</p>
                 </div>
-                <button class="btn-secondary btn-sm" onclick="window.location.href='course-registration.html'" style="margin-top:15px; width:100%;"><i class="fas fa-edit"></i> Manage Courses</button>
+                <button class="btn-secondary btn-sm" onclick="window.location.href='course-registration.html'"
+                    style="margin-top:15px; width:100%;"><i class="fas fa-edit"></i> Manage Courses</button>
             </div>
 
             <!-- Accommodation Info -->
             <div class="info-card" id="accommodationCard">
                 <h3><i class="fas fa-home"></i> Accommodation</h3>
-                <div class="info-item"><label><i class="fas fa-info-circle"></i> Status:</label><span id="accommodationStatus">Not Applied</span></div>
-                <div class="info-item"><label><i class="fas fa-door-open"></i> Room Number:</label><span id="roomNumber">-</span></div>
-                <div class="info-item"><label><i class="fas fa-building"></i> Block:</label><span id="blockName">-</span></div>
+                <div class="info-item"><label><i class="fas fa-info-circle"></i> Status:</label><span
+                        id="accommodationStatus">Not Applied</span></div>
+                <div class="info-item"><label><i class="fas fa-door-open"></i> Room Number:</label><span
+                        id="roomNumber">-</span></div>
+                <div class="info-item"><label><i class="fas fa-building"></i> Block:</label><span
+                        id="blockName">-</span></div>
                 <div id="accommodationFeeInfo" class="fee-breakdown" style="margin-top:10px;"></div>
-                <button class="btn-secondary btn-sm" onclick="window.location.href='accomodation.html'" style="margin-top:15px; width:100%;"><i class="fas fa-pencil-alt"></i> Apply / View Status</button>
+                <button class="btn-secondary btn-sm" onclick="window.location.href='accomodation.html'"
+                    style="margin-top:15px; width:100%;"><i class="fas fa-pencil-alt"></i> Apply / View Status</button>
             </div>
         </div>
 
@@ -823,15 +1030,42 @@
         <div class="actions-section">
             <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
             <div class="actions-grid">
-                <a href="student-timetables.html" class="action-card"><i class="fas fa-calendar-week"></i><h4>Timetable</h4><p>View class schedule</p></a>
-                <a href="student-exam-registration.html" class="action-card"><i class="fas fa-file-signature"></i><h4>Exam Registration</h4><p>Register for exams</p></a>
-                <a href="assignments.html" class="action-card"><i class="fas fa-upload"></i><h4>Assignments</h4><p>Submit assignments</p></a>
-                <a href="accomodation.html" class="action-card"><i class="fas fa-home"></i><h4>Accommodation</h4><p>Apply for housing</p></a>
-                <a href="payments.html" class="action-card"><i class="fas fa-credit-card"></i><h4>Make Payment</h4><p>Pay fees online</p></a>
-                <a href="results-view.html" class="action-card"><i class="fas fa-chart-line"></i><h4>View Results</h4><p>Check your results</p></a>
-                <a href="student-queries.html" class="action-card"><i class="fas fa-question-circle"></i><h4>Student Queries</h4><p>Ask questions</p></a>
-                <a href="student-profile.html" class="action-card"><i class="fas fa-user-circle"></i><h4>My Profile</h4><p>Update your profile</p></a>
-                <a href="chatbot.html" class="action-card"><i class="fas fa-headset"></i><h4>Support Chatbot</h4><p>Get help 24/7</p></a>
+                <a href="student-timetables.html" class="action-card"><i class="fas fa-calendar-week"></i>
+                    <h4>Timetable</h4>
+                    <p>View class schedule</p>
+                </a>
+                <a href="student-exam-registration.html" class="action-card"><i class="fas fa-file-signature"></i>
+                    <h4>Exam Registration</h4>
+                    <p>Register for exams</p>
+                </a>
+                <a href="assignments.html" class="action-card"><i class="fas fa-upload"></i>
+                    <h4>Assignments</h4>
+                    <p>Submit assignments</p>
+                </a>
+                <a href="accomodation.html" class="action-card"><i class="fas fa-home"></i>
+                    <h4>Accommodation</h4>
+                    <p>Apply for housing</p>
+                </a>
+                <a href="payments.html" class="action-card"><i class="fas fa-credit-card"></i>
+                    <h4>Make Payment</h4>
+                    <p>Pay fees online</p>
+                </a>
+                <a href="results-view.html" class="action-card"><i class="fas fa-chart-line"></i>
+                    <h4>View Results</h4>
+                    <p>Check your results</p>
+                </a>
+                <a href="student-queries.html" class="action-card"><i class="fas fa-question-circle"></i>
+                    <h4>Student Queries</h4>
+                    <p>Ask questions</p>
+                </a>
+                <a href="student-profile.html" class="action-card"><i class="fas fa-user-circle"></i>
+                    <h4>My Profile</h4>
+                    <p>Update your profile</p>
+                </a>
+                <a href="chatbot.html" class="action-card"><i class="fas fa-headset"></i>
+                    <h4>Support Chatbot</h4>
+                    <p>Get help 24/7</p>
+                </a>
             </div>
         </div>
 
@@ -867,10 +1101,23 @@
         </div>
     </div>
 
+    <!-- Embedded Meeting Modal (keeps users in portal) -->
+    <div id="meetingModal" class="meeting-modal">
+        <div class="meeting-modal-content">
+            <div class="meeting-modal-header">
+                <h3><i class="fas fa-video"></i> <span id="meetingCourseName">Live Class</span></h3>
+                <button class="meeting-modal-close" onclick="closeMeetingModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <iframe id="meetingIframe" class="meeting-iframe" src=""
+                allow="camera; microphone; fullscreen; display-capture" allowfullscreen></iframe>
+        </div>
+    </div>
+
     <footer class="footer">
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
-            <p><i class="fas fa-graduation-cap"></i> Excellence in Higher Learning | The Ultimate Journey to Higher Education</p>
+            <p><i class="fas fa-graduation-cap"></i> Excellence in Higher Learning | The Ultimate Journey to Higher
+                Education</p>
         </div>
     </footer>
 
@@ -931,7 +1178,7 @@
         const studentEmailSpan = document.getElementById('studentEmail');
         if (studentEmailSpan) studentEmailSpan.textContent = user.email || '-';
 
-        // Fee constants
+        // Fee constants (will be overwritten by backend data, but used as fallback)
         const FEES = {
             registration: 2000,
             tuition_per_semester: 8500,
@@ -944,6 +1191,9 @@
         let isGovernmentSponsored = false;
         let wantsAccommodation = false;
         let examFeesTotal = 0;
+
+        // Store meeting links from API
+        let courseMeetings = {};
 
         function renderFeeBreakdown(data) {
             const container = document.getElementById('feeBreakdownContainer');
@@ -1059,6 +1309,7 @@
             return null;
         }
 
+        // Load Current Courses with Meeting Status
         async function loadCurrentCourses() {
             try {
                 const response = await safeApiCall('/api/students/my-modules');
@@ -1066,12 +1317,48 @@
                     const data = await response.json();
                     const container = document.getElementById('currentCoursesList');
                     const courses = data.modules || [];
+
+                    // Fetch meeting statuses for each course
+                    for (const course of courses) {
+                        try {
+                            const meetingRes = await safeApiCall(`/api/classes/course/${course.id}/meeting`);
+                            if (meetingRes && meetingRes.ok) {
+                                const meetingData = await meetingRes.json();
+                                courseMeetings[course.id] = meetingData;
+                            } else {
+                                courseMeetings[course.id] = { is_active: false, meeting_link: null };
+                            }
+                        } catch (e) {
+                            courseMeetings[course.id] = { is_active: false, meeting_link: null };
+                        }
+                    }
+
                     if (courses.length > 0) {
                         container.innerHTML = '';
                         courses.forEach(course => {
+                            const meeting = courseMeetings[course.id];
+                            const isLive = meeting && meeting.is_active;
+                            const meetingLink = meeting ? meeting.meeting_link : null;
+
                             const div = document.createElement('div');
                             div.className = 'course-item';
-                            div.innerHTML = `<div><span class="course-code">${escapeHtml(course.code)}</span> <span class="course-name"> - ${escapeHtml(course.name)}</span></div><span class="course-credits">${course.credits} credits</span>`;
+                            div.innerHTML = `
+                                <div class="course-header">
+                                    <span class="course-code">${escapeHtml(course.code)}</span>
+                                    <span class="course-credits">${course.credits} credits</span>
+                                </div>
+                                <div class="course-name">${escapeHtml(course.name)}</div>
+                                <div class="meeting-status-student">
+                                    ${isLive ?
+                                    `<span class="meeting-active-badge"><i class="fas fa-video"></i> Live Now</span>
+                                         <button class="btn-join-meeting" onclick="openMeeting('${meetingLink}', '${escapeHtml(course.name)}')">
+                                             <i class="fas fa-door-open"></i> Join Live Class
+                                         </button>` :
+                                    `<span class="meeting-inactive-badge"><i class="fas fa-video-slash"></i> No Active Session</span>
+                                         <span style="font-size:0.7rem; color:#718096;">Check back at scheduled time</span>`
+                                }
+                                </div>
+                            `;
                             container.appendChild(div);
                         });
                     } else {
@@ -1079,6 +1366,22 @@
                     }
                 }
             } catch (error) { console.error('Error loading courses:', error); }
+        }
+
+        // Open embedded meeting modal (keeps user in portal)
+        function openMeeting(meetingLink, courseName) {
+            if (!meetingLink) {
+                alert('No active meeting at this time. Please check with your lecturer.');
+                return;
+            }
+            document.getElementById('meetingCourseName').textContent = courseName;
+            document.getElementById('meetingIframe').src = meetingLink;
+            document.getElementById('meetingModal').style.display = 'flex';
+        }
+
+        function closeMeetingModal() {
+            document.getElementById('meetingIframe').src = '';
+            document.getElementById('meetingModal').style.display = 'none';
         }
 
         async function loadRecentActivity() {
@@ -1114,7 +1417,7 @@
                 id: 1,
                 author: "Thabo Motsamai",
                 author_avatar: "TM",
-                content: "Excited to announce that I've joined TechCorp as a Senior Software Developer! 🚀",
+                content: "Excited to announce that I've joined TechCorp as a Senior Software Developer!",
                 created_at: new Date(Date.now() - 2 * 24 * 3600000).toISOString(),
                 likes: 24,
                 comments: [
@@ -1181,7 +1484,7 @@
             `).join('');
         }
 
-        window.likePost = function(postId) {
+        window.likePost = function (postId) {
             const post = posts.find(p => p.id === postId);
             if (post) {
                 post.likes += post.liked_by_user ? -1 : 1;
@@ -1190,12 +1493,12 @@
             }
         };
 
-        window.toggleComments = function(postId) {
+        window.toggleComments = function (postId) {
             const commentsDiv = document.getElementById(`comments-${postId}`);
             if (commentsDiv) commentsDiv.style.display = commentsDiv.style.display === 'block' ? 'none' : 'block';
         };
 
-        window.addComment = function(postId) {
+        window.addComment = function (postId) {
             const input = document.getElementById(`comment-${postId}`);
             const text = input.value.trim();
             if (!text) return;
@@ -1236,7 +1539,7 @@
             `).join('');
         }
 
-        window.toggleFollow = function(userId) {
+        window.toggleFollow = function (userId) {
             const user = suggestedUsers.find(u => u.id === userId);
             if (user) {
                 user.followed = !user.followed;
@@ -1264,9 +1567,16 @@
 
         document.getElementById('logoutLink').addEventListener('click', async (e) => {
             e.preventDefault();
-            try { await safeApiCall('/api/auth/logout', { method: 'POST' }); } catch (err) {}
+            try { await safeApiCall('/api/auth/logout', { method: 'POST' }); } catch (err) { }
             localStorage.clear();
             window.location.href = 'login.html';
+        });
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeMeetingModal();
+            }
         });
 
         async function init() {
@@ -1279,11 +1589,12 @@
         init();
 
         // Auto-refresh every 60 seconds
-        let interval = setInterval(() => { if (!document.hidden) { loadDashboardData(); loadRecentActivity(); } }, 60000);
+        let interval = setInterval(() => { if (!document.hidden) { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); } }, 60000);
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) clearInterval(interval);
-            else interval = setInterval(() => { loadDashboardData(); loadRecentActivity(); }, 60000);
+            else interval = setInterval(() => { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); }, 60000);
         });
     </script>
 </body>
+
 </html>

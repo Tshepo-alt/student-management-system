@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import re
 import traceback
 
-from models import db, User, Student, Program, Campus
+from models import db, User, Student, Program, Campus, Registration
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -29,7 +29,7 @@ def validate_password(password):
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    """Register a new student with campus and sponsorship selection"""
+    """Register a new applicant (student application)"""
     try:
         if request.is_json:
             data = request.get_json()
@@ -38,7 +38,7 @@ def register():
 
         print(f"[AUTH] Registration data received: {data}")
 
-        # Required fields - updated with campus and sponsorship
+        # Required fields
         required_fields = [
             'email', 'password', 'first_name', 'last_name', 'phone', 
             'program_id', 'campus_id'
@@ -102,7 +102,7 @@ def register():
         if bgcse_points < min_points and not is_ovc:
             return jsonify({'error': f'Minimum {min_points} points required or OVC status'}), 400
 
-        # Create user
+        # Create user with role 'student' (admission_status will control access)
         user = User(
             username=data.get('username', data['email']),
             email=data['email'],
@@ -115,7 +115,7 @@ def register():
         db.session.add(user)
         db.session.flush()
 
-        # Generate student number
+        # Generate student number (temporary until admission accepted, but we generate now)
         year = datetime.now().year
         student_count = Student.query.count() + 1
         student_number = f"GIPS/{year}/{student_count:05d}"
@@ -128,7 +128,7 @@ def register():
             except:
                 pass
 
-        # Create student record
+        # Create student record with admission_status = 'pending'
         student = Student(
             user_id=user.id,
             student_number=student_number,
@@ -160,7 +160,7 @@ def register():
             social_worker_contact=data.get('social_worker_contact'),
             program_id=program.id,
             enrollment_date=datetime.now().date(),
-            admission_status='accepted' if not is_ovc else 'pending'
+            admission_status='pending'  # All applications start as pending
         )
 
         db.session.add(student)
@@ -168,14 +168,15 @@ def register():
 
         return jsonify({
             'success': True,
-            'message': 'Registration successful',
+            'message': 'Application submitted successfully. You will be notified once reviewed.',
             'student_number': student.student_number,
             'email': user.email,
             'user_id': user.id,
             'campus': campus.campus_name,
             'program': program.program_name,
             'is_government_sponsored': is_government_sponsored,
-            'wants_accommodation': wants_accommodation
+            'wants_accommodation': wants_accommodation,
+            'admission_status': 'pending'
         }), 201
 
     except Exception as e:
@@ -187,7 +188,7 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """Login user - JWT-based authentication (supports alumni, lecturer, etc.)"""
+    """Login user - JWT-based authentication, with redirect based on status"""
     try:
         if not request.is_json:
             return jsonify({'error': 'Content-Type must be application/json'}), 415
@@ -215,7 +216,39 @@ def login():
         # Get student info (may be None for users who don't have a student record)
         student = Student.query.filter_by(user_id=user.id).first()
 
-        # FIX: Convert identity to string (JWT requires string subject)
+        # Determine redirect URL based on admission and registration status
+        redirect_url = None
+        if student:
+            if student.admission_status == 'pending':
+                redirect_url = '/pages/application-status.html'
+            elif student.admission_status == 'accepted':
+                # Check if there is an active/approved registration for current semester
+                current_reg = Registration.query.filter_by(
+                    student_id=student.id,
+                    registration_status='approved'
+                ).order_by(Registration.created_at.desc()).first()
+                if not current_reg:
+                    redirect_url = '/pages/semester-registration.html'
+                else:
+                    redirect_url = '/pages/student-dashboard.html'
+            else:
+                redirect_url = '/pages/student-dashboard.html'
+        else:
+            # For non-student users (admin, lecturer, etc.)
+            if user.role == 'admin':
+                redirect_url = '/pages/admin-dashboard.html'
+            elif user.role == 'lecturer':
+                redirect_url = '/pages/lecturer-dashboard.html'
+            elif user.role == 'finance':
+                redirect_url = '/pages/finance-dashboard.html'
+            elif user.role == 'registrar':
+                redirect_url = '/pages/registrar-dashboard.html'
+            elif user.role == 'staff':
+                redirect_url = '/pages/staff-dashboard.html'
+            else:
+                redirect_url = '/pages/student-dashboard.html'
+
+        # Create tokens
         access_token = create_access_token(
             identity=str(user.id),
             additional_claims={
@@ -230,6 +263,7 @@ def login():
             'message': 'Login successful',
             'access_token': access_token,
             'refresh_token': refresh_token,
+            'redirect_url': redirect_url,
             'user': {
                 'id': user.id,
                 'email': user.email,
@@ -240,7 +274,8 @@ def login():
                 'student_number': student.student_number if student else None,
                 'is_government_sponsored': student.is_government_sponsored if student else False,
                 'campus_id': student.campus_id if student else None,
-                'wants_accommodation': student.wants_accommodation if student else False
+                'wants_accommodation': student.wants_accommodation if student else False,
+                'admission_status': student.admission_status if student else None
             }
         }), 200
 
@@ -343,7 +378,8 @@ def get_profile():
             'current_year': student.current_year if student else None,
             'current_gpa': float(student.current_gpa) if student and student.current_gpa else 0,
             'is_government_sponsored': student.is_government_sponsored if student else False,
-            'wants_accommodation': student.wants_accommodation if student else False
+            'wants_accommodation': student.wants_accommodation if student else False,
+            'admission_status': student.admission_status if student else None
         }
 
         return jsonify(profile), 200

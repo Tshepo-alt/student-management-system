@@ -10,7 +10,9 @@ class Config:
     # ============================================
     # FLASK APPLICATION SETTINGS
     # ============================================
-    SECRET_KEY = os.environ.get('FLASK_SECRET_KEY') or os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    SECRET_KEY = os.environ.get('FLASK_SECRET_KEY') or os.environ.get('SECRET_KEY')
+    if not SECRET_KEY:
+        raise ValueError("FLASK_SECRET_KEY must be set in production")
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
@@ -20,7 +22,7 @@ class Config:
     # ============================================
     MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
     MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'Admin')
+    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
     MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'gips_college_db')
     MYSQL_PORT = int(os.environ.get('MYSQL_PORT', 3306))
     
@@ -45,7 +47,9 @@ class Config:
     # ============================================
     # JWT CONFIGURATION
     # ============================================
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or os.environ.get('SECRET_KEY') or 'jwt-secret-key-change-this'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or os.environ.get('SECRET_KEY')
+    if not JWT_SECRET_KEY:
+        raise ValueError("JWT_SECRET_KEY must be set in production")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES_MINUTES', 60)))
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.environ.get('JWT_REFRESH_TOKEN_EXPIRES_DAYS', 30)))
     JWT_TOKEN_LOCATION = ['headers']
@@ -464,7 +468,7 @@ def get_config(env=None):
 # INITIALIZATION HELPER
 # ============================================
 def init_app_config(app):
-    """Initialize app configuration from environment"""
+    """Initialize app configuration from environment and create necessary directories"""
     env = os.environ.get('FLASK_ENV', 'development')
     app.config.from_object(config[env])
     

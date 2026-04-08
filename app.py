@@ -16,6 +16,7 @@ from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 import logging
 import traceback
+from sqlalchemy import text  # <-- Added for safe raw SQL
 
 # Load environment variables
 load_dotenv()
@@ -56,15 +57,32 @@ def create_app(config_name=None):
     # Load configuration
     app.config.from_object(config[config_name])
 
+    # Ensure required secret keys are present (config already does this, but double-check)
+    if not app.config.get('SECRET_KEY') or app.config.get('SECRET_KEY') == 'dev-secret-key-change-in-production':
+        raise ValueError("SECRET_KEY must be set in environment variables (FLASK_SECRET_KEY)")
+
     # Ensure upload folder exists
     upload_folder = app.config.get('UPLOAD_FOLDER', 'uploads')
     os.makedirs(upload_folder, exist_ok=True)
-    os.makedirs(os.path.join(upload_folder, 'documents'), exist_ok=True)
-    os.makedirs(os.path.join(upload_folder, 'assignments'), exist_ok=True)
-    os.makedirs(os.path.join(upload_folder, 'research'), exist_ok=True)
-    os.makedirs(os.path.join(upload_folder, 'attachments'), exist_ok=True)
+    for subdir in ['documents', 'assignments', 'research', 'attachments', 'profiles']:
+        os.makedirs(os.path.join(upload_folder, subdir), exist_ok=True)
 
-    print(f"📊 Database: {app.config['SQLALCHEMY_DATABASE_URI']}")
+    # Print configuration summary (hide sensitive parts)
+    db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+    # Mask password in log for security
+    if '@' in db_uri:
+        parts = db_uri.split('@')
+        if ':' in parts[0]:
+            user_pass = parts[0].split(':')
+            if len(user_pass) == 2:
+                masked_uri = f"{user_pass[0]}:****@{parts[1]}"
+            else:
+                masked_uri = db_uri
+        else:
+            masked_uri = db_uri
+    else:
+        masked_uri = db_uri
+    print(f"📊 Database: {masked_uri}")
     print(f"📧 Email Notifications: {'Enabled' if app.config.get('CHATBOT_ENABLE_EMAIL') else 'Disabled'}")
     print(f"📁 Upload Folder: {app.config.get('UPLOAD_FOLDER', 'uploads')}")
     print(f"🔐 JWT Secret: {'Configured' if app.config.get('JWT_SECRET_KEY') else 'Using Default'}")
@@ -235,7 +253,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ⚠️ Error registering chatbot routes: {e}")
 
-    # ==================== ADMIN BLUEPRINT (NEW) ====================
+    # ==================== ADMIN BLUEPRINT ====================
     try:
         from backend.routes.admin import admin_bp
         app.register_blueprint(admin_bp, url_prefix='/api/admin')
@@ -248,6 +266,22 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ⚠️ Error registering admin routes: {e}")
         logger.error(f"Admin routes registration error: {e}")
+        traceback.print_exc()
+
+    # ==================== ONLINE CLASSES BLUEPRINT ====================
+    try:
+        from backend.routes.online_classes import online_classes_bp
+        # Ensure blueprint has a URL prefix; if not set in blueprint, set it here
+        app.register_blueprint(online_classes_bp, url_prefix='/api/classes')
+        blueprints_registered.append('online_classes')
+        print("   ✅ Online Classes routes registered")
+        print("   📍 Online Classes endpoints available at /api/classes/*")
+    except ImportError as e:
+        print(f"   ⚠️ Online Classes routes not available: {e}")
+        print("   To fix: Create backend/routes/online_classes.py with the required blueprint")
+    except Exception as e:
+        print(f"   ⚠️ Error registering online classes routes: {e}")
+        logger.error(f"Online classes routes registration error: {e}")
         traceback.print_exc()
 
     # ==================== FRONTEND SERVING ====================
@@ -276,7 +310,8 @@ def create_app(config_name=None):
                 'auth': '/api/auth/login',
                 'students': '/api/students',
                 'dashboard': '/api/students/dashboard',
-                'admin': '/api/admin/stats'
+                'admin': '/api/admin/stats',
+                'online_classes': '/api/classes/*'
             },
             'blueprints': blueprints_registered
         }), 200
@@ -317,6 +352,9 @@ def create_app(config_name=None):
     @app.route('/<path:filename>')
     def serve_static(filename):
         """Serve other static files from frontend root"""
+        # Skip API and special paths to avoid interfering with blueprint routes
+        if filename.startswith('api/') or filename.startswith('uploads/'):
+            return jsonify({'error': 'Not found'}), 404
         try:
             # Check if file exists in frontend root
             if os.path.exists(os.path.join('frontend', filename)):
@@ -353,10 +391,10 @@ def create_app(config_name=None):
         """Health check endpoint"""
         chatbot_status = 'available' if app.config.get('CHATBOT') else 'unavailable'
 
-        # Check database connection
+        # Check database connection using safe text()
         db_status = 'connected'
         try:
-            db.session.execute('SELECT 1')
+            db.session.execute(text('SELECT 1'))
         except Exception as e:
             db_status = 'disconnected'
             logger.error(f"Database connection error: {e}")
@@ -449,7 +487,10 @@ def create_app(config_name=None):
 
     return app
 
+
 if __name__ == '__main__':
+    # This block runs only when executing directly (e.g., python app.py)
+    # For production (gunicorn), this block is ignored.
     app = create_app()
 
     print("\n" + "="*60)
@@ -477,6 +518,11 @@ if __name__ == '__main__':
     print("   👑 POST /api/admin/users    - Create Admin User")
     print("   👑 PUT  /api/admin/users/<id> - Update User")
     print("   👑 DELETE /api/admin/users/<id> - Delete User")
+    print("\n📌 Online Classes Endpoints:")
+    print("   🎥 POST /api/classes/course/<id>/start     - Start Live Class (Google Meet)")
+    print("   🎥 GET  /api/classes/course/<id>/meeting   - Get Meeting Info")
+    print("   🎥 GET  /api/classes/course/<id>/join      - Embedded Meeting Page")
+    print("   🎥 POST /api/classes/course/<id>/end       - End Live Class")
     print("="*60 + "\n")
 
     host = os.getenv('FLASK_HOST', '0.0.0.0')

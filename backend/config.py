@@ -473,13 +473,15 @@ def init_app_config(app):
     app.config.from_object(config[env])
     
     # Create necessary directories
-    os.makedirs(app.config.get('UPLOAD_FOLDER', 'uploads'), exist_ok=True)
+    upload_folder = app.config.get('UPLOAD_FOLDER', 'uploads')
+    if upload_folder:
+        os.makedirs(upload_folder, exist_ok=True)
     os.makedirs('logs', exist_ok=True)
     os.makedirs('database', exist_ok=True)
     
     # Create upload subdirectories
     for subdir in ['documents', 'assignments', 'research', 'attachments', 'profiles']:
-        path = os.path.join(app.config['UPLOAD_FOLDER'], subdir)
+        path = os.path.join(upload_folder, subdir) if upload_folder else subdir
         os.makedirs(path, exist_ok=True)
     
     return app

@@ -28,9 +28,9 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
+    # Relationships - fixed foreign_keys for user_roles (removed brackets)
     student = db.relationship('Student', backref='user', uselist=False, cascade='all, delete-orphan')
-    user_roles = db.relationship('UserRole', back_populates='user', cascade='all, delete-orphan')
+    user_roles = db.relationship('UserRole', back_populates='user', foreign_keys='UserRole.user_id', cascade='all, delete-orphan')
     tokens = db.relationship('JWTToken', backref='user', cascade='all, delete-orphan')
     approved_registrations = db.relationship('Registration', foreign_keys='Registration.approved_by', backref='approver')
     processed_payments = db.relationship('Payment', foreign_keys='Payment.processed_by', backref='processor')

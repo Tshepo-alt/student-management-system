@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import re
 import traceback
+import json   # added for safe JSON parsing
 
 from models import db, User, Student, Program, Campus, Registration
 
@@ -190,20 +191,40 @@ def register():
 def login():
     """Login user - JWT-based authentication, with redirect based on status"""
     try:
-        if not request.is_json:
-            return jsonify({'error': 'Content-Type must be application/json'}), 415
+        # Safely obtain request data as a dictionary
+        data = None
+        
+        # Try to get JSON data
+        if request.is_json:
+            data = request.get_json(silent=True)
+        
+        # If not a dict, try to parse raw body as JSON
+        if not isinstance(data, dict):
+            try:
+                data = json.loads(request.get_data(as_text=True))
+            except:
+                data = {}
+        
+        # Last fallback: form data
+        if not isinstance(data, dict):
+            data = request.form.to_dict()
+        
+        # If still not a dict, return error
+        if not isinstance(data, dict):
+            return jsonify({'error': 'Invalid request data. Expected JSON.'}), 400
 
-        data = request.get_json()
-
-        if not data.get('email') or not data.get('password'):
+        email = data.get('email')
+        password = data.get('password')
+        
+        if not email or not password:
             return jsonify({'error': 'Email and password required'}), 400
 
         # Find user by email or username
         user = User.query.filter(
-            (User.email == data['email']) | (User.username == data['email'])
+            (User.email == email) | (User.username == email)
         ).first()
 
-        if not user or not check_password_hash(user.password_hash, data['password']):
+        if not user or not check_password_hash(user.password_hash, password):
             return jsonify({'error': 'Invalid email or password'}), 401
 
         if not user.is_active:
@@ -299,7 +320,6 @@ def refresh():
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
-        # FIX: Convert identity to string
         access_token = create_access_token(identity=str(user.id))
         
         return jsonify({
@@ -319,7 +339,6 @@ def verify_token():
     try:
         current_user_id = get_jwt_identity()
         
-        # Convert to int for database query (since identity is string)
         user_id = int(current_user_id) if current_user_id else None
         user = User.query.get(user_id) if user_id else None
         
@@ -350,7 +369,6 @@ def get_profile():
     try:
         current_user_id = get_jwt_identity()
         
-        # Convert to int for database query (since identity is string)
         user_id = int(current_user_id) if current_user_id else None
         user = User.query.get(user_id) if user_id else None
         
@@ -400,7 +418,6 @@ def update_profile():
 
         current_user_id = get_jwt_identity()
         
-        # Convert to int for database query (since identity is string)
         user_id = int(current_user_id) if current_user_id else None
         user = User.query.get(user_id) if user_id else None
         
@@ -462,7 +479,6 @@ def change_password():
 
         current_user_id = get_jwt_identity()
         
-        # Convert to int for database query (since identity is string)
         user_id = int(current_user_id) if current_user_id else None
         user = User.query.get(user_id) if user_id else None
         

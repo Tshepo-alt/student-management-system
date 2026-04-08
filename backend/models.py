@@ -275,7 +275,7 @@ class Module(db.Model):
     enrollments = db.relationship('Enrollment', backref='module', cascade='all, delete-orphan')
     course_materials = db.relationship('CourseMaterial', backref='module', cascade='all, delete-orphan')
     assignments = db.relationship('Assignment', backref='module', cascade='all, delete-orphan')
-    exam_registrations = db.relationship('ExamRegistration', backref='module', cascade='all, delete-orphan')
+    # REMOVED: exam_registrations (no foreign key from ExamRegistration to Module)
 
 
 class ProgramModule(db.Model):

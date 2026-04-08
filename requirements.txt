@@ -5,7 +5,7 @@ Flask-Mail==0.9.1
 Flask-CORS==4.0.0
 python-dotenv==1.0.0
 psycopg2-binary==2.9.7
-Stripe==5.14.0
+Stripe==11.4.0
 PyJWT==2.8.1
 email-validator==2.0.0
 Flask-Migrate==4.0.4

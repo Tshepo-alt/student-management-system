@@ -4,8 +4,8 @@ from flask_jwt_extended import create_access_token, create_refresh_token, jwt_re
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import re
-import traceback
-import json   # added for safe JSON parsing
+import traceback as tb
+import json
 
 from models import db, User, Student, Program, Campus, Registration
 
@@ -183,7 +183,7 @@ def register():
     except Exception as e:
         db.session.rollback()
         print(f"[AUTH] Registration error: {e}")
-        traceback.print_exc()
+        tb.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -301,9 +301,13 @@ def login():
         }), 200
 
     except Exception as e:
-        print(f"[AUTH] Login error: {e}")
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        # Log full traceback to console (Render logs)
+        tb.print_exc()
+        # Return full traceback in response for debugging (temporary)
+        return jsonify({
+            'error': str(e),
+            'traceback': tb.format_exc()
+        }), 500
 
 
 @auth_bp.route('/refresh', methods=['POST'])
@@ -328,7 +332,7 @@ def refresh():
         }), 200
     except Exception as e:
         print(f"[AUTH] Refresh error: {e}")
-        traceback.print_exc()
+        tb.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -404,7 +408,7 @@ def get_profile():
 
     except Exception as e:
         print(f"[AUTH] Profile error: {e}")
-        traceback.print_exc()
+        tb.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -465,7 +469,7 @@ def update_profile():
     except Exception as e:
         db.session.rollback()
         print(f"[AUTH] Update profile error: {e}")
-        traceback.print_exc()
+        tb.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -509,7 +513,7 @@ def change_password():
     except Exception as e:
         db.session.rollback()
         print(f"[AUTH] Change password error: {e}")
-        traceback.print_exc()
+        tb.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -599,7 +603,7 @@ def create_admin():
     except Exception as e:
         db.session.rollback()
         print(f"[AUTH] Create admin error: {e}")
-        traceback.print_exc()
+        tb.print_exc()
         return jsonify({'error': str(e)}), 500
 
 

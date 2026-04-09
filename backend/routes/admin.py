@@ -21,20 +21,21 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 # ==================== AUTHENTICATION & AUTHORIZATION ====================
 
 def is_admin(user_id):
-    """Check if user has admin role"""
+    """Check if user has admin or registrar role (read‑only admin access)"""
     user = User.query.get(user_id)
     if not user:
         return False
-    return user.role in ['admin', 'administrator']
+    # Allow admin, administrator, and registrar for dashboard access
+    return user.role in ['admin', 'administrator', 'registrar']
 
 def admin_required(f):
-    """Decorator to check admin access"""
+    """Decorator to check admin/registrar access (for read operations)"""
     from functools import wraps
     @wraps(f)
     def decorated_function(*args, **kwargs):
         current_user_id = get_jwt_identity()
         if not is_admin(int(current_user_id)):
-            return jsonify({'error': 'Admin access required'}), 403
+            return jsonify({'error': 'Access denied. Admin or Registrar privileges required.'}), 403
         return f(*args, **kwargs)
     return decorated_function
 
@@ -161,9 +162,14 @@ def delete_user(user_id):
 @jwt_required()
 @admin_required
 def get_students():
-    """Get all students"""
+    """Get all students (filter by admission_status if provided)"""
     try:
-        students = Student.query.all()
+        status = request.args.get('status')
+        query = Student.query
+        if status:
+            query = query.filter_by(admission_status=status)
+        students = query.all()
+        
         result = []
         for student in students:
             program = Program.query.get(student.program_id) if student.program_id else None
@@ -193,6 +199,7 @@ def get_students():
         return jsonify(result), 200
     except Exception as e:
         print(f"Get students error: {e}")
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @admin_bp.route('/students', methods=['POST'])

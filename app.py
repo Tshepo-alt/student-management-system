@@ -302,7 +302,7 @@ def create_app(config_name=None):
         print(f"   ❌ Payments routes failed: {e}")
         traceback.print_exc()
 
-    # ==================== ACCOMMODATION ROUTES (ADDED) ====================
+    # Accommodation routes
     try:
         from backend.routes.accomodation import accommodation_bp
         app.register_blueprint(accommodation_bp, url_prefix='/api/accommodation')
@@ -311,7 +311,17 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Accommodation routes failed: {e}")
         traceback.print_exc()
-    # ======================================================================
+
+    # ==================== ALUMNI ROUTES (NEW) ====================
+    try:
+        from backend.routes.alumni import alumni_bp
+        app.register_blueprint(alumni_bp, url_prefix='/api/alumni')
+        blueprints_registered.append('alumni')
+        print("   ✅ Alumni routes registered")
+    except Exception as e:
+        print(f"   ❌ Alumni routes failed: {e}")
+        traceback.print_exc()
+    # =============================================================
 
     # ==================== FRONTEND SERVING ====================
 
@@ -540,6 +550,11 @@ if __name__ == '__main__':
     print("   🏠 GET  /api/accommodation/admin/applications - All accommodation applications")
     print("   🏠 GET  /api/accommodation/admin/allocations  - Allocated rooms")
     print("   🏠 GET  /api/accommodation/admin/rooms        - All rooms")
+    print("\n📌 Alumni Endpoints:")
+    print("   👥 GET  /api/alumni/stats               - Alumni statistics")
+    print("   👥 GET  /api/alumni/profile             - Alumni profile")
+    print("   👥 GET  /api/alumni/jobs/recommended    - Recommended jobs")
+    print("   👥 GET  /api/alumni/activity            - Recent activity")
     print("="*60 + "\n")
 
     host = os.getenv('FLASK_HOST', '0.0.0.0')

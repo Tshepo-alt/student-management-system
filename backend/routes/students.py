@@ -6,7 +6,7 @@ import csv
 import io
 import traceback
 
-from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User, Course, AcademicYear, Semester, ProgramModule
+from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User, Course, AcademicYear, Semester, ProgramModule, OnlineMeeting
 
 students_bp = Blueprint('students', __name__)
 
@@ -653,7 +653,7 @@ def get_accommodation_status():
 
 
 # ============================================
-# NEW ENDPOINTS FOR APPLICATION & REGISTRATION FLOW
+# APPLICATION & REGISTRATION FLOW ENDPOINTS
 # ============================================
 
 @students_bp.route('/application-status', methods=['GET'])
@@ -869,5 +869,53 @@ def register_semester():
     except Exception as e:
         db.session.rollback()
         print(f"Register semester error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# ONLINE CLASSES FOR STUDENTS
+# ============================================
+
+@students_bp.route('/online-classes', methods=['GET'])
+@jwt_required()
+def get_student_online_classes():
+    """Get online meetings for the student's enrolled courses"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        # Get course IDs the student is registered in (via student_courses)
+        enrolled_courses = [sc.course_id for sc in student.student_courses if sc.status == 'registered']
+        if not enrolled_courses:
+            return jsonify({'meetings': []}), 200
+
+        now = datetime.utcnow()
+        meetings = OnlineMeeting.query.filter(
+            OnlineMeeting.course_id.in_(enrolled_courses),
+            OnlineMeeting.is_active == True,
+            OnlineMeeting.scheduled_start >= now
+        ).order_by(OnlineMeeting.scheduled_start.asc()).all()
+
+        result = []
+        for m in meetings:
+            result.append({
+                'id': m.id,
+                'course_code': m.course.course_code,
+                'course_name': m.course.course_name,
+                'meeting_link': m.meeting_link,
+                'meeting_platform': m.meeting_platform,
+                'scheduled_start': m.scheduled_start.isoformat() if m.scheduled_start else None,
+                'scheduled_end': m.scheduled_end.isoformat() if m.scheduled_end else None,
+                'duration_minutes': m.duration_minutes,
+                'meeting_id': m.meeting_id,
+                'meeting_password': m.meeting_password
+            })
+        return jsonify({'meetings': result}), 200
+    except Exception as e:
+        print(f"[STUDENTS] Online classes error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500

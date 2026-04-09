@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash
 import sys
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import csv
 import io
@@ -21,21 +21,21 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 # ==================== AUTHENTICATION & AUTHORIZATION ====================
 
 def is_admin(user_id):
-    """Check if user has admin or registrar role (read‑only admin access)"""
+    """Check if user has admin, registrar, or finance role (admin access)"""
     user = User.query.get(user_id)
     if not user:
         return False
-    # Allow admin, administrator, and registrar for dashboard access
-    return user.role in ['admin', 'administrator', 'registrar']
+    # Allow admin, administrator, registrar, and finance for dashboard access
+    return user.role in ['admin', 'administrator', 'registrar', 'finance']
 
 def admin_required(f):
-    """Decorator to check admin/registrar access (for read operations)"""
+    """Decorator to check admin/registrar/finance access (for read operations)"""
     from functools import wraps
     @wraps(f)
     def decorated_function(*args, **kwargs):
         current_user_id = get_jwt_identity()
         if not is_admin(int(current_user_id)):
-            return jsonify({'error': 'Access denied. Admin or Registrar privileges required.'}), 403
+            return jsonify({'error': 'Access denied. Admin, Registrar, or Finance privileges required.'}), 403
         return f(*args, **kwargs)
     return decorated_function
 
@@ -727,6 +727,103 @@ def get_courses_by_lecturer(lecturer_id):
             })
         return jsonify(result), 200
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== PAYMENT MANAGEMENT (for finance dashboard) ====================
+
+@admin_bp.route('/payments', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_all_payments():
+    """Get all payments (with optional limit for dashboard)"""
+    try:
+        limit = request.args.get('limit', default=10, type=int)
+        payments = Payment.query.order_by(Payment.created_at.desc()).limit(limit).all()
+        
+        result = []
+        for payment in payments:
+            student = Student.query.get(payment.student_id)
+            result.append({
+                'id': payment.id,
+                'student_name': f"{student.first_name} {student.last_name}" if student else 'Unknown',
+                'student_number': student.student_number if student else 'N/A',
+                'amount': float(payment.amount),
+                'currency': payment.currency,
+                'payment_type': payment.payment_type,
+                'status': payment.status,
+                'payment_date': payment.payment_date.isoformat() if payment.payment_date else None,
+                'created_at': payment.created_at.isoformat(),
+                'receipt_number': payment.receipt_number
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Get all payments error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/payments/stats', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_payment_stats():
+    """Get payment statistics for finance dashboard"""
+    try:
+        # Total revenue (completed payments)
+        total_revenue = db.session.query(func.sum(Payment.amount)).filter(Payment.status == 'completed').scalar() or 0
+        
+        # Pending payments total
+        pending_total = db.session.query(func.sum(Payment.amount)).filter(Payment.status == 'pending').scalar() or 0
+        
+        # Count of pending payments
+        pending_count = Payment.query.filter_by(status='pending').count()
+        
+        # Today's collections
+        today = datetime.utcnow().date()
+        today_start = datetime(today.year, today.month, today.day)
+        today_end = today_start + timedelta(days=1)
+        today_collections = db.session.query(func.sum(Payment.amount)).filter(
+            Payment.status == 'completed',
+            Payment.payment_date >= today_start,
+            Payment.payment_date < today_end
+        ).scalar() or 0
+        
+        # This month's collections
+        month_start = datetime(today.year, today.month, 1)
+        month_collections = db.session.query(func.sum(Payment.amount)).filter(
+            Payment.status == 'completed',
+            Payment.payment_date >= month_start
+        ).scalar() or 0
+        
+        # By payment type
+        by_type = {}
+        type_results = db.session.query(Payment.payment_type, func.sum(Payment.amount)).filter(Payment.status == 'completed').group_by(Payment.payment_type).all()
+        for ptype, total in type_results:
+            by_type[ptype] = float(total)
+        
+        # Recent transactions (last 5)
+        recent = Payment.query.order_by(Payment.created_at.desc()).limit(5).all()
+        recent_list = []
+        for p in recent:
+            student = Student.query.get(p.student_id)
+            recent_list.append({
+                'student_name': f"{student.first_name} {student.last_name}" if student else 'Unknown',
+                'amount': float(p.amount),
+                'status': p.status,
+                'date': p.created_at.isoformat()
+            })
+        
+        stats = {
+            'total_revenue': float(total_revenue),
+            'pending_total': float(pending_total),
+            'pending_count': pending_count,
+            'today_collections': float(today_collections),
+            'month_collections': float(month_collections),
+            'by_payment_type': by_type,
+            'recent_transactions': recent_list
+        }
+        return jsonify(stats), 200
+    except Exception as e:
+        print(f"Payment stats error: {e}")
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 # ==================== ACCOMMODATION MANAGEMENT ====================

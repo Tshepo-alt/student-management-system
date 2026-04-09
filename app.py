@@ -57,6 +57,25 @@ def create_app(config_name=None):
     # Load configuration
     app.config.from_object(config[config_name])
 
+    # ============================================
+    # WRITE GOOGLE CREDENTIALS FILE FROM ENVIRONMENT VARIABLE
+    # ============================================
+    google_creds_b64 = os.environ.get('GOOGLE_CREDENTIALS_JSON_BASE64')
+    if google_creds_b64:
+        import base64
+        creds_dir = os.path.join(os.path.dirname(__file__), 'backend', 'config')
+        os.makedirs(creds_dir, exist_ok=True)
+        creds_path = os.path.join(creds_dir, 'gips-meet-key.json')
+        try:
+            with open(creds_path, 'wb') as f:
+                f.write(base64.b64decode(google_creds_b64))
+            print(f"✅ Google credentials written to {creds_path}")
+        except Exception as e:
+            print(f"⚠️ Failed to write Google credentials: {e}")
+    else:
+        print("⚠️ GOOGLE_CREDENTIALS_JSON_BASE64 not set, online classes may fail")
+    # ============================================
+
     # Ensure required secret keys are present
     if not app.config.get('SECRET_KEY') or app.config.get('SECRET_KEY') == 'dev-secret-key-change-in-production':
         raise ValueError("SECRET_KEY must be set in environment variables (FLASK_SECRET_KEY)")

@@ -6,96 +6,97 @@ import csv
 import io
 import traceback
 
-from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User, Course, AcademicYear, Semester, ProgramModule, OnlineMeeting
+from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User, Course, AcademicYear, Semester, ProgramModule, OnlineMeeting, Notification
 
 students_bp = Blueprint('students', __name__)
 
-
+# ============================================
+# DASHBOARD (UPDATED TO MATCH FRONTEND EXPECTATIONS)
+# ============================================
 @students_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
 def dashboard():
-    """Get student dashboard information"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-
         if not student:
             return jsonify({'error': 'Student record not found'}), 404
 
-        # Get program info
-        program = Program.query.get(student.program_id)
-        campus = Campus.query.get(student.campus_id)
+        program = student.program
+        campus = student.campus
 
-        # Get pending exams
-        pending_exams = ExamRegistration.query.filter_by(
-            student_id=student.id,
-            status='registered',
-            payment_status='pending'
-        ).count()
-
-        # Get accommodation status
-        accommodation = AccommodationRegistration.query.filter_by(
-            student_id=student.id
-        ).order_by(AccommodationRegistration.created_at.desc()).first()
-
-        # Get current registration
+        # Current registration
         current_reg = Registration.query.filter_by(
             student_id=student.id,
             registration_status='approved'
         ).order_by(Registration.created_at.desc()).first()
 
-        # Calculate fees
+        # Current courses (enrolled modules)
+        current_courses = []
+        if current_reg:
+            enrollments = Enrollment.query.filter_by(registration_id=current_reg.id, status='registered').all()
+            current_courses = [{'id': e.module.id, 'code': e.module.module_code, 'name': e.module.module_name} for e in enrollments if e.module]
+
+        # Credits earned
+        credits_earned = student.total_credits_earned or 0
+
+        # Program completion percent
+        total_credits_needed = program.total_credits if program and program.total_credits else 0
+        completion_percent = (credits_earned / total_credits_needed * 100) if total_credits_needed > 0 else 0
+
+        # GPA trend (compare with previous semester)
+        gpa_trend = 'steady'
+        previous_academic = AcademicRecord.query.filter_by(student_id=student.id).order_by(AcademicRecord.created_at.desc()).first()
+        if previous_academic and student.current_gpa:
+            if student.current_gpa > previous_academic.semester_gpa:
+                gpa_trend = 'up'
+            elif student.current_gpa < previous_academic.semester_gpa:
+                gpa_trend = 'down'
+
+        # Registered exams & fees
+        registered_exams = ExamRegistration.query.filter_by(student_id=student.id).count()
+        exam_fees_due = sum(e.fee or 0 for e in ExamRegistration.query.filter_by(student_id=student.id, payment_status='pending').all())
+
+        # Accommodation
+        accommodation = AccommodationRegistration.query.filter_by(student_id=student.id).order_by(AccommodationRegistration.created_at.desc()).first()
+        accommodation_status = accommodation.status if accommodation else 'Not Applied'
+        room_number = accommodation.allocated_room_number if accommodation else None
+        block_name = accommodation.allocated_block if accommodation else None
+
+        # Fees summary
         total_fees = 0
         paid_amount = 0
         outstanding = 0
-        
         if current_reg:
             total_fees = current_reg.total_fees or 0
             paid_amount = current_reg.paid_amount or 0
             outstanding = total_fees - paid_amount
-            
-            # For government sponsored students, only show supplementary/resit/retake fees
             if student.is_government_sponsored:
-                outstanding = (current_reg.supplementary_exam_fees or 0) + \
-                              (current_reg.resit_fees or 0) + \
-                              (current_reg.retake_fees or 0)
-
-        # Calculate exam fees due
-        exam_fees_due = sum(e.fee or 0 for e in ExamRegistration.query.filter_by(
-            student_id=student.id,
-            payment_status='pending'
-        ).all())
+                outstanding = (current_reg.supplementary_exam_fees or 0) + (current_reg.resit_fees or 0) + (current_reg.retake_fees or 0)
 
         dashboard_data = {
-            'student': {
-                'id': student.id,
-                'student_number': student.student_number,
-                'first_name': student.first_name,
-                'last_name': student.last_name,
-                'email': student.email,
-                'phone': student.phone,
-                'current_year': student.current_year
-            },
-            'program': {
-                'id': program.id if program else None,
-                'name': program.program_name if program else None,
-                'code': program.program_code if program else None
-            },
-            'campus': {
-                'id': campus.id if campus else None,
-                'name': campus.campus_name if campus else None,
-                'has_accommodation': campus.has_accommodation if campus else False
-            },
+            'student_number': student.student_number,
+            'first_name': student.first_name,
+            'last_name': student.last_name,
+            'email': student.email,
+            'phone': student.phone,
+            'program_name': program.program_name if program else None,
+            'program_code': program.program_code if program else None,
+            'campus_name': campus.campus_name if campus else None,
             'academic_status': student.academic_status,
-            'gpa': float(student.current_gpa) if student.current_gpa else 0,
-            'total_credits_earned': student.total_credits_earned,
-            'enrollment_date': student.enrollment_date.isoformat() if student.enrollment_date else None,
-            'sponsorship_type': 'Government Sponsored' if student.is_government_sponsored else 'Self Sponsored',
+            'current_gpa': float(student.current_gpa) if student.current_gpa else 0.0,
+            'credits_earned': credits_earned,
+            'completion_percent': round(completion_percent, 1),
+            'gpa_trend': gpa_trend,
+            'current_courses': current_courses,
+            'current_year': student.current_year,
+            'is_government_sponsored': student.is_government_sponsored,
             'wants_accommodation': student.wants_accommodation,
-            'accommodation_status': accommodation.status if accommodation else 'Not Applied',
-            'accommodation_room': accommodation.allocated_room_number if accommodation else None,
-            'pending_exams': pending_exams,
+            'accommodation_status': accommodation_status,
+            'room_number': room_number,
+            'block_name': block_name,
+            'registered_exams': registered_exams,
             'exam_fees_due': exam_fees_due,
             'total_fees': total_fees,
             'paid_amount': paid_amount,
@@ -110,19 +111,102 @@ def dashboard():
         return jsonify({'error': str(e)}), 500
 
 
-@students_bp.route('/courses', methods=['GET'])
+# ============================================
+# MY MODULES (CURRENT COURSES)
+# ============================================
+@students_bp.route('/my-modules', methods=['GET'])
 @jwt_required()
-def get_courses():
-    """Get student's enrolled modules/courses"""
+def get_my_modules():
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student not found'}), 404
 
+        current_reg = Registration.query.filter_by(
+            student_id=student.id,
+            registration_status='approved'
+        ).order_by(Registration.created_at.desc()).first()
+
+        if not current_reg:
+            return jsonify({'modules': []}), 200
+
+        enrollments = Enrollment.query.filter_by(registration_id=current_reg.id, status='registered').all()
+        modules_data = []
+        for enrollment in enrollments:
+            if enrollment.module:
+                modules_data.append({
+                    'id': enrollment.module.id,
+                    'code': enrollment.module.module_code,
+                    'name': enrollment.module.module_name,
+                    'credits': enrollment.module.credits,
+                    'semester': enrollment.module.semester,
+                    'year_level': enrollment.module.year_level,
+                    'has_practicals': enrollment.module.has_practicals,
+                    'module_type': enrollment.module.module_type,
+                    'grade': enrollment.grade,
+                    'grade_points': float(enrollment.grade_points) if enrollment.grade_points else None
+                })
+        return jsonify({'modules': modules_data}), 200
+
+    except Exception as e:
+        print(f"My modules error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# ACTIVITY FEED
+# ============================================
+@students_bp.route('/activity', methods=['GET'])
+@jwt_required()
+def get_activity():
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student not found'}), 404
+
+        # Get recent notifications
+        notifications = Notification.query.filter_by(user_id=user_id).order_by(Notification.created_at.desc()).limit(10).all()
+        activities = []
+        for n in notifications:
+            activities.append({
+                'icon': 'fa-bell',
+                'description': n.title + ': ' + n.message[:100],
+                'date': n.created_at.isoformat()
+            })
+        # If no notifications, add a welcome message
+        if not activities:
+            activities.append({
+                'icon': 'fa-rocket',
+                'description': 'Welcome to GIPS College Student Portal',
+                'date': datetime.utcnow().isoformat()
+            })
+        return jsonify({'activities': activities}), 200
+    except Exception as e:
+        print(f"Activity error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# EXISTING ENDPOINTS (KEEP ALL ORIGINAL CODE BELOW)
+# ============================================
+
+@students_bp.route('/courses', methods=['GET'])
+@jwt_required()
+def get_courses():
+    """Get student's enrolled modules/courses (legacy)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
         if not student:
             return jsonify({'error': 'Student record not found'}), 404
 
-        # Get current registration
         current_reg = Registration.query.filter_by(
             student_id=student.id,
             registration_status='approved'
@@ -131,7 +215,6 @@ def get_courses():
         if not current_reg:
             return jsonify({'courses': [], 'message': 'No active registration'}), 200
 
-        # Get enrolled modules
         enrollments = Enrollment.query.filter_by(
             registration_id=current_reg.id,
             status='registered'
@@ -169,17 +252,12 @@ def get_courses():
 @students_bp.route('/<int:student_id>', methods=['GET'])
 @jwt_required()
 def get_student(student_id):
-    """Get student information (admin/staff only)"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         requesting_student = Student.query.filter_by(user_id=user_id).first()
-        
-        # Check if user is admin or staff
         user = User.query.get(user_id)
         is_admin = user and (user.role in ['admin', 'administrator', 'staff'])
-        
-        # Only allow if admin/staff or the student themselves
         if not is_admin and (requesting_student and requesting_student.id != student_id):
             return jsonify({'error': 'Unauthorized'}), 403
 
@@ -221,19 +299,15 @@ def get_student(student_id):
 @students_bp.route('/<int:student_id>', methods=['PUT'])
 @jwt_required()
 def update_student(student_id):
-    """Update student information"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.get(student_id)
-        
         if not student:
             return jsonify({'error': 'Student not found'}), 404
 
-        # Check permissions
         user = User.query.get(user_id)
         is_admin = user and (user.role in ['admin', 'administrator', 'staff'])
-        
         if not is_admin and user_id != student.user_id:
             return jsonify({'error': 'Unauthorized'}), 403
 
@@ -241,7 +315,6 @@ def update_student(student_id):
         if not data:
             return jsonify({'error': 'Invalid request data'}), 400
 
-        # Fields that can be updated by student
         if 'phone' in data:
             student.phone = data['phone']
         if 'alternative_phone' in data:
@@ -257,7 +330,6 @@ def update_student(student_id):
         if 'emergency_contact_relationship' in data:
             student.emergency_contact_relationship = data['emergency_contact_relationship']
 
-        # Fields that can only be updated by admin/staff
         if is_admin:
             if 'gpa' in data:
                 student.current_gpa = data['gpa']
@@ -294,12 +366,10 @@ def update_student(student_id):
 @students_bp.route('/my-profile', methods=['GET'])
 @jwt_required()
 def get_my_profile():
-    """Get current student's own profile"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-
         if not student:
             return jsonify({'error': 'Student profile not found'}), 404
 
@@ -350,18 +420,15 @@ def get_my_profile():
 @students_bp.route('/register-module', methods=['POST'])
 @jwt_required()
 def register_module():
-    """Register student for a module/course"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-        
         if not student:
             return jsonify({'error': 'Student not found'}), 404
 
         data = request.get_json()
         module_id = data.get('module_id')
-
         if not module_id:
             return jsonify({'error': 'Module ID required'}), 400
 
@@ -369,28 +436,22 @@ def register_module():
         if not module:
             return jsonify({'error': 'Module not found'}), 404
 
-        # Check if module is appropriate for student's year level
         if module.year_level != student.current_year:
             return jsonify({'error': 'Module not available for your current year'}), 400
 
-        # Get current registration
         current_reg = Registration.query.filter_by(
             student_id=student.id,
             registration_status='approved'
         ).order_by(Registration.created_at.desc()).first()
 
         if not current_reg:
-            return jsonify({
-                'error': 'No active registration found. Please complete semester registration first.'
-            }), 400
+            return jsonify({'error': 'No active registration found. Please complete semester registration first.'}), 400
 
-        # Check if already registered
         existing = Enrollment.query.filter_by(
             registration_id=current_reg.id,
             module_id=module_id,
             status='registered'
         ).first()
-
         if existing:
             return jsonify({'error': 'Already registered for this module'}), 400
 
@@ -401,7 +462,6 @@ def register_module():
             enrollment_date=date.today(),
             status='registered'
         )
-
         db.session.add(enrollment)
         db.session.commit()
 
@@ -422,81 +482,21 @@ def register_module():
         return jsonify({'error': str(e)}), 500
 
 
-@students_bp.route('/my-modules', methods=['GET'])
-@jwt_required()
-def get_my_modules():
-    """Get modules the current student is enrolled in"""
-    try:
-        current_user_id = get_jwt_identity()
-        user_id = int(current_user_id) if current_user_id else None
-        student = Student.query.filter_by(user_id=user_id).first()
-        
-        if not student:
-            return jsonify({'error': 'Student not found'}), 404
-
-        # Get current registration
-        current_reg = Registration.query.filter_by(
-            student_id=student.id,
-            registration_status='approved'
-        ).order_by(Registration.created_at.desc()).first()
-
-        if not current_reg:
-            return jsonify({'modules': [], 'message': 'No active registration'}), 200
-
-        enrollments = Enrollment.query.filter_by(
-            registration_id=current_reg.id,
-            status='registered'
-        ).all()
-
-        modules_data = []
-        for enrollment in enrollments:
-            if enrollment.module:
-                modules_data.append({
-                    'id': enrollment.module.id,
-                    'code': enrollment.module.module_code,
-                    'name': enrollment.module.module_name,
-                    'credits': enrollment.module.credits,
-                    'semester': enrollment.module.semester,
-                    'year_level': enrollment.module.year_level,
-                    'has_practicals': enrollment.module.has_practicals,
-                    'module_type': enrollment.module.module_type,
-                    'enrollment_date': enrollment.enrollment_date.isoformat() if enrollment.enrollment_date else None,
-                    'status': enrollment.status,
-                    'grade': enrollment.grade,
-                    'grade_points': float(enrollment.grade_points) if enrollment.grade_points else None
-                })
-
-        return jsonify({
-            'modules': modules_data,
-            'count': len(modules_data),
-            'total_credits': sum(m['credits'] for m in modules_data)
-        }), 200
-
-    except Exception as e:
-        print(f"Get my modules error: {e}")
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
-
-
 @students_bp.route('/my-results', methods=['GET'])
 @jwt_required()
 def get_my_results():
-    """Get current student's academic results"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-        
         if not student:
             return jsonify({'error': 'Student not found'}), 404
 
-        # Get all completed enrollments with grades
         enrollments = Enrollment.query.filter_by(
             student_id=student.id,
             status='completed'
         ).order_by(Enrollment.created_at.desc()).all()
 
-        # Get academic records
         academic_records = AcademicRecord.query.filter_by(
             student_id=student.id
         ).order_by(AcademicRecord.created_at.desc()).all()
@@ -553,16 +553,13 @@ def get_my_results():
 @students_bp.route('/export-my-transcript', methods=['GET'])
 @jwt_required()
 def export_my_transcript():
-    """Export student's transcript as CSV"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-        
         if not student:
             return jsonify({'error': 'Student not found'}), 404
 
-        # Get all completed enrollments
         enrollments = Enrollment.query.filter_by(
             student_id=student.id,
             status='completed'
@@ -613,12 +610,10 @@ def export_my_transcript():
 @students_bp.route('/accommodation-status', methods=['GET'])
 @jwt_required()
 def get_accommodation_status():
-    """Get student's accommodation application status"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-        
         if not student:
             return jsonify({'error': 'Student not found'}), 404
 
@@ -659,12 +654,10 @@ def get_accommodation_status():
 @students_bp.route('/application-status', methods=['GET'])
 @jwt_required()
 def get_application_status():
-    """Get student's admission application status"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-
         if not student:
             return jsonify({'error': 'Student record not found'}), 404
 
@@ -684,16 +677,13 @@ def get_application_status():
 @students_bp.route('/current-registration', methods=['GET'])
 @jwt_required()
 def get_current_registration():
-    """Check if student has an active registration for the current semester"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-
         if not student:
             return jsonify({'error': 'Student record not found'}), 404
 
-        # Get the most recent registration
         current_reg = Registration.query.filter_by(
             student_id=student.id
         ).order_by(Registration.created_at.desc()).first()
@@ -722,12 +712,10 @@ def get_current_registration():
 @students_bp.route('/available-courses', methods=['GET'])
 @jwt_required()
 def get_available_courses():
-    """Get courses/modules available for the student's program and year level"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-
         if not student:
             return jsonify({'error': 'Student record not found'}), 404
 
@@ -735,7 +723,6 @@ def get_available_courses():
         if not program_id:
             program_id = student.program_id
 
-        # Get modules for the student's program and current year level
         program_modules = ProgramModule.query.filter_by(program_id=program_id).all()
         module_ids = [pm.module_id for pm in program_modules]
 
@@ -745,7 +732,6 @@ def get_available_courses():
             Module.is_active == True
         ).all()
 
-        # If no modules found via program_modules, fallback to all modules for the year level
         if not modules:
             modules = Module.query.filter_by(
                 year_level=student.current_year,
@@ -777,24 +763,19 @@ def get_available_courses():
 @students_bp.route('/register-semester', methods=['POST'])
 @jwt_required()
 def register_semester():
-    """Create a semester registration for the student (after admission)"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         student = Student.query.filter_by(user_id=user_id).first()
-
         if not student:
             return jsonify({'error': 'Student record not found'}), 404
 
-        # Check if student is admitted
         if student.admission_status != 'accepted':
             return jsonify({'error': 'Your application has not been accepted yet. Please wait for admission decision.'}), 400
 
-        # Check if already registered for current semester
         existing_reg = Registration.query.filter_by(
             student_id=student.id
         ).order_by(Registration.created_at.desc()).first()
-        
         if existing_reg and existing_reg.registration_status in ['pending', 'approved', 'completed']:
             return jsonify({'error': 'You already have a pending or approved registration for this semester.'}), 400
 
@@ -804,26 +785,20 @@ def register_semester():
 
         course_ids = data.get('course_ids', [])
         semester = data.get('semester', 1)
-        academic_year = data.get('academic_year', '2024/2025')
-
         if not course_ids:
             return jsonify({'error': 'Please select at least one course to register.'}), 400
 
-        # Calculate fees based on sponsorship
         is_gov_sponsored = student.is_government_sponsored
-        # These values should come from fees_config or yearly_fees table
         registration_fee = 630 if not is_gov_sponsored else 0
         tuition_fee = 32550 if not is_gov_sponsored else 0
         exam_fee_per_module = 5145 if not is_gov_sponsored else 0
         total_fees = registration_fee + tuition_fee + (len(course_ids) * exam_fee_per_module)
 
-        # Get current academic year and semester IDs
         academic_year_obj = AcademicYear.query.filter_by(is_current=True).first()
         if not academic_year_obj:
             academic_year_obj = AcademicYear.query.first()
         semester_obj = Semester.query.filter_by(academic_year_id=academic_year_obj.id, semester_number=semester).first() if academic_year_obj else None
 
-        # Create registration
         registration = Registration(
             student_id=student.id,
             academic_year_id=academic_year_obj.id if academic_year_obj else 1,
@@ -841,9 +816,8 @@ def register_semester():
         )
 
         db.session.add(registration)
-        db.session.flush()  # to get registration.id
+        db.session.flush()
 
-        # Create enrollments for selected courses
         for course_id in course_ids:
             module = Module.query.get(course_id)
             if module:
@@ -876,11 +850,9 @@ def register_semester():
 # ============================================
 # ONLINE CLASSES FOR STUDENTS
 # ============================================
-
 @students_bp.route('/online-classes', methods=['GET'])
 @jwt_required()
 def get_student_online_classes():
-    """Get online meetings for the student's enrolled courses"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
@@ -888,7 +860,6 @@ def get_student_online_classes():
         if not student:
             return jsonify({'error': 'Student profile not found'}), 404
 
-        # Get course IDs the student is registered in (via student_courses)
         enrolled_courses = [sc.course_id for sc in student.student_courses if sc.status == 'registered']
         if not enrolled_courses:
             return jsonify({'meetings': []}), 200

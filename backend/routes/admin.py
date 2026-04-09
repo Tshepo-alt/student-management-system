@@ -9,12 +9,12 @@ import json
 import csv
 import io
 import traceback
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, text
 
 # Add backend directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from models import db, User, Student, Program, Module, Accommodation, Registration, Payment, Notification, TokenBlocklist, Campus, AccommodationRegistration, AccommodationRoom, AcademicRecord, ExamRegistration, FeesConfig
+from models import db, User, Student, Program, Module, Accommodation, Registration, Payment, Notification, TokenBlocklist, Campus, AccommodationRegistration, AccommodationRoom, AcademicRecord, ExamRegistration, FeesConfig, Course, Enrollment
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
@@ -33,7 +33,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         current_user_id = get_jwt_identity()
-        if not is_admin(current_user_id):
+        if not is_admin(int(current_user_id)):
             return jsonify({'error': 'Admin access required'}), 403
         return f(*args, **kwargs)
     return decorated_function
@@ -60,7 +60,7 @@ def get_stats():
             'staff': User.query.filter_by(role='staff').count(),
             'government_sponsored': Student.query.filter_by(is_government_sponsored=True).count(),
             'self_sponsored': Student.query.filter_by(is_government_sponsored=False).count(),
-            'pending_registrations': Registration.query.filter_by(registration_status='pending').count() if hasattr(Registration, 'registration_status') else Registration.query.filter_by(status='pending').count(),
+            'pending_registrations': Registration.query.filter_by(registration_status='pending').count() if hasattr(Registration, 'registration_status') else 0,
             'pending_payments': Payment.query.filter_by(status='pending').count(),
             'open_tickets': Notification.query.filter_by(notification_type='ticket', is_read=False).count() if Notification else 0,
             'available_rooms': AccommodationRoom.query.filter_by(is_available=True).count() if AccommodationRoom else 0,
@@ -622,6 +622,106 @@ def create_module():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+# ==================== LECTURER & COURSE ASSIGNMENT ====================
+
+@admin_bp.route('/lecturers', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_lecturers():
+    """Get all users with role lecturer or staff"""
+    try:
+        lecturers = User.query.filter(User.role.in_(['lecturer', 'staff'])).all()
+        result = []
+        for lec in lecturers:
+            result.append({
+                'id': lec.id,
+                'username': lec.username,
+                'email': lec.email,
+                'role': lec.role,
+                'is_active': lec.is_active
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/courses/unassigned', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_unassigned_courses():
+    """Get courses that have no lecturer assigned"""
+    try:
+        courses = Course.query.filter(
+            (Course.lecturer_id == None) | (Course.lecturer_id == 0)
+        ).all()
+        result = []
+        for course in courses:
+            result.append({
+                'id': course.id,
+                'course_code': course.course_code,
+                'course_name': course.course_name,
+                'credits': course.credits,
+                'semester': course.semester,
+                'year_level': course.year_level,
+                'program_name': course.program.program_name if course.program else None
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/courses/<int:course_id>/assign-lecturer', methods=['POST'])
+@jwt_required()
+@admin_required
+def assign_lecturer_to_course(course_id):
+    """Assign a lecturer to a course"""
+    try:
+        data = request.get_json()
+        lecturer_id = data.get('lecturer_id')
+        if not lecturer_id:
+            return jsonify({'error': 'lecturer_id required'}), 400
+        
+        course = Course.query.get(course_id)
+        if not course:
+            return jsonify({'error': 'Course not found'}), 404
+        
+        lecturer = User.query.get(lecturer_id)
+        if not lecturer or lecturer.role not in ['lecturer', 'staff']:
+            return jsonify({'error': 'Invalid lecturer ID or user is not a lecturer'}), 400
+        
+        course.lecturer_id = lecturer_id
+        db.session.commit()
+        
+        return jsonify({
+            'message': f'Course {course.course_code} assigned to {lecturer.username}',
+            'course_id': course.id,
+            'lecturer_id': lecturer.id,
+            'lecturer_name': lecturer.username
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/courses/by-lecturer/<int:lecturer_id>', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_courses_by_lecturer(lecturer_id):
+    """Get all courses assigned to a specific lecturer"""
+    try:
+        courses = Course.query.filter_by(lecturer_id=lecturer_id).all()
+        result = []
+        for course in courses:
+            result.append({
+                'id': course.id,
+                'course_code': course.course_code,
+                'course_name': course.course_name,
+                'credits': course.credits,
+                'semester': course.semester,
+                'year_level': course.year_level,
+                'enrolled_students': len(course.student_courses) if course.student_courses else 0
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ==================== ACCOMMODATION MANAGEMENT ====================
 
 @admin_bp.route('/accommodations', methods=['GET'])
@@ -1077,7 +1177,6 @@ def system_health():
         # Check database connection
         db_status = 'connected'
         try:
-            from sqlalchemy import text
             db.session.execute(text('SELECT 1'))
         except Exception as e:
             db_status = f'disconnected: {str(e)}'
@@ -1104,4 +1203,4 @@ def admin_internal_error(error):
 
 @admin_bp.errorhandler(404)
 def admin_not_found(error):
-    return jsonify({'error': 'Resource not found'}), 500
+    return jsonify({'error': 'Resource not found'}), 404

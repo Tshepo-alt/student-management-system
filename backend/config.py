@@ -18,7 +18,7 @@ class Config:
     SQLALCHEMY_ECHO = False
     
     # ============================================
-    # DATABASE CONFIGURATION - MYSQL (using mysql-connector-python)
+    # DATABASE CONFIGURATION - MYSQL (using pymysql with SSL)
     # ============================================
     MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
     MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
@@ -29,34 +29,53 @@ class Config:
     # URL encode password to handle special characters
     encoded_password = quote_plus(MYSQL_PASSWORD)
     
-    # Build MySQL connection string
+    # Determine database URI
     if os.environ.get('DATABASE_URL'):
         raw_url = os.environ.get('DATABASE_URL')
-        # Convert mysql+pymysql to mysql+mysqlconnector and handle SSL params
-        if raw_url.startswith('mysql+pymysql://'):
-            raw_url = raw_url.replace('mysql+pymysql://', 'mysql+mysqlconnector://')
-        # Remove any ?ssl=true or ?ssl-mode=REQUIRED because mysql-connector uses different syntax
-        # We'll add ssl-mode=REQUIRED if not present and if SSL is needed
+        # Parse and clean the URL: remove any query parameters (e.g., ?ssl=true, ?ssl-mode=REQUIRED)
         parsed = urlparse(raw_url)
-        query = parse_qs(parsed.query)
-        # Ensure ssl-mode=REQUIRED for Aiven (or any cloud MySQL requiring SSL)
-        if 'ssl-mode' not in query and 'ssl' not in query:
-            # Add ssl-mode=REQUIRED
-            new_query = dict(query)
-            new_query['ssl-mode'] = ['REQUIRED']
-            new_parsed = parsed._replace(query='&'.join(f"{k}={v[0]}" for k, v in new_query.items()))
-            raw_url = urlunparse(new_parsed)
-        SQLALCHEMY_DATABASE_URI = raw_url
+        # Rebuild without query string (SSL will be handled via connect_args)
+        clean_parsed = parsed._replace(query='')
+        # Convert to pymysql driver if needed
+        if clean_parsed.scheme in ('mysql', 'mysql+pymysql'):
+            scheme = 'mysql+pymysql'
+        else:
+            scheme = clean_parsed.scheme
+        # Rebuild the URI without query
+        SQLALCHEMY_DATABASE_URI = urlunparse(clean_parsed._replace(scheme=scheme))
     else:
-        SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{MYSQL_USER}:{encoded_password}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?ssl-mode=REQUIRED"
+        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{MYSQL_USER}:{encoded_password}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
     
-    # MySQL Engine Options for better performance
+    # ============================================
+    # SSL Configuration (for Aiven or any cloud MySQL requiring SSL)
+    # ============================================
+    # Check if we are using a cloud database (e.g., Aiven) and enable SSL
+    # You can also force SSL by setting MYSQL_SSL_REQUIRED=True in environment
+    MYSQL_SSL_REQUIRED = os.environ.get('MYSQL_SSL_REQUIRED', 'False').lower() == 'true'
+    
+    # For Aiven, the hostname always contains ".aivencloud.com"
+    if '.aivencloud.com' in MYSQL_HOST or MYSQL_SSL_REQUIRED:
+        # Use SSL with default CA (no need to provide a certificate, pymysql will use system CA)
+        ssl_config = {
+            'ssl': {
+                'ssl': True,  # This tells pymysql to use SSL
+                # Optionally, you can provide CA cert if needed:
+                # 'ca': '/path/to/ca.pem'
+            }
+        }
+    else:
+        ssl_config = {}
+    
+    # ============================================
+    # MySQL Engine Options
+    # ============================================
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': int(os.environ.get('SQLALCHEMY_POOL_SIZE', 10)),
         'pool_recycle': int(os.environ.get('SQLALCHEMY_POOL_RECYCLE', 3600)),
         'pool_pre_ping': True,
         'pool_timeout': 30,
-        'max_overflow': 20
+        'max_overflow': 20,
+        'connect_args': ssl_config.get('ssl', {})  # Pass SSL parameters to pymysql
     }
     
     # ============================================

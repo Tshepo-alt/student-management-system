@@ -1,3 +1,4 @@
+# backend/routes/payments.py
 """
 Payment Routes - Stripe Integration
 With Government Sponsorship Support and Installment Plans
@@ -17,17 +18,16 @@ payments_bp = Blueprint('payments', __name__)
 # Initialize Stripe
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
-# Fee constants
+# Fee constants (used as fallback)
 SUPPLEMENTARY_FEE = 300
 RESIT_FEE = 600
 RETAKE_FEE = 1000
-REGULAR_EXAM_FEE = 500
 
 def calculate_fees(student, payment_type, amount=None):
     """Calculate fees based on sponsorship and payment type"""
     if student.is_government_sponsored:
         # Government sponsored students are exempt from regular fees
-        if payment_type in ['registration', 'tuition', 'accommodation', 'exam']:
+        if payment_type in ['registration', 'tuition', 'accommodation', 'exam', 'full']:
             return 0, True
         # But must pay for supplementary, resit, retake
         elif payment_type == 'supplementary':
@@ -50,6 +50,22 @@ def calculate_fees(student, payment_type, amount=None):
             return amount or 0, False
 
 
+# ============================================
+# CONFIGURATION ENDPOINT (for frontend Stripe key)
+# ============================================
+@payments_bp.route('/config', methods=['GET'])
+def get_stripe_config():
+    """Return Stripe public key for frontend"""
+    public_key = os.environ.get('STRIPE_PUBLIC_KEY', '')
+    if not public_key:
+        # Fallback for development (replace with your actual test key if needed)
+        public_key = 'pk_test_51QnFBDQpAhs2bhxJKRVWi5OyO3UaohNOM7A53c3UX5mtBBs423rIVDE8hvoQW26grdRdO6jNfgvQHbJyXYPCwlpl00zBTdoVmR'
+    return jsonify({'publicKey': public_key}), 200
+
+
+# ============================================
+# CREATE PAYMENT INTENT
+# ============================================
 @payments_bp.route('/create-payment-intent', methods=['POST'])
 @jwt_required()
 def create_payment_intent():
@@ -65,8 +81,7 @@ def create_payment_intent():
         data = request.get_json()
 
         # Validate required fields
-        required_fields = ['amount', 'payment_type']
-        if not all(field in data for field in required_fields):
+        if 'amount' not in data or 'payment_type' not in data:
             return jsonify({'error': 'Missing required fields: amount, payment_type'}), 400
 
         try:
@@ -78,7 +93,6 @@ def create_payment_intent():
         currency = data.get('currency', 'bwp').lower()
         description = data.get('description', 'GIPS College Fee Payment')
         installment_plan = data.get('installment_plan', False)
-        installment_months = data.get('installment_months', 3)
 
         # Validate amount
         if amount <= 0:
@@ -99,7 +113,7 @@ def create_payment_intent():
             }), 200
 
         # Convert to cents for Stripe
-        amount_cents = int(amount * 100)
+        amount_cents = int(calculated_amount * 100)
 
         # Create metadata
         metadata = {
@@ -119,19 +133,19 @@ def create_payment_intent():
             metadata['registration_id'] = str(data['registration_id'])
 
         # Create Stripe payment intent
+        # Note: statement_descriptor is deprecated for card payments; removed.
         intent = stripe.PaymentIntent.create(
             amount=amount_cents,
             currency=currency,
             metadata=metadata,
             receipt_email=student.email,
-            description=description,
-            statement_descriptor=f"GIPS COLLEGE {payment_type.upper()}"
+            description=description
         )
 
         # Create payment record in database
         payment = Payment(
             student_id=student.id,
-            amount=amount,
+            amount=calculated_amount,
             currency=currency.upper(),
             payment_type=payment_type,
             stripe_payment_intent_id=intent.id,
@@ -154,7 +168,7 @@ def create_payment_intent():
         return jsonify({
             'clientSecret': intent.client_secret,
             'paymentIntentId': intent.id,
-            'amount': amount,
+            'amount': calculated_amount,
             'currency': currency,
             'message': 'Payment intent created successfully',
             'is_exempt': False
@@ -177,6 +191,9 @@ def create_payment_intent():
         return jsonify({'error': 'Failed to create payment intent'}), 500
 
 
+# ============================================
+# CONFIRM PAYMENT (after Stripe success)
+# ============================================
 @payments_bp.route('/confirm-payment', methods=['POST'])
 @jwt_required()
 def confirm_payment():
@@ -221,6 +238,8 @@ def confirm_payment():
         payment.status = 'completed'
         payment.payment_date = datetime.utcnow()
         payment.transaction_id = intent.id
+        # Generate receipt number
+        payment.receipt_number = f"RCP-{datetime.now().strftime('%Y%m%d%H%M%S')}-{payment.id}"
 
         # Update related exam registration
         if payment.exam_registration_id:
@@ -265,6 +284,244 @@ def confirm_payment():
         return jsonify({'error': 'Failed to confirm payment'}), 500
 
 
+# ============================================
+# PAYMENT HISTORY
+# ============================================
+@payments_bp.route('/history', methods=['GET'])
+@jwt_required()
+def get_payment_history():
+    """Get student's payment history"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+
+        if not student:
+            return jsonify({'error': 'Student record not found'}), 404
+
+        # Get pagination parameters
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+
+        # Query payments
+        paginated_payments = Payment.query.filter_by(
+            student_id=student.id
+        ).order_by(Payment.created_at.desc()).paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        payments_list = []
+        for payment in paginated_payments.items:
+            payments_list.append({
+                'id': payment.id,
+                'amount': float(payment.amount),
+                'currency': payment.currency,
+                'payment_type': payment.payment_type,
+                'status': payment.status,
+                'payment_date': payment.payment_date.isoformat() if payment.payment_date else None,
+                'created_at': payment.created_at.isoformat(),
+                'stripe_payment_intent_id': payment.stripe_payment_intent_id,
+                'receipt_number': payment.receipt_number,
+                'notes': payment.notes
+            })
+
+        # Calculate total paid and outstanding
+        total_paid = sum(p.amount for p in Payment.query.filter_by(
+            student_id=student.id,
+            status='completed'
+        ).all())
+
+        # Get outstanding fees from registration
+        registration = Registration.query.filter_by(
+            student_id=student.id,
+            registration_status='approved'
+        ).first()
+        
+        outstanding = 0
+        if registration:
+            outstanding = (registration.total_fees or 0) - (registration.paid_amount or 0)
+        # For government sponsored, override with supplementary/resit/retake
+        if student.is_government_sponsored and registration:
+            outstanding = (registration.supplementary_exam_fees or 0) + \
+                          (registration.resit_fees or 0) + \
+                          (registration.retake_fees or 0)
+
+        return jsonify({
+            'payments': payments_list,
+            'total': paginated_payments.total,
+            'pages': paginated_payments.pages,
+            'current_page': page,
+            'per_page': per_page,
+            'total_paid': float(total_paid),
+            'outstanding_balance': float(outstanding)
+        }), 200
+
+    except Exception as e:
+        print(f"Get Payment History Error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': 'Failed to retrieve payment history'}), 500
+
+
+# ============================================
+# OUTSTANDING FEES
+# ============================================
+@payments_bp.route('/outstanding', methods=['GET'])
+@jwt_required()
+def get_outstanding_fees():
+    """Get student's outstanding fees"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+
+        if not student:
+            return jsonify({'error': 'Student record not found'}), 404
+
+        registration = Registration.query.filter_by(
+            student_id=student.id,
+            registration_status='approved'
+        ).order_by(Registration.created_at.desc()).first()
+
+        outstanding = {
+            'total_fees': 0,
+            'paid_amount': 0,
+            'outstanding_balance': 0,
+            'supplementary_fees': 0,
+            'resit_fees': 0,
+            'retake_fees': 0,
+            'exempted_amount': 0,
+            'pending_exam_fees': 0,
+            'pending_exam_count': 0
+        }
+
+        if registration:
+            outstanding['total_fees'] = float(registration.total_fees or 0)
+            outstanding['paid_amount'] = float(registration.paid_amount or 0)
+            outstanding['outstanding_balance'] = outstanding['total_fees'] - outstanding['paid_amount']
+            outstanding['supplementary_fees'] = float(registration.supplementary_exam_fees or 0)
+            outstanding['resit_fees'] = float(registration.resit_fees or 0)
+            outstanding['retake_fees'] = float(registration.retake_fees or 0)
+            outstanding['exempted_amount'] = float(registration.exempted_amount or 0)
+
+        # For government sponsored students, only show supplementary/resit/retake
+        if student.is_government_sponsored:
+            outstanding['outstanding_balance'] = (
+                outstanding['supplementary_fees'] + 
+                outstanding['resit_fees'] + 
+                outstanding['retake_fees']
+            )
+
+        # Get pending exam fees
+        pending_exams = ExamRegistration.query.filter_by(
+            student_id=student.id,
+            payment_status='pending'
+        ).all()
+        
+        outstanding['pending_exam_fees'] = sum(e.fee or 0 for e in pending_exams)
+        outstanding['pending_exam_count'] = len(pending_exams)
+
+        return jsonify(outstanding), 200
+
+    except Exception as e:
+        print(f"Get outstanding fees error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': 'Failed to retrieve outstanding fees'}), 500
+
+
+# ============================================
+# STRIPE WEBHOOK (optional)
+# ============================================
+@payments_bp.route('/webhook', methods=['POST'])
+def stripe_webhook():
+    """Handle Stripe webhook events"""
+    try:
+        payload = request.get_data()
+        sig_header = request.headers.get('Stripe-Signature')
+
+        webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
+        if not webhook_secret:
+            # If no webhook secret, still return 200 to avoid retries
+            print("STRIPE_WEBHOOK_SECRET not configured, skipping verification")
+            event = stripe.Event.construct_from(json.loads(payload), stripe.api_key)
+        else:
+            try:
+                event = stripe.Webhook.construct_event(
+                    payload,
+                    sig_header,
+                    webhook_secret
+                )
+            except (ValueError, stripe.error.SignatureVerificationError) as e:
+                return jsonify({'error': 'Invalid signature'}), 400
+
+        # Handle payment_intent.succeeded
+        if event['type'] == 'payment_intent.succeeded':
+            payment_intent = event['data']['object']
+            print(f"Payment succeeded: {payment_intent['id']}")
+
+            # Update payment record
+            payment = Payment.query.filter_by(
+                stripe_payment_intent_id=payment_intent['id']
+            ).first()
+
+            if payment and payment.status != 'completed':
+                payment.status = 'completed'
+                payment.payment_date = datetime.utcnow()
+                payment.transaction_id = payment_intent['id']
+                
+                # Update related exam registration
+                if payment.exam_registration_id:
+                    exam_reg = ExamRegistration.query.get(payment.exam_registration_id)
+                    if exam_reg:
+                        exam_reg.payment_status = 'paid'
+                
+                # Update related accommodation registration
+                if payment.accommodation_registration_id:
+                    accom_reg = AccommodationRegistration.query.get(payment.accommodation_registration_id)
+                    if accom_reg:
+                        accom_reg.payment_status = 'paid'
+                
+                db.session.commit()
+                print(f"Payment record updated: {payment.id}")
+
+        # Handle payment_intent.payment_failed
+        elif event['type'] == 'payment_intent.payment_failed':
+            payment_intent = event['data']['object']
+            print(f"Payment failed: {payment_intent['id']}")
+
+            payment = Payment.query.filter_by(
+                stripe_payment_intent_id=payment_intent['id']
+            ).first()
+
+            if payment and payment.status != 'failed':
+                payment.status = 'failed'
+                db.session.commit()
+
+        # Handle charge.refunded
+        elif event['type'] == 'charge.refunded':
+            charge = event['data']['object']
+            print(f"Charge refunded: {charge['id']}")
+            
+            # Find payment by transaction_id
+            payment = Payment.query.filter_by(transaction_id=charge['id']).first()
+            if payment and payment.status != 'refunded':
+                payment.status = 'refunded'
+                db.session.commit()
+
+        return jsonify({'status': 'success'}), 200
+
+    except Exception as e:
+        print(f"Webhook Error: {e}")
+        traceback.print_exc()
+        # Always return 200 to prevent Stripe from retrying
+        return jsonify({'status': 'error', 'message': str(e)}), 200
+
+
+# ============================================
+# INSTALLMENT PLAN (optional)
+# ============================================
 @payments_bp.route('/installment-plan', methods=['POST'])
 @jwt_required()
 def create_installment_plan():
@@ -335,348 +592,3 @@ def create_installment_plan():
         print(f"Installment plan error: {e}")
         traceback.print_exc()
         return jsonify({'error': 'Failed to create installment plan'}), 500
-
-
-@payments_bp.route('/history', methods=['GET'])
-@jwt_required()
-def get_payment_history():
-    """Get student's payment history"""
-    try:
-        current_user_id = get_jwt_identity()
-        user_id = int(current_user_id) if current_user_id else None
-        student = Student.query.filter_by(user_id=user_id).first()
-
-        if not student:
-            return jsonify({'error': 'Student record not found'}), 404
-
-        # Get pagination parameters
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
-
-        # Query payments
-        paginated_payments = Payment.query.filter_by(
-            student_id=student.id
-        ).order_by(Payment.created_at.desc()).paginate(
-            page=page,
-            per_page=per_page,
-            error_out=False
-        )
-
-        payments_list = []
-        for payment in paginated_payments.items:
-            payments_list.append({
-                'id': payment.id,
-                'amount': float(payment.amount),
-                'currency': payment.currency,
-                'payment_type': payment.payment_type,
-                'status': payment.status,
-                'payment_date': payment.payment_date.isoformat() if payment.payment_date else None,
-                'created_at': payment.created_at.isoformat(),
-                'stripe_payment_intent_id': payment.stripe_payment_intent_id,
-                'receipt_number': payment.receipt_number,
-                'notes': payment.notes
-            })
-
-        # Calculate total paid and outstanding
-        total_paid = sum(p.amount for p in Payment.query.filter_by(
-            student_id=student.id,
-            status='completed'
-        ).all())
-
-        # Get outstanding fees from registration
-        registration = Registration.query.filter_by(
-            student_id=student.id,
-            registration_status='approved'
-        ).first()
-        
-        outstanding = 0
-        if registration:
-            outstanding = (registration.total_fees or 0) - (registration.paid_amount or 0)
-
-        return jsonify({
-            'payments': payments_list,
-            'total': paginated_payments.total,
-            'pages': paginated_payments.pages,
-            'current_page': page,
-            'per_page': per_page,
-            'total_paid': float(total_paid),
-            'outstanding_balance': float(outstanding)
-        }), 200
-
-    except Exception as e:
-        print(f"Get Payment History Error: {e}")
-        traceback.print_exc()
-        return jsonify({'error': 'Failed to retrieve payment history'}), 500
-
-
-@payments_bp.route('/<int:payment_id>', methods=['GET'])
-@jwt_required()
-def get_payment_details(payment_id):
-    """Get specific payment details"""
-    try:
-        current_user_id = get_jwt_identity()
-        user_id = int(current_user_id) if current_user_id else None
-        student = Student.query.filter_by(user_id=user_id).first()
-
-        if not student:
-            return jsonify({'error': 'Student record not found'}), 404
-
-        payment = Payment.query.filter_by(
-            id=payment_id,
-            student_id=student.id
-        ).first()
-
-        if not payment:
-            return jsonify({'error': 'Payment not found'}), 404
-
-        return jsonify({
-            'id': payment.id,
-            'amount': float(payment.amount),
-            'currency': payment.currency,
-            'payment_type': payment.payment_type,
-            'status': payment.status,
-            'payment_date': payment.payment_date.isoformat() if payment.payment_date else None,
-            'created_at': payment.created_at.isoformat(),
-            'updated_at': payment.updated_at.isoformat(),
-            'stripe_payment_intent_id': payment.stripe_payment_intent_id,
-            'receipt_number': payment.receipt_number,
-            'transaction_id': payment.transaction_id,
-            'notes': payment.notes,
-            'exam_registration_id': payment.exam_registration_id,
-            'accommodation_registration_id': payment.accommodation_registration_id,
-            'registration_id': payment.registration_id
-        }), 200
-
-    except Exception as e:
-        print(f"Get Payment Details Error: {e}")
-        traceback.print_exc()
-        return jsonify({'error': 'Failed to retrieve payment details'}), 500
-
-
-@payments_bp.route('/outstanding', methods=['GET'])
-@jwt_required()
-def get_outstanding_fees():
-    """Get student's outstanding fees"""
-    try:
-        current_user_id = get_jwt_identity()
-        user_id = int(current_user_id) if current_user_id else None
-        student = Student.query.filter_by(user_id=user_id).first()
-
-        if not student:
-            return jsonify({'error': 'Student record not found'}), 404
-
-        registration = Registration.query.filter_by(
-            student_id=student.id,
-            registration_status='approved'
-        ).order_by(Registration.created_at.desc()).first()
-
-        outstanding = {
-            'total_fees': 0,
-            'paid_amount': 0,
-            'outstanding_balance': 0,
-            'supplementary_fees': 0,
-            'resit_fees': 0,
-            'retake_fees': 0,
-            'exempted_amount': 0
-        }
-
-        if registration:
-            outstanding['total_fees'] = float(registration.total_fees or 0)
-            outstanding['paid_amount'] = float(registration.paid_amount or 0)
-            outstanding['outstanding_balance'] = outstanding['total_fees'] - outstanding['paid_amount']
-            outstanding['supplementary_fees'] = float(registration.supplementary_exam_fees or 0)
-            outstanding['resit_fees'] = float(registration.resit_fees or 0)
-            outstanding['retake_fees'] = float(registration.retake_fees or 0)
-            outstanding['exempted_amount'] = float(registration.exempted_amount or 0)
-
-        # For government sponsored students, only show supplementary/resit/retake
-        if student.is_government_sponsored:
-            outstanding['outstanding_balance'] = (
-                outstanding['supplementary_fees'] + 
-                outstanding['resit_fees'] + 
-                outstanding['retake_fees']
-            )
-
-        # Get pending exam fees
-        pending_exams = ExamRegistration.query.filter_by(
-            student_id=student.id,
-            payment_status='pending'
-        ).all()
-        
-        outstanding['pending_exam_fees'] = sum(e.fee or 0 for e in pending_exams)
-        outstanding['pending_exam_count'] = len(pending_exams)
-
-        return jsonify(outstanding), 200
-
-    except Exception as e:
-        print(f"Get outstanding fees error: {e}")
-        traceback.print_exc()
-        return jsonify({'error': 'Failed to retrieve outstanding fees'}), 500
-
-
-@payments_bp.route('/<int:payment_id>/refund', methods=['POST'])
-@jwt_required()
-def request_refund(payment_id):
-    """Request refund for a payment"""
-    try:
-        current_user_id = get_jwt_identity()
-        user_id = int(current_user_id) if current_user_id else None
-        student = Student.query.filter_by(user_id=user_id).first()
-
-        if not student:
-            return jsonify({'error': 'Student record not found'}), 404
-
-        payment = Payment.query.filter_by(
-            id=payment_id,
-            student_id=student.id
-        ).first()
-
-        if not payment:
-            return jsonify({'error': 'Payment not found'}), 404
-
-        # Check if payment can be refunded
-        if payment.status != 'completed':
-            return jsonify({
-                'error': f'Cannot refund payment with status: {payment.status}'
-            }), 400
-
-        # Check if payment is within refund window (30 days)
-        if payment.payment_date and (datetime.utcnow() - payment.payment_date).days > 30:
-            return jsonify({'error': 'Refund window expired (30 days)'}), 400
-
-        # Create refund with Stripe
-        try:
-            if payment.stripe_payment_intent_id:
-                refund = stripe.Refund.create(
-                    payment_intent=payment.stripe_payment_intent_id
-                )
-                refund_id = refund.id
-                refund_status = refund.status
-            else:
-                # For non-Stripe payments, manual refund
-                refund_id = None
-                refund_status = 'manual_required'
-
-            # Update payment status
-            payment.status = 'refunded'
-
-            # Update related registrations
-            if payment.exam_registration_id:
-                exam_reg = ExamRegistration.query.get(payment.exam_registration_id)
-                if exam_reg:
-                    exam_reg.payment_status = 'refunded'
-
-            if payment.accommodation_registration_id:
-                accom_reg = AccommodationRegistration.query.get(payment.accommodation_registration_id)
-                if accom_reg:
-                    accom_reg.payment_status = 'refunded'
-
-            if payment.registration_id:
-                reg = Registration.query.get(payment.registration_id)
-                if reg:
-                    reg.paid_amount = (reg.paid_amount or 0) - payment.amount
-                    reg.payment_status = 'pending'
-
-            db.session.commit()
-
-            return jsonify({
-                'message': 'Refund processed successfully',
-                'refund_id': refund_id,
-                'amount': float(payment.amount),
-                'status': refund_status
-            }), 200
-
-        except stripe.error.InvalidRequestError as e:
-            return jsonify({'error': f'Stripe error: {str(e)}'}), 400
-
-    except Exception as e:
-        db.session.rollback()
-        print(f"Refund Error: {e}")
-        traceback.print_exc()
-        return jsonify({'error': 'Failed to process refund'}), 500
-
-
-@payments_bp.route('/webhook', methods=['POST'])
-def stripe_webhook():
-    """Handle Stripe webhook events"""
-    try:
-        payload = request.get_data()
-        sig_header = request.headers.get('Stripe-Signature')
-
-        webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
-
-        if not webhook_secret:
-            print("STRIPE_WEBHOOK_SECRET not configured")
-            return jsonify({'error': 'Webhook not configured'}), 400
-
-        try:
-            event = stripe.Webhook.construct_event(
-                payload,
-                sig_header,
-                webhook_secret
-            )
-        except ValueError:
-            return jsonify({'error': 'Invalid payload'}), 400
-        except stripe.error.SignatureVerificationError:
-            return jsonify({'error': 'Invalid signature'}), 400
-
-        # Handle payment_intent.succeeded
-        if event['type'] == 'payment_intent.succeeded':
-            payment_intent = event['data']['object']
-            print(f"Payment succeeded: {payment_intent['id']}")
-
-            # Update payment record
-            payment = Payment.query.filter_by(
-                stripe_payment_intent_id=payment_intent['id']
-            ).first()
-
-            if payment:
-                payment.status = 'completed'
-                payment.payment_date = datetime.utcnow()
-                payment.transaction_id = payment_intent['id']
-                
-                # Update related exam registration
-                if payment.exam_registration_id:
-                    exam_reg = ExamRegistration.query.get(payment.exam_registration_id)
-                    if exam_reg:
-                        exam_reg.payment_status = 'paid'
-                
-                # Update related accommodation registration
-                if payment.accommodation_registration_id:
-                    accom_reg = AccommodationRegistration.query.get(payment.accommodation_registration_id)
-                    if accom_reg:
-                        accom_reg.payment_status = 'paid'
-                
-                db.session.commit()
-                print(f"Payment record updated: {payment.id}")
-
-        # Handle payment_intent.payment_failed
-        elif event['type'] == 'payment_intent.payment_failed':
-            payment_intent = event['data']['object']
-            print(f"Payment failed: {payment_intent['id']}")
-
-            payment = Payment.query.filter_by(
-                stripe_payment_intent_id=payment_intent['id']
-            ).first()
-
-            if payment:
-                payment.status = 'failed'
-                db.session.commit()
-
-        # Handle charge.refunded
-        elif event['type'] == 'charge.refunded':
-            charge = event['data']['object']
-            print(f"Charge refunded: {charge['id']}")
-            
-            # Find payment by transaction_id
-            payment = Payment.query.filter_by(transaction_id=charge['id']).first()
-            if payment:
-                payment.status = 'refunded'
-                db.session.commit()
-
-        return jsonify({'status': 'success'}), 200
-
-    except Exception as e:
-        print(f"Webhook Error: {e}")
-        traceback.print_exc()
-        return jsonify({'error': 'Webhook processing failed'}), 500

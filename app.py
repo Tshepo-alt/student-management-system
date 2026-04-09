@@ -282,6 +282,17 @@ def create_app(config_name=None):
         print(f"   ❌ Online Classes routes failed: {e}")
         traceback.print_exc()
 
+    # ==================== LECTURER ROUTES (NEW) ====================
+    try:
+        from backend.routes.lecturer import lecturer_bp
+        app.register_blueprint(lecturer_bp, url_prefix='/api/lecturer')
+        blueprints_registered.append('lecturer')
+        print("   ✅ Lecturer routes registered")
+    except Exception as e:
+        print(f"   ❌ Lecturer routes failed: {e}")
+        traceback.print_exc()
+    # ==============================================================
+
     # ==================== FRONTEND SERVING ====================
 
     @app.route('/')

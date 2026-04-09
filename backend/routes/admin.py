@@ -770,7 +770,10 @@ def get_payment_stats():
         # Total revenue (completed payments)
         total_revenue = db.session.query(func.sum(Payment.amount)).filter(Payment.status == 'completed').scalar() or 0
         
-        # Pending payments total
+        # Count of completed payments
+        completed_count = Payment.query.filter_by(status='completed').count()
+        
+        # Pending payments total amount
         pending_total = db.session.query(func.sum(Payment.amount)).filter(Payment.status == 'pending').scalar() or 0
         
         # Count of pending payments
@@ -808,13 +811,16 @@ def get_payment_stats():
                 'student_name': f"{student.first_name} {student.last_name}" if student else 'Unknown',
                 'amount': float(p.amount),
                 'status': p.status,
-                'date': p.created_at.isoformat()
+                'date': p.created_at.isoformat(),
+                'id': p.id
             })
         
         stats = {
             'total_revenue': float(total_revenue),
+            'completed_count': completed_count,
             'pending_total': float(pending_total),
             'pending_count': pending_count,
+            'outstanding_amount': float(pending_total),  # For dashboard, show pending total as outstanding
             'today_collections': float(today_collections),
             'month_collections': float(month_collections),
             'by_payment_type': by_type,

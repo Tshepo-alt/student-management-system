@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 import traceback
 
-from models import db, User, Student, Campus, AccommodationRegistration, AccommodationRoom, AccommodationRules, Notification
+from models import db, User, Student, Campus, AccommodationRegistration, AccommodationRoom, AccommodationRule, Notification
 
 accommodation_bp = Blueprint('accommodation', __name__)
 
@@ -18,7 +18,7 @@ accommodation_bp = Blueprint('accommodation', __name__)
 def get_accommodation_rules():
     """Get all accommodation rules"""
     try:
-        rules = AccommodationRules.query.order_by(AccommodationRules.display_order).all()
+        rules = AccommodationRule.query.order_by(AccommodationRule.display_order).all()
         
         result = []
         for rule in rules:
@@ -102,10 +102,8 @@ def get_available_rooms():
         query = AccommodationRoom.query.filter_by(is_available=True)
         
         if campus_id:
-            # Get rooms for specific campus (all blocks are at Gaborone Main Campus)
             campus = Campus.query.get(campus_id)
             if campus and campus.has_accommodation:
-                # All rooms are available for Gaborone Main Campus
                 pass
             else:
                 return jsonify([]), 200
@@ -115,7 +113,6 @@ def get_available_rooms():
         
         rooms = query.all()
         
-        # Group rooms by block
         blocks = {}
         for room in rooms:
             if room.block_name not in blocks:
@@ -151,7 +148,6 @@ def get_available_rooms():
         
         result = list(blocks.values())
         
-        # Calculate total stats
         total_rooms = sum(b['total_rooms'] for b in result)
         available_rooms = sum(b['available_rooms'] for b in result)
         
@@ -220,7 +216,6 @@ def apply_for_accommodation():
         
         data = request.get_json()
         
-        # Required fields
         required_fields = ['room_type', 'emergency_contact_name', 'emergency_contact_phone', 'has_accepted_rules']
         missing_fields = [field for field in required_fields if not data.get(field)]
         
@@ -235,15 +230,10 @@ def apply_for_accommodation():
         if not student:
             return jsonify({'error': 'Student profile not found'}), 404
         
-        # Check if student is eligible for accommodation
         campus = Campus.query.get(student.campus_id)
-        if not campus:
-            return jsonify({'error': 'Campus not found'}), 404
-            
-        if not campus.has_accommodation:
+        if not campus or not campus.has_accommodation:
             return jsonify({'error': 'Accommodation is not available at your campus'}), 400
         
-        # Check if student already has an active application
         existing_application = AccommodationRegistration.query.filter_by(
             student_id=student.id
         ).filter(
@@ -257,13 +247,10 @@ def apply_for_accommodation():
                 'status': existing_application.status
             }), 409
         
-        # Validate room type
         room_type = data.get('room_type')
         if room_type not in ['bachelor_pad', 'three_bed']:
             return jsonify({'error': 'Invalid room type. Must be bachelor_pad or three_bed'}), 400
         
-        # Check if there are available rooms of this type
-        room_capacity = 2 if room_type == 'bachelor_pad' else 6
         available_rooms = AccommodationRoom.query.filter_by(
             room_type=room_type,
             is_available=True
@@ -272,16 +259,13 @@ def apply_for_accommodation():
         if available_rooms == 0:
             return jsonify({'error': f'No {room_type} rooms available at the moment'}), 400
         
-        # Get the current registration (most recent academic registration)
-        from models import Registration
+        from models import Registration, AcademicYear, Semester
         current_registration = Registration.query.filter_by(
             student_id=student.id,
             registration_status='approved'
         ).order_by(Registration.created_at.desc()).first()
         
         if not current_registration:
-            # Create a placeholder registration if none exists
-            from models import AcademicYear, Semester
             current_year = AcademicYear.query.filter_by(is_current=True).first()
             current_semester = Semester.query.filter_by(is_active=True).first()
             
@@ -300,7 +284,6 @@ def apply_for_accommodation():
                 db.session.flush()
                 current_registration = registration
         
-        # Create accommodation registration
         accommodation_reg = AccommodationRegistration(
             student_id=student.id,
             registration_id=current_registration.id if current_registration else None,
@@ -317,12 +300,9 @@ def apply_for_accommodation():
         )
         
         db.session.add(accommodation_reg)
-        
-        # Update student wants_accommodation flag
         student.wants_accommodation = True
         student.updated_at = datetime.utcnow()
         
-        # Create notification
         notification = Notification(
             student_id=student.id,
             title="Accommodation Application Submitted",
@@ -365,7 +345,6 @@ def get_accommodation_status():
         if not student:
             return jsonify({'error': 'Student profile not found'}), 404
         
-        # Get most recent accommodation registration
         registration = AccommodationRegistration.query.filter_by(
             student_id=student.id
         ).order_by(AccommodationRegistration.created_at.desc()).first()
@@ -377,7 +356,6 @@ def get_accommodation_status():
                 'message': 'No accommodation application found'
             }), 200
         
-        # Status mapping
         status_map = {
             'pending': {'display': 'Pending Review', 'icon': '⏳', 'class': 'badge-pending'},
             'approved': {'display': 'Approved', 'icon': '✅', 'class': 'badge-approved'},
@@ -389,7 +367,6 @@ def get_accommodation_status():
         
         status_info = status_map.get(registration.status, {'display': registration.status, 'icon': '📌', 'class': ''})
         
-        # Get room details if allocated
         allocated_room = None
         if registration.allocated_room_number and registration.allocated_block:
             room = AccommodationRoom.query.filter_by(
@@ -471,16 +448,12 @@ def cancel_accommodation():
         if not registration:
             return jsonify({'error': 'No active accommodation application found'}), 404
         
-        # Store cancellation reason (you may want to add a field for this)
         print(f"[ACCOMMODATION] Student {student.student_number} cancelled application: {reason}")
         
         registration.status = 'cancelled'
         registration.updated_at = datetime.utcnow()
-        
-        # Update student wants_accommodation flag
         student.wants_accommodation = False
         
-        # Create notification
         notification = Notification(
             student_id=student.id,
             title="Accommodation Application Cancelled",
@@ -556,6 +529,106 @@ def get_all_applications():
         return jsonify({'error': str(e)}), 500
 
 
+# ==================== ADD MISSING /admin/allocations ENDPOINT ====================
+@accommodation_bp.route('/admin/allocations', methods=['GET'])
+@jwt_required()
+def get_all_allocations():
+    """Get all allocated accommodations (Admin only)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        
+        user = User.query.get(user_id)
+        if not user or user.role not in ['admin', 'administrator', 'staff']:
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        allocations = AccommodationRegistration.query.filter(
+            AccommodationRegistration.status == 'allocated'
+        ).order_by(AccommodationRegistration.updated_at.desc()).all()
+        
+        result = []
+        for alloc in allocations:
+            student = Student.query.get(alloc.student_id)
+            result.append({
+                'id': alloc.id,
+                'student_id': alloc.student_id,
+                'student_name': f"{student.first_name} {student.last_name}" if student else 'Unknown',
+                'student_number': student.student_number if student else 'N/A',
+                'room_type': alloc.room_type,
+                'allocated_block': alloc.allocated_block,
+                'allocated_room_number': alloc.allocated_room_number,
+                'allocated_at': alloc.updated_at.isoformat() if alloc.updated_at else None,
+                'status': alloc.status
+            })
+        return jsonify(result), 200
+        
+    except Exception as e:
+        print(f"[ACCOMMODATION] Get allocations error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@accommodation_bp.route('/admin/rooms', methods=['GET'])
+@jwt_required()
+def get_all_rooms():
+    """Get all rooms with occupancy details (Admin only)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        
+        user = User.query.get(user_id)
+        if not user or user.role not in ['admin', 'administrator', 'staff']:
+            return jsonify({'error': 'Admin access required'}), 403
+        
+        block_filter = request.args.get('block')
+        
+        query = AccommodationRoom.query
+        
+        if block_filter:
+            query = query.filter_by(block_name=block_filter)
+        
+        rooms = query.order_by(AccommodationRoom.block_name, AccommodationRoom.room_number).all()
+        
+        result = []
+        for room in rooms:
+            occupants = AccommodationRegistration.query.filter_by(
+                allocated_block=room.block_name,
+                allocated_room_number=room.room_number,
+                status='allocated'
+            ).all()
+            
+            occupant_list = []
+            for occ in occupants:
+                if occ.student:
+                    occupant_list.append({
+                        'student_number': occ.student.student_number,
+                        'student_name': f"{occ.student.first_name} {occ.student.last_name}",
+                        'check_in_date': occ.check_in_date.isoformat() if occ.check_in_date else None
+                    })
+            
+            result.append({
+                'id': room.id,
+                'block_name': room.block_name,
+                'room_number': room.room_number,
+                'room_type': room.room_type,
+                'capacity': room.capacity,
+                'current_occupants': room.current_occupants,
+                'is_available': room.is_available,
+                'occupants': occupant_list,
+                'has_kitchen': room.has_kitchen,
+                'has_shower': room.has_shower,
+                'has_study_table': room.has_study_table,
+                'has_bed': room.has_bed
+            })
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        print(f"[ACCOMMODATION] Get all rooms error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @accommodation_bp.route('/admin/applications/<int:application_id>/approve', methods=['POST'])
 @jwt_required()
 def approve_application(application_id):
@@ -583,7 +656,6 @@ def approve_application(application_id):
             return jsonify({'error': f'Application already {registration.status}'}), 400
         
         if allocated_block and allocated_room_number:
-            # Allocate specific room
             room = AccommodationRoom.query.filter_by(
                 block_name=allocated_block,
                 room_number=allocated_room_number,
@@ -593,11 +665,9 @@ def approve_application(application_id):
             if not room:
                 return jsonify({'error': 'Room not available'}), 400
             
-            # Check capacity
             if room.current_occupants >= room.capacity:
                 return jsonify({'error': 'Room is at full capacity'}), 400
             
-            # Update room occupancy
             room.current_occupants += 1
             if room.current_occupants >= room.capacity:
                 room.is_available = False
@@ -605,7 +675,6 @@ def approve_application(application_id):
             registration.allocated_block = allocated_block
             registration.allocated_room_number = allocated_room_number
         else:
-            # Auto-allocate a room
             room_type = registration.room_type
             room = AccommodationRoom.query.filter_by(
                 room_type=room_type,
@@ -625,7 +694,6 @@ def approve_application(application_id):
         registration.status = 'allocated'
         registration.updated_at = datetime.utcnow()
         
-        # Create notification for student
         notification = Notification(
             student_id=registration.student_id,
             title="Accommodation Approved!",
@@ -678,7 +746,6 @@ def reject_application(application_id):
         registration.status = 'rejected'
         registration.updated_at = datetime.utcnow()
         
-        # Create notification for student
         notification = Notification(
             student_id=registration.student_id,
             title="Accommodation Application Update",
@@ -723,7 +790,6 @@ def waitlist_application(application_id):
         registration.status = 'waitlisted'
         registration.updated_at = datetime.utcnow()
         
-        # Create notification for student
         notification = Notification(
             student_id=registration.student_id,
             title="Accommodation Application Update",
@@ -742,68 +808,6 @@ def waitlist_application(application_id):
     except Exception as e:
         db.session.rollback()
         print(f"[ACCOMMODATION] Waitlist application error: {e}")
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
-
-
-@accommodation_bp.route('/admin/rooms', methods=['GET'])
-@jwt_required()
-def get_all_rooms():
-    """Get all rooms with occupancy details (Admin only)"""
-    try:
-        current_user_id = get_jwt_identity()
-        user_id = int(current_user_id) if current_user_id else None
-        
-        user = User.query.get(user_id)
-        if not user or user.role not in ['admin', 'administrator', 'staff']:
-            return jsonify({'error': 'Admin access required'}), 403
-        
-        block_filter = request.args.get('block')
-        
-        query = AccommodationRoom.query
-        
-        if block_filter:
-            query = query.filter_by(block_name=block_filter)
-        
-        rooms = query.order_by(AccommodationRoom.block_name, AccommodationRoom.room_number).all()
-        
-        result = []
-        for room in rooms:
-            # Get occupants for this room
-            occupants = AccommodationRegistration.query.filter_by(
-                allocated_block=room.block_name,
-                allocated_room_number=room.room_number,
-                status='allocated'
-            ).all()
-            
-            occupant_list = []
-            for occ in occupants:
-                if occ.student:
-                    occupant_list.append({
-                        'student_number': occ.student.student_number,
-                        'student_name': f"{occ.student.first_name} {occ.student.last_name}",
-                        'check_in_date': occ.check_in_date.isoformat() if occ.check_in_date else None
-                    })
-            
-            result.append({
-                'id': room.id,
-                'block_name': room.block_name,
-                'room_number': room.room_number,
-                'room_type': room.room_type,
-                'capacity': room.capacity,
-                'current_occupants': room.current_occupants,
-                'is_available': room.is_available,
-                'occupants': occupant_list,
-                'has_kitchen': room.has_kitchen,
-                'has_shower': room.has_shower,
-                'has_study_table': room.has_study_table,
-                'has_bed': room.has_bed
-            })
-        
-        return jsonify(result), 200
-        
-    except Exception as e:
-        print(f"[ACCOMMODATION] Get all rooms error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -859,7 +863,6 @@ def update_room_maintenance(room_id):
 def get_accommodation_statistics():
     """Get accommodation statistics"""
     try:
-        # Room statistics
         total_rooms = AccommodationRoom.query.count()
         available_rooms = AccommodationRoom.query.filter_by(is_available=True).count()
         
@@ -869,7 +872,6 @@ def get_accommodation_statistics():
         three_bed_rooms = AccommodationRoom.query.filter_by(room_type='three_bed').count()
         three_bed_available = AccommodationRoom.query.filter_by(room_type='three_bed', is_available=True).count()
         
-        # Application statistics
         total_applications = AccommodationRegistration.query.count()
         pending_applications = AccommodationRegistration.query.filter_by(status='pending').count()
         approved_applications = AccommodationRegistration.query.filter_by(status='approved').count()
@@ -877,7 +879,6 @@ def get_accommodation_statistics():
         waitlisted_applications = AccommodationRegistration.query.filter_by(status='waitlisted').count()
         rejected_applications = AccommodationRegistration.query.filter_by(status='rejected').count()
         
-        # Occupancy
         total_capacity = sum(room.capacity for room in AccommodationRoom.query.all())
         current_occupants = sum(room.current_occupants for room in AccommodationRoom.query.all())
         occupancy_rate = (current_occupants / total_capacity * 100) if total_capacity > 0 else 0

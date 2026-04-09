@@ -7,7 +7,7 @@
     <title>Register - GIPS College | New Applicant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (keep the same styles as your original – unchanged for brevity) */
+        /* (keep your existing styles – same as before) */
         * {
             margin: 0;
             padding: 0;
@@ -369,7 +369,7 @@
                         </div>
                     </div>
 
-                    <!-- Campus & Program (loaded from API) -->
+                    <!-- Campus & Program (loaded from API with fallback) -->
                     <div class="form-section">
                         <div class="section-title"><i class="fas fa-map-marker-alt"></i> Campus & Program</div>
                         <div class="form-group"><label>Select Campus *</label><select id="campusId" name="campus_id"
@@ -395,25 +395,6 @@
                         <div class="form-group"><label>BGCSE School</label><input type="text" id="bgcseSchool"
                                 name="bgcse_school"></div>
                         <div id="pointsInfo" class="points-info"></div>
-                    </div>
-
-                    <!-- Sponsorship -->
-                    <div class="form-section">
-                        <div class="section-title"><i class="fas fa-hand-holding-usd"></i> Sponsorship</div>
-                        <div class="radio-group">
-                            <label class="radio-option"><input type="radio" name="sponsorship_type" value="private"
-                                    checked> Self Sponsored</label>
-                            <label class="radio-option"><input type="radio" name="sponsorship_type"
-                                    value="government_sponsored"> Government Sponsored (DTEF)</label>
-                            <label class="radio-option"><input type="radio" name="sponsorship_type"
-                                    value="government_reinstatement"> Government Reinstatement</label>
-                            <label class="radio-option"><input type="radio" name="sponsorship_type"
-                                    value="government_retake"> Government Retake</label>
-                        </div>
-                        <div id="governmentSection" style="display: none;">
-                            <div class="form-group"><label>DTEF Sponsor Number</label><input type="text" id="dtefNumber"
-                                    name="dtef_sponsor_number"></div>
-                        </div>
                     </div>
 
                     <!-- OVC Section -->
@@ -476,42 +457,72 @@
     </footer>
 
     <script>
-        // ==================== LOAD CAMPUSES FROM API ====================
+        // ========== FALLBACK CAMPUS & PROGRAM DATA (if API fails) ==========
+        const fallbackCampuses = [
+            { id: 1, name: 'Gaborone Main Campus', has_accommodation: true },
+            { id: 2, name: 'Gaborone Main Mall Campus', has_accommodation: false },
+            { id: 3, name: 'Francistown Campus', has_accommodation: false },
+            { id: 4, name: 'Maun Campus', has_accommodation: false }
+        ];
+        const fallbackPrograms = {
+            1: [
+                { id: 1, code: 'BSC-CS', name: 'Bachelor of Science in Computer Science', min_points: 32, duration: 4 },
+                { id: 2, code: 'BBA-BM', name: 'Bachelor of Business Administration', min_points: 32, duration: 4 },
+                { id: 3, code: 'NCC-DIP3', name: 'NCC Diploma in Computing (Level 3)', min_points: 28, duration: 1 },
+                { id: 4, code: 'CERT-IT', name: 'Certificate in Information Technology', min_points: 24, duration: 1 },
+                { id: 5, code: 'DS-CERT', name: 'Data Science Certificate', min_points: 24, duration: 1 }
+            ],
+            2: [
+                { id: 6, code: 'CERT-IT-MALL', name: 'Certificate in Information Technology', min_points: 20, duration: 1 },
+                { id: 7, code: 'CERT-BM-MALL', name: 'Certificate in Business Management', min_points: 20, duration: 1 }
+            ],
+            3: [
+                { id: 8, code: 'CERT-IT-FRANC', name: 'Certificate in Information Technology', min_points: 20, duration: 1 },
+                { id: 9, code: 'CERT-BM-FRANC', name: 'Certificate in Business Management', min_points: 20, duration: 1 }
+            ],
+            4: [
+                { id: 10, code: 'CERT-TT-MAUN', name: 'Certificate in Travel & Tourism', min_points: 20, duration: 1 },
+                { id: 11, code: 'CERT-HM-MAUN', name: 'Certificate in Hospitality Management', min_points: 20, duration: 1 }
+            ]
+        };
+
+        // ========== LOAD CAMPUSES (API first, fallback) ==========
         async function loadCampuses() {
+            const campusSelect = document.getElementById('campusId');
+            campusSelect.innerHTML = '<option value="">-- Loading campuses... --</option>';
             try {
                 const response = await fetch('/api/auth/campuses');
-                if (!response.ok) throw new Error('Failed to load campuses');
+                if (!response.ok) throw new Error('API failed');
                 const campuses = await response.json();
-                const select = document.getElementById('campusId');
-                select.innerHTML = '<option value="">-- Select a Campus --</option>';
+                campusSelect.innerHTML = '<option value="">-- Select a Campus --</option>';
                 campuses.forEach(c => {
                     const opt = document.createElement('option');
                     opt.value = c.id;
                     opt.textContent = c.campus_name;
-                    select.appendChild(opt);
+                    campusSelect.appendChild(opt);
                 });
-                select.disabled = false;
+                console.log('Campuses loaded from API');
             } catch (error) {
-                console.error(error);
-                document.getElementById('campusId').innerHTML = '<option value="">Error loading campuses</option>';
+                console.warn('API campuses failed, using fallback data', error);
+                campusSelect.innerHTML = '<option value="">-- Select a Campus (Fallback) --</option>';
+                fallbackCampuses.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    campusSelect.appendChild(opt);
+                });
             }
+            campusSelect.disabled = false;
         }
 
-        // ==================== LOAD PROGRAMS WHEN CAMPUS CHANGES ====================
-        document.getElementById('campusId').addEventListener('change', async () => {
-            const campusId = document.getElementById('campusId').value;
+        // ========== LOAD PROGRAMS WHEN CAMPUS CHANGES ==========
+        async function loadPrograms(campusId) {
             const programSelect = document.getElementById('programId');
-            if (!campusId) {
-                programSelect.innerHTML = '<option value="">First select a campus</option>';
-                programSelect.disabled = true;
-                document.getElementById('programDetails').style.display = 'none';
-                return;
-            }
             programSelect.innerHTML = '<option value="">Loading programs...</option>';
             programSelect.disabled = true;
             try {
                 const response = await fetch(`/api/auth/campuses/${campusId}/programs`);
-                if (!response.ok) throw new Error('Failed to load programs');
+                if (!response.ok) throw new Error('API failed');
                 const programs = await response.json();
                 programSelect.innerHTML = '<option value="">-- Select a Program --</option>';
                 programs.forEach(p => {
@@ -521,14 +532,39 @@
                     opt.dataset.minPoints = p.min_bgcse_points;
                     programSelect.appendChild(opt);
                 });
+                console.log('Programs loaded from API');
                 programSelect.disabled = false;
             } catch (error) {
-                console.error(error);
-                programSelect.innerHTML = '<option value="">Error loading programs</option>';
+                console.warn('API programs failed, using fallback data', error);
+                if (fallbackPrograms[campusId]) {
+                    programSelect.innerHTML = '<option value="">-- Select a Program (Fallback) --</option>';
+                    fallbackPrograms[campusId].forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = `${p.code} - ${p.name} (${p.duration} yrs, min ${p.min_points} pts)`;
+                        opt.dataset.minPoints = p.min_points;
+                        programSelect.appendChild(opt);
+                    });
+                    programSelect.disabled = false;
+                } else {
+                    programSelect.innerHTML = '<option value="">No programs available for this campus</option>';
+                }
             }
+        }
+
+        // Event listener for campus change
+        document.getElementById('campusId').addEventListener('change', async (e) => {
+            const campusId = e.target.value;
+            if (!campusId) {
+                document.getElementById('programId').innerHTML = '<option value="">First select a campus</option>';
+                document.getElementById('programId').disabled = true;
+                document.getElementById('programDetails').style.display = 'none';
+                return;
+            }
+            await loadPrograms(campusId);
         });
 
-        // Display program requirements
+        // Display program requirements when program selected
         document.getElementById('programId').addEventListener('change', () => {
             const selected = document.getElementById('programId').options[document.getElementById('programId').selectedIndex];
             if (selected.value) {
@@ -552,19 +588,10 @@
             else pointsInfo.innerHTML = '';
         });
 
-        // Password validation (matches backend: length≥8, uppercase, lowercase, digit)
+        // Password validation (matches backend)
         function validatePassword(pwd) {
             return pwd.length >= 8 && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /\d/.test(pwd);
         }
-
-        // Show/hide government section
-        const radios = document.querySelectorAll('input[name="sponsorship_type"]');
-        const govSection = document.getElementById('governmentSection');
-        radios.forEach(r => {
-            r.addEventListener('change', () => {
-                govSection.style.display = r.value !== 'private' ? 'block' : 'none';
-            });
-        });
 
         // Show/hide OVC section
         const ovcCheck = document.getElementById('ovcCheck');
@@ -618,7 +645,7 @@
                 return;
             }
 
-            // Build request data
+            // Build FormData (no sponsorship fields)
             const formData = new FormData();
             // Personal
             formData.append('first_name', document.getElementById('firstName').value);
@@ -632,27 +659,22 @@
             formData.append('program_id', program);
             // Academic
             formData.append('bgcse_points', points);
-            formData.append('bgcse_year', document.getElementById('bgcseYear').value);
-            formData.append('bgcse_school', document.getElementById('bgcseSchool').value);
-            // Sponsorship
-            const sponsorship = document.querySelector('input[name="sponsorship_type"]:checked').value;
-            const isGov = sponsorship !== 'private';
-            formData.append('is_government_sponsored', isGov);
-            if (isGov) formData.append('dtef_sponsor_number', document.getElementById('dtefNumber').value);
+            formData.append('bgcse_year', document.getElementById('bgcseYear').value || '');
+            formData.append('bgcse_school', document.getElementById('bgcseSchool').value || '');
             // OVC
             formData.append('is_ovc', isOvc);
             if (isOvc) {
-                formData.append('social_worker_name', document.getElementById('socialWorkerName').value);
-                formData.append('social_worker_contact', document.getElementById('socialWorkerContact').value);
+                formData.append('social_worker_name', document.getElementById('socialWorkerName').value || '');
+                formData.append('social_worker_contact', document.getElementById('socialWorkerContact').value || '');
             }
             // Emergency contact
             formData.append('emergency_contact_name', document.getElementById('emergencyName').value);
             formData.append('emergency_contact_phone', document.getElementById('emergencyPhone').value);
-            formData.append('emergency_contact_relationship', document.getElementById('emergencyRelation').value);
+            formData.append('emergency_contact_relationship', document.getElementById('emergencyRelation').value || '');
             // Account
             formData.append('username', document.getElementById('username').value);
             formData.append('password', pwd);
-            // Additional fields expected by backend (optional)
+            // Optional fields (backend expects them, send empty)
             formData.append('initials', '');
             formData.append('alternative_phone', '');
             formData.append('physical_address', '');
@@ -662,6 +684,7 @@
             formData.append('passport_number', '');
             formData.append('tr_number', '');
             formData.append('wants_accommodation', 'false'); // accommodation applied later
+            // No sponsorship fields at all
 
             registerBtn.disabled = true;
             registerBtn.innerHTML = '<span class="loading-spinner"></span> Submitting Application...';

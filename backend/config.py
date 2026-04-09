@@ -2,7 +2,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlparse, parse_qs, urlunparse
 
 class Config:
     """Base configuration"""
@@ -18,7 +18,7 @@ class Config:
     SQLALCHEMY_ECHO = False
     
     # ============================================
-    # DATABASE CONFIGURATION - MYSQL
+    # DATABASE CONFIGURATION - MYSQL (using mysql-connector-python)
     # ============================================
     MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
     MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
@@ -31,9 +31,24 @@ class Config:
     
     # Build MySQL connection string
     if os.environ.get('DATABASE_URL'):
-        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+        raw_url = os.environ.get('DATABASE_URL')
+        # Convert mysql+pymysql to mysql+mysqlconnector and handle SSL params
+        if raw_url.startswith('mysql+pymysql://'):
+            raw_url = raw_url.replace('mysql+pymysql://', 'mysql+mysqlconnector://')
+        # Remove any ?ssl=true or ?ssl-mode=REQUIRED because mysql-connector uses different syntax
+        # We'll add ssl-mode=REQUIRED if not present and if SSL is needed
+        parsed = urlparse(raw_url)
+        query = parse_qs(parsed.query)
+        # Ensure ssl-mode=REQUIRED for Aiven (or any cloud MySQL requiring SSL)
+        if 'ssl-mode' not in query and 'ssl' not in query:
+            # Add ssl-mode=REQUIRED
+            new_query = dict(query)
+            new_query['ssl-mode'] = ['REQUIRED']
+            new_parsed = parsed._replace(query='&'.join(f"{k}={v[0]}" for k, v in new_query.items()))
+            raw_url = urlunparse(new_parsed)
+        SQLALCHEMY_DATABASE_URI = raw_url
     else:
-        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{MYSQL_USER}:{encoded_password}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4"
+        SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{MYSQL_USER}:{encoded_password}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?ssl-mode=REQUIRED"
     
     # MySQL Engine Options for better performance
     SQLALCHEMY_ENGINE_OPTIONS = {

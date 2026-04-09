@@ -292,7 +292,7 @@ def create_app(config_name=None):
         print(f"   ❌ Lecturer routes failed: {e}")
         traceback.print_exc()
 
-    # ==================== PAYMENTS ROUTES (NEW) ====================
+    # Payments routes
     try:
         from backend.routes.payments import payments_bp
         app.register_blueprint(payments_bp, url_prefix='/api/payments')
@@ -301,7 +301,17 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Payments routes failed: {e}")
         traceback.print_exc()
-    # ================================================================
+
+    # ==================== ACCOMMODATION ROUTES (ADDED) ====================
+    try:
+        from backend.routes.accomodation import accommodation_bp
+        app.register_blueprint(accommodation_bp, url_prefix='/api/accommodation')
+        blueprints_registered.append('accommodation')
+        print("   ✅ Accommodation routes registered")
+    except Exception as e:
+        print(f"   ❌ Accommodation routes failed: {e}")
+        traceback.print_exc()
+    # ======================================================================
 
     # ==================== FRONTEND SERVING ====================
 
@@ -526,6 +536,10 @@ if __name__ == '__main__':
     print("   💳 POST /api/payments/confirm-payment      - Confirm payment after success")
     print("   💳 GET  /api/payments/history              - Payment history")
     print("   💳 GET  /api/payments/outstanding          - Outstanding fees")
+    print("\n📌 Accommodation Endpoints:")
+    print("   🏠 GET  /api/accommodation/admin/applications - All accommodation applications")
+    print("   🏠 GET  /api/accommodation/admin/allocations  - Allocated rooms")
+    print("   🏠 GET  /api/accommodation/admin/rooms        - All rooms")
     print("="*60 + "\n")
 
     host = os.getenv('FLASK_HOST', '0.0.0.0')

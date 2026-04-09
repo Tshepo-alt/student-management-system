@@ -282,7 +282,7 @@ def create_app(config_name=None):
         print(f"   ❌ Online Classes routes failed: {e}")
         traceback.print_exc()
 
-    # ==================== LECTURER ROUTES (NEW) ====================
+    # Lecturer routes
     try:
         from backend.routes.lecturer import lecturer_bp
         app.register_blueprint(lecturer_bp, url_prefix='/api/lecturer')
@@ -291,7 +291,17 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Lecturer routes failed: {e}")
         traceback.print_exc()
-    # ==============================================================
+
+    # ==================== PAYMENTS ROUTES (NEW) ====================
+    try:
+        from backend.routes.payments import payments_bp
+        app.register_blueprint(payments_bp, url_prefix='/api/payments')
+        blueprints_registered.append('payments')
+        print("   ✅ Payments routes registered")
+    except Exception as e:
+        print(f"   ❌ Payments routes failed: {e}")
+        traceback.print_exc()
+    # ================================================================
 
     # ==================== FRONTEND SERVING ====================
 
@@ -510,6 +520,12 @@ if __name__ == '__main__':
     print("   🎥 GET  /api/classes/course/<id>/meeting   - Get Meeting Info")
     print("   🎥 GET  /api/classes/course/<id>/join      - Embedded Meeting Page")
     print("   🎥 POST /api/classes/course/<id>/end       - End Live Class")
+    print("\n📌 Payment Endpoints:")
+    print("   💳 GET  /api/payments/config               - Get Stripe public key")
+    print("   💳 POST /api/payments/create-payment-intent - Create Stripe PaymentIntent")
+    print("   💳 POST /api/payments/confirm-payment      - Confirm payment after success")
+    print("   💳 GET  /api/payments/history              - Payment history")
+    print("   💳 GET  /api/payments/outstanding          - Outstanding fees")
     print("="*60 + "\n")
 
     host = os.getenv('FLASK_HOST', '0.0.0.0')

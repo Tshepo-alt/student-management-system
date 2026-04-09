@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Payments - GIPS College Portal</title>
+    <!-- Stripe JS -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .payment-container {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .payment-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .payment-card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 12px;
+        }
+
+        .fee-breakdown {
+            background: #f9fafb;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .fee-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .fee-total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #667eea;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+        }
+
+        .amount-input {
+            margin: 20px 0;
+        }
+
+        .amount-input label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .amount-input input,
+        .payment-type-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .payment-type-select {
+            background: white;
+            cursor: pointer;
+        }
+
+        .card-element {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            background: white;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .payment-status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .status-success {
+            background: #c6f6d5;
+            color: #276749;
+            border-left: 4px solid #38a169;
+        }
+
+        .status-error {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .status-info {
+            background: #cfe2ff;
+            color: #084298;
+            border-left: 4px solid #3182ce;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .history-table th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .payment-card {
+                padding: 20px;
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="Logo" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="payments.html" class="nav-link active"><i class="fas fa-credit-card"></i> Payments</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container payment-container">
+        <!-- Outstanding Fees Card -->
+        <div class="payment-card">
+            <h2><i class="fas fa-receipt"></i> Fee Summary</h2>
+            <div id="feeSummary">Loading...</div>
+        </div>
+
+        <!-- Payment Form Card -->
+        <div class="payment-card">
+            <h2><i class="fas fa-credit-card"></i> Make a Payment</h2>
+            <div class="payment-type-select">
+                <label>Payment Type</label>
+                <select id="paymentType" class="payment-type-select">
+                    <option value="full">Pay Outstanding Balance</option>
+                    <option value="supplementary">Supplementary Exam Fees</option>
+                    <option value="resit">Resit Exam Fees</option>
+                    <option value="retake">Retake Exam Fees</option>
+                    <option value="custom">Custom Amount</option>
+                </select>
+            </div>
+            <div id="customAmountDiv" class="amount-input" style="display: none;">
+                <label>Amount (BWP)</label>
+                <input type="number" id="customAmount" step="0.01" min="1" placeholder="Enter amount">
+            </div>
+            <div class="card-element" id="card-element"></div>
+            <button id="payButton" class="btn"><i class="fas fa-lock"></i> Pay Now</button>
+            <div id="paymentStatus" class="payment-status"></div>
+        </div>
+
+        <!-- Payment History Card -->
+        <div class="payment-card">
+            <h2><i class="fas fa-history"></i> Payment History</h2>
+            <div id="historyContainer">Loading...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-credit-card"></i> Secure payments powered by Stripe</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== Helper functions ==========
+        async function safeApiCall(endpoint, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) { window.location.href = 'login.html'; return null; }
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return response;
+            } catch (error) { console.error(`API call error to ${endpoint}:`, error); return null; }
+        }
+
+        function showStatus(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `payment-status status-${type}`;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 5000);
+        }
+
+        // ========== Load outstanding fees ==========
+        async function loadOutstandingFees() {
+            const container = document.getElementById('feeSummary');
+            try {
+                const response = await safeApiCall('/api/payments/outstanding');
+                if (response && response.ok) {
+                    const data = await response.json();
+                    let html = `<div class="fee-breakdown">`;
+                    html += `<div class="fee-item"><span>Total Fees Due:</span><span>P ${data.total_fees.toFixed(2)}</span></div>`;
+                    html += `<div class="fee-item"><span>Paid Amount:</span><span>P ${data.paid_amount.toFixed(2)}</span></div>`;
+                    html += `<div class="fee-item"><span>Exempted Amount:</span><span>P ${data.exempted_amount.toFixed(2)}</span></div>`;
+                    if (data.supplementary_fees > 0) html += `<div class="fee-item"><span>Supplementary Exam Fees:</span><span>P ${data.supplementary_fees.toFixed(2)}</span></div>`;
+                    if (data.resit_fees > 0) html += `<div class="fee-item"><span>Resit Exam Fees:</span><span>P ${data.resit_fees.toFixed(2)}</span></div>`;
+                    if (data.retake_fees > 0) html += `<div class="fee-item"><span>Retake Exam Fees:</span><span>P ${data.retake_fees.toFixed(2)}</span></div>`;
+                    html += `<div class="fee-total"><span>Outstanding Balance:</span><span>P ${data.outstanding_balance.toFixed(2)}</span></div>`;
+                    if (data.pending_exam_count > 0) {
+                        html += `<div class="fee-item"><span>Pending Exam Fees:</span><span>P ${data.pending_exam_fees.toFixed(2)} (${data.pending_exam_count} exams)</span></div>`;
+                    }
+                    html += `</div>`;
+                    container.innerHTML = html;
+                    // Store amounts for payment options
+                    window.outstandingData = data;
+                } else {
+                    container.innerHTML = '<p>Unable to load fee information.</p>';
+                }
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<p>Error loading fee summary.</p>';
+            }
+        }
+
+        // ========== Load payment history ==========
+        let currentPage = 1;
+        async function loadPaymentHistory(page = 1) {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '<div class="loading-spinner"></div> Loading...';
+            try {
+                const response = await safeApiCall(`/api/payments/history?page=${page}&per_page=10`);
+                if (response && response.ok) {
+                    const data = await response.json();
+                    if (data.payments.length === 0) {
+                        container.innerHTML = '<p>No payment history found.</p>';
+                        return;
+                    }
+                    let html = `<table class="history-table"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead><tbody>`;
+                    data.payments.forEach(p => {
+                        const date = p.payment_date ? new Date(p.payment_date).toLocaleDateString() : new Date(p.created_at).toLocaleDateString();
+                        const statusClass = p.status === 'completed' ? 'success' : (p.status === 'failed' ? 'error' : 'info');
+                        html += `<tr>
+                            <td>${date}</td>
+                            <td>${p.payment_type.replace('_', ' ')}</td>
+                            <td>${p.currency} ${p.amount.toFixed(2)}</td>
+                            <td style="color:${statusClass === 'success' ? '#28a745' : statusClass === 'error' ? '#dc3545' : '#f59e0b'}">${p.status}</td>
+                            <td>${p.receipt_number ? p.receipt_number : '-'}</td>
+                        </tr>`;
+                    });
+                    html += `</tbody></table>`;
+                    if (data.pages > 1) {
+                        html += `<div class="pagination">`;
+                        for (let i = 1; i <= data.pages; i++) {
+                            html += `<button onclick="loadPaymentHistory(${i})" ${i === page ? 'disabled' : ''}>${i}</button>`;
+                        }
+                        html += `</div>`;
+                    }
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p>Unable to load payment history.</p>';
+                }
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<p>Error loading payment history.</p>';
+            }
+        }
+
+        // ========== Stripe integration ==========
+        let stripe = null;
+        let elements = null;
+        let cardElement = null;
+
+        async function initStripe() {
+            try {
+                // Fetch Stripe public key from backend (you need to add this endpoint or hardcode for now)
+                // We'll assume there is an endpoint /api/payments/config returning { publicKey }
+                const configRes = await safeApiCall('/api/payments/config');
+                let publicKey = 'pk_test_51QnFBDQpAhs2bhxJKRVWi5OyO3UaohNOM7A53c3UX5mtBBs423rIVDE8hvoQW26grdRdO6jNfgvQHbJyXYPCwlpl00zBTdoVmR'; // fallback
+                if (configRes && configRes.ok) {
+                    const config = await configRes.json();
+                    publicKey = config.publicKey;
+                }
+                stripe = Stripe(publicKey);
+                elements = stripe.elements();
+                cardElement = elements.create('card', { style: { base: { fontSize: '16px', color: '#32325d', fontFamily: 'Arial, sans-serif' } } });
+                cardElement.mount('#card-element');
+                document.getElementById('payButton').disabled = false;
+            } catch (err) {
+                console.error('Stripe init error:', err);
+                showStatus('paymentStatus', 'Failed to initialize payment system. Please refresh.', 'error');
+            }
+        }
+
+        // Payment type selection logic
+        const paymentTypeSelect = document.getElementById('paymentType');
+        const customAmountDiv = document.getElementById('customAmountDiv');
+        paymentTypeSelect.addEventListener('change', () => {
+            customAmountDiv.style.display = paymentTypeSelect.value === 'custom' ? 'block' : 'none';
+        });
+
+        async function handlePayment() {
+            const payBtn = document.getElementById('payButton');
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+            const statusDiv = document.getElementById('paymentStatus');
+            statusDiv.style.display = 'none';
+
+            try {
+                let amount = 0;
+                let paymentType = '';
+                const selectedType = paymentTypeSelect.value;
+                const outstanding = window.outstandingData;
+
+                if (selectedType === 'full') {
+                    amount = outstanding.outstanding_balance;
+                    paymentType = 'tuition'; // or registration; adjust as needed
+                    if (amount <= 0) {
+                        showStatus('paymentStatus', 'No outstanding balance to pay.', 'error');
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
+                        return;
+                    }
+                } else if (selectedType === 'supplementary') {
+                    amount = outstanding.supplementary_fees || 0;
+                    paymentType = 'supplementary';
+                    if (amount <= 0) {
+                        showStatus('paymentStatus', 'No supplementary fees due.', 'error');
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
+                        return;
+                    }
+                } else if (selectedType === 'resit') {
+                    amount = outstanding.resit_fees || 0;
+                    paymentType = 'resit';
+                    if (amount <= 0) {
+                        showStatus('paymentStatus', 'No resit fees due.', 'error');
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
+                        return;
+                    }
+                } else if (selectedType === 'retake') {
+                    amount = outstanding.retake_fees || 0;
+                    paymentType = 'retake';
+                    if (amount <= 0) {
+                        showStatus('paymentStatus', 'No retake fees due.', 'error');
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
+                        return;
+                    }
+                } else if (selectedType === 'custom') {
+                    const custom = parseFloat(document.getElementById('customAmount').value);
+                    if (isNaN(custom) || custom <= 0) {
+                        showStatus('paymentStatus', 'Please enter a valid amount.', 'error');
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
+                        return;
+                    }
+                    amount = custom;
+                    paymentType = 'custom';
+                }
+
+                // Create PaymentIntent
+                const createIntentRes = await safeApiCall('/api/payments/create-payment-intent', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        amount: amount,
+                        payment_type: paymentType,
+                        currency: 'bwp',
+                        description: `GIPS College Fee Payment - ${paymentType}`
+                    })
+                });
+                if (!createIntentRes || !createIntentRes.ok) {
+                    const errData = await createIntentRes.json();
+                    throw new Error(errData.error || 'Failed to create payment intent');
+                }
+                const intentData = await createIntentRes.json();
+                if (intentData.is_exempt) {
+                    showStatus('paymentStatus', 'This fee is exempted for government sponsored students.', 'info');
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
+                    return;
+                }
+
+                // Confirm payment with Stripe
+                const { error, paymentIntent } = await stripe.confirmCardPayment(intentData.clientSecret, {
+                    payment_method: { card: cardElement }
+                });
+                if (error) {
+                    throw new Error(error.message);
+                }
+                if (paymentIntent.status === 'succeeded') {
+                    // Confirm with backend
+                    const confirmRes = await safeApiCall('/api/payments/confirm-payment', {
+                        method: 'POST',
+                        body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+                    });
+                    if (confirmRes && confirmRes.ok) {
+                        showStatus('paymentStatus', 'Payment successful! Thank you.', 'success');
+                        // Reload fee summary and history
+                        loadOutstandingFees();
+                        loadPaymentHistory(1);
+                    } else {
+                        throw new Error('Payment confirmed by Stripe but backend update failed.');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                showStatus('paymentStatus', err.message || 'Payment failed. Please try again.', 'error');
+            } finally {
+                payBtn.disabled = false;
+                payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
+            }
+        }
+
+        // ========== Initialization ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+        document.getElementById('payButton').addEventListener('click', handlePayment);
+
+        (async function init() {
+            await loadOutstandingFees();
+            await loadPaymentHistory();
+            await initStripe();
+        })();
+    </script>
+</body>
+
+</html>

@@ -735,6 +735,29 @@ def get_current_registration():
 
 
 # ============================================
+# CAMPUS DETAILS (for frontend accommodation check)
+# ============================================
+@students_bp.route('/campuses/<int:campus_id>', methods=['GET'])
+@jwt_required()
+def get_campus_details(campus_id):
+    try:
+        campus = Campus.query.get(campus_id)
+        if not campus:
+            return jsonify({'error': 'Campus not found'}), 404
+
+        return jsonify({
+            'id': campus.id,
+            'campus_name': campus.campus_name,
+            'campus_code': campus.campus_code,
+            'campus_location': campus.campus_location,
+            'has_accommodation': campus.has_accommodation if hasattr(campus, 'has_accommodation') else False
+        }), 200
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
 # AVAILABLE COURSES (for registration)
 # ============================================
 @students_bp.route('/available-courses', methods=['GET'])
@@ -751,20 +774,22 @@ def get_available_courses():
         if not program_id:
             program_id = student.program_id
 
+        semester = request.args.get('semester', 1, type=int)  # default semester = 1
+
+        # Get module IDs linked to the student's program
         program_modules = ProgramModule.query.filter_by(program_id=program_id).all()
         module_ids = [pm.module_id for pm in program_modules]
 
+        if not module_ids:
+            return jsonify([]), 200
+
+        # Filter exactly like register-semester validation
         modules = Module.query.filter(
             Module.id.in_(module_ids),
             Module.year_level == student.current_year,
+            Module.semester == semester,
             Module.is_active == True
         ).all()
-
-        if not modules:
-            modules = Module.query.filter_by(
-                year_level=student.current_year,
-                is_active=True
-            ).limit(10).all()
 
         courses_data = []
         for module in modules:

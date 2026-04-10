@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -21,15 +22,14 @@
             flex-direction: column;
         }
 
-        /* NAVBAR */
         .navbar {
             background: #ffffff;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
             padding: 0.9rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 1px solid rgba(102,126,234,0.15);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.15);
         }
 
         .container {
@@ -94,7 +94,6 @@
             font-weight: 600;
         }
 
-        /* MAIN CONTENT */
         .registration-wrapper {
             flex: 1;
             padding: 40px 0;
@@ -105,8 +104,7 @@
             border-radius: 28px;
             padding: 32px 30px;
             margin-bottom: 30px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.04), 0 0 0 1px rgba(102,126,234,0.06);
-            transition: box-shadow 0.2s;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(102, 126, 234, 0.06);
         }
 
         .card-header {
@@ -130,7 +128,6 @@
             font-size: 1.7rem;
             font-weight: 600;
             color: #1e293b;
-            letter-spacing: -0.01em;
         }
 
         .info-grid {
@@ -171,7 +168,6 @@
             font-weight: 600;
         }
 
-        /* courses grid */
         .course-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -201,7 +197,7 @@
         .course-card.selected {
             border-color: #667eea;
             background: #f5f7ff;
-            box-shadow: 0 8px 16px -8px rgba(102,126,234,0.2);
+            box-shadow: 0 8px 16px -8px rgba(102, 126, 234, 0.2);
         }
 
         .course-card input[type="checkbox"] {
@@ -220,7 +216,6 @@
             font-weight: 700;
             color: #4f46e5;
             font-size: 0.9rem;
-            letter-spacing: -0.2px;
         }
 
         .course-name {
@@ -237,12 +232,6 @@
             color: #5e6f8b;
         }
 
-        .course-meta i {
-            margin-right: 4px;
-            color: #667eea;
-        }
-
-        /* fee section */
         .fee-panel {
             background: #f0f4fe;
             border-radius: 24px;
@@ -255,7 +244,6 @@
             justify-content: space-between;
             padding: 12px 0;
             border-bottom: 1px dashed #cbd5e1;
-            font-size: 1rem;
         }
 
         .fee-row:last-of-type {
@@ -268,7 +256,6 @@
             border-top: 2.5px solid #667eea;
             font-weight: 700;
             font-size: 1.3rem;
-            color: #1e293b;
             display: flex;
             justify-content: space-between;
         }
@@ -282,25 +269,14 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 20px;
-            font-weight: 500;
         }
 
-        /* accommodation block */
         .accommodation-box {
             background: #e9effa;
             border-radius: 24px;
             padding: 24px 26px;
             margin: 24px 0 20px;
             border-left: 6px solid #4f46e5;
-        }
-
-        .accommodation-box h3 {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.3rem;
-            margin-bottom: 18px;
-            color: #1e293b;
         }
 
         .checkbox-accommodation {
@@ -311,12 +287,6 @@
             padding: 8px 0;
         }
 
-        .checkbox-accommodation input {
-            width: 22px;
-            height: 22px;
-            accent-color: #4f46e5;
-        }
-
         .btn {
             padding: 14px 28px;
             border: none;
@@ -324,10 +294,8 @@
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
-            transition: 0.2s;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
             background: white;
             color: #1e293b;
@@ -350,10 +318,6 @@
         .btn-secondary {
             background: #f1f5f9;
             border: 1px solid #cbd5e1;
-        }
-
-        .btn-secondary:hover {
-            background: #e2e8f0;
         }
 
         .btn:disabled {
@@ -393,84 +357,88 @@
         }
 
         @media (max-width: 640px) {
-            .container { padding: 0 18px; }
-            .navbar .container { flex-direction: column; }
-            .nav-menu { justify-content: center; }
-            .card { padding: 24px 18px; }
-            .info-grid { grid-template-columns: 1fr; }
+            .container {
+                padding: 0 18px;
+            }
+
+            .navbar .container {
+                flex-direction: column;
+            }
+
+            .card {
+                padding: 24px 18px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<nav class="navbar">
-    <div class="container">
-        <div class="navbar-brand">
-            <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
-                 onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<span style=\'font-weight:700;font-size:1.4rem;color:#1e293b;\'>GIPS College</span>')">
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<span style=\'font-weight:700;font-size:1.4rem;color:#1e293b;\'>GIPS College</span>')">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="semester-registration.html" class="nav-link active"><i class="fas fa-pen-to-square"></i>
+                        Semester Registration</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
         </div>
-        <ul class="nav-menu">
-            <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
-            <li><a href="semester-registration.html" class="nav-link active"><i class="fas fa-pen-to-square"></i> Semester Registration</a></li>
-            <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
-            <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </div>
-</nav>
+    </nav>
 
-<div class="registration-wrapper">
-    <div class="container" id="registrationContainer">
-        <!-- dynamic content injected -->
-        <div class="loading-state">
-            <i class="fas fa-spinner fa-pulse fa-2x" style="color:#667eea; margin-bottom:16px; display:block;"></i>
-            Loading your registration data…
+    <div class="registration-wrapper">
+        <div class="container" id="registrationContainer">
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-pulse fa-2x" style="color:#667eea; margin-bottom:16px; display:block;"></i>
+                Loading your registration data…
+            </div>
         </div>
     </div>
-</div>
 
-<footer class="footer">
-    <div class="container">
-        <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. Academic Affairs</p>
-        <p style="margin-top:8px; opacity:0.8;">Secure Semester Registration · Student Portal</p>
-    </div>
-</footer>
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. Academic Affairs</p>
+            <p style="margin-top:8px; opacity:0.8;">Secure Semester Registration · Student Portal</p>
+        </div>
+    </footer>
 
-<script>
-    (function(){
-        "use strict";
+    <script>
+        (function () {
+            "use strict";
 
-        // ---------- CONFIG ----------
-        const API_BASE = '';  // relative paths
-        const TOKEN_KEY = 'access_token';
+            const TOKEN_KEY = 'access_token';
+            const FEE_REGISTRATION = 630;
+            const FEE_TUITION = 32550;
+            const FEE_EXAM_PER_MODULE = 5145;
 
-        // Fee constants (matching backend: 630 reg, 32550 tuition, 5145 exam per module)
-        const FEE_REGISTRATION = 630;
-        const FEE_TUITION = 32550;
-        const FEE_EXAM_PER_MODULE = 5145;
+            let studentProfile = null;
+            let campusDetails = null;
+            let availableCourses = [];
+            let selectedCourseIds = new Set();
+            let wantsAccommodation = false;
 
-        // ---------- GLOBAL STATE ----------
-        let studentProfile = null;
-        let campusDetails = null;        // fetched if needed
-        let availableCourses = [];
-        let selectedCourseIds = new Set();
-        let wantsAccommodation = false;
+            const container = document.getElementById('registrationContainer');
 
-        // DOM elements
-        const container = document.getElementById('registrationContainer');
-
-        // ---------- HELPER: API CALL WITH AUTH ----------
-        async function apiCall(endpoint, options = {}) {
-            const token = localStorage.getItem(TOKEN_KEY);
-            if (!token) {
-                window.location.href = 'login.html';
-                throw new Error('No token');
-            }
-            const headers = {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                ...(options.headers || {})
-            };
-            try {
+            async function apiCall(endpoint, options = {}) {
+                const token = localStorage.getItem(TOKEN_KEY);
+                if (!token) {
+                    window.location.href = 'login.html';
+                    throw new Error('No token');
+                }
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                };
                 const resp = await fetch(endpoint, { ...options, headers });
                 if (resp.status === 401) {
                     localStorage.clear();
@@ -478,105 +446,97 @@
                     throw new Error('Session expired');
                 }
                 return resp;
-            } catch (error) {
-                console.error('API error:', error);
-                throw error;
             }
-        }
 
-        // safe json parse
-        async function fetchJson(endpoint, options = {}) {
-            const resp = await apiCall(endpoint, options);
-            if (!resp.ok) {
-                const errText = await resp.text();
-                let errMsg = errText;
-                try { const j = JSON.parse(errText); errMsg = j.error || j.message || errText; } catch(e) {}
-                throw new Error(errMsg || `Request failed (${resp.status})`);
+            async function fetchJson(endpoint, options = {}) {
+                const resp = await apiCall(endpoint, options);
+                if (!resp.ok) {
+                    const errText = await resp.text();
+                    let errMsg = errText;
+                    try { const j = JSON.parse(errText); errMsg = j.error || j.message || errText; } catch (e) { }
+                    throw new Error(errMsg || `Request failed (${resp.status})`);
+                }
+                return resp.json();
             }
-            return resp.json();
-        }
 
-        // ---------- FETCH CAMPUS DETAILS (to check accommodation) ----------
-        async function fetchCampusIfNeeded(campusId) {
-            if (!campusId) return null;
-            try {
-                // Try common campus endpoint (adjust if needed)
-                return await fetchJson(`/api/campuses/${campusId}`);
-            } catch (e) {
-                console.warn('Campus details not available, assuming no accommodation info', e);
-                return null;
+            async function fetchCampusIfNeeded(campusId) {
+                if (!campusId) return null;
+                try {
+                    // Use the new endpoint from students.py
+                    return await fetchJson(`/api/students/campuses/${campusId}`);
+                } catch (e) {
+                    console.warn('Campus details not available, assuming no accommodation', e);
+                    return null;
+                }
             }
-        }
 
-        // ---------- LOAD STUDENT PROFILE ----------
-        async function loadStudentProfile() {
-            const data = await fetchJson('/api/students/profile');
-            studentProfile = data;
-            // If campus_id present, fetch campus details for accommodation flag
-            if (studentProfile.campus_id) {
-                campusDetails = await fetchCampusIfNeeded(studentProfile.campus_id);
+            async function loadStudentProfile() {
+                const data = await fetchJson('/api/students/profile');
+                studentProfile = data;
+                if (studentProfile.campus_id) {
+                    campusDetails = await fetchCampusIfNeeded(studentProfile.campus_id);
+                }
+                return data;
             }
-            return data;
-        }
 
-        // ---------- CHECK EXISTING REGISTRATION ----------
-        async function checkExistingRegistration() {
-            try {
-                const reg = await fetchJson('/api/students/current-registration');
-                if (reg.has_registration && reg.status && reg.status !== 'rejected') {
-                    if (reg.status === 'approved' || reg.status === 'completed') {
-                        window.location.href = 'student-dashboard.html';
-                        return true;
-                    } else if (reg.status === 'pending') {
-                        window.location.href = 'registration-waiting.html';
-                        return true;
+            async function checkExistingRegistration() {
+                try {
+                    const reg = await fetchJson('/api/students/current-registration');
+                    if (reg.has_registration && reg.status && reg.status !== 'rejected') {
+                        if (reg.status === 'approved' || reg.status === 'completed') {
+                            window.location.href = 'student-dashboard.html';
+                            return true;
+                        } else if (reg.status === 'pending') {
+                            window.location.href = 'registration-waiting.html';
+                            return true;
+                        }
                     }
+                    return false;
+                } catch (e) {
+                    console.warn('Registration check failed', e);
+                    return false;
                 }
-                return false;
-            } catch (e) {
-                console.warn('Registration check failed, proceeding', e);
-                return false;
             }
-        }
 
-        // ---------- LOAD AVAILABLE COURSES ----------
-        async function loadAvailableCourses(programId) {
-            try {
-                const courses = await fetchJson(`/api/students/available-courses?program_id=${programId}`);
-                if (Array.isArray(courses) && courses.length) {
-                    availableCourses = courses;
-                } else {
-                    // fallback demo (shouldn't happen in prod)
-                    availableCourses = [
-                        { id: 101, code: 'CS101', name: 'Programming Fundamentals', credits: 12, semester: 1, year_level: 1 },
-                        { id: 102, code: 'CS102', name: 'Computer Architecture', credits: 12, semester: 1, year_level: 1 },
-                        { id: 103, code: 'MATH101', name: 'Discrete Mathematics', credits: 12, semester: 1, year_level: 1 },
-                    ];
+            async function loadAvailableCourses(programId) {
+                try {
+                    // IMPORTANT: include semester=1 to match backend validation
+                    const courses = await fetchJson(`/api/students/available-courses?program_id=${programId}&semester=1`);
+                    if (Array.isArray(courses) && courses.length) {
+                        availableCourses = courses;
+                    } else {
+                        availableCourses = [];
+                    }
+                    return availableCourses;
+                } catch (e) {
+                    showError('Could not load available courses. ' + e.message);
+                    throw e;
                 }
-                return availableCourses;
-            } catch (e) {
-                showError('Could not load available courses. ' + e.message);
-                throw e;
             }
-        }
 
-        // ---------- RENDER UI ----------
-        function renderUI() {
-            if (!studentProfile) return;
+            function escapeHtml(text) {
+                if (!text) return '';
+                return String(text).replace(/[&<>"]/g, function (c) {
+                    if (c === '&') return '&amp;';
+                    if (c === '<') return '&lt;';
+                    if (c === '>') return '&gt;';
+                    if (c === '"') return '&quot;';
+                    return c;
+                });
+            }
 
-            const isGov = studentProfile.is_government_sponsored || false;
-            const programName = studentProfile.program_name || 'N/A';
-            const studentNumber = studentProfile.student_number || '—';
-            const fullName = `${studentProfile.first_name || ''} ${studentProfile.last_name || ''}`.trim();
+            function renderUI() {
+                if (!studentProfile) return;
 
-            // Check if campus has accommodation (from campusDetails)
-            const campusHasAccommodation = campusDetails?.has_accommodation === true;
+                const isGov = studentProfile.is_government_sponsored || false;
+                const programName = studentProfile.program_name || 'N/A';
+                const studentNumber = studentProfile.student_number || '—';
+                const fullName = `${studentProfile.first_name || ''} ${studentProfile.last_name || ''}`.trim();
 
-            // Accommodation eligibility: government sponsored AND campus has accommodation
-            const canApplyAccommodation = isGov && campusHasAccommodation;
+                const campusHasAccommodation = campusDetails?.has_accommodation === true;
+                const canApplyAccommodation = isGov && campusHasAccommodation;
 
-            // ---- Build HTML ----
-            let html = `
+                let html = `
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-user-graduate"></i>
@@ -602,13 +562,8 @@
                     <div id="coursesArea">
                         ${renderCoursesGrid()}
                     </div>
-
-                    <!-- Fee breakdown -->
                     ${renderFeePanel(isGov)}
-
-                    <!-- Accommodation section (conditional) -->
                     ${canApplyAccommodation ? renderAccommodationBlock() : ''}
-
                     <div class="action-buttons">
                         <button class="btn btn-secondary" id="backBtn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
                         <button class="btn btn-primary" id="submitRegistrationBtn"><i class="fas fa-paper-plane"></i> Submit Registration</button>
@@ -616,38 +571,35 @@
                     <div id="formFeedback" style="margin-top:16px;"></div>
                 </div>
             `;
-            container.innerHTML = html;
+                container.innerHTML = html;
 
-            // Attach event listeners after render
-            attachCourseCheckboxListeners();
-            document.getElementById('backBtn').addEventListener('click', () => {
-                window.location.href = 'student-dashboard.html';
-            });
-            document.getElementById('submitRegistrationBtn').addEventListener('click', submitRegistration);
-
-            // Accommodation checkbox listener if exists
-            const accCheck = document.getElementById('accommodationCheckbox');
-            if (accCheck) {
-                accCheck.addEventListener('change', (e) => {
-                    wantsAccommodation = e.target.checked;
-                    const detailDiv = document.getElementById('accommodationExtra');
-                    if (detailDiv) detailDiv.style.display = wantsAccommodation ? 'block' : 'none';
+                attachCourseCheckboxListeners();
+                document.getElementById('backBtn').addEventListener('click', () => {
+                    window.location.href = 'student-dashboard.html';
                 });
+                document.getElementById('submitRegistrationBtn').addEventListener('click', submitRegistration);
+
+                const accCheck = document.getElementById('accommodationCheckbox');
+                if (accCheck) {
+                    accCheck.addEventListener('change', (e) => {
+                        wantsAccommodation = e.target.checked;
+                        const detailDiv = document.getElementById('accommodationExtra');
+                        if (detailDiv) detailDiv.style.display = wantsAccommodation ? 'block' : 'none';
+                    });
+                }
+
+                updateFeeDisplay();
             }
 
-            // Update fee display
-            updateFeeDisplay();
-        }
-
-        function renderCoursesGrid() {
-            if (!availableCourses.length) {
-                return `<div class="error-message"><i class="fas fa-exclamation-circle"></i> No courses available for your program/year.</div>`;
-            }
-            let grid = '<div class="course-grid">';
-            availableCourses.forEach(course => {
-                const checked = selectedCourseIds.has(course.id) ? 'checked' : '';
-                const selectedClass = selectedCourseIds.has(course.id) ? 'selected' : '';
-                grid += `
+            function renderCoursesGrid() {
+                if (!availableCourses.length) {
+                    return `<div class="error-message"><i class="fas fa-exclamation-circle"></i> No courses available for your program/year.</div>`;
+                }
+                let grid = '<div class="course-grid">';
+                availableCourses.forEach(course => {
+                    const checked = selectedCourseIds.has(course.id) ? 'checked' : '';
+                    const selectedClass = selectedCourseIds.has(course.id) ? 'selected' : '';
+                    grid += `
                     <label class="course-card ${selectedClass}">
                         <input type="checkbox" value="${course.id}" data-credits="${course.credits || 0}" ${checked} class="course-checkbox">
                         <div class="course-info">
@@ -660,21 +612,21 @@
                         </div>
                     </label>
                 `;
-            });
-            grid += '</div>';
-            return grid;
-        }
+                });
+                grid += '</div>';
+                return grid;
+            }
 
-        function renderFeePanel(isGov) {
-            const selectedCount = selectedCourseIds.size;
-            const regFee = isGov ? 0 : FEE_REGISTRATION;
-            const tuition = isGov ? 0 : FEE_TUITION;
-            const examFeePer = isGov ? 0 : FEE_EXAM_PER_MODULE;
-            const examTotal = selectedCount * examFeePer;
-            const total = regFee + tuition + examTotal;
+            function renderFeePanel(isGov) {
+                const selectedCount = selectedCourseIds.size;
+                const regFee = isGov ? 0 : FEE_REGISTRATION;
+                const tuition = isGov ? 0 : FEE_TUITION;
+                const examFeePer = isGov ? 0 : FEE_EXAM_PER_MODULE;
+                const examTotal = selectedCount * examFeePer;
+                const total = regFee + tuition + examTotal;
 
-            if (isGov) {
-                return `
+                if (isGov) {
+                    return `
                     <div class="gov-note">
                         <i class="fas fa-hand-holding-heart fa-lg"></i>
                         <span><strong>Government sponsored:</strong> Registration & tuition fees are exempt. No exam fees apply.</span>
@@ -682,24 +634,24 @@
                     <div class="fee-panel">
                         <div class="fee-row"><span>Registration Fee</span><span>P 0.00 (exempted)</span></div>
                         <div class="fee-row"><span>Tuition Fee</span><span>P 0.00 (exempted)</span></div>
-                        <div class="fee-row" id="examFeeDisplay"><span>Exam Fees (${selectedCount} module${selectedCount!==1?'s':''})</span><span>P 0.00</span></div>
+                        <div class="fee-row" id="examFeeDisplay"><span>Exam Fees (${selectedCount} module${selectedCount !== 1 ? 's' : ''})</span><span>P 0.00</span></div>
                         <div class="fee-total" id="totalFeeDisplay"><span>Total Due</span><span>P 0.00</span></div>
                     </div>
                 `;
-            } else {
-                return `
+                } else {
+                    return `
                     <div class="fee-panel">
                         <div class="fee-row"><span>Registration Fee</span><span>P ${regFee.toFixed(2)}</span></div>
                         <div class="fee-row"><span>Tuition Fee (per semester)</span><span>P ${tuition.toFixed(2)}</span></div>
-                        <div class="fee-row" id="examFeeDisplay"><span>Exam Fees (${selectedCount} module${selectedCount!==1?'s':''})</span><span>P ${examTotal.toFixed(2)}</span></div>
+                        <div class="fee-row" id="examFeeDisplay"><span>Exam Fees (${selectedCount} module${selectedCount !== 1 ? 's' : ''})</span><span>P ${examTotal.toFixed(2)}</span></div>
                         <div class="fee-total" id="totalFeeDisplay"><span>Total Fees Due</span><span>P ${total.toFixed(2)}</span></div>
                     </div>
                 `;
+                }
             }
-        }
 
-        function renderAccommodationBlock() {
-            return `
+            function renderAccommodationBlock() {
+                return `
                 <div class="accommodation-box">
                     <h3><i class="fas fa-building"></i> On‑Campus Accommodation</h3>
                     <p style="margin-bottom:16px;"><i class="fas fa-check-circle" style="color:#2b6e4f;"></i> GIPS Student Village available. Government-sponsored students may apply.</p>
@@ -712,144 +664,120 @@
                     </div>
                 </div>
             `;
-        }
+            }
 
-        // simple escape
-        function escapeHtml(text) {
-            if (!text) return '';
-            return String(text).replace(/[&<>"]/g, function(c) {
-                if (c === '&') return '&amp;';
-                if (c === '<') return '&lt;';
-                if (c === '>') return '&gt;';
-                if (c === '"') return '&quot;';
-                return c;
-            });
-        }
-
-        // Attach listeners to checkboxes (update selection + fee)
-        function attachCourseCheckboxListeners() {
-            document.querySelectorAll('.course-checkbox').forEach(cb => {
-                cb.addEventListener('change', function(e) {
-                    const courseId = parseInt(this.value);
-                    const card = this.closest('.course-card');
-                    if (this.checked) {
-                        selectedCourseIds.add(courseId);
-                        card.classList.add('selected');
-                    } else {
-                        selectedCourseIds.delete(courseId);
-                        card.classList.remove('selected');
-                    }
-                    updateFeeDisplay();
+            function attachCourseCheckboxListeners() {
+                document.querySelectorAll('.course-checkbox').forEach(cb => {
+                    cb.addEventListener('change', function () {
+                        const courseId = parseInt(this.value);
+                        const card = this.closest('.course-card');
+                        if (this.checked) {
+                            selectedCourseIds.add(courseId);
+                            card.classList.add('selected');
+                        } else {
+                            selectedCourseIds.delete(courseId);
+                            card.classList.remove('selected');
+                        }
+                        updateFeeDisplay();
+                    });
                 });
-            });
-        }
-
-        function updateFeeDisplay() {
-            const isGov = studentProfile?.is_government_sponsored || false;
-            const selectedCount = selectedCourseIds.size;
-            const examFeePer = isGov ? 0 : FEE_EXAM_PER_MODULE;
-            const examTotal = selectedCount * examFeePer;
-            const regFee = isGov ? 0 : FEE_REGISTRATION;
-            const tuition = isGov ? 0 : FEE_TUITION;
-            const total = regFee + tuition + examTotal;
-
-            const examSpan = document.getElementById('examFeeDisplay');
-            const totalSpan = document.getElementById('totalFeeDisplay');
-            if (examSpan) {
-                examSpan.innerHTML = `<span>Exam Fees (${selectedCount} module${selectedCount!==1?'s':''})</span><span>P ${examTotal.toFixed(2)}</span>`;
-            }
-            if (totalSpan) {
-                totalSpan.innerHTML = `<span>Total ${isGov ? 'Due' : 'Fees Due'}</span><span>P ${total.toFixed(2)}</span>`;
-            }
-        }
-
-        // ---------- SUBMIT ----------
-        async function submitRegistration() {
-            if (!studentProfile) {
-                alert('Student data not loaded.');
-                return;
-            }
-            if (selectedCourseIds.size === 0) {
-                alert('Please select at least one module.');
-                return;
             }
 
-            const btn = document.getElementById('submitRegistrationBtn');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Submitting...';
+            function updateFeeDisplay() {
+                const isGov = studentProfile?.is_government_sponsored || false;
+                const selectedCount = selectedCourseIds.size;
+                const examFeePer = isGov ? 0 : FEE_EXAM_PER_MODULE;
+                const examTotal = selectedCount * examFeePer;
+                const regFee = isGov ? 0 : FEE_REGISTRATION;
+                const tuition = isGov ? 0 : FEE_TUITION;
+                const total = regFee + tuition + examTotal;
 
-            const feedbackDiv = document.getElementById('formFeedback');
-            feedbackDiv.innerHTML = '';
-
-            try {
-                const courseIds = Array.from(selectedCourseIds);
-                const payload = {
-                    course_ids: courseIds,
-                    semester: 1,                     // default first semester; could be made dynamic
-                    wants_accommodation: wantsAccommodation
-                };
-
-                const resp = await fetchJson('/api/students/register-semester', {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-
-                // success
-                feedbackDiv.innerHTML = `<div style="background:#d1fae5; color:#065f46; padding:14px 20px; border-radius:20px;"><i class="fas fa-check-circle"></i> Registration submitted! Redirecting…</div>`;
-                setTimeout(() => {
-                    window.location.href = 'registration-waiting.html';
-                }, 1500);
-            } catch (error) {
-                console.error(error);
-                feedbackDiv.innerHTML = `<div class="error-message"><i class="fas fa-times-circle"></i> ${error.message}</div>`;
-                btn.disabled = false;
-                btn.innerHTML = originalText;
+                const examSpan = document.getElementById('examFeeDisplay');
+                const totalSpan = document.getElementById('totalFeeDisplay');
+                if (examSpan) {
+                    examSpan.innerHTML = `<span>Exam Fees (${selectedCount} module${selectedCount !== 1 ? 's' : ''})</span><span>P ${examTotal.toFixed(2)}</span>`;
+                }
+                if (totalSpan) {
+                    totalSpan.innerHTML = `<span>Total ${isGov ? 'Due' : 'Fees Due'}</span><span>P ${total.toFixed(2)}</span>`;
+                }
             }
-        }
 
-        function showError(message) {
-            container.innerHTML = `<div class="card"><div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${escapeHtml(message)}</div>
-            <button class="btn btn-secondary" onclick="location.reload()">Retry</button></div>`;
-        }
-
-        // ---------- INIT FLOW ----------
-        async function initialize() {
-            try {
-                // 1. Load student profile
-                await loadStudentProfile();
-
-                // 2. Check if already registered
-                const hasExisting = await checkExistingRegistration();
-                if (hasExisting) return; // redirected
-
-                // 3. Admission status check
-                if (studentProfile.admission_status !== 'accepted') {
-                    showError('Your admission has not been accepted yet. You cannot register at this time.');
+            async function submitRegistration() {
+                if (!studentProfile) {
+                    alert('Student data not loaded.');
+                    return;
+                }
+                if (selectedCourseIds.size === 0) {
+                    alert('Please select at least one module.');
                     return;
                 }
 
-                // 4. Load courses
-                await loadAvailableCourses(studentProfile.program_id);
+                const btn = document.getElementById('submitRegistrationBtn');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Submitting...';
 
-                // 5. Render
-                renderUI();
-            } catch (err) {
-                console.error(err);
-                showError('Failed to initialize registration: ' + err.message);
+                const feedbackDiv = document.getElementById('formFeedback');
+                feedbackDiv.innerHTML = '';
+
+                try {
+                    const courseIds = Array.from(selectedCourseIds);
+                    const payload = {
+                        course_ids: courseIds,
+                        semester: 1,
+                        wants_accommodation: wantsAccommodation
+                    };
+
+                    const resp = await fetchJson('/api/students/register-semester', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+
+                    feedbackDiv.innerHTML = `<div style="background:#d1fae5; color:#065f46; padding:14px 20px; border-radius:20px;"><i class="fas fa-check-circle"></i> Registration submitted! Redirecting…</div>`;
+                    setTimeout(() => {
+                        window.location.href = 'registration-waiting.html';
+                    }, 1500);
+                } catch (error) {
+                    console.error(error);
+                    feedbackDiv.innerHTML = `<div class="error-message"><i class="fas fa-times-circle"></i> ${error.message}</div>`;
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
             }
-        }
 
-        // Logout
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
+            function showError(message) {
+                container.innerHTML = `<div class="card"><div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${escapeHtml(message)}</div>
+            <button class="btn btn-secondary" onclick="location.reload()">Retry</button></div>`;
+            }
 
-        // Start
-        initialize();
-    })();
-</script>
+            async function initialize() {
+                try {
+                    await loadStudentProfile();
+                    const hasExisting = await checkExistingRegistration();
+                    if (hasExisting) return;
+
+                    if (studentProfile.admission_status !== 'accepted') {
+                        showError('Your admission has not been accepted yet. You cannot register at this time.');
+                        return;
+                    }
+
+                    await loadAvailableCourses(studentProfile.program_id);
+                    renderUI();
+                } catch (err) {
+                    console.error(err);
+                    showError('Failed to initialize registration: ' + err.message);
+                }
+            }
+
+            document.getElementById('logoutLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.href = 'login.html';
+            });
+
+            initialize();
+        })();
+    </script>
 </body>
+
 </html>

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Semester Registration - GIPS College</title>
+    <title>Semester Registration · GIPS College</title>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -15,18 +14,22 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            background: #f4f7fc;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* NAVBAR */
         .navbar {
-            background: white;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            background: #ffffff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+            padding: 0.9rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(102,126,234,0.15);
         }
 
         .container {
@@ -37,131 +40,176 @@
 
         .navbar .container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 16px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
         }
 
         .navbar-brand img {
-            height: 50px;
+            height: 44px;
             width: auto;
+            border-radius: 8px;
         }
 
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 1rem;
+            gap: 0.5rem;
             flex-wrap: wrap;
         }
 
         .nav-link {
             text-decoration: none;
-            color: #4a5568;
+            color: #2d3a4a;
             font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            transition: all 0.2s;
             font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            background: transparent;
         }
 
         .nav-link i {
             font-size: 1rem;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
             color: #667eea;
         }
 
-        .registration-container {
-            max-width: 1100px;
-            margin: 40px auto;
+        .nav-link:hover {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        .nav-link.active {
+            background: #667eea10;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        /* MAIN CONTENT */
+        .registration-wrapper {
+            flex: 1;
+            padding: 40px 0;
         }
 
         .card {
-            background: white;
-            border-radius: 24px;
-            padding: 30px;
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 32px 30px;
             margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(102, 126, 234, 0.1);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.04), 0 0 0 1px rgba(102,126,234,0.06);
+            transition: box-shadow 0.2s;
         }
 
         .card-header {
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-header h2 {
-            font-size: 1.5rem;
-            color: #2d3748;
-        }
-
-        .info-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 15px;
-            padding: 12px;
-            background: #f8fafc;
-            border-radius: 16px;
-        }
-
-        .info-item {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .info-item label {
-            font-weight: 600;
-            color: #4a5568;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .info-item span {
-            color: #2d3748;
-            font-weight: 500;
-        }
-
-        .course-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .course-checkbox {
-            background: #f9fafb;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 15px;
-            transition: all 0.2s;
-            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2ff;
+            padding-bottom: 18px;
         }
 
-        .course-checkbox:hover {
-            background: white;
-            border-color: #667eea;
-            transform: translateX(3px);
+        .card-header i {
+            font-size: 1.8rem;
+            color: #667eea;
+            background: #eef2ff;
+            padding: 10px;
+            border-radius: 16px;
         }
 
-        .course-checkbox input {
-            width: 20px;
-            height: 20px;
+        .card-header h2 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #1e293b;
+            letter-spacing: -0.01em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            background: #fafbff;
+            padding: 22px 24px;
+            border-radius: 22px;
+            margin-bottom: 20px;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .info-item span {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-sponsor {
+            background: #dbeafe;
+            color: #1e4bd2;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* courses grid */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin: 24px 0 20px;
+        }
+
+        .course-card {
+            background: #f9fafc;
+            border: 1.5px solid #e9eef4;
+            border-radius: 20px;
+            padding: 18px 18px 18px 20px;
+            transition: all 0.15s;
             cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .course-card:hover {
+            border-color: #a5b4fc;
+            background: #ffffff;
+            box-shadow: 0 6px 12px -6px rgba(79, 70, 229, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .course-card.selected {
+            border-color: #667eea;
+            background: #f5f7ff;
+            box-shadow: 0 8px 16px -8px rgba(102,126,234,0.2);
+        }
+
+        .course-card input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
             accent-color: #667eea;
+            margin-top: 2px;
+            cursor: pointer;
         }
 
         .course-info {
@@ -169,516 +217,639 @@
         }
 
         .course-code {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 0.85rem;
+            font-weight: 700;
+            color: #4f46e5;
+            font-size: 0.9rem;
+            letter-spacing: -0.2px;
         }
 
         .course-name {
             font-weight: 600;
-            margin: 5px 0;
-            color: #2d3748;
+            font-size: 1.05rem;
+            margin: 5px 0 6px;
+            color: #1e293b;
         }
 
-        .course-credits {
-            font-size: 0.75rem;
-            color: #718096;
+        .course-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.8rem;
+            color: #5e6f8b;
         }
 
-        .fee-table {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 15px;
-            margin: 15px 0;
+        .course-meta i {
+            margin-right: 4px;
+            color: #667eea;
+        }
+
+        /* fee section */
+        .fee-panel {
+            background: #f0f4fe;
+            border-radius: 24px;
+            padding: 24px 26px;
+            margin: 20px 0 24px;
         }
 
         .fee-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 0;
+            border-bottom: 1px dashed #cbd5e1;
+            font-size: 1rem;
         }
 
-        .fee-row:last-child {
+        .fee-row:last-of-type {
             border-bottom: none;
         }
 
         .fee-total {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 1.1rem;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 2px solid #667eea;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2.5px solid #667eea;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #1e293b;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .sponsorship-note {
-            background: #c6f6d5;
-            color: #276749;
-            padding: 12px;
-            border-radius: 12px;
-            margin: 15px 0;
+        .gov-note {
+            background: #d9f0ec;
+            color: #0b6b5c;
+            padding: 16px 20px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
         }
 
-        .accommodation-card {
-            background: #eef2ff;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 4px solid #667eea;
+        /* accommodation block */
+        .accommodation-box {
+            background: #e9effa;
+            border-radius: 24px;
+            padding: 24px 26px;
+            margin: 24px 0 20px;
+            border-left: 6px solid #4f46e5;
         }
 
-        .accommodation-card h3 {
-            margin-bottom: 12px;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .accommodation-option {
+        .accommodation-box h3 {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
+            font-size: 1.3rem;
+            margin-bottom: 18px;
+            color: #1e293b;
         }
 
-        .accommodation-option input {
-            width: 18px;
-            height: 18px;
-            accent-color: #667eea;
+        .checkbox-accommodation {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .checkbox-accommodation input {
+            width: 22px;
+            height: 22px;
+            accent-color: #4f46e5;
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 30px;
-            cursor: pointer;
+            border-radius: 50px;
             font-weight: 600;
-            transition: all 0.2s;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-size: 1rem;
+            justify-content: center;
+            gap: 10px;
+            background: white;
+            color: #1e293b;
+            border: 1px solid #d0d9e8;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(145deg, #4f46e5, #667eea);
             color: white;
+            border: none;
+            box-shadow: 0 10px 18px -8px #4f46e580;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
+            background: #4338ca;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 16px 24px -8px #4f46e5b3;
         }
 
         .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
         }
 
         .btn-secondary:hover {
-            background: #cbd5e0;
+            background: #e2e8f0;
         }
 
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            padding: 40px;
-            color: #718096;
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #475569;
+            font-size: 1.2rem;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 18px 22px;
+            border-radius: 20px;
+            margin-bottom: 25px;
         }
 
         .footer {
-            background: #2d3748;
-            color: white;
-            text-align: center;
+            background: #13202e;
+            color: #e2e8f0;
             padding: 30px 0;
-            margin-top: 50px;
+            text-align: center;
+            margin-top: 30px;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 20px;
-            }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
 
-            .navbar .container {
-                flex-direction: column;
-            }
-
-            .nav-menu {
-                justify-content: center;
-            }
-
-            .course-grid {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 640px) {
+            .container { padding: 0 18px; }
+            .navbar .container { flex-direction: column; }
+            .nav-menu { justify-content: center; }
+            .card { padding: 24px 18px; }
+            .info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
-                    onerror="this.style.display='none'">
-            </div>
-            <ul class="nav-menu">
-                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
-                </li>
-                <li><a href="semester-registration.html" class="nav-link active"><i class="fas fa-edit"></i> Semester
-                        Registration</a></li>
-                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
-                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-        </div>
-    </nav>
 
-    <div class="container registration-container">
-        <div id="registrationContent">
-            <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading registration data...</div>
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-brand">
+            <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                 onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<span style=\'font-weight:700;font-size:1.4rem;color:#1e293b;\'>GIPS College</span>')">
+        </div>
+        <ul class="nav-menu">
+            <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+            <li><a href="semester-registration.html" class="nav-link active"><i class="fas fa-pen-to-square"></i> Semester Registration</a></li>
+            <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+            <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="registration-wrapper">
+    <div class="container" id="registrationContainer">
+        <!-- dynamic content injected -->
+        <div class="loading-state">
+            <i class="fas fa-spinner fa-pulse fa-2x" style="color:#667eea; margin-bottom:16px; display:block;"></i>
+            Loading your registration data…
         </div>
     </div>
+</div>
 
-    <footer class="footer">
-        <div class="container">
-            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
-            <p><i class="fas fa-edit"></i> Semester Registration | Academic Affairs</p>
-        </div>
-    </footer>
+<footer class="footer">
+    <div class="container">
+        <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. Academic Affairs</p>
+        <p style="margin-top:8px; opacity:0.8;">Secure Semester Registration · Student Portal</p>
+    </div>
+</footer>
 
-    <script>
-        // ============================================
-        // SAFE API CALL
-        // ============================================
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- CONFIG ----------
+        const API_BASE = '';  // relative paths
+        const TOKEN_KEY = 'access_token';
+
+        // Fee constants (matching backend: 630 reg, 32550 tuition, 5145 exam per module)
+        const FEE_REGISTRATION = 630;
+        const FEE_TUITION = 32550;
+        const FEE_EXAM_PER_MODULE = 5145;
+
+        // ---------- GLOBAL STATE ----------
+        let studentProfile = null;
+        let campusDetails = null;        // fetched if needed
+        let availableCourses = [];
+        let selectedCourseIds = new Set();
+        let wantsAccommodation = false;
+
+        // DOM elements
+        const container = document.getElementById('registrationContainer');
+
+        // ---------- HELPER: API CALL WITH AUTH ----------
+        async function apiCall(endpoint, options = {}) {
+            const token = localStorage.getItem(TOKEN_KEY);
             if (!token) {
                 window.location.href = 'login.html';
-                return null;
+                throw new Error('No token');
             }
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...(options.headers || {})
+            };
             try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-                if (response.status === 401) {
+                const resp = await fetch(endpoint, { ...options, headers });
+                if (resp.status === 401) {
                     localStorage.clear();
                     window.location.href = 'login.html';
-                    return null;
+                    throw new Error('Session expired');
                 }
-                return response;
+                return resp;
             } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
+                console.error('API error:', error);
+                throw error;
+            }
+        }
+
+        // safe json parse
+        async function fetchJson(endpoint, options = {}) {
+            const resp = await apiCall(endpoint, options);
+            if (!resp.ok) {
+                const errText = await resp.text();
+                let errMsg = errText;
+                try { const j = JSON.parse(errText); errMsg = j.error || j.message || errText; } catch(e) {}
+                throw new Error(errMsg || `Request failed (${resp.status})`);
+            }
+            return resp.json();
+        }
+
+        // ---------- FETCH CAMPUS DETAILS (to check accommodation) ----------
+        async function fetchCampusIfNeeded(campusId) {
+            if (!campusId) return null;
+            try {
+                // Try common campus endpoint (adjust if needed)
+                return await fetchJson(`/api/campuses/${campusId}`);
+            } catch (e) {
+                console.warn('Campus details not available, assuming no accommodation info', e);
                 return null;
             }
         }
 
-        // ============================================
-        // GLOBAL VARIABLES
-        // ============================================
-        let studentData = {};
-        let campusData = null;
-        let courses = [];
-        let selectedCourses = new Set();
-        let wantsAccommodation = false;
-        let feeStructure = {
-            registration_fee: 630,
-            tuition_per_semester: 32550,
-            exam_fee_per_module: 5145
-        };
+        // ---------- LOAD STUDENT PROFILE ----------
+        async function loadStudentProfile() {
+            const data = await fetchJson('/api/students/profile');
+            studentProfile = data;
+            // If campus_id present, fetch campus details for accommodation flag
+            if (studentProfile.campus_id) {
+                campusDetails = await fetchCampusIfNeeded(studentProfile.campus_id);
+            }
+            return data;
+        }
 
-        // ============================================
-        // LOAD REGISTRATION DATA
-        // ============================================
-        async function loadRegistrationData() {
-            const container = document.getElementById('registrationContent');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading registration data...</div>';
-
+        // ---------- CHECK EXISTING REGISTRATION ----------
+        async function checkExistingRegistration() {
             try {
-                // Get student info
-                const studentRes = await safeApiCall('/api/students/profile');
-                if (!studentRes || !studentRes.ok) throw new Error('Failed to load student data');
-                studentData = await studentRes.json();
-
-                // Get campus info (to check accommodation availability)
-                if (studentData.campus_id) {
-                    const campusRes = await safeApiCall(`/api/auth/campuses/${studentData.campus_id}`);
-                    if (campusRes && campusRes.ok) {
-                        campusData = await campusRes.json();
+                const reg = await fetchJson('/api/students/current-registration');
+                if (reg.has_registration && reg.status && reg.status !== 'rejected') {
+                    if (reg.status === 'approved' || reg.status === 'completed') {
+                        window.location.href = 'student-dashboard.html';
+                        return true;
+                    } else if (reg.status === 'pending') {
+                        window.location.href = 'registration-waiting.html';
+                        return true;
                     }
                 }
-
-                // Check if already registered
-                const regCheckRes = await safeApiCall('/api/students/current-registration');
-                if (regCheckRes && regCheckRes.ok) {
-                    const regData = await regCheckRes.json();
-                    if (regData.has_registration && regData.status !== 'rejected') {
-                        if (regData.status === 'approved') {
-                            window.location.href = 'student-dashboard.html';
-                        } else {
-                            window.location.href = 'registration-waiting.html';
-                        }
-                        return;
-                    }
-                }
-
-                // Load available courses
-                const coursesRes = await safeApiCall(`/api/students/available-courses?program_id=${studentData.program_id}`);
-                if (coursesRes && coursesRes.ok) {
-                    courses = await coursesRes.json();
-                } else {
-                    // Demo data
-                    courses = [
-                        { id: 1, code: 'CS101', name: 'Introduction to Programming', credits: 12, semester: 1, year: 1 },
-                        { id: 2, code: 'CS102', name: 'Computer Architecture', credits: 12, semester: 1, year: 1 },
-                        { id: 3, code: 'CS103', name: 'Mathematics for Computing', credits: 12, semester: 1, year: 1 },
-                        { id: 4, code: 'BA101', name: 'Principles of Management', credits: 12, semester: 1, year: 1 }
-                    ];
-                }
-
-                renderRegistrationForm();
-            } catch (error) {
-                console.error(error);
-                container.innerHTML = `
-                    <div class="card">
-                        <div class="card-header"><h2><i class="fas fa-exclamation-triangle"></i> Error</h2></div>
-                        <p>Unable to load registration data. Please try again later.</p>
-                        <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
-                    </div>
-                `;
+                return false;
+            } catch (e) {
+                console.warn('Registration check failed, proceeding', e);
+                return false;
             }
         }
 
-        function renderRegistrationForm() {
-            const container = document.getElementById('registrationContent');
-            const isGovSponsored = studentData.is_government_sponsored;
-            const totalTuition = isGovSponsored ? 0 : feeStructure.tuition_per_semester;
-            const registrationFee = isGovSponsored ? 0 : feeStructure.registration_fee;
-
-            let feeBreakdownHtml = `
-                <div class="fee-table">
-                    <div class="fee-row"><span>Registration Fee:</span><span>P ${registrationFee.toFixed(2)}</span></div>
-                    <div class="fee-row"><span>Tuition Fee (per semester):</span><span>P ${totalTuition.toFixed(2)}</span></div>
-                    <div id="examFeeRow" class="fee-row"><span>Exam Fees (per module):</span><span>P 0.00</span></div>
-                    <div id="totalFeeRow" class="fee-total"><span>Total Fees Due:</span><span>P ${(registrationFee + totalTuition).toFixed(2)}</span></div>
-                </div>
-            `;
-
-            if (isGovSponsored) {
-                feeBreakdownHtml = `
-                    <div class="sponsorship-note">
-                        <i class="fas fa-hand-holding-heart"></i>
-                        <span>You are a government-sponsored student. Registration and tuition fees are exempt. Only exam fees (if any) may apply.</span>
-                    </div>
-                    <div class="fee-table">
-                        <div class="fee-row"><span>Registration Fee:</span><span>P 0.00 (Exempted)</span></div>
-                        <div class="fee-row"><span>Tuition Fee (per semester):</span><span>P 0.00 (Exempted)</span></div>
-                        <div id="examFeeRow" class="fee-row"><span>Exam Fees (per module):</span><span>P 0.00</span></div>
-                        <div id="totalFeeRow" class="fee-total"><span>Total Fees Due:</span><span>P 0.00</span></div>
-                    </div>
-                `;
+        // ---------- LOAD AVAILABLE COURSES ----------
+        async function loadAvailableCourses(programId) {
+            try {
+                const courses = await fetchJson(`/api/students/available-courses?program_id=${programId}`);
+                if (Array.isArray(courses) && courses.length) {
+                    availableCourses = courses;
+                } else {
+                    // fallback demo (shouldn't happen in prod)
+                    availableCourses = [
+                        { id: 101, code: 'CS101', name: 'Programming Fundamentals', credits: 12, semester: 1, year_level: 1 },
+                        { id: 102, code: 'CS102', name: 'Computer Architecture', credits: 12, semester: 1, year_level: 1 },
+                        { id: 103, code: 'MATH101', name: 'Discrete Mathematics', credits: 12, semester: 1, year_level: 1 },
+                    ];
+                }
+                return availableCourses;
+            } catch (e) {
+                showError('Could not load available courses. ' + e.message);
+                throw e;
             }
+        }
 
-            // Accommodation section: only if government sponsored and campus has accommodation
-            let accommodationHtml = '';
-            const showAccommodation = isGovSponsored && campusData && campusData.has_accommodation === true;
-            if (showAccommodation) {
-                accommodationHtml = `
-                    <div class="accommodation-card">
-                        <h3><i class="fas fa-home"></i> Accommodation</h3>
-                        <p><i class="fas fa-info-circle"></i> GIPS Student Village is available at your campus. Government-sponsored students are eligible for accommodation.</p>
-                        <div class="accommodation-option">
-                            <input type="checkbox" id="wantsAccommodationCheckbox" onchange="toggleAccommodation(this.checked)">
-                            <label for="wantsAccommodationCheckbox">I wish to apply for on-campus accommodation (GIPS Student Village)</label>
-                        </div>
-                        <div id="accommodationDetails" style="display: none; margin-top: 15px;">
-                            <p><strong>Accommodation Types:</strong></p>
-                            <ul style="margin-left: 20px;">
-                                <li>Bachelor Pad (2 students per room) – P 15,000 per semester</li>
-                                <li>Three-Bed Room (6 students per room) – P 12,000 per semester</li>
-                            </ul>
-                            <p class="info-text" style="margin-top: 10px;"><i class="fas fa-clock"></i> You will be contacted for room allocation after registration approval.</p>
-                        </div>
-                    </div>
-                `;
-            }
+        // ---------- RENDER UI ----------
+        function renderUI() {
+            if (!studentProfile) return;
 
-            const html = `
+            const isGov = studentProfile.is_government_sponsored || false;
+            const programName = studentProfile.program_name || 'N/A';
+            const studentNumber = studentProfile.student_number || '—';
+            const fullName = `${studentProfile.first_name || ''} ${studentProfile.last_name || ''}`.trim();
+
+            // Check if campus has accommodation (from campusDetails)
+            const campusHasAccommodation = campusDetails?.has_accommodation === true;
+
+            // Accommodation eligibility: government sponsored AND campus has accommodation
+            const canApplyAccommodation = isGov && campusHasAccommodation;
+
+            // ---- Build HTML ----
+            let html = `
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-user-graduate"></i>
                         <h2>Semester Registration</h2>
                     </div>
-                    <div class="info-row">
-                        <div class="info-item"><label><i class="fas fa-id-card"></i> Student Number</label><span>${studentData.student_number || 'N/A'}</span></div>
-                        <div class="info-item"><label><i class="fas fa-user"></i> Full Name</label><span>${studentData.first_name || ''} ${studentData.last_name || ''}</span></div>
-                        <div class="info-item"><label><i class="fas fa-graduation-cap"></i> Program</label><span>${studentData.program_name || 'N/A'}</span></div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-item"><label><i class="fas fa-chart-line"></i> Academic Year</label><span>2024/2025</span></div>
-                        <div class="info-item"><label><i class="fas fa-calendar-alt"></i> Semester</label><span>First Semester</span></div>
-                        <div class="info-item"><label><i class="fas fa-hand-holding-usd"></i> Sponsorship</label><span>${isGovSponsored ? 'Government Sponsored' : 'Self Sponsored'}</span></div>
+                    <div class="info-grid">
+                        <div class="info-item"><label><i class="fas fa-id-card"></i> Student No.</label><span>${escapeHtml(studentNumber)}</span></div>
+                        <div class="info-item"><label><i class="fas fa-user"></i> Name</label><span>${escapeHtml(fullName)}</span></div>
+                        <div class="info-item"><label><i class="fas fa-graduation-cap"></i> Program</label><span>${escapeHtml(programName)}</span></div>
+                        <div class="info-item"><label><i class="fas fa-layer-group"></i> Year</label><span>Year ${studentProfile.current_year || 1}</span></div>
+                        <div class="info-item"><label><i class="fas fa-calendar"></i> Semester</label><span>First Semester (2025/2026)</span></div>
+                        <div class="info-item"><label><i class="fas fa-hand-holding-heart"></i> Sponsorship</label>
+                            <span>${isGov ? '<span class="badge-sponsor"><i class="fas fa-shield"></i> Government Sponsored</span>' : '<span class="badge-sponsor" style="background:#e9eef4;">Self Sponsored</span>'}</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-book-open"></i>
-                        <h2>Select Courses</h2>
+                        <h2>Select Your Modules</h2>
                     </div>
-                    <div id="coursesContainer" class="course-grid">
-                        ${courses.map(course => `
-                            <label class="course-checkbox">
-                                <input type="checkbox" value="${course.id}" data-credits="${course.credits}" onchange="updateCourseSelection(this)">
-                                <div class="course-info">
-                                    <div class="course-code">${course.code}</div>
-                                    <div class="course-name">${course.name}</div>
-                                    <div class="course-credits"><i class="fas fa-star"></i> ${course.credits} credits</div>
-                                </div>
-                            </label>
-                        `).join('')}
+                    <div id="coursesArea">
+                        ${renderCoursesGrid()}
                     </div>
-                    <div class="fee-section">
-                        <h3><i class="fas fa-receipt"></i> Fee Summary</h3>
-                        ${feeBreakdownHtml}
+
+                    <!-- Fee breakdown -->
+                    ${renderFeePanel(isGov)}
+
+                    <!-- Accommodation section (conditional) -->
+                    ${canApplyAccommodation ? renderAccommodationBlock() : ''}
+
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" id="backBtn"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
+                        <button class="btn btn-primary" id="submitRegistrationBtn"><i class="fas fa-paper-plane"></i> Submit Registration</button>
                     </div>
-                    ${accommodationHtml}
-                    <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px;">
-                        <button class="btn btn-secondary" onclick="window.location.href='application-status.html'"><i class="fas fa-arrow-left"></i> Back</button>
-                        <button class="btn btn-primary" onclick="submitRegistration()"><i class="fas fa-paper-plane"></i> Submit Registration</button>
-                    </div>
+                    <div id="formFeedback" style="margin-top:16px;"></div>
                 </div>
             `;
             container.innerHTML = html;
-            updateFeeCalculation();
-        }
 
-        function toggleAccommodation(checked) {
-            wantsAccommodation = checked;
-            const detailsDiv = document.getElementById('accommodationDetails');
-            if (detailsDiv) {
-                detailsDiv.style.display = checked ? 'block' : 'none';
+            // Attach event listeners after render
+            attachCourseCheckboxListeners();
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = 'student-dashboard.html';
+            });
+            document.getElementById('submitRegistrationBtn').addEventListener('click', submitRegistration);
+
+            // Accommodation checkbox listener if exists
+            const accCheck = document.getElementById('accommodationCheckbox');
+            if (accCheck) {
+                accCheck.addEventListener('change', (e) => {
+                    wantsAccommodation = e.target.checked;
+                    const detailDiv = document.getElementById('accommodationExtra');
+                    if (detailDiv) detailDiv.style.display = wantsAccommodation ? 'block' : 'none';
+                });
             }
+
+            // Update fee display
+            updateFeeDisplay();
         }
 
-        function updateCourseSelection(checkbox) {
-            const courseId = parseInt(checkbox.value);
-            if (checkbox.checked) {
-                selectedCourses.add(courseId);
+        function renderCoursesGrid() {
+            if (!availableCourses.length) {
+                return `<div class="error-message"><i class="fas fa-exclamation-circle"></i> No courses available for your program/year.</div>`;
+            }
+            let grid = '<div class="course-grid">';
+            availableCourses.forEach(course => {
+                const checked = selectedCourseIds.has(course.id) ? 'checked' : '';
+                const selectedClass = selectedCourseIds.has(course.id) ? 'selected' : '';
+                grid += `
+                    <label class="course-card ${selectedClass}">
+                        <input type="checkbox" value="${course.id}" data-credits="${course.credits || 0}" ${checked} class="course-checkbox">
+                        <div class="course-info">
+                            <div class="course-code">${escapeHtml(course.code || '')}</div>
+                            <div class="course-name">${escapeHtml(course.name || '')}</div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-star"></i> ${course.credits || 0} credits</span>
+                                <span><i class="fas fa-flask"></i> ${course.has_practicals ? 'Practical' : 'Theory'}</span>
+                            </div>
+                        </div>
+                    </label>
+                `;
+            });
+            grid += '</div>';
+            return grid;
+        }
+
+        function renderFeePanel(isGov) {
+            const selectedCount = selectedCourseIds.size;
+            const regFee = isGov ? 0 : FEE_REGISTRATION;
+            const tuition = isGov ? 0 : FEE_TUITION;
+            const examFeePer = isGov ? 0 : FEE_EXAM_PER_MODULE;
+            const examTotal = selectedCount * examFeePer;
+            const total = regFee + tuition + examTotal;
+
+            if (isGov) {
+                return `
+                    <div class="gov-note">
+                        <i class="fas fa-hand-holding-heart fa-lg"></i>
+                        <span><strong>Government sponsored:</strong> Registration & tuition fees are exempt. No exam fees apply.</span>
+                    </div>
+                    <div class="fee-panel">
+                        <div class="fee-row"><span>Registration Fee</span><span>P 0.00 (exempted)</span></div>
+                        <div class="fee-row"><span>Tuition Fee</span><span>P 0.00 (exempted)</span></div>
+                        <div class="fee-row" id="examFeeDisplay"><span>Exam Fees (${selectedCount} module${selectedCount!==1?'s':''})</span><span>P 0.00</span></div>
+                        <div class="fee-total" id="totalFeeDisplay"><span>Total Due</span><span>P 0.00</span></div>
+                    </div>
+                `;
             } else {
-                selectedCourses.delete(courseId);
-            }
-            updateFeeCalculation();
-        }
-
-        function updateFeeCalculation() {
-            const selectedModules = Array.from(selectedCourses);
-            const examFeePerModule = feeStructure.exam_fee_per_module;
-            const isGovSponsored = studentData.is_government_sponsored;
-
-            let examFees = selectedModules.length * examFeePerModule;
-            if (isGovSponsored) {
-                examFees = 0;
-            }
-
-            const registrationFee = isGovSponsored ? 0 : feeStructure.registration_fee;
-            const tuition = isGovSponsored ? 0 : feeStructure.tuition_per_semester;
-            const total = registrationFee + tuition + examFees;
-
-            const examFeeRow = document.getElementById('examFeeRow');
-            const totalRow = document.getElementById('totalFeeRow');
-            if (examFeeRow) {
-                examFeeRow.innerHTML = `<span>Exam Fees (${selectedModules.length} module${selectedModules.length !== 1 ? 's' : ''}):</span><span>P ${examFees.toFixed(2)}</span>`;
-            }
-            if (totalRow) {
-                totalRow.innerHTML = `<span>Total Fees Due:</span><span>P ${total.toFixed(2)}</span>`;
+                return `
+                    <div class="fee-panel">
+                        <div class="fee-row"><span>Registration Fee</span><span>P ${regFee.toFixed(2)}</span></div>
+                        <div class="fee-row"><span>Tuition Fee (per semester)</span><span>P ${tuition.toFixed(2)}</span></div>
+                        <div class="fee-row" id="examFeeDisplay"><span>Exam Fees (${selectedCount} module${selectedCount!==1?'s':''})</span><span>P ${examTotal.toFixed(2)}</span></div>
+                        <div class="fee-total" id="totalFeeDisplay"><span>Total Fees Due</span><span>P ${total.toFixed(2)}</span></div>
+                    </div>
+                `;
             }
         }
 
-        function calculateTotalFees() {
-            const selectedModules = selectedCourses.size;
-            const isGovSponsored = studentData.is_government_sponsored;
-            const examFees = isGovSponsored ? 0 : selectedModules * feeStructure.exam_fee_per_module;
-            const registrationFee = isGovSponsored ? 0 : feeStructure.registration_fee;
-            const tuition = isGovSponsored ? 0 : feeStructure.tuition_per_semester;
-            return registrationFee + tuition + examFees;
+        function renderAccommodationBlock() {
+            return `
+                <div class="accommodation-box">
+                    <h3><i class="fas fa-building"></i> On‑Campus Accommodation</h3>
+                    <p style="margin-bottom:16px;"><i class="fas fa-check-circle" style="color:#2b6e4f;"></i> GIPS Student Village available. Government-sponsored students may apply.</p>
+                    <label class="checkbox-accommodation">
+                        <input type="checkbox" id="accommodationCheckbox">
+                        <span><strong>Yes, I wish to apply for accommodation</strong> (Bachelor Pad / shared rooms)</span>
+                    </label>
+                    <div id="accommodationExtra" style="display:none; margin-top:16px; background:#ffffff90; border-radius:18px; padding:16px;">
+                        <p><i class="fas fa-bed"></i> Room types: Bachelor Pad (2 students) · 3-Bed Room (6 students). Allocation after approval.</p>
+                    </div>
+                </div>
+            `;
         }
 
+        // simple escape
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>"]/g, function(c) {
+                if (c === '&') return '&amp;';
+                if (c === '<') return '&lt;';
+                if (c === '>') return '&gt;';
+                if (c === '"') return '&quot;';
+                return c;
+            });
+        }
+
+        // Attach listeners to checkboxes (update selection + fee)
+        function attachCourseCheckboxListeners() {
+            document.querySelectorAll('.course-checkbox').forEach(cb => {
+                cb.addEventListener('change', function(e) {
+                    const courseId = parseInt(this.value);
+                    const card = this.closest('.course-card');
+                    if (this.checked) {
+                        selectedCourseIds.add(courseId);
+                        card.classList.add('selected');
+                    } else {
+                        selectedCourseIds.delete(courseId);
+                        card.classList.remove('selected');
+                    }
+                    updateFeeDisplay();
+                });
+            });
+        }
+
+        function updateFeeDisplay() {
+            const isGov = studentProfile?.is_government_sponsored || false;
+            const selectedCount = selectedCourseIds.size;
+            const examFeePer = isGov ? 0 : FEE_EXAM_PER_MODULE;
+            const examTotal = selectedCount * examFeePer;
+            const regFee = isGov ? 0 : FEE_REGISTRATION;
+            const tuition = isGov ? 0 : FEE_TUITION;
+            const total = regFee + tuition + examTotal;
+
+            const examSpan = document.getElementById('examFeeDisplay');
+            const totalSpan = document.getElementById('totalFeeDisplay');
+            if (examSpan) {
+                examSpan.innerHTML = `<span>Exam Fees (${selectedCount} module${selectedCount!==1?'s':''})</span><span>P ${examTotal.toFixed(2)}</span>`;
+            }
+            if (totalSpan) {
+                totalSpan.innerHTML = `<span>Total ${isGov ? 'Due' : 'Fees Due'}</span><span>P ${total.toFixed(2)}</span>`;
+            }
+        }
+
+        // ---------- SUBMIT ----------
         async function submitRegistration() {
-            if (selectedCourses.size === 0) {
-                alert('Please select at least one course to register.');
+            if (!studentProfile) {
+                alert('Student data not loaded.');
+                return;
+            }
+            if (selectedCourseIds.size === 0) {
+                alert('Please select at least one module.');
                 return;
             }
 
-            const courseIds = Array.from(selectedCourses);
-            const isGovSponsored = studentData.is_government_sponsored;
-            const totalFees = calculateTotalFees();
+            const btn = document.getElementById('submitRegistrationBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Submitting...';
 
-            if (!confirm(`You are about to register for ${courseIds.length} course(s). Total fees: P ${totalFees.toFixed(2)}. Accommodation: ${wantsAccommodation ? 'Yes' : 'No'}. Do you wish to proceed?`)) {
-                return;
-            }
-
-            const submitBtn = document.querySelector('.btn-primary');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Submitting...';
+            const feedbackDiv = document.getElementById('formFeedback');
+            feedbackDiv.innerHTML = '';
 
             try {
+                const courseIds = Array.from(selectedCourseIds);
                 const payload = {
                     course_ids: courseIds,
-                    semester: 1,
-                    academic_year: '2024/2025',
+                    semester: 1,                     // default first semester; could be made dynamic
                     wants_accommodation: wantsAccommodation
                 };
-                // If government sponsored, also send sponsorship details if needed (e.g., TR number)
-                // You can add a field for TR number if required by backend.
-                const response = await safeApiCall('/api/students/register-semester', {
+
+                const resp = await fetchJson('/api/students/register-semester', {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
 
-                if (response && response.ok) {
-                    const data = await response.json();
-                    alert('Registration submitted successfully! Your registration will be reviewed by the finance office. You will be notified once approved.');
+                // success
+                feedbackDiv.innerHTML = `<div style="background:#d1fae5; color:#065f46; padding:14px 20px; border-radius:20px;"><i class="fas fa-check-circle"></i> Registration submitted! Redirecting…</div>`;
+                setTimeout(() => {
                     window.location.href = 'registration-waiting.html';
-                } else {
-                    const error = await response.json();
-                    alert('Registration failed: ' + (error.error || 'Unknown error'));
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                }
+                }, 1500);
             } catch (error) {
                 console.error(error);
-                alert('Network error. Please try again.');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                feedbackDiv.innerHTML = `<div class="error-message"><i class="fas fa-times-circle"></i> ${error.message}</div>`;
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         }
 
-        // ============================================
-        // LOGOUT
-        // ============================================
+        function showError(message) {
+            container.innerHTML = `<div class="card"><div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${escapeHtml(message)}</div>
+            <button class="btn btn-secondary" onclick="location.reload()">Retry</button></div>`;
+        }
+
+        // ---------- INIT FLOW ----------
+        async function initialize() {
+            try {
+                // 1. Load student profile
+                await loadStudentProfile();
+
+                // 2. Check if already registered
+                const hasExisting = await checkExistingRegistration();
+                if (hasExisting) return; // redirected
+
+                // 3. Admission status check
+                if (studentProfile.admission_status !== 'accepted') {
+                    showError('Your admission has not been accepted yet. You cannot register at this time.');
+                    return;
+                }
+
+                // 4. Load courses
+                await loadAvailableCourses(studentProfile.program_id);
+
+                // 5. Render
+                renderUI();
+            } catch (err) {
+                console.error(err);
+                showError('Failed to initialize registration: ' + err.message);
+            }
+        }
+
+        // Logout
         document.getElementById('logoutLink').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.clear();
             window.location.href = 'login.html';
         });
 
-        // ============================================
-        // INIT
-        // ============================================
-        loadRegistrationData();
-    </script>
+        // Start
+        initialize();
+    })();
+</script>
 </body>
-
 </html>

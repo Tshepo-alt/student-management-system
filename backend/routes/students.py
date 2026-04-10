@@ -11,7 +11,7 @@ from models import db, Student, Module, Program, ExamRegistration, Accommodation
 students_bp = Blueprint('students', __name__)
 
 # ============================================
-# DASHBOARD (UPDATED TO MATCH FRONTEND EXPECTATIONS)
+# DASHBOARD
 # ============================================
 @students_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
@@ -26,26 +26,20 @@ def dashboard():
         program = student.program
         campus = student.campus
 
-        # Current registration
         current_reg = Registration.query.filter_by(
             student_id=student.id,
             registration_status='approved'
         ).order_by(Registration.created_at.desc()).first()
 
-        # Current courses (enrolled modules)
         current_courses = []
         if current_reg:
             enrollments = Enrollment.query.filter_by(registration_id=current_reg.id, status='registered').all()
             current_courses = [{'id': e.module.id, 'code': e.module.module_code, 'name': e.module.module_name} for e in enrollments if e.module]
 
-        # Credits earned
         credits_earned = student.total_credits_earned or 0
-
-        # Program completion percent
         total_credits_needed = program.total_credits if program and program.total_credits else 0
         completion_percent = (credits_earned / total_credits_needed * 100) if total_credits_needed > 0 else 0
 
-        # GPA trend (compare with previous semester)
         gpa_trend = 'steady'
         previous_academic = AcademicRecord.query.filter_by(student_id=student.id).order_by(AcademicRecord.created_at.desc()).first()
         if previous_academic and student.current_gpa:
@@ -54,17 +48,14 @@ def dashboard():
             elif student.current_gpa < previous_academic.semester_gpa:
                 gpa_trend = 'down'
 
-        # Registered exams & fees
         registered_exams = ExamRegistration.query.filter_by(student_id=student.id).count()
         exam_fees_due = sum(e.fee or 0 for e in ExamRegistration.query.filter_by(student_id=student.id, payment_status='pending').all())
 
-        # Accommodation
         accommodation = AccommodationRegistration.query.filter_by(student_id=student.id).order_by(AccommodationRegistration.created_at.desc()).first()
         accommodation_status = accommodation.status if accommodation else 'Not Applied'
         room_number = accommodation.allocated_room_number if accommodation else None
         block_name = accommodation.allocated_block if accommodation else None
 
-        # Fees summary
         total_fees = 0
         paid_amount = 0
         outstanding = 0
@@ -104,9 +95,47 @@ def dashboard():
         }
 
         return jsonify(dashboard_data), 200
-
     except Exception as e:
-        print(f"Dashboard error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# PROFILE (for semester registration page)
+# ============================================
+@students_bp.route('/profile', methods=['GET'])
+@jwt_required()
+def get_student_profile():
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        user = User.query.get(user_id)
+        program = student.program
+        campus = student.campus
+
+        return jsonify({
+            'id': student.id,
+            'student_number': student.student_number,
+            'first_name': student.first_name,
+            'last_name': student.last_name,
+            'email': student.email,
+            'phone': student.phone,
+            'program_id': student.program_id,
+            'program_name': program.program_name if program else None,
+            'program_code': program.program_code if program else None,
+            'campus_id': student.campus_id,
+            'campus_name': campus.campus_name if campus else None,
+            'current_year': student.current_year,
+            'is_government_sponsored': student.is_government_sponsored,
+            'wants_accommodation': student.wants_accommodation,
+            'admission_status': student.admission_status,
+            'academic_status': student.academic_status
+        }), 200
+    except Exception as e:
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -149,9 +178,7 @@ def get_my_modules():
                     'grade_points': float(enrollment.grade_points) if enrollment.grade_points else None
                 })
         return jsonify({'modules': modules_data}), 200
-
     except Exception as e:
-        print(f"My modules error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -169,7 +196,6 @@ def get_activity():
         if not student:
             return jsonify({'error': 'Student not found'}), 404
 
-        # Get recent notifications
         notifications = Notification.query.filter_by(user_id=user_id).order_by(Notification.created_at.desc()).limit(10).all()
         activities = []
         for n in notifications:
@@ -178,7 +204,6 @@ def get_activity():
                 'description': n.title + ': ' + n.message[:100],
                 'date': n.created_at.isoformat()
             })
-        # If no notifications, add a welcome message
         if not activities:
             activities.append({
                 'icon': 'fa-rocket',
@@ -187,19 +212,16 @@ def get_activity():
             })
         return jsonify({'activities': activities}), 200
     except Exception as e:
-        print(f"Activity error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
 # ============================================
-# EXISTING ENDPOINTS (KEEP ALL ORIGINAL CODE BELOW)
+# COURSES (legacy)
 # ============================================
-
 @students_bp.route('/courses', methods=['GET'])
 @jwt_required()
 def get_courses():
-    """Get student's enrolled modules/courses (legacy)"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
@@ -242,13 +264,14 @@ def get_courses():
             'count': len(courses_data),
             'current_year': student.current_year
         }), 200
-
     except Exception as e:
-        print(f"Get courses error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# GET STUDENT BY ID (admin/staff)
+# ============================================
 @students_bp.route('/<int:student_id>', methods=['GET'])
 @jwt_required()
 def get_student(student_id):
@@ -289,13 +312,14 @@ def get_student(student_id):
         }
 
         return jsonify(student_data), 200
-
     except Exception as e:
-        print(f"Get student error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# UPDATE STUDENT (admin/staff or self)
+# ============================================
 @students_bp.route('/<int:student_id>', methods=['PUT'])
 @jwt_required()
 def update_student(student_id):
@@ -355,14 +379,15 @@ def update_student(student_id):
             'message': 'Student updated successfully',
             'student_id': student.id
         }), 200
-
     except Exception as e:
         db.session.rollback()
-        print(f"Update student error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# MY PROFILE (detailed)
+# ============================================
 @students_bp.route('/my-profile', methods=['GET'])
 @jwt_required()
 def get_my_profile():
@@ -410,13 +435,14 @@ def get_my_profile():
         }
 
         return jsonify(profile_data), 200
-
     except Exception as e:
-        print(f"Get profile error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# REGISTER MODULE
+# ============================================
 @students_bp.route('/register-module', methods=['POST'])
 @jwt_required()
 def register_module():
@@ -474,14 +500,15 @@ def register_module():
                 'credits': module.credits
             }
         }), 201
-
     except Exception as e:
         db.session.rollback()
-        print(f"Register module error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# MY RESULTS
+# ============================================
 @students_bp.route('/my-results', methods=['GET'])
 @jwt_required()
 def get_my_results():
@@ -543,13 +570,14 @@ def get_my_results():
             'academic_records': records,
             'total_credits_earned': student.total_credits_earned
         }), 200
-
     except Exception as e:
-        print(f"Get results error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# EXPORT TRANSCRIPT
+# ============================================
 @students_bp.route('/export-my-transcript', methods=['GET'])
 @jwt_required()
 def export_my_transcript():
@@ -600,13 +628,14 @@ def export_my_transcript():
             as_attachment=True,
             download_name=f'transcript_{student.student_number}_{datetime.now().strftime("%Y%m%d")}.csv'
         )
-
     except Exception as e:
-        print(f"Export transcript error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# ACCOMMODATION STATUS
+# ============================================
 @students_bp.route('/accommodation-status', methods=['GET'])
 @jwt_required()
 def get_accommodation_status():
@@ -640,17 +669,14 @@ def get_accommodation_status():
             'updated_at': application.updated_at.isoformat(),
             'wants_accommodation': student.wants_accommodation
         }), 200
-
     except Exception as e:
-        print(f"Get accommodation status error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
 # ============================================
-# APPLICATION & REGISTRATION FLOW ENDPOINTS
+# APPLICATION STATUS (admission)
 # ============================================
-
 @students_bp.route('/application-status', methods=['GET'])
 @jwt_required()
 def get_application_status():
@@ -667,13 +693,14 @@ def get_application_status():
             'program_name': student.program.program_name if student.program else None,
             'message': 'Your application is being processed.' if student.admission_status == 'pending' else None
         }), 200
-
     except Exception as e:
-        print(f"Get application status error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# CURRENT REGISTRATION (semester)
+# ============================================
 @students_bp.route('/current-registration', methods=['GET'])
 @jwt_required()
 def get_current_registration():
@@ -702,13 +729,14 @@ def get_current_registration():
             'year_of_study': current_reg.year_of_study,
             'created_at': current_reg.created_at.isoformat()
         }), 200
-
     except Exception as e:
-        print(f"Get current registration error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# AVAILABLE COURSES (for registration)
+# ============================================
 @students_bp.route('/available-courses', methods=['GET'])
 @jwt_required()
 def get_available_courses():
@@ -753,13 +781,14 @@ def get_available_courses():
             })
 
         return jsonify(courses_data), 200
-
     except Exception as e:
-        print(f"Get available courses error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# REGISTER SEMESTER (submit registration)
+# ============================================
 @students_bp.route('/register-semester', methods=['POST'])
 @jwt_required()
 def register_semester():
@@ -839,10 +868,8 @@ def register_semester():
             'total_fees': total_fees,
             'status': registration.registration_status
         }), 201
-
     except Exception as e:
         db.session.rollback()
-        print(f"Register semester error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -887,6 +914,5 @@ def get_student_online_classes():
             })
         return jsonify({'meetings': result}), 200
     except Exception as e:
-        print(f"[STUDENTS] Online classes error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500

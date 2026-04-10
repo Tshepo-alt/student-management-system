@@ -630,6 +630,30 @@ def get_campuses():
         return jsonify({'error': str(e)}), 500
 
 
+# ========== NEW ENDPOINT: Get a single campus by ID ==========
+@auth_bp.route('/campuses/<int:campus_id>', methods=['GET'])
+def get_campus_by_id(campus_id):
+    """Get a specific campus by ID (used for checking accommodation availability)"""
+    try:
+        from models import Campus
+        
+        campus = Campus.query.get(campus_id)
+        if not campus:
+            return jsonify({'error': 'Campus not found'}), 404
+        return jsonify({
+            'id': campus.id,
+            'campus_code': campus.campus_code,
+            'campus_name': campus.campus_name,
+            'campus_location': campus.campus_location,
+            'has_accommodation': campus.has_accommodation,
+            'is_main_campus': campus.is_main_campus
+        }), 200
+    except Exception as e:
+        print(f"[AUTH] Get campus by ID error: {e}")
+        tb.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @auth_bp.route('/campuses/<int:campus_id>/programs', methods=['GET'])
 def get_campus_programs(campus_id):
     """Get programs available at a specific campus"""

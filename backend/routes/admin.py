@@ -262,7 +262,7 @@ def create_student():
 @jwt_required()
 @admin_required
 def approve_student(student_id):
-    """Approve student registration"""
+    """Approve student registration (semester registration approval)"""
     try:
         student = Student.query.get(student_id)
         if not student:
@@ -286,6 +286,36 @@ def approve_student(student_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+# ==================== NEW: APPROVE ADMISSION (for initial application) ====================
+@admin_bp.route('/students/<int:student_id>/approve-admission', methods=['POST'])
+@jwt_required()
+@admin_required
+def approve_student_admission(student_id):
+    """Approve student's admission (change admission_status from pending to accepted)"""
+    try:
+        student = Student.query.get(student_id)
+        if not student:
+            return jsonify({'error': 'Student not found'}), 404
+        if student.admission_status != 'pending':
+            return jsonify({'error': f'Admission status is already {student.admission_status}'}), 400
+        student.admission_status = 'accepted'
+        db.session.commit()
+        # Create notification
+        if Notification:
+            notification = Notification(
+                user_id=student.user_id,
+                title='Admission Approved',
+                message=f'Congratulations! Your admission to GIPS College has been approved. Please proceed to semester registration.',
+                notification_type='success'
+            )
+            db.session.add(notification)
+            db.session.commit()
+        return jsonify({'message': 'Student admission approved successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+# =========================================================================================
 
 @admin_bp.route('/students/<int:student_id>/reject', methods=['POST'])
 @jwt_required()
@@ -820,7 +850,7 @@ def get_payment_stats():
             'completed_count': completed_count,
             'pending_total': float(pending_total),
             'pending_count': pending_count,
-            'outstanding_amount': float(pending_total),  # For dashboard, show pending total as outstanding
+            'outstanding_amount': float(pending_total),
             'today_collections': float(today_collections),
             'month_collections': float(month_collections),
             'by_payment_type': by_type,

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -26,8 +27,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 20% 40%, rgba(102,126,234,0.1) 0%, transparent 60%),
-                        radial-gradient(circle at 80% 70%, rgba(118,75,162,0.1) 0%, transparent 60%);
+            background: radial-gradient(circle at 20% 40%, rgba(102, 126, 234, 0.1) 0%, transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.1) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
         }
@@ -42,13 +43,14 @@
 
         /* Navigation (same as portal) */
         .navbar {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
             border-radius: 60px;
             margin-bottom: 30px;
             padding: 0.8rem 2rem;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .navbar .container {
             display: flex;
             justify-content: space-between;
@@ -56,19 +58,22 @@
             flex-wrap: wrap;
             padding: 0;
         }
+
         .navbar-brand img {
             height: 48px;
             width: auto;
         }
+
         .nav-menu {
             display: flex;
             list-style: none;
             gap: 1rem;
             flex-wrap: wrap;
         }
+
         .nav-link {
             text-decoration: none;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             font-weight: 500;
             padding: 0.5rem 1.2rem;
             border-radius: 40px;
@@ -77,11 +82,14 @@
             align-items: center;
             gap: 8px;
         }
+
         .nav-link i {
             font-size: 1rem;
         }
-        .nav-link:hover, .nav-link.active {
-            background: rgba(255,255,255,0.15);
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
             color: white;
         }
 
@@ -91,10 +99,12 @@
             gap: 15px;
             justify-content: center;
             margin-bottom: 25px;
+            flex-wrap: wrap;
         }
+
         .mode-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 12px 30px;
             border-radius: 50px;
             color: white;
@@ -105,22 +115,42 @@
             align-items: center;
             gap: 10px;
         }
+
         .mode-btn.active {
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-color: transparent;
-            box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 30px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         /* Voice Call Container */
         .voice-call-container {
-            background: linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
             backdrop-filter: blur(15px);
             border-radius: 50px;
             padding: 20px 30px;
             margin-bottom: 25px;
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             display: none;
         }
+
         .voice-call-container.active {
             display: flex;
             align-items: center;
@@ -128,41 +158,55 @@
             flex-wrap: wrap;
             justify-content: space-between;
         }
+
         .avatar-container {
             display: flex;
             align-items: center;
             gap: 20px;
         }
+
         .avatar-wrapper {
             position: relative;
             width: 85px;
             height: 85px;
         }
+
         .avatar-image {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid rgba(16,185,129,0.5);
+            border: 3px solid rgba(16, 185, 129, 0.5);
             transition: all 0.3s;
         }
+
         .avatar-speaking {
             animation: speakPulse 0.4s ease infinite;
-            box-shadow: 0 0 20px rgba(16,185,129,0.6);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
         }
+
         @keyframes speakPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
         }
+
         .call-timer-display {
             font-size: 1.2rem;
             font-weight: 600;
             color: #10b981;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             padding: 5px 15px;
             border-radius: 30px;
             font-family: monospace;
         }
+
         .status-dot {
             width: 10px;
             height: 10px;
@@ -172,39 +216,52 @@
             display: inline-block;
             margin-right: 8px;
         }
+
         @keyframes statusPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; transform: scale(1.2); }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
         }
 
         /* Video Call Container */
         .video-call-container {
-            background: linear-gradient(135deg, rgba(102,126,234,0.2) 0%, rgba(118,75,162,0.2) 100%);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
             backdrop-filter: blur(15px);
             border-radius: 32px;
             margin-bottom: 25px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
             display: none;
         }
+
         .video-call-container.active {
             display: block;
         }
+
         .video-header {
             padding: 15px 25px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
         }
+
         .video-controls {
             display: flex;
             gap: 12px;
         }
+
         .video-control-btn {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             width: 40px;
             height: 40px;
@@ -214,6 +271,7 @@
             font-size: 1.2rem;
             transition: all 0.3s;
         }
+
         .video-area {
             display: flex;
             justify-content: center;
@@ -222,6 +280,7 @@
             min-height: 450px;
             position: relative;
         }
+
         /* Webcam Feed */
         .webcam-feed {
             position: absolute;
@@ -236,11 +295,13 @@
             cursor: pointer;
             overflow: hidden;
         }
+
         .webcam-feed video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
         .avatar-3d-container {
             position: relative;
             width: 320px;
@@ -248,19 +309,29 @@
             cursor: pointer;
             transition: transform 0.3s;
         }
+
         .avatar-body {
             position: absolute;
             width: 100%;
             height: 100%;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
-            box-shadow: 0 0 40px rgba(102,126,234,0.6);
+            box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
             animation: bodyGlow 2s infinite;
         }
+
         @keyframes bodyGlow {
-            0%, 100% { box-shadow: 0 0 30px rgba(102,126,234,0.5); }
-            50% { box-shadow: 0 0 60px rgba(102,126,234,0.8); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(102, 126, 234, 0.8);
+            }
         }
+
         .avatar-face-3d {
             position: absolute;
             width: 100%;
@@ -271,11 +342,13 @@
             justify-content: center;
             z-index: 2;
         }
+
         .avatar-eyes-3d {
             display: flex;
             gap: 40px;
             margin-bottom: 25px;
         }
+
         .eye-3d {
             width: 30px;
             height: 30px;
@@ -284,6 +357,7 @@
             position: relative;
             transition: all 0.1s ease;
         }
+
         .eye-3d::after {
             content: '';
             position: absolute;
@@ -295,6 +369,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
         .avatar-mouth-3d {
             width: 60px;
             height: 35px;
@@ -302,14 +377,22 @@
             border-radius: 0 0 40px 40px;
             transition: all 0.2s;
         }
+
         .avatar-mouth-3d.speaking {
             border-bottom: 5px solid #10b981;
             animation: mouthMove3d 0.15s ease infinite alternate;
         }
+
         @keyframes mouthMove3d {
-            from { height: 35px; }
-            to { height: 55px; }
+            from {
+                height: 35px;
+            }
+
+            to {
+                height: 55px;
+            }
         }
+
         .avatar-hands {
             position: absolute;
             bottom: 10px;
@@ -320,10 +403,11 @@
             gap: 80px;
             z-index: 3;
         }
+
         .hand {
             width: 45px;
             height: 45px;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -332,14 +416,25 @@
             transition: all 0.2s;
             cursor: pointer;
         }
+
         .hand.waving {
             animation: waveHand 0.5s ease infinite;
         }
+
         @keyframes waveHand {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(30deg); }
-            100% { transform: rotate(0deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(30deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
         }
+
         .avatar-wave-effect {
             position: absolute;
             top: -10px;
@@ -347,18 +442,28 @@
             right: -10px;
             bottom: -10px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(16,185,129,0.4), transparent);
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.4), transparent);
             animation: soundWaveEffect 0.5s infinite;
             opacity: 0;
         }
+
         .avatar-wave-effect.active {
             opacity: 1;
             animation: soundWaveEffect 0.5s ease-out infinite;
         }
+
         @keyframes soundWaveEffect {
-            0% { transform: scale(0.9); opacity: 0.6; }
-            100% { transform: scale(1.3); opacity: 0; }
+            0% {
+                transform: scale(0.9);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
         }
+
         .avatar-name {
             position: absolute;
             bottom: -45px;
@@ -367,17 +472,18 @@
             color: white;
             font-size: 1rem;
             font-weight: 600;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             padding: 5px 15px;
             border-radius: 30px;
             white-space: nowrap;
         }
+
         .listening-indicator {
             position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             padding: 8px 20px;
             border-radius: 30px;
             color: white;
@@ -387,10 +493,12 @@
             align-items: center;
             z-index: 10;
         }
+
         .listening-wave {
             display: flex;
             gap: 3px;
         }
+
         .listening-wave span {
             width: 4px;
             height: 12px;
@@ -398,9 +506,15 @@
             border-radius: 2px;
             animation: waveAnim 0.5s infinite alternate;
         }
+
         @keyframes waveAnim {
-            from { height: 8px; }
-            to { height: 20px; }
+            from {
+                height: 8px;
+            }
+
+            to {
+                height: 20px;
+            }
         }
 
         /* Call Button */
@@ -409,6 +523,7 @@
             margin-top: 20px;
             padding-bottom: 20px;
         }
+
         .premium-call-btn {
             background: linear-gradient(135deg, #10b981, #059669);
             border: none;
@@ -422,24 +537,34 @@
             align-items: center;
             gap: 12px;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
+
         .premium-call-btn.active {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             animation: callPulse 1s infinite;
         }
+
         @keyframes callPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
         }
 
         /* Chat Card */
         .chat-card {
-            background: rgba(255,255,255,0.98);
+            background: rgba(255, 255, 255, 0.98);
             border-radius: 32px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
+
         .quick-actions {
             padding: 14px 24px;
             background: #f8fafc;
@@ -448,6 +573,7 @@
             gap: 12px;
             flex-wrap: wrap;
         }
+
         .quick-action-btn {
             background: white;
             border: 1px solid #e2e8f0;
@@ -461,33 +587,47 @@
             align-items: center;
             gap: 6px;
         }
+
         .quick-action-btn i {
             font-size: 0.9rem;
         }
+
         .quick-action-btn:hover {
             background: #f1f5f9;
             border-color: #10b981;
             color: #10b981;
         }
+
         .chat-messages {
             height: 380px;
             overflow-y: auto;
             padding: 24px;
             background: #ffffff;
         }
+
         .message {
             margin-bottom: 20px;
             display: flex;
             gap: 12px;
             animation: fadeIn 0.3s ease;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .message.user {
             flex-direction: row-reverse;
         }
+
         .message-avatar {
             width: 38px;
             height: 38px;
@@ -499,14 +639,17 @@
             font-weight: 600;
             flex-shrink: 0;
         }
+
         .message.bot .message-avatar {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
         }
+
         .message.user .message-avatar {
             background: #10b981;
             color: white;
         }
+
         .message-content {
             max-width: 75%;
             padding: 12px 18px;
@@ -516,15 +659,18 @@
             line-height: 1.5;
             font-size: 0.9rem;
         }
+
         .message.user .message-content {
             background: #10b981;
             color: white;
         }
+
         .typing-indicator {
             display: flex;
             gap: 4px;
             padding: 8px 0;
         }
+
         .typing-indicator span {
             width: 7px;
             height: 7px;
@@ -532,20 +678,32 @@
             border-radius: 50%;
             animation: typingBounce 1.4s infinite;
         }
+
         @keyframes typingBounce {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-5px); }
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-5px);
+            }
         }
+
         .input-area {
             padding: 18px 24px;
             background: white;
             border-top: 1px solid #e2e8f0;
         }
+
         .text-input {
             display: flex;
             gap: 12px;
             align-items: center;
         }
+
         .text-input input {
             flex: 1;
             padding: 12px 18px;
@@ -553,10 +711,12 @@
             border-radius: 30px;
             font-size: 0.9rem;
         }
+
         .text-input input:focus {
             outline: none;
             border-color: #10b981;
         }
+
         .text-input button {
             padding: 10px 24px;
             background: #10b981;
@@ -566,38 +726,74 @@
             cursor: pointer;
             font-weight: 500;
         }
+
         .footer {
             text-align: center;
             padding: 25px;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
         }
 
         @media (max-width: 768px) {
-            .avatar-3d-container { width: 220px; height: 220px; }
-            .avatar-eyes-3d { gap: 25px; }
-            .eye-3d { width: 20px; height: 20px; }
-            .hand { width: 35px; height: 35px; font-size: 1.2rem; }
-            .webcam-feed { width: 80px; height: 60px; }
-            .voice-call-container { flex-direction: column; text-align: center; }
-            .avatar-container { justify-content: center; }
-            .quick-action-btn { padding: 6px 12px; font-size: 0.75rem; }
+            .avatar-3d-container {
+                width: 220px;
+                height: 220px;
+            }
+
+            .avatar-eyes-3d {
+                gap: 25px;
+            }
+
+            .eye-3d {
+                width: 20px;
+                height: 20px;
+            }
+
+            .hand {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2rem;
+            }
+
+            .webcam-feed {
+                width: 80px;
+                height: 60px;
+            }
+
+            .voice-call-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .avatar-container {
+                justify-content: center;
+            }
+
+            .quick-action-btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="bg-animation"></div>
 
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
-                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
                 <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
-                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exams</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i>
+                        Exams</a></li>
                 <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
-                <li><a href="chatbot.html" class="nav-link active"><i class="fas fa-microphone-alt"></i> Samantha AI</a></li>
+                <li><a href="chatbot.html" class="nav-link active"><i class="fas fa-microphone-alt"></i> Samantha AI</a>
+                </li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </div>
@@ -605,15 +801,19 @@
 
     <div class="container">
         <div class="mode-toggle">
-            <button class="mode-btn active" id="voiceModeBtn"><i class="fas fa-microphone-alt"></i> Voice Call Mode</button>
+            <button class="mode-btn active" id="voiceModeBtn"><i class="fas fa-microphone-alt"></i> Voice Call
+                Mode</button>
             <button class="mode-btn" id="videoModeBtn"><i class="fas fa-video"></i> Video Call Mode</button>
+            <button class="lang-btn" id="langToggleBtn"><i class="fas fa-language"></i> <span
+                    id="langLabel">English</span></button>
         </div>
 
         <!-- Voice Call Container -->
         <div class="voice-call-container" id="voiceContainer">
             <div class="avatar-container">
                 <div class="avatar-wrapper">
-                    <img src="../images/lesedi.png" alt="Samantha" class="avatar-image" id="voiceAvatar" onerror="this.src='https://placehold.co/85x85?text=S'">
+                    <img src="../images/lesedi.png" alt="Samantha" class="avatar-image" id="voiceAvatar"
+                        onerror="this.src='https://placehold.co/85x85?text=S'">
                     <div class="avatar-glow" id="voiceGlow"></div>
                 </div>
                 <div class="ai-info">
@@ -623,7 +823,8 @@
             </div>
             <div class="call-timer-display" id="voiceTimer">00:00</div>
             <div class="call-button-container">
-                <button class="premium-call-btn" id="voiceCallBtn"><i class="fas fa-phone-alt"></i> Call Samantha</button>
+                <button class="premium-call-btn" id="voiceCallBtn"><i class="fas fa-phone-alt"></i> Call
+                    Samantha</button>
             </div>
         </div>
 
@@ -640,36 +841,52 @@
                 <div class="avatar-3d-container" id="avatar3d">
                     <div class="avatar-body"></div>
                     <div class="avatar-face-3d">
-                        <div class="avatar-eyes-3d"><div class="eye-3d" id="leftEye3d"></div><div class="eye-3d" id="rightEye3d"></div></div>
+                        <div class="avatar-eyes-3d">
+                            <div class="eye-3d" id="leftEye3d"></div>
+                            <div class="eye-3d" id="rightEye3d"></div>
+                        </div>
                         <div class="avatar-mouth-3d" id="mouth3d"></div>
                     </div>
-                    <div class="avatar-hands"><div class="hand" id="leftHand"><i class="fas fa-hand-peace"></i></div><div class="hand" id="rightHand"><i class="fas fa-hand-peace"></i></div></div>
+                    <div class="avatar-hands">
+                        <div class="hand" id="leftHand"><i class="fas fa-hand-peace"></i></div>
+                        <div class="hand" id="rightHand"><i class="fas fa-hand-peace"></i></div>
+                    </div>
                     <div class="avatar-wave-effect" id="videoWaveEffect"></div>
                     <div class="avatar-name">Samantha (Live)</div>
                 </div>
-                <div class="webcam-feed" id="webcamFeed"><video id="webcamVideo" autoplay muted playsinline></video></div>
-                <div class="listening-indicator" id="videoListeningIndicator"><span><i class="fas fa-microphone-alt"></i> Listening...</span><div class="listening-wave"><span></span><span></span><span></span><span></span></div></div>
+                <div class="webcam-feed" id="webcamFeed"><video id="webcamVideo" autoplay muted playsinline></video>
+                </div>
+                <div class="listening-indicator" id="videoListeningIndicator"><span><i
+                            class="fas fa-microphone-alt"></i> Listening...</span>
+                    <div class="listening-wave"><span></span><span></span><span></span><span></span></div>
+                </div>
             </div>
             <div class="call-timer-display" id="videoTimer" style="text-align:center; margin:10px auto;">00:00</div>
             <div class="call-button-container">
-                <button class="premium-call-btn" id="videoCallBtn"><i class="fas fa-video"></i> Start Video Call</button>
+                <button class="premium-call-btn" id="videoCallBtn"><i class="fas fa-video"></i> Start Video
+                    Call</button>
             </div>
         </div>
 
         <!-- Chat Card -->
         <div class="chat-card">
             <div class="quick-actions">
-                <button class="quick-action-btn" onclick="quickAction('register')"><i class="fas fa-book-open"></i> Course Registration</button>
-                <button class="quick-action-btn" onclick="quickAction('pay')"><i class="fas fa-credit-card"></i> Pay Fees</button>
-                <button class="quick-action-btn" onclick="quickAction('career')"><i class="fas fa-chart-line"></i> Career Guidance</button>
-                <button class="quick-action-btn" onclick="quickAction('academic')"><i class="fas fa-pen-fancy"></i> Academic Help</button>
+                <button class="quick-action-btn" onclick="quickAction('register')"><i class="fas fa-book-open"></i>
+                    Course Registration</button>
+                <button class="quick-action-btn" onclick="quickAction('pay')"><i class="fas fa-credit-card"></i> Pay
+                    Fees</button>
+                <button class="quick-action-btn" onclick="quickAction('career')"><i class="fas fa-chart-line"></i>
+                    Career Guidance</button>
+                <button class="quick-action-btn" onclick="quickAction('academic')"><i class="fas fa-pen-fancy"></i>
+                    Academic Help</button>
             </div>
             <div class="chat-messages" id="chatMessages">
                 <div class="message bot">
                     <div class="message-avatar"><i class="fas fa-robot"></i></div>
                     <div class="message-content">
                         <strong>Hello! I'm Samantha.</strong><br><br>
-                        I'm your premium AI voice assistant. Click <strong>"Call Samantha"</strong> to start a conversation. I'll speak first and listen to everything you say! I can also correct your spelling and see you through your camera in video mode.<br><br>
+                        I'm your premium AI voice assistant. Click <strong>"Call Samantha"</strong> to start a
+                        conversation. I speak both English and Setswana!<br><br>
                         How can I help you today?
                         <div class="message-time">Just now</div>
                     </div>
@@ -677,14 +894,17 @@
             </div>
             <div class="input-area">
                 <div class="text-input">
-                    <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                    <input type="text" id="messageInput" placeholder="Type your message..."
+                        onkeypress="handleKeyPress(event)">
                     <button onclick="sendTextMessage()"><i class="fas fa-paper-plane"></i> Send</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="footer"><p>&copy; 2026 GIPS College | Samantha AI - Voice & Video Assistant</p></footer>
+    <footer class="footer">
+        <p>&copy; 2026 GIPS College | Samantha AI - Voice & Video Assistant</p>
+    </footer>
 
     <script>
         // ============================================
@@ -740,7 +960,7 @@
         function stopWebcam() { if (webcamStream) webcamStream.getTracks().forEach(track => track.stop()); }
 
         // ============================================
-        // SPEECH RECOGNITION & SYNTHESIS WITH SPELLING CORRECTION
+        // SPEECH RECOGNITION & SYNTHESIS WITH SETSWANA SUPPORT
         // ============================================
         let recognition = null;
         let synthesis = window.speechSynthesis;
@@ -750,6 +970,7 @@
         let callTimerInterval = null;
         let callSeconds = 0;
         let isSpeakingNow = false;
+        let recognitionLang = 'en-US';  // Default English
 
         function getFemaleVoice() {
             const voices = synthesis.getVoices();
@@ -766,11 +987,20 @@
         if ('webkitSpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
+            recognition.lang = recognitionLang;
             recognition.interimResults = true;
             recognition.maxAlternatives = 3;
             recognition.continuous = false;
         }
+
+        // Language toggle function
+        function toggleLanguage() {
+            recognitionLang = (recognitionLang === 'en-US') ? 'tn-BW' : 'en-US';
+            if (recognition) recognition.lang = recognitionLang;
+            document.getElementById('langLabel').textContent = recognitionLang === 'en-US' ? 'English' : 'Setswana';
+            addMessageToChat(`🌐 Language switched to ${recognitionLang === 'en-US' ? 'English' : 'Setswana'}.`, false);
+        }
+        document.getElementById('langToggleBtn').addEventListener('click', toggleLanguage);
 
         function correctSpelling(text) {
             const corrections = {
@@ -808,7 +1038,7 @@
         function startVoiceRecognition() {
             if (!recognition || !isCallActive || isMuted || isSpeakingNow) return;
             if (currentMode === 'video') videoStartListening();
-            try { recognition.start(); } catch(e) { console.log('Recognition start error:', e); }
+            try { recognition.start(); } catch (e) { console.log('Recognition start error:', e); }
         }
 
         if (recognition) {
@@ -856,7 +1086,7 @@
             const avatar = document.getElementById('avatar3d');
             if (!avatar) return;
             const rect = avatar.getBoundingClientRect();
-            const angle = Math.atan2(e.clientY - (rect.top+rect.height/2), e.clientX - (rect.left+rect.width/2));
+            const angle = Math.atan2(e.clientY - (rect.top + rect.height / 2), e.clientX - (rect.left + rect.width / 2));
             const moveX = Math.cos(angle) * 6; const moveY = Math.sin(angle) * 6;
             const leftEye = document.getElementById('leftEye3d'); const rightEye = document.getElementById('rightEye3d');
             if (leftEye && rightEye) {
@@ -876,7 +1106,7 @@
                 callSeconds++;
                 const mins = Math.floor(callSeconds / 60);
                 const secs = callSeconds % 60;
-                if (displayElement) displayElement.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                if (displayElement) displayElement.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }, 1000);
         }
         function stopTimer() { if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; } }
@@ -907,7 +1137,7 @@
             isCallActive = false;
             stopTimer();
             playDisconnectSound();
-            if (recognition) try { recognition.stop(); } catch(e) {}
+            if (recognition) try { recognition.stop(); } catch (e) { }
             synthesis.cancel();
             isSpeakingNow = false;
             if (currentMode === 'video') { videoStopSpeaking(); videoStopListening(); stopWebcam(); }
@@ -921,7 +1151,7 @@
                 document.getElementById('voiceCallBtn').innerHTML = '<i class="fas fa-phone-alt"></i> Call Samantha';
                 document.getElementById('voiceTimer').textContent = '00:00';
             }
-            addMessageToChat(`📞 Call ended. Duration: ${Math.floor(callSeconds / 60)}:${(callSeconds % 60).toString().padStart(2,'0')}`, false);
+            addMessageToChat(`📞 Call ended. Duration: ${Math.floor(callSeconds / 60)}:${(callSeconds % 60).toString().padStart(2, '0')}`, false);
         }
 
         // ============================================
@@ -980,10 +1210,11 @@
             if (msg.includes('hello') || msg.includes('hi')) return `Hello ${userName}! Great to talk with you. What would you like to discuss?`;
             if (msg.includes('how are you')) return `I'm doing fantastic, ${userName}! Ready to help you with anything.`;
             if (msg.includes('register')) return "Course registration is open until April 30th. Would you like me to guide you through the process?";
-            if (msg.includes('pay')) return "I can help with fee payments. We accept credit cards, mobile money, and bank transfers. What would you like to pay?";
+            if (msg.includes('pay') || msg.includes('balance') || msg.includes('owe')) return "I can help with fee payments. Let me check your balance. (Real-time data will appear if you're logged in.)";
+            if (msg.includes('result') || msg.includes('grade')) return "I can show your academic results. Let me fetch them for you.";
+            if (msg.includes('accommodation') || msg.includes('room')) return "Let me check your accommodation status.";
             if (msg.includes('career')) return "Top career paths: Software Developer (P12,000-22,000/month), Data Scientist (P10,000-18,000), Cybersecurity Specialist (P11,000-19,000). Which interests you?";
             if (msg.includes('exam')) return "Exam fees: Supplementary P300 per module, Resit P600 per module, Retake P1000 per module. Would you like to register?";
-            if (msg.includes('accommodation')) return "GIPS Student Village has bachelor pads (2 students) and three-bed rooms (6 students). Applications are being processed. Would you like to check your status?";
             return `I understand you're asking about "${message}". I can help with course registration, fee payments, career guidance, exams, and accommodation. What would you like to know more about?`;
         }
 
@@ -1003,7 +1234,7 @@
         function handleKeyPress(e) { if (e.key === 'Enter') sendTextMessage(); }
 
         async function quickAction(action) {
-            const prompts = { register: 'course registration', pay: 'fee payment', career: 'career guidance', academic: 'academic help' };
+            const prompts = { register: 'course registration', pay: 'fee balance', career: 'career guidance', academic: 'academic results' };
             const prompt = prompts[action] || action;
             addMessageToChat(prompt, true);
             addTypingToChat();
@@ -1056,7 +1287,8 @@
         window.sendTextMessage = sendTextMessage;
         window.handleKeyPress = handleKeyPress;
 
-        console.log('✅ Samantha AI loaded - Voice is UNMUTED and ready to talk!');
+        console.log('✅ Samantha AI v4.0 loaded - English & Setswana support active!');
     </script>
 </body>
+
 </html>

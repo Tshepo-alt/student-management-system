@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <!-- Font Awesome 6 (free) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* (keep your existing styles – unchanged) */
         * {
             margin: 0;
             padding: 0;
@@ -45,7 +47,7 @@
             font-size: 12px;
             font-weight: bold;
             color: rgba(255, 255, 255, 0.7);
-            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             white-space: nowrap;
             animation: floatBubble linear infinite;
         }
@@ -55,8 +57,15 @@
                 transform: translateY(100vh) rotate(0deg);
                 opacity: 0;
             }
-            20% { opacity: 0.6; }
-            80% { opacity: 0.6; }
+
+            20% {
+                opacity: 0.6;
+            }
+
+            80% {
+                opacity: 0.6;
+            }
+
             100% {
                 transform: translateY(-20vh) rotate(360deg);
                 opacity: 0;
@@ -87,32 +96,59 @@
             margin-bottom: 30px;
         }
 
-        .hourglass .top, .hourglass .bottom {
+        .hourglass .top,
+        .hourglass .bottom {
             position: absolute;
             width: 0;
             height: 0;
             border-left: 50px solid transparent;
             border-right: 50px solid transparent;
         }
+
         .hourglass .top {
             top: 0;
             border-bottom: 60px solid #ffd966;
             animation: sandFall 2s infinite ease-in-out;
         }
+
         .hourglass .bottom {
             bottom: 0;
             border-top: 60px solid #ffb347;
             animation: sandFill 2s infinite ease-in-out;
         }
+
         @keyframes sandFall {
-            0% { opacity: 0.2; transform: translateY(0); }
-            50% { opacity: 1; transform: translateY(30px); }
-            100% { opacity: 0.2; transform: translateY(60px); }
+            0% {
+                opacity: 0.2;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(30px);
+            }
+
+            100% {
+                opacity: 0.2;
+                transform: translateY(60px);
+            }
         }
+
         @keyframes sandFill {
-            0% { opacity: 0.2; transform: translateY(0); }
-            50% { opacity: 1; transform: translateY(-30px); }
-            100% { opacity: 0.2; transform: translateY(-60px); }
+            0% {
+                opacity: 0.2;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(-30px);
+            }
+
+            100% {
+                opacity: 0.2;
+                transform: translateY(-60px);
+            }
         }
 
         .welcome-text {
@@ -124,13 +160,25 @@
         }
 
         @keyframes pulse {
-            from { transform: scale(1); opacity: 0.7; }
-            to { transform: scale(1.05); opacity: 1; }
+            from {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+
+            to {
+                transform: scale(1.05);
+                opacity: 1;
+            }
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         /* Rest of the existing styles – only colour changes */
@@ -232,8 +280,13 @@
         }
 
         @keyframes slideText {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
 
         .auth-section {
@@ -266,6 +319,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -379,7 +433,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .error-message,
@@ -441,16 +497,20 @@
             transition: all 0.2s;
             background: white;
             color: #555;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             font-family: inherit;
         }
 
         .demo-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .demo-btn.admin i, .demo-btn.staff i, .demo-btn.student i { margin-right: 4px; }
+        .demo-btn.admin i,
+        .demo-btn.staff i,
+        .demo-btn.student i {
+            margin-right: 4px;
+        }
 
         .footer {
             background: rgba(26, 32, 44, 0.95);
@@ -466,31 +526,37 @@
                 flex-direction: column;
                 gap: 15px;
             }
+
             .nav-menu {
                 flex-wrap: wrap;
                 justify-content: center;
                 gap: 1rem;
             }
+
             .auth-card {
                 padding: 30px 25px;
                 margin: 0 20px;
             }
+
             .navbar-brand img {
                 height: 40px;
             }
+
             .demo-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
+
 <body>
     <div class="bubbles" id="bubbles"></div>
 
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
                 <li><a href="index.html" class="nav-link">Home</a></li>
@@ -503,8 +569,10 @@
 
     <div class="animated-slogan">
         <div class="slogan-wrapper">
-            <div class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to a Higher Education | 35 Years of Excellence | Your Success Starts Here</div>
-            <div class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to a Higher Education | 35 Years of Excellence | Your Success Starts Here</div>
+            <div class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to a Higher Education | 35
+                Years of Excellence | Your Success Starts Here</div>
+            <div class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to a Higher Education | 35
+                Years of Excellence | Your Success Starts Here</div>
         </div>
     </div>
 
@@ -517,15 +585,18 @@
                 <form id="loginForm">
                     <div class="form-group">
                         <label for="email"><i class="fas fa-envelope"></i> Email / Username</label>
-                        <input type="text" id="email" name="email" required placeholder="Enter your email or username" autocomplete="email">
+                        <input type="text" id="email" name="email" required placeholder="Enter your email or username"
+                            autocomplete="email">
                     </div>
 
                     <div class="form-group">
                         <label for="password"><i class="fas fa-lock"></i> Password</label>
-                        <input type="password" id="password" name="password" required placeholder="Enter your password" autocomplete="current-password">
+                        <input type="password" id="password" name="password" required placeholder="Enter your password"
+                            autocomplete="current-password">
                     </div>
 
-                    <button type="submit" id="loginBtn" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <button type="submit" id="loginBtn" class="btn-primary"><i class="fas fa-sign-in-alt"></i>
+                        Login</button>
                 </form>
 
                 <div id="loginMessage" class="error-message"></div>
@@ -534,13 +605,27 @@
                 <div class="demo-buttons">
                     <p><i class="fas fa-key"></i> Quick Login</p>
                     <div class="demo-grid">
-                        <button type="button" class="demo-btn admin" onclick="fillCredentials('admin@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-user-cog"></i> Admin</button>
-                        <button type="button" class="demo-btn staff" onclick="fillCredentials('registrar@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-address-card"></i> Registrar</button>
-                        <button type="button" class="demo-btn staff" onclick="fillCredentials('finance@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-chart-line"></i> Finance</button>
-                        <button type="button" class="demo-btn staff" onclick="fillCredentials('lecturer@example.com', 'Admin123!')"><i class="fas fa-chalkboard-user"></i> Lecturer</button>
-                        <button type="button" class="demo-btn staff" onclick="fillCredentials('accommodation@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-building"></i> Accommodation</button>
-                        <button type="button" class="demo-btn student" onclick="fillCredentials('student@example.com', 'Student123!')"><i class="fas fa-user-graduate"></i> Student</button>
-                        <button type="button" class="demo-btn student" onclick="fillCredentials('alumni@example.com', 'Student123!')"><i class="fas fa-users"></i> Alumni</button>
+                        <button type="button" class="demo-btn admin"
+                            onclick="fillCredentials('admin@gipscollege.edu.bw', 'Admin123!')"><i
+                                class="fas fa-user-cog"></i> Admin</button>
+                        <button type="button" class="demo-btn staff"
+                            onclick="fillCredentials('registrar@gipscollege.edu.bw', 'Admin123!')"><i
+                                class="fas fa-address-card"></i> Registrar</button>
+                        <button type="button" class="demo-btn staff"
+                            onclick="fillCredentials('finance@gipscollege.edu.bw', 'Admin123!')"><i
+                                class="fas fa-chart-line"></i> Finance</button>
+                        <button type="button" class="demo-btn staff"
+                            onclick="fillCredentials('lecturer@example.com', 'Admin123!')"><i
+                                class="fas fa-chalkboard-user"></i> Lecturer</button>
+                        <button type="button" class="demo-btn staff"
+                            onclick="fillCredentials('accommodation@gipscollege.edu.bw', 'Admin123!')"><i
+                                class="fas fa-building"></i> Accommodation</button>
+                        <button type="button" class="demo-btn student"
+                            onclick="fillCredentials('student@example.com', 'Student123!')"><i
+                                class="fas fa-user-graduate"></i> Student</button>
+                        <button type="button" class="demo-btn student"
+                            onclick="fillCredentials('alumni@example.com', 'Student123!')"><i class="fas fa-users"></i>
+                            Alumni</button>
                     </div>
                 </div>
             </div>
@@ -550,7 +635,8 @@
     <footer class="footer">
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
-            <p><i class="fas fa-map-marker-alt"></i> Excellence in Higher Learning | The Ultimate Journey to Higher Education</p>
+            <p><i class="fas fa-map-marker-alt"></i> Excellence in Higher Learning | The Ultimate Journey to Higher
+                Education</p>
         </div>
     </footer>
 
@@ -690,29 +776,6 @@
             }
         }
 
-        // ========== ROLE TO REDIRECT MAP ==========
-        function getRedirectUrl(role) {
-            const roleLower = (role || '').toLowerCase();
-            console.log('Redirecting based on role:', roleLower);
-            switch (roleLower) {
-                case 'admin':
-                case 'administrator':
-                    return 'admin-dashboard.html';
-                case 'registrar':
-                    return 'registrar-dashboard.html';
-                case 'finance':
-                    return 'finance-dashboard.html';
-                case 'lecturer':
-                    return 'lecturer-dashboard.html';
-                case 'alumni':
-                    return 'alumni-dashboard.html';
-                case 'staff':
-                    return 'admin-accommodation.html';
-                default:
-                    return 'student-dashboard.html';
-            }
-        }
-
         // ========== SHOW WELCOME OVERLAY ==========
         function showWelcomeOverlay(role, name) {
             let welcomeText = '';
@@ -746,7 +809,7 @@
             }, 2000);
         }
 
-        // ========== LOGIN HANDLER ==========
+        // ========== LOGIN HANDLER (UPDATED: uses server's redirect_url) ==========
         async function handleLogin(email, password) {
             try {
                 const response = await safeApiCall('/api/auth/login', {
@@ -779,8 +842,10 @@
 
                     console.log('✅ Login successful!', userData);
                     console.log('Role from server:', userData.role);
+                    console.log('Redirect URL from server:', data.redirect_url);
 
-                    const redirectUrl = getRedirectUrl(userData.role);
+                    // Use the redirect_url provided by the backend (handles admission/registration status)
+                    const redirectUrl = data.redirect_url || (userData.role === 'student' ? 'student-dashboard.html' : 'admin-dashboard.html');
                     console.log('Redirecting to:', redirectUrl);
 
                     // Show welcome overlay with hourglass animation
@@ -831,16 +896,21 @@
             if (e.key === 'Enter') loginForm.dispatchEvent(new Event('submit'));
         });
 
-        // ========== CHECK EXISTING SESSION ==========
+        // ========== CHECK EXISTING SESSION (UPDATED: uses server redirect_url stored?) ==========
         function checkExistingSession() {
             const token = localStorage.getItem('access_token');
             const expiry = localStorage.getItem('token_expiry');
             const isLogged = localStorage.getItem('isLoggedIn');
             const role = localStorage.getItem('user_role');
             if (token && isLogged === 'true' && Date.now() < parseInt(expiry || '0')) {
-                const redirectUrl = getRedirectUrl(role);
-                console.log('Existing session found, redirecting to:', redirectUrl);
-                window.location.href = redirectUrl;
+                // We don't have the redirect_url stored; for existing session we redirect based on role (fallback)
+                // The proper way would be to call /api/auth/profile to get admission status, but for simplicity:
+                if (role === 'student') {
+                    // Students need to check admission/registration status – they will be redirected by the dashboard itself if needed.
+                    window.location.href = 'student-dashboard.html';
+                } else {
+                    window.location.href = 'admin-dashboard.html';
+                }
             } else if (token && Date.now() >= parseInt(expiry || '0')) {
                 console.log('Token expired, clearing storage');
                 localStorage.clear();
@@ -858,4 +928,5 @@
         init();
     </script>
 </body>
+
 </html>

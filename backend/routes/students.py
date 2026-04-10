@@ -799,11 +799,9 @@ def register_semester():
         if not student:
             return jsonify({'error': 'Student record not found'}), 404
 
-        # Check admission status
         if student.admission_status != 'accepted':
             return jsonify({'error': 'Your application has not been accepted yet. Please wait for admission decision.'}), 400
 
-        # Check if already registered
         existing_reg = Registration.query.filter_by(
             student_id=student.id
         ).order_by(Registration.created_at.desc()).first()
@@ -821,23 +819,44 @@ def register_semester():
         if not course_ids:
             return jsonify({'error': 'Please select at least one course to register.'}), 400
 
+        # Validate that all course_ids exist and belong to the student's program and year level
+        program_modules = ProgramModule.query.filter_by(program_id=student.program_id).all()
+        available_module_ids = [pm.module_id for pm in program_modules]
+        available_modules = Module.query.filter(
+            Module.id.in_(available_module_ids),
+            Module.year_level == student.current_year,
+            Module.semester == semester,
+            Module.is_active == True
+        ).all()
+        valid_module_ids = [m.id for m in available_modules]
+
+        invalid_ids = [cid for cid in course_ids if cid not in valid_module_ids]
+        if invalid_ids:
+            return jsonify({'error': f'Invalid module(s) selected: {invalid_ids}. They are not available for your program and year.'}), 400
+
         is_gov_sponsored = student.is_government_sponsored
         registration_fee = 630 if not is_gov_sponsored else 0
         tuition_fee = 32550 if not is_gov_sponsored else 0
         exam_fee_per_module = 5145 if not is_gov_sponsored else 0
         total_fees = registration_fee + tuition_fee + (len(course_ids) * exam_fee_per_module)
 
-        # Get academic year and semester objects
         academic_year_obj = AcademicYear.query.filter_by(is_current=True).first()
         if not academic_year_obj:
             academic_year_obj = AcademicYear.query.first()
-        semester_obj = Semester.query.filter_by(academic_year_id=academic_year_obj.id, semester_number=semester).first() if academic_year_obj else None
+            if not academic_year_obj:
+                return jsonify({'error': 'No academic year configured. Please contact administrator.'}), 500
 
-        # Create registration record
+        semester_obj = Semester.query.filter_by(
+            academic_year_id=academic_year_obj.id,
+            semester_number=semester
+        ).first()
+        if not semester_obj:
+            return jsonify({'error': f'Semester {semester} not configured for the current academic year.'}), 500
+
         registration = Registration(
             student_id=student.id,
-            academic_year_id=academic_year_obj.id if academic_year_obj else 1,
-            semester_id=semester_obj.id if semester_obj else 1,
+            academic_year_id=academic_year_obj.id,
+            semester_id=semester_obj.id,
             year_of_study=student.current_year,
             registration_date=date.today(),
             sponsorship_type='government_sponsored' if is_gov_sponsored else 'private',
@@ -851,9 +870,8 @@ def register_semester():
         )
 
         db.session.add(registration)
-        db.session.flush()  # to get registration.id
+        db.session.flush()
 
-        # Create enrollments for selected courses
         for course_id in course_ids:
             module = Module.query.get(course_id)
             if module:
@@ -866,7 +884,6 @@ def register_semester():
                 )
                 db.session.add(enrollment)
 
-        # Handle accommodation request (only for government-sponsored students)
         if wants_accommodation and is_gov_sponsored:
             campus = Campus.query.get(student.campus_id)
             if campus and campus.has_accommodation:
@@ -874,11 +891,10 @@ def register_semester():
                     student_id=student.id,
                     registration_id=registration.id,
                     wants_accommodation=True,
-                    room_type='bachelor_pad',   # default; can be enhanced with user selection
+                    room_type='bachelor_pad',
                     status='pending'
                 )
                 db.session.add(accommodation_reg)
-                print(f"Accommodation registration created for student {student.id}")
 
         db.session.commit()
 

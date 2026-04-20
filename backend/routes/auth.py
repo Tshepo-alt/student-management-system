@@ -6,9 +6,12 @@ from datetime import datetime, timedelta
 import re
 import traceback as tb
 import json
+import logging
 
 from models import db, User, Student, Program, Campus, Registration
+from backend.utils.email import EmailService
 
+logger = logging.getLogger(__name__)
 auth_bp = Blueprint('auth', __name__)
 
 def validate_email(email):
@@ -28,9 +31,10 @@ def validate_password(password):
         return False, "Password must contain at least one digit"
     return True, "Password is valid"
 
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    """Register a new applicant (student application)"""
+    """Register a new applicant (student application) - WITH EMAIL CONFIRMATION"""
     try:
         if request.is_json:
             data = request.get_json()
@@ -167,9 +171,30 @@ def register():
         db.session.add(student)
         db.session.commit()
 
+        # ============ SEND REGISTRATION CONFIRMATION EMAIL ============
+        email_sent = False
+        try:
+            student_name = f"{data['first_name']} {data['last_name']}"
+            email_sent = EmailService.send_registration_confirmation(
+                user_email=data['email'],
+                first_name=data['first_name'],
+                student_number=student_number,
+                program_name=program.program_name,
+                campus_name=campus.campus_name
+            )
+            if email_sent:
+                logger.info(f"[AUTH] Registration confirmation email sent to {data['email']}")
+            else:
+                logger.warning(f"[AUTH] Failed to send registration confirmation email to {data['email']}")
+        except Exception as e:
+            logger.error(f"[AUTH] Exception while sending registration email: {e}")
+            print(f"[AUTH] Failed to send registration email: {e}")
+        # ============================================================
+
         return jsonify({
             'success': True,
             'message': 'Application submitted successfully. You will be notified once reviewed.',
+            'email_sent': email_sent,
             'student_number': student.student_number,
             'email': user.email,
             'user_id': user.id,
@@ -182,6 +207,7 @@ def register():
 
     except Exception as e:
         db.session.rollback()
+        logger.error(f"[AUTH] Registration error: {e}")
         print(f"[AUTH] Registration error: {e}")
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -225,14 +251,17 @@ def login():
         ).first()
 
         if not user or not check_password_hash(user.password_hash, password):
+            logger.warning(f"[AUTH] Failed login attempt for: {email}")
             return jsonify({'error': 'Invalid email or password'}), 401
 
         if not user.is_active:
+            logger.warning(f"[AUTH] Login attempt for inactive account: {email}")
             return jsonify({'error': 'Account is inactive'}), 403
 
         # Update last login
         user.last_login = datetime.utcnow()
         db.session.commit()
+        logger.info(f"[AUTH] Successful login for user: {email}")
 
         # Get student info (may be None for users who don't have a student record)
         student = Student.query.filter_by(user_id=user.id).first()
@@ -301,9 +330,8 @@ def login():
         }), 200
 
     except Exception as e:
-        # Log full traceback to console (Render logs)
+        logger.error(f"[AUTH] Login error: {e}")
         tb.print_exc()
-        # Return full traceback in response for debugging (temporary)
         return jsonify({
             'error': str(e),
             'traceback': tb.format_exc()
@@ -325,12 +353,14 @@ def refresh():
             return jsonify({'error': 'User not found'}), 404
         
         access_token = create_access_token(identity=str(user.id))
+        logger.info(f"[AUTH] Token refreshed for user: {user.email}")
         
         return jsonify({
             'success': True,
             'access_token': access_token
         }), 200
     except Exception as e:
+        logger.error(f"[AUTH] Refresh error: {e}")
         print(f"[AUTH] Refresh error: {e}")
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -355,6 +385,7 @@ def verify_token():
             'role': user.role
         }), 200
     except Exception as e:
+        logger.error(f"[AUTH] Verify error: {e}")
         print(f"[AUTH] Verify error: {e}")
         return jsonify({'valid': False}), 401
 
@@ -363,7 +394,18 @@ def verify_token():
 @jwt_required()
 def logout():
     """Logout user - JWT doesn't require server-side logout, client just removes token"""
-    return jsonify({'message': 'Logged out successfully'}), 200
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        user = User.query.get(user_id) if user_id else None
+        
+        if user:
+            logger.info(f"[AUTH] User logged out: {user.email}")
+        
+        return jsonify({'message': 'Logged out successfully'}), 200
+    except Exception as e:
+        logger.error(f"[AUTH] Logout error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @auth_bp.route('/profile', methods=['GET'])
@@ -407,6 +449,7 @@ def get_profile():
         return jsonify(profile), 200
 
     except Exception as e:
+        logger.error(f"[AUTH] Profile error: {e}")
         print(f"[AUTH] Profile error: {e}")
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -460,6 +503,7 @@ def update_profile():
         student.updated_at = datetime.utcnow()
 
         db.session.commit()
+        logger.info(f"[AUTH] Profile updated for user: {user.email}")
 
         return jsonify({
             'success': True,
@@ -468,6 +512,7 @@ def update_profile():
 
     except Exception as e:
         db.session.rollback()
+        logger.error(f"[AUTH] Update profile error: {e}")
         print(f"[AUTH] Update profile error: {e}")
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -495,6 +540,7 @@ def change_password():
             return jsonify({'error': 'Old and new password required'}), 400
 
         if not check_password_hash(user.password_hash, data['old_password']):
+            logger.warning(f"[AUTH] Failed password change attempt for user: {user.email}")
             return jsonify({'error': 'Old password is incorrect'}), 401
 
         is_valid, message = validate_password(data['new_password'])
@@ -504,6 +550,7 @@ def change_password():
         user.password_hash = generate_password_hash(data['new_password'])
         user.updated_at = datetime.utcnow()
         db.session.commit()
+        logger.info(f"[AUTH] Password changed for user: {user.email}")
 
         return jsonify({
             'success': True,
@@ -512,6 +559,7 @@ def change_password():
 
     except Exception as e:
         db.session.rollback()
+        logger.error(f"[AUTH] Change password error: {e}")
         print(f"[AUTH] Change password error: {e}")
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -519,7 +567,7 @@ def change_password():
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
-    """Request password reset"""
+    """Request password reset - NOW WITH EMAIL"""
     try:
         if not request.is_json:
             return jsonify({'error': 'Content-Type must be application/json'}), 415
@@ -532,6 +580,38 @@ def forgot_password():
             
         user = User.query.filter_by(email=email).first()
         
+        # Send reset email if user exists
+        if user:
+            try:
+                # Generate reset token
+                reset_token = EmailService.generate_verification_token()
+                
+                # Save token with expiry (1 hour)
+                user.reset_token = reset_token
+                user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+                db.session.commit()
+                
+                # Get student name
+                student = Student.query.filter_by(user_id=user.id).first()
+                student_name = f"{student.first_name} {student.last_name}" if student else user.username
+                
+                # Send reset email
+                email_sent = EmailService.send_password_reset(
+                    user_email=email,
+                    first_name=student_name.split()[0],  # First name only
+                    reset_token=reset_token,
+                    user_id=user.id
+                )
+                
+                if email_sent:
+                    logger.info(f"[AUTH] Password reset email sent to {email}")
+                else:
+                    logger.warning(f"[AUTH] Failed to send password reset email to {email}")
+                    
+            except Exception as e:
+                logger.error(f"[AUTH] Error sending password reset email: {e}")
+                print(f"[AUTH] Error sending password reset email: {e}")
+        
         # For security, always return success even if email doesn't exist
         return jsonify({
             'success': True,
@@ -539,18 +619,117 @@ def forgot_password():
         }), 200
         
     except Exception as e:
+        logger.error(f"[AUTH] Forgot password error: {e}")
         print(f"[AUTH] Forgot password error: {e}")
         return jsonify({'error': str(e)}), 500
 
 
 @auth_bp.route('/reset-password/<token>', methods=['POST'])
 def reset_password(token):
-    """Reset password with token (placeholder)"""
-    # This would be implemented with email functionality
-    return jsonify({
-        'message': 'Password reset endpoint - to be implemented',
-        'token': token
-    }), 200
+    """Reset password with token"""
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 415
+        
+        data = request.get_json()
+        new_password = data.get('new_password')
+        user_id = data.get('user_id')
+        
+        if not new_password or not user_id:
+            return jsonify({'error': 'New password and user ID required'}), 400
+        
+        # Validate password
+        is_valid, message = validate_password(new_password)
+        if not is_valid:
+            return jsonify({'error': message}), 400
+        
+        # Find user and verify token
+        user = User.query.get(user_id)
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Check token
+        if user.reset_token != token:
+            logger.warning(f"[AUTH] Invalid reset token for user: {user.email}")
+            return jsonify({'error': 'Invalid reset token'}), 401
+        
+        # Check token expiry
+        if not user.reset_token_expiry or datetime.utcnow() > user.reset_token_expiry:
+            logger.warning(f"[AUTH] Expired reset token for user: {user.email}")
+            return jsonify({'error': 'Reset token has expired'}), 401
+        
+        # Reset password
+        user.password_hash = generate_password_hash(new_password)
+        user.reset_token = None
+        user.reset_token_expiry = None
+        user.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        logger.info(f"[AUTH] Password reset successful for user: {user.email}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Password reset successfully. You can now log in with your new password.'
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"[AUTH] Reset password error: {e}")
+        print(f"[AUTH] Reset password error: {e}")
+        tb.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@auth_bp.route('/verify-email/<token>', methods=['POST'])
+def verify_email(token):
+    """Verify email address with token"""
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 415
+        
+        data = request.get_json()
+        user_id = data.get('user_id')
+        
+        if not user_id:
+            return jsonify({'error': 'User ID required'}), 400
+        
+        # Find user
+        user = User.query.get(user_id)
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Check token
+        if user.verification_token != token:
+            logger.warning(f"[AUTH] Invalid verification token for user: {user.email}")
+            return jsonify({'error': 'Invalid verification token'}), 401
+        
+        # Check token expiry
+        if not user.verification_token_expiry or datetime.utcnow() > user.verification_token_expiry:
+            logger.warning(f"[AUTH] Expired verification token for user: {user.email}")
+            return jsonify({'error': 'Verification token has expired'}), 401
+        
+        # Mark email as verified
+        user.is_verified = True
+        user.verification_token = None
+        user.verification_token_expiry = None
+        user.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        logger.info(f"[AUTH] Email verified for user: {user.email}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Email verified successfully. You can now use all features.'
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"[AUTH] Email verification error: {e}")
+        print(f"[AUTH] Email verification error: {e}")
+        tb.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 
 @auth_bp.route('/admin/create', methods=['POST'])
@@ -593,6 +772,8 @@ def create_admin():
         db.session.add(admin_student)
         db.session.commit()
         
+        logger.info(f"[AUTH] Admin user created: {admin_user.email}")
+        
         return jsonify({
             'success': True,
             'message': 'Admin user created successfully',
@@ -602,6 +783,7 @@ def create_admin():
         
     except Exception as e:
         db.session.rollback()
+        logger.error(f"[AUTH] Create admin error: {e}")
         print(f"[AUTH] Create admin error: {e}")
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -626,11 +808,11 @@ def get_campuses():
             })
         return jsonify(result), 200
     except Exception as e:
+        logger.error(f"[AUTH] Get campuses error: {e}")
         print(f"[AUTH] Get campuses error: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-# ========== NEW ENDPOINT: Get a single campus by ID ==========
 @auth_bp.route('/campuses/<int:campus_id>', methods=['GET'])
 def get_campus_by_id(campus_id):
     """Get a specific campus by ID (used for checking accommodation availability)"""
@@ -649,6 +831,7 @@ def get_campus_by_id(campus_id):
             'is_main_campus': campus.is_main_campus
         }), 200
     except Exception as e:
+        logger.error(f"[AUTH] Get campus by ID error: {e}")
         print(f"[AUTH] Get campus by ID error: {e}")
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -678,5 +861,6 @@ def get_campus_programs(campus_id):
             })
         return jsonify(result), 200
     except Exception as e:
+        logger.error(f"[AUTH] Get campus programs error: {e}")
         print(f"[AUTH] Get campus programs error: {e}")
         return jsonify({'error': str(e)}), 500

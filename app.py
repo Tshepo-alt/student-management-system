@@ -13,6 +13,7 @@ from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
+from flask_mail import Mail
 from dotenv import load_dotenv
 import logging
 import traceback
@@ -24,6 +25,7 @@ load_dotenv()
 # Now import after adding to path
 from models import db, User
 from config import config
+from backend.utils.email import mail
 
 # Create logs directory if it doesn't exist
 os.makedirs('logs', exist_ok=True)
@@ -105,12 +107,25 @@ def create_app(config_name=None):
     print(f"📁 Upload Folder: {app.config.get('UPLOAD_FOLDER', 'uploads')}")
     print(f"🔐 JWT Secret: {'Configured' if app.config.get('JWT_SECRET_KEY') else 'Using Default'}")
 
-    # Initialize extensions
+    # ============================================
+    # INITIALIZE EXTENSIONS
+    # ============================================
+    
+    # Initialize Database
     db.init_app(app)
+    
+    # Initialize CORS
     CORS(app, resources={
         r"/api/*": {"origins": "*"},
         r"/uploads/*": {"origins": "*"}
     })
+
+    # Initialize Flask-Mail
+    mail.init_app(app)
+    print(f"📧 Flask-Mail initialized")
+    print(f"   Mail Server: {app.config.get('MAIL_SERVER', 'Not configured')}")
+    print(f"   Mail Port: {app.config.get('MAIL_PORT', 'Not configured')}")
+    print(f"   Mail Username: {app.config.get('MAIL_USERNAME', 'Not configured')}")
 
     # Setup JWT
     jwt = JWTManager(app)
@@ -179,6 +194,10 @@ def create_app(config_name=None):
             'message': 'Please log in to access this resource'
         }), 401
 
+    # ============================================
+    # DATABASE AND INITIALIZATION
+    # ============================================
+    
     # Create database tables and initialize chatbot
     with app.app_context():
         print("\n📁 Setting up database...")
@@ -231,6 +250,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Auth routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Auth routes registration failed: {e}")
 
     # Students routes
     try:
@@ -241,6 +261,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Students routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Students routes registration failed: {e}")
 
     # API routes
     try:
@@ -251,6 +272,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ API routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"API routes registration failed: {e}")
 
     # Chatbot routes
     try:
@@ -261,6 +283,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Chatbot routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Chatbot routes registration failed: {e}")
 
     # Admin routes
     try:
@@ -271,6 +294,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Admin routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Admin routes registration failed: {e}")
 
     # Online classes routes
     try:
@@ -281,6 +305,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Online Classes routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Online classes routes registration failed: {e}")
 
     # Lecturer routes
     try:
@@ -291,6 +316,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Lecturer routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Lecturer routes registration failed: {e}")
 
     # Payments routes
     try:
@@ -301,6 +327,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Payments routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Payments routes registration failed: {e}")
 
     # Accommodation routes
     try:
@@ -311,6 +338,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Accommodation routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Accommodation routes registration failed: {e}")
 
     # ==================== ALUMNI ROUTES (NEW) ====================
     try:
@@ -321,6 +349,7 @@ def create_app(config_name=None):
     except Exception as e:
         print(f"   ❌ Alumni routes failed: {e}")
         traceback.print_exc()
+        logger.error(f"Alumni routes registration failed: {e}")
     # =============================================================
 
     # ==================== FRONTEND SERVING ====================
@@ -416,6 +445,7 @@ def create_app(config_name=None):
     def health():
         chatbot_status = 'available' if app.config.get('CHATBOT') else 'unavailable'
         db_status = 'connected'
+        email_status = 'configured' if app.config.get('MAIL_USERNAME') else 'not_configured'
         try:
             db.session.execute(text('SELECT 1'))
         except Exception as e:
@@ -429,6 +459,7 @@ def create_app(config_name=None):
             'services': {
                 'database': {'status': db_status},
                 'chatbot': {'status': chatbot_status},
+                'email': {'status': email_status},
                 'blueprints': blueprints_registered
             }
         }), 200
@@ -526,7 +557,10 @@ if __name__ == '__main__':
     print("   💚 GET  /api/health        - Health Check")
     print("   🤖 GET  /api/chatbot-info  - Chatbot Info")
     print("   🔐 POST /api/auth/login    - Login")
-    print("   📝 POST /api/auth/register - Register")
+    print("   📝 POST /api/auth/register - Register (with email confirmation)")
+    print("   🔐 POST /api/auth/forgot-password - Request password reset")
+    print("   🔐 POST /api/auth/reset-password/<token> - Reset password")
+    print("   📧 POST /api/auth/verify-email/<token> - Verify email")
     print("   👑 GET  /api/admin/stats   - Admin Statistics")
     print("   👑 GET  /api/admin/users   - Admin Users List")
     print("   👑 GET  /api/admin/students - Admin Students List")
@@ -555,6 +589,12 @@ if __name__ == '__main__':
     print("   👥 GET  /api/alumni/profile             - Alumni profile")
     print("   👥 GET  /api/alumni/jobs/recommended    - Recommended jobs")
     print("   👥 GET  /api/alumni/activity            - Recent activity")
+    print("\n📌 Email Features:")
+    print("   ✉️  Registration confirmation emails")
+    print("   🔐  Password reset emails with secure tokens")
+    print("   📧  Email verification with 24-hour tokens")
+    print("   ✅  Admission decision notifications")
+    print("   💳  Payment confirmation emails")
     print("="*60 + "\n")
 
     host = os.getenv('FLASK_HOST', '0.0.0.0')

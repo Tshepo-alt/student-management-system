@@ -17,7 +17,7 @@ from flask_mail import Mail
 from dotenv import load_dotenv
 import logging
 import traceback
-from sqlalchemy import text
+from sqlalchemy import text, exc
 
 # Load environment variables
 load_dotenv()
@@ -46,10 +46,11 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
 
-    print("\n" + "="*60)
+    print("\n" + "="*70)
     print(f"🚀 Starting GIPS College Student Management System")
     print(f"📌 Environment: {config_name.upper()} mode")
-    print("="*60)
+    print(f"🕐 Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("="*70)
 
     # Initialize Flask with correct static folder
     app = Flask(__name__, 
@@ -57,38 +58,42 @@ def create_app(config_name=None):
                 static_url_path='')
 
     # Load configuration
-    app.config.from_object(config[config_name])
+    try:
+        app.config.from_object(config[config_name])
+        print(f"✅ Configuration loaded: {config_name}")
+    except KeyError as e:
+        print(f"❌ Configuration error - unknown config: {e}")
+        raise
+    except Exception as e:
+        print(f"❌ Configuration error: {e}")
+        raise
 
     # ============================================
-    # WRITE GOOGLE CREDENTIALS FILE FROM ENVIRONMENT VARIABLE
+    # DATABASE CONFIGURATION FOR MYSQL ON RENDER
     # ============================================
-    google_creds_b64 = os.environ.get('GOOGLE_CREDENTIALS_JSON_BASE64')
-    if google_creds_b64:
-        import base64
-        creds_dir = os.path.join(os.path.dirname(__file__), 'backend', 'config')
-        os.makedirs(creds_dir, exist_ok=True)
-        creds_path = os.path.join(creds_dir, 'gips-meet-key.json')
-        try:
-            with open(creds_path, 'wb') as f:
-                f.write(base64.b64decode(google_creds_b64))
-            print(f"✅ Google credentials written to {creds_path}")
-        except Exception as e:
-            print(f"⚠️ Failed to write Google credentials: {e}")
+    print("\n📊 Database Configuration:")
+    
+    database_url = os.getenv('DATABASE_URL')
+    
+    if not database_url:
+        print("❌ DATABASE_URL not set!")
+        print("   Please set DATABASE_URL environment variable")
+        raise ValueError("DATABASE_URL environment variable must be set")
+    
+    # Set the database URI
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    
+    # Determine database type
+    if 'mysql' in database_url.lower():
+        db_type = "MySQL"
+    elif 'postgresql' in database_url.lower():
+        db_type = "PostgreSQL"
     else:
-        print("⚠️ GOOGLE_CREDENTIALS_JSON_BASE64 not set, online classes may fail")
-    # ============================================
-
-    # Ensure required secret keys are present
-    if not app.config.get('SECRET_KEY') or app.config.get('SECRET_KEY') == 'dev-secret-key-change-in-production':
-        raise ValueError("SECRET_KEY must be set in environment variables (FLASK_SECRET_KEY)")
-
-    # Ensure upload folder exists
-    upload_folder = app.config.get('UPLOAD_FOLDER', 'uploads')
-    os.makedirs(upload_folder, exist_ok=True)
-    for subdir in ['documents', 'assignments', 'research', 'attachments', 'profiles']:
-        os.makedirs(os.path.join(upload_folder, subdir), exist_ok=True)
-
-    # Print configuration summary (hide sensitive parts)
+        db_type = "Unknown"
+    
+    print(f"   Database Type: {db_type}")
+    
+    # Mask sensitive parts for logging
     db_uri = app.config['SQLALCHEMY_DATABASE_URI']
     if '@' in db_uri:
         parts = db_uri.split('@')
@@ -102,33 +107,92 @@ def create_app(config_name=None):
             masked_uri = db_uri
     else:
         masked_uri = db_uri
-    print(f"📊 Database: {masked_uri}")
-    print(f"📧 Email Notifications: {'Enabled' if app.config.get('CHATBOT_ENABLE_EMAIL') else 'Disabled'}")
-    print(f"📁 Upload Folder: {app.config.get('UPLOAD_FOLDER', 'uploads')}")
-    print(f"🔐 JWT Secret: {'Configured' if app.config.get('JWT_SECRET_KEY') else 'Using Default'}")
+    
+    print(f"   Masked URI: {masked_uri}")
+    
+    # ============================================
+    # WRITE GOOGLE CREDENTIALS FILE FROM ENVIRONMENT VARIABLE
+    # ============================================
+    google_creds_b64 = os.environ.get('GOOGLE_CREDENTIALS_JSON_BASE64')
+    if google_creds_b64:
+        import base64
+        creds_dir = os.path.join(os.path.dirname(__file__), 'backend', 'config')
+        os.makedirs(creds_dir, exist_ok=True)
+        creds_path = os.path.join(creds_dir, 'gips-meet-key.json')
+        try:
+            with open(creds_path, 'wb') as f:
+                f.write(base64.b64decode(google_creds_b64))
+            print(f"\n✅ Google credentials written to {creds_path}")
+        except Exception as e:
+            print(f"\n⚠️  Failed to write Google credentials: {e}")
+            logger.warning(f"Google credentials error: {e}")
+    else:
+        print("\n⚠️  GOOGLE_CREDENTIALS_JSON_BASE64 not set, online classes may not work")
+
+    # Ensure required secret keys are present
+    if not app.config.get('SECRET_KEY') or app.config.get('SECRET_KEY') == 'dev-secret-key-change-in-production':
+        raise ValueError("❌ SECRET_KEY must be set in environment variables (FLASK_SECRET_KEY)")
+
+    # Ensure upload folder exists
+    upload_folder = app.config.get('UPLOAD_FOLDER', 'uploads')
+    os.makedirs(upload_folder, exist_ok=True)
+    for subdir in ['documents', 'assignments', 'research', 'attachments', 'profiles']:
+        os.makedirs(os.path.join(upload_folder, subdir), exist_ok=True)
+
+    # Print configuration summary
+    print(f"\n⚙️  Configuration Summary:")
+    print(f"   📧 Email Service: {'✅ Enabled' if app.config.get('MAIL_USERNAME') else '❌ Disabled'}")
+    print(f"   📧 Mail Server: {app.config.get('MAIL_SERVER', 'Not configured')}")
+    print(f"   📧 Mail Port: {app.config.get('MAIL_PORT', 'Not configured')}")
+    print(f"   📁 Upload Folder: {upload_folder}")
+    print(f"   🔐 JWT Secret: {'✅ Configured' if app.config.get('JWT_SECRET_KEY') else '❌ Not set'}")
+    print(f"   🔗 CORS: Enabled for all origins")
 
     # ============================================
     # INITIALIZE EXTENSIONS
     # ============================================
     
+    print("\n🔧 Initializing Extensions:")
+    
     # Initialize Database
-    db.init_app(app)
+    try:
+        db.init_app(app)
+        print("   ✅ SQLAlchemy initialized")
+    except Exception as e:
+        print(f"   ❌ SQLAlchemy initialization failed: {e}")
+        logger.error(f"Database init error: {e}")
+        raise
     
     # Initialize CORS
-    CORS(app, resources={
-        r"/api/*": {"origins": "*"},
-        r"/uploads/*": {"origins": "*"}
-    })
+    try:
+        CORS(app, resources={
+            r"/api/*": {"origins": "*"},
+            r"/uploads/*": {"origins": "*"}
+        })
+        print("   ✅ CORS initialized")
+    except Exception as e:
+        print(f"   ⚠️  CORS initialization warning: {e}")
+        logger.warning(f"CORS init error: {e}")
 
     # Initialize Flask-Mail
-    mail.init_app(app)
-    print(f"📧 Flask-Mail initialized")
-    print(f"   Mail Server: {app.config.get('MAIL_SERVER', 'Not configured')}")
-    print(f"   Mail Port: {app.config.get('MAIL_PORT', 'Not configured')}")
-    print(f"   Mail Username: {app.config.get('MAIL_USERNAME', 'Not configured')}")
+    try:
+        mail.init_app(app)
+        print("   ✅ Flask-Mail initialized")
+        if app.config.get('MAIL_USERNAME'):
+            print(f"      📧 Email enabled: {app.config.get('MAIL_USERNAME')}")
+        else:
+            print(f"      📧 Email disabled: Configure MAIL_USERNAME to enable")
+    except Exception as e:
+        print(f"   ⚠️  Flask-Mail initialization warning: {e}")
+        logger.warning(f"Mail init error: {e}")
 
     # Setup JWT
-    jwt = JWTManager(app)
+    try:
+        jwt = JWTManager(app)
+        print("   ✅ JWT Manager initialized")
+    except Exception as e:
+        print(f"   ❌ JWT Manager initialization failed: {e}")
+        raise
 
     # JWT callbacks
     @jwt.unauthorized_loader
@@ -170,21 +234,28 @@ def create_app(config_name=None):
             from models import TokenBlocklist
             token = TokenBlocklist.query.filter_by(jti=jti).first()
             return token is not None
-        except:
+        except Exception as e:
+            logger.debug(f"Token blocklist check error: {e}")
             return False
 
     # Setup login manager
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
-    login_manager.login_message = 'Please log in to access this page.'
-    login_manager.login_message_category = 'info'
+    try:
+        login_manager = LoginManager()
+        login_manager.init_app(app)
+        login_manager.login_view = 'auth.login'
+        login_manager.login_message = 'Please log in to access this page.'
+        login_manager.login_message_category = 'info'
+        print("   ✅ Login Manager initialized")
+    except Exception as e:
+        print(f"   ❌ Login Manager initialization failed: {e}")
+        raise
 
     @login_manager.user_loader
     def load_user(user_id):
         try:
             return User.query.get(int(user_id))
-        except:
+        except Exception as e:
+            logger.debug(f"User loader error: {e}")
             return None
 
     @login_manager.unauthorized_handler
@@ -200,157 +271,119 @@ def create_app(config_name=None):
     
     # Create database tables and initialize chatbot
     with app.app_context():
-        print("\n📁 Setting up database...")
+        print("\n📁 Setting up Database:")
         try:
+            print("   Creating database tables...")
             db.create_all()
-            print("✅ Database tables created/verified!")
-            from sqlalchemy import inspect
-            inspector = inspect(db.engine)
-            tables = inspector.get_table_names()
-            print(f"   📊 Tables in database: {len(tables)}")
-            for table in tables[:10]:
-                print(f"      - {table}")
-            if len(tables) > 10:
-                print(f"      ... and {len(tables) - 10} more")
+            print("   ✅ Database tables created/verified!")
+            
+            # Check database connectivity
+            try:
+                result = db.session.execute(text('SELECT 1'))
+                print("   ✅ Database connection verified!")
+            except Exception as e:
+                print(f"   ⚠️  Database connection test failed: {e}")
+                logger.warning(f"Database test error: {e}")
+            
+            # List tables
+            try:
+                from sqlalchemy import inspect
+                inspector = inspect(db.engine)
+                tables = inspector.get_table_names()
+                print(f"   📊 Total tables in database: {len(tables)}")
+                if tables:
+                    print("   📋 Tables created:")
+                    for i, table in enumerate(sorted(tables), 1):
+                        print(f"      {i:2d}. {table}")
+                else:
+                    print("   ⚠️  No tables found in database")
+            except Exception as e:
+                print(f"   ⚠️  Could not list tables: {e}")
+                logger.warning(f"Table inspection error: {e}")
+                
+        except exc.SQLAlchemyError as e:
+            print(f"   ❌ Database setup error: {e}")
+            logger.error(f"SQLAlchemy error: {e}")
         except Exception as e:
-            print(f"⚠️ Database setup warning: {e}")
+            print(f"   ❌ Unexpected database error: {e}")
             logger.error(f"Database setup error: {e}")
 
-        print("\n🤖 Initializing Chatbot...")
+        print("\n🤖 Initializing Chatbot:")
         try:
             from backend.utils.chatbot import StudentManagementChatbot
             chatbot = StudentManagementChatbot(app=app)
             app.config['CHATBOT'] = chatbot
-            print("✅ Chatbot initialized successfully!")
-            print(f"   📍 Database: {app.config.get('CHATBOT_DB_PATH', 'database/chatbot.db')}")
-            print(f"   🎫 Max tickets per student: {app.config.get('CHATBOT_MAX_TICKETS_PER_STUDENT', 5)}")
-            print(f"   📧 Email notifications: {'Enabled' if app.config.get('CHATBOT_ENABLE_EMAIL') else 'Disabled'}")
+            print("   ✅ Chatbot initialized successfully!")
+            print(f"      📍 Database: {app.config.get('CHATBOT_DB_PATH', 'database/chatbot.db')}")
+            print(f"      🎫 Max tickets per student: {app.config.get('CHATBOT_MAX_TICKETS_PER_STUDENT', 5)}")
+            print(f"      📧 Email notifications: {'Enabled' if app.config.get('CHATBOT_ENABLE_EMAIL') else 'Disabled'}")
             if hasattr(chatbot, 'departments'):
-                print(f"   🏢 Departments: {len(chatbot.departments)}")
+                print(f"      🏢 Departments configured: {len(chatbot.departments)}")
         except ImportError as e:
-            print(f"⚠️ Chatbot import error: {e}")
-            print("   Chatbot module not found. Chatbot will not be available.")
+            print(f"   ⚠️  Chatbot import error: {e}")
+            print("      Chatbot module not found. Chatbot will not be available.")
             app.config['CHATBOT'] = None
         except Exception as e:
-            print(f"⚠️ Chatbot initialization error: {e}")
+            print(f"   ⚠️  Chatbot initialization error: {e}")
             traceback.print_exc()
-            print("   Chatbot will not be available until fixed.")
+            logger.error(f"Chatbot initialization error: {e}")
+            print("      Chatbot will not be available until fixed.")
             app.config['CHATBOT'] = None
 
     # ==================== REGISTER BLUEPRINTS ====================
-    print("\n📌 Registering API endpoints...")
+    print("\n📌 Registering API Blueprints:")
     blueprints_registered = []
+    blueprints_failed = []
 
-    # Auth routes
-    try:
-        from backend.routes.auth import auth_bp
-        app.register_blueprint(auth_bp, url_prefix='/api/auth')
-        blueprints_registered.append('auth')
-        print("   ✅ Auth routes registered")
-    except Exception as e:
-        print(f"   ❌ Auth routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Auth routes registration failed: {e}")
+    # Define all blueprints to register
+    blueprints_to_register = [
+        ('Auth', 'backend.routes.auth', 'auth_bp', '/api/auth'),
+        ('Students', 'backend.routes.students', 'students_bp', '/api/students'),
+        ('API', 'backend.routes.api', 'api_bp', '/api'),
+        ('Chatbot', 'backend.routes.chatbot_routes', 'chatbot_bp', '/api/chatbot'),
+        ('Admin', 'backend.routes.admin', 'admin_bp', '/api/admin'),
+        ('Online Classes', 'backend.routes.online_classes', 'online_classes_bp', '/api/classes'),
+        ('Lecturer', 'backend.routes.lecturer', 'lecturer_bp', '/api/lecturer'),
+        ('Payments', 'backend.routes.payments', 'payments_bp', '/api/payments'),
+        ('Accommodation', 'backend.routes.accomodation', 'accommodation_bp', '/api/accommodation'),
+        ('Alumni', 'backend.routes.alumni', 'alumni_bp', '/api/alumni'),
+    ]
 
-    # Students routes
-    try:
-        from backend.routes.students import students_bp
-        app.register_blueprint(students_bp, url_prefix='/api/students')
-        blueprints_registered.append('students')
-        print("   ✅ Students routes registered")
-    except Exception as e:
-        print(f"   ❌ Students routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Students routes registration failed: {e}")
+    for name, module_path, blueprint_var, url_prefix in blueprints_to_register:
+        try:
+            # Import the module
+            module = __import__(module_path, fromlist=[blueprint_var])
+            # Get the blueprint
+            blueprint = getattr(module, blueprint_var)
+            # Register it
+            app.register_blueprint(blueprint, url_prefix=url_prefix)
+            blueprints_registered.append(name.lower().replace(' ', '_'))
+            print(f"   ✅ {name:20s} routes registered ({url_prefix})")
+            logger.info(f"{name} blueprint registered at {url_prefix}")
+        except ImportError as e:
+            error_msg = f"Import Error: {str(e)}"
+            print(f"   ❌ {name:20s} routes FAILED - {error_msg}")
+            blueprints_failed.append((name, error_msg))
+            logger.error(f"{name} blueprint import failed: {e}")
+        except AttributeError as e:
+            error_msg = f"Blueprint not found: {blueprint_var}"
+            print(f"   ❌ {name:20s} routes FAILED - {error_msg}")
+            blueprints_failed.append((name, error_msg))
+            logger.error(f"{name} blueprint attribute error: {e}")
+        except Exception as e:
+            error_msg = f"Unknown Error: {str(e)}"
+            print(f"   ❌ {name:20s} routes FAILED - {error_msg}")
+            blueprints_failed.append((name, error_msg))
+            logger.error(f"{name} blueprint registration failed: {e}")
 
-    # API routes
-    try:
-        from backend.routes.api import api_bp
-        app.register_blueprint(api_bp, url_prefix='/api')
-        blueprints_registered.append('api')
-        print("   ✅ API routes registered")
-    except Exception as e:
-        print(f"   ❌ API routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"API routes registration failed: {e}")
-
-    # Chatbot routes
-    try:
-        from backend.routes.chatbot_routes import chatbot_bp
-        app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
-        blueprints_registered.append('chatbot')
-        print("   ✅ Chatbot routes registered")
-    except Exception as e:
-        print(f"   ❌ Chatbot routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Chatbot routes registration failed: {e}")
-
-    # Admin routes
-    try:
-        from backend.routes.admin import admin_bp
-        app.register_blueprint(admin_bp, url_prefix='/api/admin')
-        blueprints_registered.append('admin')
-        print("   ✅ Admin routes registered")
-    except Exception as e:
-        print(f"   ❌ Admin routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Admin routes registration failed: {e}")
-
-    # Online classes routes
-    try:
-        from backend.routes.online_classes import online_classes_bp
-        app.register_blueprint(online_classes_bp, url_prefix='/api/classes')
-        blueprints_registered.append('online_classes')
-        print("   ✅ Online Classes routes registered")
-    except Exception as e:
-        print(f"   ❌ Online Classes routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Online classes routes registration failed: {e}")
-
-    # Lecturer routes
-    try:
-        from backend.routes.lecturer import lecturer_bp
-        app.register_blueprint(lecturer_bp, url_prefix='/api/lecturer')
-        blueprints_registered.append('lecturer')
-        print("   ✅ Lecturer routes registered")
-    except Exception as e:
-        print(f"   ❌ Lecturer routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Lecturer routes registration failed: {e}")
-
-    # Payments routes
-    try:
-        from backend.routes.payments import payments_bp
-        app.register_blueprint(payments_bp, url_prefix='/api/payments')
-        blueprints_registered.append('payments')
-        print("   ✅ Payments routes registered")
-    except Exception as e:
-        print(f"   ❌ Payments routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Payments routes registration failed: {e}")
-
-    # Accommodation routes
-    try:
-        from backend.routes.accomodation import accommodation_bp
-        app.register_blueprint(accommodation_bp, url_prefix='/api/accommodation')
-        blueprints_registered.append('accommodation')
-        print("   ✅ Accommodation routes registered")
-    except Exception as e:
-        print(f"   ❌ Accommodation routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Accommodation routes registration failed: {e}")
-
-    # ==================== ALUMNI ROUTES (NEW) ====================
-    try:
-        from backend.routes.alumni import alumni_bp
-        app.register_blueprint(alumni_bp, url_prefix='/api/alumni')
-        blueprints_registered.append('alumni')
-        print("   ✅ Alumni routes registered")
-    except Exception as e:
-        print(f"   ❌ Alumni routes failed: {e}")
-        traceback.print_exc()
-        logger.error(f"Alumni routes registration failed: {e}")
-    # =============================================================
+    print(f"\n📊 Blueprint Registration Summary:")
+    print(f"   ✅ Registered: {len(blueprints_registered)}/10")
+    print(f"   ❌ Failed: {len(blueprints_failed)}/10")
+    
+    if blueprints_failed:
+        print(f"\n⚠️  Failed blueprints:")
+        for name, error in blueprints_failed:
+            print(f"   - {name}: {error}")
 
     # ==================== FRONTEND SERVING ====================
 
@@ -366,7 +399,9 @@ def create_app(config_name=None):
             'version': '2.0.0',
             'status': 'running',
             'environment': config_name,
+            'database': f'MySQL',
             'datetime': datetime.now().isoformat(),
+            'email_service': '✅ Enabled' if app.config.get('MAIL_USERNAME') else '❌ Disabled',
             'endpoints': {
                 'api': '/api',
                 'health': '/api/health',
@@ -377,7 +412,8 @@ def create_app(config_name=None):
                 'admin': '/api/admin/stats',
                 'online_classes': '/api/classes/*'
             },
-            'blueprints': blueprints_registered
+            'blueprints_registered': blueprints_registered,
+            'blueprints_failed_count': len(blueprints_failed)
         }), 200
 
     @app.route('/pages/<path:filename>')
@@ -437,8 +473,12 @@ def create_app(config_name=None):
             'version': '2.0.0',
             'status': 'operational',
             'environment': config_name,
+            'database': 'MySQL',
+            'email_service': 'Configured' if app.config.get('MAIL_USERNAME') else 'Not configured',
             'timestamp': datetime.now().isoformat(),
-            'blueprints': blueprints_registered
+            'blueprints_registered': blueprints_registered,
+            'blueprints_count': len(blueprints_registered),
+            'blueprints_failed': len(blueprints_failed)
         }), 200
 
     @app.route('/api/health', methods=['GET'])
@@ -446,21 +486,46 @@ def create_app(config_name=None):
         chatbot_status = 'available' if app.config.get('CHATBOT') else 'unavailable'
         db_status = 'connected'
         email_status = 'configured' if app.config.get('MAIL_USERNAME') else 'not_configured'
+        
         try:
             db.session.execute(text('SELECT 1'))
-        except Exception as e:
+            db_status = 'connected'
+        except exc.SQLAlchemyError as e:
             db_status = 'disconnected'
             logger.error(f"Database connection error: {e}")
+        except Exception as e:
+            db_status = 'error'
+            logger.error(f"Health check error: {e}")
+        
         return jsonify({
             'status': 'OK',
             'message': 'Server is running',
             'environment': config_name,
+            'database': 'MySQL',
             'timestamp': datetime.now().isoformat(),
             'services': {
-                'database': {'status': db_status},
-                'chatbot': {'status': chatbot_status},
-                'email': {'status': email_status},
-                'blueprints': blueprints_registered
+                'database': {
+                    'status': db_status,
+                    'type': 'MySQL'
+                },
+                'chatbot': {
+                    'status': chatbot_status
+                },
+                'email': {
+                    'status': email_status,
+                    'features': [
+                        'registration_confirmation',
+                        'password_reset',
+                        'email_verification',
+                        'admission_decision',
+                        'payment_confirmation'
+                    ]
+                },
+                'blueprints': {
+                    'registered': len(blueprints_registered),
+                    'failed': len(blueprints_failed),
+                    'list': blueprints_registered
+                }
             }
         }), 200
 
@@ -496,7 +561,10 @@ def create_app(config_name=None):
 
     @app.errorhandler(500)
     def internal_error(error):
-        db.session.rollback()
+        try:
+            db.session.rollback()
+        except:
+            pass
         logger.error(f"Server error: {error}")
         logger.error(traceback.format_exc())
         return jsonify({
@@ -506,23 +574,23 @@ def create_app(config_name=None):
 
     @app.errorhandler(403)
     def forbidden(error):
-        return jsonify({'error': 'Forbidden'}), 403
+        return jsonify({'error': 'Forbidden', 'status': 403}), 403
 
     @app.errorhandler(401)
     def unauthorized(error):
-        return jsonify({'error': 'Unauthorized'}), 401
+        return jsonify({'error': 'Unauthorized', 'status': 401}), 401
 
     @app.errorhandler(400)
     def bad_request(error):
-        return jsonify({'error': 'Bad request'}), 400
+        return jsonify({'error': 'Bad request', 'status': 400}), 400
 
     @app.errorhandler(405)
     def method_not_allowed(error):
-        return jsonify({'error': 'Method not allowed'}), 405
+        return jsonify({'error': 'Method not allowed', 'status': 405}), 405
 
     @app.errorhandler(413)
     def request_entity_too_large(error):
-        return jsonify({'error': 'File too large'}), 413
+        return jsonify({'error': 'File too large', 'status': 413}), 413
 
     # ==================== REQUEST LOGGING ====================
 
@@ -531,9 +599,9 @@ def create_app(config_name=None):
         if request.path.startswith('/api/'):
             logger.info(f"📨 {request.method} {request.path}")
 
-    print("\n" + "="*60)
+    print("\n" + "="*70)
     print("✅ Application initialization complete!")
-    print("="*60)
+    print("="*70 + "\n")
 
     return app
 
@@ -541,11 +609,12 @@ def create_app(config_name=None):
 if __name__ == '__main__':
     app = create_app()
 
-    print("\n" + "="*60)
+    print("\n" + "="*70)
     print("🎓 GIPS College Student Portal - Backend Server")
-    print("="*60)
+    print("="*70)
     print("✅ Server running on http://127.0.0.1:5000")
     print("✅ Press CTRL+C to stop")
+    print("\n📌 Database: MySQL on Render")
     print("\n📌 Available Pages:")
     print("   🏠 http://localhost:5000/                 - Home Page")
     print("   🔐 http://localhost:5000/pages/login.html - Login Page")
@@ -553,49 +622,73 @@ if __name__ == '__main__':
     print("   📊 http://localhost:5000/pages/student-dashboard.html - Dashboard")
     print("   💬 http://localhost:5000/pages/chatbot.html - Chatbot Support")
     print("   👑 http://localhost:5000/pages/admin.html - Admin Dashboard")
-    print("\n📌 API Endpoints:")
+    print("\n📌 Core API Endpoints:")
     print("   💚 GET  /api/health        - Health Check")
+    print("   💚 GET  /api              - API Root")
     print("   🤖 GET  /api/chatbot-info  - Chatbot Info")
-    print("   🔐 POST /api/auth/login    - Login")
-    print("   📝 POST /api/auth/register - Register (with email confirmation)")
-    print("   🔐 POST /api/auth/forgot-password - Request password reset")
-    print("   🔐 POST /api/auth/reset-password/<token> - Reset password")
-    print("   📧 POST /api/auth/verify-email/<token> - Verify email")
-    print("   👑 GET  /api/admin/stats   - Admin Statistics")
-    print("   👑 GET  /api/admin/users   - Admin Users List")
-    print("   👑 GET  /api/admin/students - Admin Students List")
-    print("   👑 GET  /api/admin/programs - Admin Programs List")
-    print("   👑 GET  /api/admin/modules  - Admin Modules List")
-    print("   👑 POST /api/admin/users    - Create Admin User")
-    print("   👑 PUT  /api/admin/users/<id> - Update User")
-    print("   👑 DELETE /api/admin/users/<id> - Delete User")
+    print("\n📌 Authentication Endpoints (WITH EMAIL):")
+    print("   🔐 POST /api/auth/register                    - Register (sends confirmation email)")
+    print("   🔐 POST /api/auth/login                       - Login")
+    print("   🔐 POST /api/auth/forgot-password             - Request password reset (sends email)")
+    print("   🔐 POST /api/auth/reset-password/<token>      - Reset password with token")
+    print("   📧 POST /api/auth/verify-email/<token>        - Verify email with token")
+    print("   🔄 POST /api/auth/refresh                     - Refresh access token")
+    print("   🔐 GET  /api/auth/profile                     - Get user profile")
+    print("   🔐 PUT  /api/auth/profile                     - Update user profile")
+    print("   🔐 POST /api/auth/change-password             - Change password")
+    print("   🏕  GET  /api/auth/campuses                    - Get all campuses")
+    print("   🏕  GET  /api/auth/campuses/<id>              - Get campus by ID")
+    print("   📚 GET  /api/auth/campuses/<id>/programs      - Get programs at campus")
+    print("\n📌 Admin Endpoints:")
+    print("   👑 GET  /api/admin/stats               - Admin Statistics")
+    print("   👑 GET  /api/admin/users               - Admin Users List")
+    print("   👑 GET  /api/admin/students            - Admin Students List")
+    print("   👑 GET  /api/admin/programs            - Admin Programs List")
+    print("   👑 GET  /api/admin/modules             - Admin Modules List")
+    print("   👑 POST /api/admin/users               - Create Admin User")
+    print("   👑 PUT  /api/admin/users/<id>          - Update User")
+    print("   👑 DELETE /api/admin/users/<id>        - Delete User")
+    print("\n📌 Student Endpoints:")
+    print("   📚 GET  /api/students/dashboard        - Student Dashboard")
+    print("   📚 GET  /api/students/profile          - Student Profile")
+    print("   📚 GET  /api/students/courses          - Enrolled Courses")
+    print("   📚 GET  /api/students/grades           - Student Grades")
     print("\n📌 Online Classes Endpoints:")
     print("   🎥 POST /api/classes/course/<id>/start     - Start Live Class (Google Meet)")
     print("   🎥 GET  /api/classes/course/<id>/meeting   - Get Meeting Info")
     print("   🎥 GET  /api/classes/course/<id>/join      - Embedded Meeting Page")
     print("   🎥 POST /api/classes/course/<id>/end       - End Live Class")
     print("\n📌 Payment Endpoints:")
-    print("   💳 GET  /api/payments/config               - Get Stripe public key")
-    print("   💳 POST /api/payments/create-payment-intent - Create Stripe PaymentIntent")
-    print("   💳 POST /api/payments/confirm-payment      - Confirm payment after success")
-    print("   💳 GET  /api/payments/history              - Payment history")
-    print("   💳 GET  /api/payments/outstanding          - Outstanding fees")
+    print("   💳 GET  /api/payments/config                    - Get Stripe config")
+    print("   💳 POST /api/payments/create-payment-intent     - Create Payment Intent")
+    print("   💳 POST /api/payments/confirm-payment           - Confirm Payment")
+    print("   💳 GET  /api/payments/history                   - Payment History")
+    print("   💳 GET  /api/payments/outstanding               - Outstanding Fees")
+    print("\n📌 Chatbot Endpoints:")
+    print("   🤖 POST /api/chatbot/create-ticket        - Create Support Ticket")
+    print("   🤖 GET  /api/chatbot/tickets              - Get Your Tickets")
+    print("   🤖 GET  /api/chatbot/faqs                 - Get FAQs")
     print("\n📌 Accommodation Endpoints:")
-    print("   🏠 GET  /api/accommodation/admin/applications - All accommodation applications")
-    print("   🏠 GET  /api/accommodation/admin/allocations  - Allocated rooms")
-    print("   🏠 GET  /api/accommodation/admin/rooms        - All rooms")
+    print("   🏠 POST /api/accommodation/apply              - Apply for Accommodation")
+    print("   🏠 GET  /api/accommodation/applications       - Your Applications")
+    print("   🏠 GET  /api/accommodation/admin/applications - All Applications (Admin)")
+    print("   🏠 GET  /api/accommodation/admin/rooms        - All Rooms (Admin)")
+    print("\n📌 Lecturer Endpoints:")
+    print("   👨‍🏫 GET  /api/lecturer/courses            - My Courses")
+    print("   👨���🏫 GET  /api/lecturer/students           - My Students")
+    print("   👨‍🏫 POST /api/lecturer/create-assignment   - Create Assignment")
     print("\n📌 Alumni Endpoints:")
-    print("   👥 GET  /api/alumni/stats               - Alumni statistics")
-    print("   👥 GET  /api/alumni/profile             - Alumni profile")
-    print("   👥 GET  /api/alumni/jobs/recommended    - Recommended jobs")
-    print("   👥 GET  /api/alumni/activity            - Recent activity")
-    print("\n📌 Email Features:")
-    print("   ✉️  Registration confirmation emails")
-    print("   🔐  Password reset emails with secure tokens")
-    print("   📧  Email verification with 24-hour tokens")
-    print("   ✅  Admission decision notifications")
-    print("   💳  Payment confirmation emails")
-    print("="*60 + "\n")
+    print("   👥 GET  /api/alumni/profile               - Alumni Profile")
+    print("   👥 GET  /api/alumni/jobs/recommended      - Job Recommendations")
+    print("   👥 GET  /api/alumni/stats                 - Alumni Statistics")
+    print("\n📌 Email Features (INTEGRATED):")
+    print("   ✉️  ✅ Registration confirmation emails")
+    print("   🔐  ✅ Password reset emails with 1-hour secure tokens")
+    print("   📧  ✅ Email verification with 24-hour tokens")
+    print("   ✅  ✅ Admission decision notifications")
+    print("   💳  ✅ Payment confirmation emails")
+    print("   📋  ✅ Secure token validation and expiry")
+    print("="*70 + "\n")
 
     host = os.getenv('FLASK_HOST', '0.0.0.0')
     port = int(os.getenv('FLASK_PORT', 5000))
@@ -606,4 +699,5 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error(f"Failed to start server: {e}")
         print(f"\n❌ Failed to start server: {e}")
+        traceback.print_exc()
         sys.exit(1)

@@ -3,6 +3,10 @@ import sys
 import os
 from pathlib import Path
 from datetime import datetime
+import json
+import base64
+import traceback
+import logging
 
 # Add backend directory to Python path
 backend_dir = Path(__file__).parent
@@ -15,9 +19,7 @@ from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from dotenv import load_dotenv
-import logging
-import traceback
-from sqlalchemy import text, exc
+from urllib.parse import urlparse, urlunparse
 
 # Load environment variables
 load_dotenv()
@@ -26,6 +28,12 @@ load_dotenv()
 from models import db, User
 from config import config
 from backend.utils.email import mail
+
+# Import OAuth2 components from auth.py
+from backend.routes.auth import (
+    authorization, PasswordGrant, AuthorizationCodeGrant, BearerTokenGrant,
+    resource_protector, load_user_from_token
+)
 
 # Create logs directory if it doesn't exist
 os.makedirs('logs', exist_ok=True)
@@ -57,7 +65,7 @@ def create_app(config_name=None):
                 static_folder='frontend',
                 static_url_path='')
 
-    # Load configuration
+    # Load base configuration
     try:
         app.config.from_object(config[config_name])
         print(f"✅ Configuration loaded: {config_name}")
@@ -66,13 +74,15 @@ def create_app(config_name=None):
         raise
     except Exception as e:
         print(f"❌ Configuration error: {e}")
+        traceback.print_exc()
         raise
 
     # ============================================
-    # DATABASE CONFIGURATION FOR MYSQL ON RENDER
+    # DATABASE CONFIGURATION FOR MYSQL ON RENDER (Aiven)
     # ============================================
     print("\n📊 Database Configuration:")
     
+    # Get DATABASE_URL from environment
     database_url = os.getenv('DATABASE_URL')
     
     if not database_url:
@@ -80,13 +90,59 @@ def create_app(config_name=None):
         print("   Please set DATABASE_URL environment variable")
         raise ValueError("DATABASE_URL environment variable must be set")
     
-    # Set the database URI
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    # Parse the URL to extract components and add SSL parameters if needed
+    parsed = urlparse(database_url)
+    
+    # Ensure we use pymysql driver
+    if parsed.scheme in ('mysql', 'mysql+pymysql'):
+        scheme = 'mysql+pymysql'
+    else:
+        scheme = parsed.scheme
+    
+    # Rebuild URI without query string (SSL will be handled via connect_args)
+    clean_parsed = parsed._replace(query='')
+    clean_uri = urlunparse(clean_parsed._replace(scheme=scheme))
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = clean_uri
+    
+    # Check if SSL is required (Aiven, or any cloud MySQL)
+    # Aiven hostnames contain ".aivencloud.com"
+    host = parsed.hostname or ''
+    ssl_required = '.aivencloud.com' in host or os.getenv('MYSQL_SSL_REQUIRED', 'False').lower() == 'true'
+    
+    # Build engine options
+    engine_options = {
+        'pool_size': int(os.getenv('SQLALCHEMY_POOL_SIZE', 10)),
+        'pool_recycle': int(os.getenv('SQLALCHEMY_POOL_RECYCLE', 3600)),
+        'pool_pre_ping': True,
+        'pool_timeout': 30,
+        'max_overflow': 20,
+    }
+    
+    # Add SSL configuration if required
+    if ssl_required:
+        # For pymysql, we need to pass ssl parameter in connect_args
+        # The dictionary should contain 'ssl' key with a dict of SSL options
+        # For Aiven, the CA certificate is not required if using system CA,
+        # but we can pass {'ssl': {'ssl': True}} to force SSL.
+        # You can also provide a custom CA path via env variable MYSQL_SSL_CA
+        ca_cert = os.getenv('MYSQL_SSL_CA')
+        if ca_cert and os.path.exists(ca_cert):
+            ssl_dict = {'ca': ca_cert}
+        else:
+            # Use default SSL (system CA)
+            ssl_dict = {'ssl': True}
+        engine_options['connect_args'] = {'ssl': ssl_dict}
+        print(f"   🔒 SSL enabled for database connection")
+    else:
+        engine_options['connect_args'] = {}
+    
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = engine_options
     
     # Determine database type
-    if 'mysql' in database_url.lower():
+    if 'mysql' in clean_uri.lower():
         db_type = "MySQL"
-    elif 'postgresql' in database_url.lower():
+    elif 'postgresql' in clean_uri.lower():
         db_type = "PostgreSQL"
     else:
         db_type = "Unknown"
@@ -94,28 +150,21 @@ def create_app(config_name=None):
     print(f"   Database Type: {db_type}")
     
     # Mask sensitive parts for logging
-    db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-    if '@' in db_uri:
-        parts = db_uri.split('@')
+    masked_uri = clean_uri
+    if '@' in masked_uri:
+        parts = masked_uri.split('@')
         if ':' in parts[0]:
             user_pass = parts[0].split(':')
             if len(user_pass) == 2:
                 masked_uri = f"{user_pass[0]}:****@{parts[1]}"
-            else:
-                masked_uri = db_uri
-        else:
-            masked_uri = db_uri
-    else:
-        masked_uri = db_uri
-    
     print(f"   Masked URI: {masked_uri}")
-    
+    print(f"   Engine options: pool_size={engine_options['pool_size']}, recycle={engine_options['pool_recycle']}, ssl={'Yes' if ssl_required else 'No'}")
+
     # ============================================
     # WRITE GOOGLE CREDENTIALS FILE FROM ENVIRONMENT VARIABLE
     # ============================================
     google_creds_b64 = os.environ.get('GOOGLE_CREDENTIALS_JSON_BASE64')
     if google_creds_b64:
-        import base64
         creds_dir = os.path.join(os.path.dirname(__file__), 'backend', 'config')
         os.makedirs(creds_dir, exist_ok=True)
         creds_path = os.path.join(creds_dir, 'gips-meet-key.json')
@@ -142,8 +191,6 @@ def create_app(config_name=None):
     # Print configuration summary
     print(f"\n⚙️  Configuration Summary:")
     print(f"   📧 Email Service: {'✅ Enabled' if app.config.get('MAIL_USERNAME') else '❌ Disabled'}")
-    print(f"   📧 Mail Server: {app.config.get('MAIL_SERVER', 'Not configured')}")
-    print(f"   📧 Mail Port: {app.config.get('MAIL_PORT', 'Not configured')}")
     print(f"   📁 Upload Folder: {upload_folder}")
     print(f"   🔐 JWT Secret: {'✅ Configured' if app.config.get('JWT_SECRET_KEY') else '❌ Not set'}")
     print(f"   🔗 CORS: Enabled for all origins")
@@ -160,7 +207,7 @@ def create_app(config_name=None):
         print("   ✅ SQLAlchemy initialized")
     except Exception as e:
         print(f"   ❌ SQLAlchemy initialization failed: {e}")
-        logger.error(f"Database init error: {e}")
+        traceback.print_exc()
         raise
     
     # Initialize CORS
@@ -266,6 +313,24 @@ def create_app(config_name=None):
         }), 401
 
     # ============================================
+    # OAUTH2 SERVER INITIALIZATION (for Moodle SSO)
+    # ============================================
+    print("\n🔐 Initializing OAuth2 Server for Moodle SSO:")
+    try:
+        authorization.init_app(app)
+        authorization.register_grant(PasswordGrant)
+        authorization.register_grant(AuthorizationCodeGrant)
+        authorization.register_grant(BearerTokenGrant)
+        print("   ✅ OAuth2 Authorization Server initialized")
+        print("      📌 Grants registered: Password, Authorization Code, Bearer Token")
+        app._oauth2_codes = {}
+        print("      📌 Using in-memory code store (development mode)")
+    except Exception as e:
+        print(f"   ❌ OAuth2 Server initialization failed: {e}")
+        logger.error(f"OAuth2 init error: {e}")
+        raise
+
+    # ============================================
     # DATABASE AND INITIALIZATION
     # ============================================
     
@@ -274,16 +339,20 @@ def create_app(config_name=None):
         print("\n📁 Setting up Database:")
         try:
             print("   Creating database tables...")
+            # Test connection first
+            try:
+                from sqlalchemy import text
+                with db.engine.connect() as conn:
+                    conn.execute(text("SELECT 1"))
+                print("   ✅ Database connection verified before creating tables")
+            except Exception as conn_err:
+                print(f"   ❌ Database connection failed: {conn_err}")
+                traceback.print_exc()
+                raise
+            
+            # Create all tables
             db.create_all()
             print("   ✅ Database tables created/verified!")
-            
-            # Check database connectivity
-            try:
-                result = db.session.execute(text('SELECT 1'))
-                print("   ✅ Database connection verified!")
-            except Exception as e:
-                print(f"   ⚠️  Database connection test failed: {e}")
-                logger.warning(f"Database test error: {e}")
             
             # List tables
             try:
@@ -301,12 +370,12 @@ def create_app(config_name=None):
                 print(f"   ⚠️  Could not list tables: {e}")
                 logger.warning(f"Table inspection error: {e}")
                 
-        except exc.SQLAlchemyError as e:
-            print(f"   ❌ Database setup error: {e}")
-            logger.error(f"SQLAlchemy error: {e}")
         except Exception as e:
-            print(f"   ❌ Unexpected database error: {e}")
+            print(f"   ❌ Database setup error: {e}")
             logger.error(f"Database setup error: {e}")
+            traceback.print_exc()  # This will show the full traceback
+            # Don't raise – allow app to continue but with warning
+            print("   ⚠️  Continuing despite database setup error – some features may not work")
 
         print("\n🤖 Initializing Chatbot:")
         try:
@@ -315,8 +384,6 @@ def create_app(config_name=None):
             app.config['CHATBOT'] = chatbot
             print("   ✅ Chatbot initialized successfully!")
             print(f"      📍 Database: {app.config.get('CHATBOT_DB_PATH', 'database/chatbot.db')}")
-            print(f"      🎫 Max tickets per student: {app.config.get('CHATBOT_MAX_TICKETS_PER_STUDENT', 5)}")
-            print(f"      📧 Email notifications: {'Enabled' if app.config.get('CHATBOT_ENABLE_EMAIL') else 'Disabled'}")
             if hasattr(chatbot, 'departments'):
                 print(f"      🏢 Departments configured: {len(chatbot.departments)}")
         except ImportError as e:
@@ -327,7 +394,6 @@ def create_app(config_name=None):
             print(f"   ⚠️  Chatbot initialization error: {e}")
             traceback.print_exc()
             logger.error(f"Chatbot initialization error: {e}")
-            print("      Chatbot will not be available until fixed.")
             app.config['CHATBOT'] = None
 
     # ==================== REGISTER BLUEPRINTS ====================
@@ -335,7 +401,6 @@ def create_app(config_name=None):
     blueprints_registered = []
     blueprints_failed = []
 
-    # Define all blueprints to register
     blueprints_to_register = [
         ('Auth', 'backend.routes.auth', 'auth_bp', '/api/auth'),
         ('Students', 'backend.routes.students', 'students_bp', '/api/students'),
@@ -351,11 +416,8 @@ def create_app(config_name=None):
 
     for name, module_path, blueprint_var, url_prefix in blueprints_to_register:
         try:
-            # Import the module
             module = __import__(module_path, fromlist=[blueprint_var])
-            # Get the blueprint
             blueprint = getattr(module, blueprint_var)
-            # Register it
             app.register_blueprint(blueprint, url_prefix=url_prefix)
             blueprints_registered.append(name.lower().replace(' ', '_'))
             print(f"   ✅ {name:20s} routes registered ({url_prefix})")
@@ -375,6 +437,7 @@ def create_app(config_name=None):
             print(f"   ❌ {name:20s} routes FAILED - {error_msg}")
             blueprints_failed.append((name, error_msg))
             logger.error(f"{name} blueprint registration failed: {e}")
+            traceback.print_exc()
 
     print(f"\n📊 Blueprint Registration Summary:")
     print(f"   ✅ Registered: {len(blueprints_registered)}/10")
@@ -399,7 +462,7 @@ def create_app(config_name=None):
             'version': '2.0.0',
             'status': 'running',
             'environment': config_name,
-            'database': f'MySQL',
+            'database': 'MySQL',
             'datetime': datetime.now().isoformat(),
             'email_service': '✅ Enabled' if app.config.get('MAIL_USERNAME') else '❌ Disabled',
             'endpoints': {
@@ -488,14 +551,12 @@ def create_app(config_name=None):
         email_status = 'configured' if app.config.get('MAIL_USERNAME') else 'not_configured'
         
         try:
+            from sqlalchemy import text
             db.session.execute(text('SELECT 1'))
             db_status = 'connected'
-        except exc.SQLAlchemyError as e:
-            db_status = 'disconnected'
-            logger.error(f"Database connection error: {e}")
         except Exception as e:
-            db_status = 'error'
-            logger.error(f"Health check error: {e}")
+            db_status = 'disconnected'
+            logger.error(f"Health check database error: {e}")
         
         return jsonify({
             'status': 'OK',
@@ -627,18 +688,22 @@ if __name__ == '__main__':
     print("   💚 GET  /api              - API Root")
     print("   🤖 GET  /api/chatbot-info  - Chatbot Info")
     print("\n📌 Authentication Endpoints (WITH EMAIL):")
-    print("   🔐 POST /api/auth/register                    - Register (sends confirmation email)")
+    print("   🔐 POST /api/auth/register                    - Register")
     print("   🔐 POST /api/auth/login                       - Login")
-    print("   🔐 POST /api/auth/forgot-password             - Request password reset (sends email)")
-    print("   🔐 POST /api/auth/reset-password/<token>      - Reset password with token")
-    print("   📧 POST /api/auth/verify-email/<token>        - Verify email with token")
-    print("   🔄 POST /api/auth/refresh                     - Refresh access token")
-    print("   🔐 GET  /api/auth/profile                     - Get user profile")
-    print("   🔐 PUT  /api/auth/profile                     - Update user profile")
+    print("   🔐 POST /api/auth/forgot-password             - Request password reset")
+    print("   🔐 POST /api/auth/reset-password/<token>      - Reset password")
+    print("   📧 POST /api/auth/verify-email/<token>        - Verify email")
+    print("   🔄 POST /api/auth/refresh                     - Refresh token")
+    print("   🔐 GET  /api/auth/profile                     - Get profile")
+    print("   🔐 PUT  /api/auth/profile                     - Update profile")
     print("   🔐 POST /api/auth/change-password             - Change password")
-    print("   🏕  GET  /api/auth/campuses                    - Get all campuses")
+    print("   🏕  GET  /api/auth/campuses                    - Get campuses")
     print("   🏕  GET  /api/auth/campuses/<id>              - Get campus by ID")
     print("   📚 GET  /api/auth/campuses/<id>/programs      - Get programs at campus")
+    print("\n📌 OAuth2 Endpoints (for Moodle SSO):")
+    print("   🔑 GET  /oauth2/authorize   - Authorization endpoint")
+    print("   🔑 POST /oauth2/token       - Token endpoint")
+    print("   🔑 GET  /oauth2/userinfo    - Userinfo endpoint")
     print("\n📌 Admin Endpoints:")
     print("   👑 GET  /api/admin/stats               - Admin Statistics")
     print("   👑 GET  /api/admin/users               - Admin Users List")
@@ -654,7 +719,7 @@ if __name__ == '__main__':
     print("   📚 GET  /api/students/courses          - Enrolled Courses")
     print("   📚 GET  /api/students/grades           - Student Grades")
     print("\n📌 Online Classes Endpoints:")
-    print("   🎥 POST /api/classes/course/<id>/start     - Start Live Class (Google Meet)")
+    print("   🎥 POST /api/classes/course/<id>/start     - Start Live Class")
     print("   🎥 GET  /api/classes/course/<id>/meeting   - Get Meeting Info")
     print("   🎥 GET  /api/classes/course/<id>/join      - Embedded Meeting Page")
     print("   🎥 POST /api/classes/course/<id>/end       - End Live Class")
@@ -675,7 +740,7 @@ if __name__ == '__main__':
     print("   🏠 GET  /api/accommodation/admin/rooms        - All Rooms (Admin)")
     print("\n📌 Lecturer Endpoints:")
     print("   👨‍🏫 GET  /api/lecturer/courses            - My Courses")
-    print("   👨���🏫 GET  /api/lecturer/students           - My Students")
+    print("   👨‍🏫 GET  /api/lecturer/students           - My Students")
     print("   👨‍🏫 POST /api/lecturer/create-assignment   - Create Assignment")
     print("\n📌 Alumni Endpoints:")
     print("   👥 GET  /api/alumni/profile               - Alumni Profile")

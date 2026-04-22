@@ -337,6 +337,19 @@ class Config:
     FRONTEND_APP_NAME = os.environ.get('FRONTEND_APP_NAME', 'GIPS College Student Portal')
     FRONTEND_APP_DESCRIPTION = os.environ.get('FRONTEND_APP_DESCRIPTION', 'Student Management System for GIPS College')
     
+    # Moodle Single Sign-On (SSO) URL – public address of your Moodle instance
+    MOODLE_SSO_URL = os.environ.get('MOODLE_SSO_URL', 'http://localhost/moodle')
+    
+    # ============================================
+    # OAUTH2 CONFIGURATION (for Moodle SSO)
+    # ============================================
+    OAUTH2_CLIENT_ID = os.environ.get('OAUTH2_CLIENT_ID', 'moodle_oauth2_client')
+    OAUTH2_CLIENT_SECRET = os.environ.get('OAUTH2_CLIENT_SECRET', 'your-oauth2-secret-key')
+    OAUTH2_AUTHORIZATION_ENDPOINT = os.environ.get('OAUTH2_AUTHORIZATION_ENDPOINT', f"{FRONTEND_URL}/oauth2/authorize")
+    OAUTH2_TOKEN_ENDPOINT = os.environ.get('OAUTH2_TOKEN_ENDPOINT', f"{FRONTEND_URL}/oauth2/token")
+    OAUTH2_USERINFO_ENDPOINT = os.environ.get('OAUTH2_USERINFO_ENDPOINT', f"{FRONTEND_URL}/oauth2/userinfo")
+    OAUTH2_REDIRECT_URI = os.environ.get('OAUTH2_REDIRECT_URI', f"{MOODLE_SSO_URL}/admin/oauth2callback.php")
+    
     # ============================================
     # MAINTENANCE MODE
     # ============================================

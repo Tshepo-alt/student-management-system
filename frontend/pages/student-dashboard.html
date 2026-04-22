@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Student Dashboard - GIPS College Portal</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -15,12 +14,12 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
             min-height: 100vh;
         }
 
-        /* Navigation */
+        /* Navigation (same as before – kept) */
         .navbar {
             background: white;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
@@ -138,7 +137,7 @@
             opacity: 0.8;
         }
 
-        /* Dashboard Stats */
+        /* Stats Cards */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -396,6 +395,76 @@
             box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
         }
 
+        /* Upcoming Online Classes Section */
+        .online-classes-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .online-class-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.2s;
+        }
+
+        .online-class-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .online-class-title {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .online-class-details {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 12px;
+        }
+
+        .online-class-time {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 6px 0;
+        }
+
+        .online-class-duration {
+            background: #e2e8f0;
+            border-radius: 30px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+
+        .btn-join-scheduled {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-join-scheduled:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
         /* Progress Bar */
         .progress-section {
             margin: 15px 0;
@@ -525,11 +594,6 @@
             padding: 16px;
             margin-bottom: 20px;
             border: 1px solid #e2e8f0;
-            transition: all 0.2s;
-        }
-
-        .post-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .post-header {
@@ -715,15 +779,10 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            transition: background 0.2s;
         }
 
         .activity-item:last-child {
             border-bottom: none;
-        }
-
-        .activity-item:hover {
-            background: #f9fafb;
         }
 
         .activity-icon {
@@ -747,11 +806,6 @@
             margin-top: 4px;
         }
 
-        .activity-desc {
-            color: #4a5568;
-        }
-
-        /* Buttons */
         .btn-secondary {
             background: #cbd5e0;
             color: #4a5568;
@@ -760,15 +814,9 @@
             border-radius: 30px;
             cursor: pointer;
             font-weight: 500;
-            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .btn-secondary:hover {
-            background: #a0aec0;
-            transform: translateY(-1px);
         }
 
         .btn-sm {
@@ -893,9 +941,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
-                    onerror="this.style.display='none'">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="Logo" onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
                 <li><a href="student-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i>
@@ -918,45 +964,36 @@
     </nav>
 
     <div class="container">
-        <!-- Welcome Banner -->
         <div class="welcome-banner">
             <h2><i class="fas fa-user-graduate"></i> Welcome back, <span id="studentName">Student</span>!</h2>
             <p>Your academic journey continues. Here's what's happening today.</p>
             <div class="date" id="currentDate"></div>
         </div>
 
-        <!-- Banners -->
         <div id="warningBanner" style="display: none;"></div>
         <div id="infoBanner" style="display: none;"></div>
         <div id="successBanner" style="display: none;"></div>
 
-        <!-- Stats Cards -->
         <div class="dashboard-stats" id="dashboardStats">
             <div class="stat-card">
                 <p><i class="fas fa-chart-line"></i> Current GPA</p>
-                <h3 id="currentGPA">--</h3>
-                <span class="stat-trend" id="gpaTrend">Loading...</span>
+                <h3 id="currentGPA">--</h3><span class="stat-trend" id="gpaTrend">Loading...</span>
             </div>
             <div class="stat-card">
                 <p><i class="fas fa-graduation-cap"></i> Credits Earned</p>
-                <h3 id="creditsEarned">--</h3>
-                <span>Total credits</span>
+                <h3 id="creditsEarned">--</h3><span>Total credits</span>
             </div>
             <div class="stat-card">
                 <p><i class="fas fa-book-open"></i> Current Courses</p>
-                <h3 id="courseCount">--</h3>
-                <span>Active enrollment</span>
+                <h3 id="courseCount">--</h3><span>Active enrollment</span>
             </div>
             <div class="stat-card">
                 <p><i class="fas fa-money-bill-wave"></i> Total Fees Due</p>
-                <h3 id="outstandingBalance">--</h3>
-                <span id="paymentStatus">Loading...</span>
+                <h3 id="outstandingBalance">--</h3><span id="paymentStatus">Loading...</span>
             </div>
         </div>
 
-        <!-- Main Grid -->
         <div class="dashboard-grid">
-            <!-- Student Information -->
             <div class="info-card">
                 <h3><i class="fas fa-id-card"></i> Student Information</h3>
                 <div class="info-item"><label><i class="fas fa-hashtag"></i> Student Number:</label><span
@@ -975,13 +1012,11 @@
                         id="yearOfStudy">-</span></div>
             </div>
 
-            <!-- Fee Summary -->
             <div class="info-card">
                 <h3><i class="fas fa-receipt"></i> Fee Summary</h3>
                 <div id="feeBreakdownContainer"></div>
             </div>
 
-            <!-- Academic Progress -->
             <div class="info-card">
                 <h3><i class="fas fa-chart-line"></i> Academic Progress</h3>
                 <div class="progress-section">
@@ -1000,18 +1035,25 @@
                 </div>
             </div>
 
-            <!-- Current Courses with Live Class Integration -->
+            <!-- Current Courses with Live Meeting Status -->
             <div class="info-card">
                 <h3><i class="fas fa-book-open"></i> Current Courses</h3>
                 <div id="currentCoursesList" class="course-list">
                     <div class="loading-spinner"></div>
                     <p style="margin-top:8px;">Loading courses...</p>
-                </div>
-                <button class="btn-secondary btn-sm" onclick="window.location.href='course-registration.html'"
+                </div><button class="btn-secondary btn-sm" onclick="window.location.href='course-registration.html'"
                     style="margin-top:15px; width:100%;"><i class="fas fa-edit"></i> Manage Courses</button>
             </div>
 
-            <!-- Accommodation Info -->
+            <!-- Upcoming Online Classes (Scheduled) -->
+            <div class="info-card">
+                <h3><i class="fas fa-video"></i> Upcoming Online Classes</h3>
+                <div id="upcomingClassesList" class="online-classes-grid">
+                    <div class="loading-spinner"></div>
+                    <p>Loading classes...</p>
+                </div>
+            </div>
+
             <div class="info-card" id="accommodationCard">
                 <h3><i class="fas fa-home"></i> Accommodation</h3>
                 <div class="info-item"><label><i class="fas fa-info-circle"></i> Status:</label><span
@@ -1020,56 +1062,45 @@
                         id="roomNumber">-</span></div>
                 <div class="info-item"><label><i class="fas fa-building"></i> Block:</label><span
                         id="blockName">-</span></div>
-                <div id="accommodationFeeInfo" class="fee-breakdown" style="margin-top:10px;"></div>
-                <button class="btn-secondary btn-sm" onclick="window.location.href='accomodation.html'"
+                <div id="accommodationFeeInfo" class="fee-breakdown" style="margin-top:10px;"></div><button
+                    class="btn-secondary btn-sm" onclick="window.location.href='accomodation.html'"
                     style="margin-top:15px; width:100%;"><i class="fas fa-pencil-alt"></i> Apply / View Status</button>
             </div>
         </div>
 
-        <!-- Quick Actions -->
         <div class="actions-section">
             <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-            <div class="actions-grid">
-                <a href="student-timetables.html" class="action-card"><i class="fas fa-calendar-week"></i>
+            <div class="actions-grid"><a href="student-timetables.html" class="action-card"><i
+                        class="fas fa-calendar-week"></i>
                     <h4>Timetable</h4>
                     <p>View class schedule</p>
-                </a>
-                <a href="student-exam-registration.html" class="action-card"><i class="fas fa-file-signature"></i>
+                </a><a href="student-exam-registration.html" class="action-card"><i class="fas fa-file-signature"></i>
                     <h4>Exam Registration</h4>
                     <p>Register for exams</p>
-                </a>
-                <a href="assignments.html" class="action-card"><i class="fas fa-upload"></i>
+                </a><a href="assignments.html" class="action-card"><i class="fas fa-upload"></i>
                     <h4>Assignments</h4>
                     <p>Submit assignments</p>
-                </a>
-                <a href="accomodation.html" class="action-card"><i class="fas fa-home"></i>
+                </a><a href="accomodation.html" class="action-card"><i class="fas fa-home"></i>
                     <h4>Accommodation</h4>
                     <p>Apply for housing</p>
-                </a>
-                <a href="payments.html" class="action-card"><i class="fas fa-credit-card"></i>
+                </a><a href="payments.html" class="action-card"><i class="fas fa-credit-card"></i>
                     <h4>Make Payment</h4>
                     <p>Pay fees online</p>
-                </a>
-                <a href="results-view.html" class="action-card"><i class="fas fa-chart-line"></i>
+                </a><a href="results-view.html" class="action-card"><i class="fas fa-chart-line"></i>
                     <h4>View Results</h4>
                     <p>Check your results</p>
-                </a>
-                <a href="student-queries.html" class="action-card"><i class="fas fa-question-circle"></i>
+                </a><a href="student-queries.html" class="action-card"><i class="fas fa-question-circle"></i>
                     <h4>Student Queries</h4>
                     <p>Ask questions</p>
-                </a>
-                <a href="student-profile.html" class="action-card"><i class="fas fa-user-circle"></i>
+                </a><a href="student-profile.html" class="action-card"><i class="fas fa-user-circle"></i>
                     <h4>My Profile</h4>
                     <p>Update your profile</p>
-                </a>
-                <a href="chatbot.html" class="action-card"><i class="fas fa-headset"></i>
+                </a><a href="chatbot.html" class="action-card"><i class="fas fa-headset"></i>
                     <h4>Support Chatbot</h4>
                     <p>Get help 24/7</p>
-                </a>
-            </div>
+                </a></div>
         </div>
 
-        <!-- Community & Suggestions -->
         <div class="community-section">
             <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
                 <div style="flex: 2; min-width: 250px;">
@@ -1091,7 +1122,6 @@
             </div>
         </div>
 
-        <!-- Recent Activity -->
         <div class="activity-section">
             <h3><i class="fas fa-history"></i> Recent Activity</h3>
             <div id="activityList" class="activity-list">
@@ -1101,14 +1131,12 @@
         </div>
     </div>
 
-    <!-- Embedded Meeting Modal (keeps users in portal) -->
     <div id="meetingModal" class="meeting-modal">
         <div class="meeting-modal-content">
             <div class="meeting-modal-header">
-                <h3><i class="fas fa-video"></i> <span id="meetingCourseName">Live Class</span></h3>
-                <button class="meeting-modal-close" onclick="closeMeetingModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <iframe id="meetingIframe" class="meeting-iframe" src=""
+                <h3><i class="fas fa-video"></i> <span id="meetingCourseName">Live Class</span></h3><button
+                    class="meeting-modal-close" onclick="closeMeetingModal()"><i class="fas fa-times"></i></button>
+            </div><iframe id="meetingIframe" class="meeting-iframe" src=""
                 allow="camera; microphone; fullscreen; display-capture" allowfullscreen></iframe>
         </div>
     </div>
@@ -1122,78 +1150,33 @@
     </footer>
 
     <script>
-        // ============================================
-        // SAFE API CALL FUNCTION
-        // ============================================
+        // ========== SAFE API CALL ==========
         async function safeApiCall(endpoint, options = {}) {
             const token = localStorage.getItem('access_token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return null;
-            }
+            if (!token) { window.location.href = 'login.html'; return null; }
             try {
                 const response = await fetch(endpoint, {
                     ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
                 });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
+                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
                 return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
+            } catch (error) { console.error(`API call error to ${endpoint}:`, error); return null; }
         }
 
-        // ============================================
-        // AUTHENTICATION CHECK
-        // ============================================
         const token = localStorage.getItem('access_token');
         if (!token) window.location.href = 'login.html';
-
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        console.log('Logged in user:', user);
+        document.getElementById('studentName').textContent = user.first_name || user.email?.split('@')[0] || 'Student';
+        document.getElementById('studentEmail').textContent = user.email || '-';
+        const now = new Date();
+        document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // Display current date
-        const currentDateSpan = document.getElementById('currentDate');
-        if (currentDateSpan) {
-            const now = new Date();
-            currentDateSpan.textContent = now.toLocaleDateString('en-US', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-            });
-        }
-
-        // Student name
-        const studentNameSpan = document.getElementById('studentName');
-        if (studentNameSpan) studentNameSpan.textContent = user.first_name || user.email?.split('@')[0] || 'Student';
-
-        // Student email
-        const studentEmailSpan = document.getElementById('studentEmail');
-        if (studentEmailSpan) studentEmailSpan.textContent = user.email || '-';
-
-        // Fee constants (will be overwritten by backend data, but used as fallback)
-        const FEES = {
-            registration: 2000,
-            tuition_per_semester: 8500,
-            accommodation_deposit: 5000,
-            supplementary_exam: 300,
-            resit_exam: 600,
-            retake_exam: 1000
-        };
-
+        // Fee constants (fallback)
+        const FEES = { registration: 2000, tuition_per_semester: 8500, accommodation_deposit: 5000, supplementary_exam: 300, resit_exam: 600, retake_exam: 1000 };
         let isGovernmentSponsored = false;
         let wantsAccommodation = false;
         let examFeesTotal = 0;
-
-        // Store meeting links from API
-        let courseMeetings = {};
 
         function renderFeeBreakdown(data) {
             const container = document.getElementById('feeBreakdownContainer');
@@ -1201,19 +1184,14 @@
             isGovernmentSponsored = data.is_government_sponsored || false;
             wantsAccommodation = data.wants_accommodation || false;
             examFeesTotal = data.exam_fees_due || 0;
-
             let totalFees = 0;
             let html = '<div class="fee-breakdown">';
             if (isGovernmentSponsored) {
                 html += `<div class="fee-item"><span><i class="fas fa-hand-holding-heart"></i> Government Sponsorship:</span><span style="color:#38a169;">✓ Fully Exempt (Tuition & Registration)</span></div>`;
                 html += `<div class="fee-item"><span>Registration Fee:</span><span>P 0.00 (Exempted)</span></div>`;
                 html += `<div class="fee-item"><span>Tuition Fee:</span><span>P 0.00 (Exempted)</span></div>`;
-                if (wantsAccommodation) {
-                    html += `<div class="fee-item"><span>Accommodation Deposit:</span><span>P 5,000.00</span></div>`;
-                    totalFees += 5000;
-                } else {
-                    html += `<div class="fee-item"><span>Accommodation:</span><span>Not Applied</span></div>`;
-                }
+                if (wantsAccommodation) { html += `<div class="fee-item"><span>Accommodation Deposit:</span><span>P 5,000.00</span></div>`; totalFees += 5000; }
+                else html += `<div class="fee-item"><span>Accommodation:</span><span>Not Applied</span></div>`;
                 html += `<div class="fee-item"><span>Exam Fees:</span><span>P ${examFeesTotal.toFixed(2)}</span></div>`;
                 totalFees += examFeesTotal;
                 html += `<div class="fee-total"><span>Total Fees Due:</span><span style="color:#667eea;">P ${totalFees.toFixed(2)}</span></div>`;
@@ -1223,10 +1201,7 @@
                 totalFees = FEES.registration + tuition;
                 html += `<div class="fee-item"><span>Registration Fee:</span><span>P ${FEES.registration.toFixed(2)}</span></div>`;
                 html += `<div class="fee-item"><span>Tuition Fee (per semester):</span><span>P ${FEES.tuition_per_semester.toFixed(2)}</span></div>`;
-                if (wantsAccommodation) {
-                    html += `<div class="fee-item"><span>Accommodation Deposit:</span><span>P ${FEES.accommodation_deposit.toFixed(2)}</span></div>`;
-                    totalFees += FEES.accommodation_deposit;
-                }
+                if (wantsAccommodation) { html += `<div class="fee-item"><span>Accommodation Deposit:</span><span>P ${FEES.accommodation_deposit.toFixed(2)}</span></div>`; totalFees += FEES.accommodation_deposit; }
                 html += `<div class="fee-item"><span>Exam Fees:</span><span>P ${examFeesTotal.toFixed(2)}</span></div>`;
                 totalFees += examFeesTotal;
                 html += `<div class="fee-total"><span>Total Fees Due:</span><span style="color:#667eea;">P ${totalFees.toFixed(2)}</span></div>`;
@@ -1237,19 +1212,6 @@
             return totalFees;
         }
 
-        function updateAccommodationFeeDisplay(accommodationData) {
-            const feeInfoDiv = document.getElementById('accommodationFeeInfo');
-            if (!feeInfoDiv) return;
-            if (isGovernmentSponsored && accommodationData && accommodationData.status === 'allocated') {
-                feeInfoDiv.innerHTML = `<div class="info-item"><i class="fas fa-info-circle"></i> <span>Accommodation deposit P5,000 required for sponsored students if allocated.</span></div>`;
-            } else if (!isGovernmentSponsored && accommodationData && accommodationData.status === 'allocated') {
-                feeInfoDiv.innerHTML = `<div class="info-item"><i class="fas fa-check-circle"></i> <span>Deposit included in total fees.</span></div>`;
-            } else {
-                feeInfoDiv.innerHTML = '';
-            }
-        }
-
-        // Load Dashboard Data
         async function loadDashboardData() {
             try {
                 const response = await safeApiCall('/api/students/dashboard');
@@ -1268,15 +1230,11 @@
                     document.getElementById('academicStatus').textContent = data.academic_status || 'Good Standing';
                     document.getElementById('yearOfStudy').textContent = data.current_year || '1';
                     const sponsorshipSpan = document.getElementById('sponsorshipType');
-                    if (data.is_government_sponsored) {
-                        sponsorshipSpan.innerHTML = 'Government Sponsored <span class="exempted-badge">Exempted</span>';
-                    } else {
-                        sponsorshipSpan.textContent = 'Self Sponsored';
-                    }
+                    if (data.is_government_sponsored) sponsorshipSpan.innerHTML = 'Government Sponsored <span class="exempted-badge">Exempted</span>';
+                    else sponsorshipSpan.textContent = 'Self Sponsored';
                     document.getElementById('accommodationStatus').textContent = data.accommodation_status || 'Not Applied';
                     document.getElementById('roomNumber').textContent = data.room_number || '-';
                     document.getElementById('blockName').textContent = data.block_name || '-';
-                    updateAccommodationFeeDisplay({ status: data.accommodation_status, allocated: data.room_number });
                     const totalFees = renderFeeBreakdown(data);
                     const paymentSpan = document.getElementById('paymentStatus');
                     if (data.is_government_sponsored) {
@@ -1291,12 +1249,10 @@
                     else if (data.gpa_trend === 'down') { gpaTrendSpan.textContent = '↓ Declining'; gpaTrendSpan.className = 'stat-trend trend-down'; }
                     else { gpaTrendSpan.textContent = '→ Stable'; gpaTrendSpan.className = 'stat-trend trend-steady'; }
                     if (data.is_government_sponsored) {
-                        document.getElementById('infoBanner').innerHTML = `<div class="info-banner"><i class="fas fa-info-circle"></i> You are a government-sponsored student. Regular tuition (P${FEES.tuition_per_semester}/semester) and registration fees (P${FEES.registration}) are exempt.</div>`;
+                        document.getElementById('infoBanner').innerHTML = `<div class="info-banner"><i class="fas fa-info-circle"></i> You are a government-sponsored student. Regular tuition and registration fees are exempt.</div>`;
                         document.getElementById('infoBanner').style.display = 'block';
-                        document.getElementById('successBanner').innerHTML = `<div class="success-banner"><i class="fas fa-check-circle"></i> Exam fees: Supplementary (P${FEES.supplementary_exam}), Resit (P${FEES.resit_exam}), Retake (P${FEES.retake_exam}) per module.</div>`;
-                        document.getElementById('successBanner').style.display = 'block';
                     } else {
-                        document.getElementById('infoBanner').innerHTML = `<div class="info-banner"><i class="fas fa-info-circle"></i> Self-sponsored student. Fees include registration (P${FEES.registration}), tuition (P${FEES.tuition_per_semester}/semester), and accommodation deposit (P${FEES.accommodation_deposit}) if applicable.</div>`;
+                        document.getElementById('infoBanner').innerHTML = `<div class="info-banner"><i class="fas fa-info-circle"></i> Self-sponsored student. Fees include registration, tuition, and accommodation deposit if applicable.</div>`;
                         document.getElementById('infoBanner').style.display = 'block';
                     }
                     if (data.academic_status === 'probation') {
@@ -1309,291 +1265,135 @@
             return null;
         }
 
-        // Load Current Courses with Meeting Status
+        // Load current courses with live meeting status
         async function loadCurrentCourses() {
             try {
                 const response = await safeApiCall('/api/students/my-modules');
                 if (response && response.ok) {
                     const data = await response.json();
-                    const container = document.getElementById('currentCoursesList');
                     const courses = data.modules || [];
-
-                    // Fetch meeting statuses for each course
+                    const container = document.getElementById('currentCoursesList');
+                    if (courses.length === 0) { container.innerHTML = '<p><i class="fas fa-info-circle"></i> No courses registered for current semester.</p>'; return; }
+                    let html = '';
                     for (const course of courses) {
+                        let meeting = { is_active: false, meeting_link: null };
                         try {
                             const meetingRes = await safeApiCall(`/api/classes/course/${course.id}/meeting`);
-                            if (meetingRes && meetingRes.ok) {
-                                const meetingData = await meetingRes.json();
-                                courseMeetings[course.id] = meetingData;
-                            } else {
-                                courseMeetings[course.id] = { is_active: false, meeting_link: null };
-                            }
-                        } catch (e) {
-                            courseMeetings[course.id] = { is_active: false, meeting_link: null };
-                        }
-                    }
-
-                    if (courses.length > 0) {
-                        container.innerHTML = '';
-                        courses.forEach(course => {
-                            const meeting = courseMeetings[course.id];
-                            const isLive = meeting && meeting.is_active;
-                            const meetingLink = meeting ? meeting.meeting_link : null;
-
-                            const div = document.createElement('div');
-                            div.className = 'course-item';
-                            div.innerHTML = `
-                                <div class="course-header">
-                                    <span class="course-code">${escapeHtml(course.code)}</span>
-                                    <span class="course-credits">${course.credits} credits</span>
-                                </div>
+                            if (meetingRes && meetingRes.ok) meeting = await meetingRes.json();
+                        } catch (e) { /* ignore */ }
+                        const isLive = meeting.is_active === true;
+                        const meetingLink = meeting.meeting_link;
+                        html += `
+                            <div class="course-item">
+                                <div class="course-header"><span class="course-code">${escapeHtml(course.code)}</span><span class="course-credits">${course.credits} credits</span></div>
                                 <div class="course-name">${escapeHtml(course.name)}</div>
                                 <div class="meeting-status-student">
-                                    ${isLive ?
-                                    `<span class="meeting-active-badge"><i class="fas fa-video"></i> Live Now</span>
-                                         <button class="btn-join-meeting" onclick="openMeeting('${meetingLink}', '${escapeHtml(course.name)}')">
-                                             <i class="fas fa-door-open"></i> Join Live Class
-                                         </button>` :
-                                    `<span class="meeting-inactive-badge"><i class="fas fa-video-slash"></i> No Active Session</span>
-                                         <span style="font-size:0.7rem; color:#718096;">Check back at scheduled time</span>`
-                                }
+                                    ${isLive ? `<span class="meeting-active-badge"><i class="fas fa-video"></i> Live Now</span><button class="btn-join-meeting" onclick="openMeeting('${meetingLink}', '${escapeHtml(course.name)}')"><i class="fas fa-door-open"></i> Join Live Class</button>` : `<span class="meeting-inactive-badge"><i class="fas fa-video-slash"></i> No Active Session</span><span style="font-size:0.7rem; color:#718096;">Check back at scheduled time</span>`}
                                 </div>
-                            `;
-                            container.appendChild(div);
-                        });
-                    } else {
-                        container.innerHTML = '<p><i class="fas fa-info-circle"></i> No courses registered for current semester.</p>';
+                            </div>
+                        `;
                     }
+                    container.innerHTML = html;
                 }
             } catch (error) { console.error('Error loading courses:', error); }
         }
 
-        // Open embedded meeting modal (keeps user in portal)
-        function openMeeting(meetingLink, courseName) {
-            if (!meetingLink) {
-                alert('No active meeting at this time. Please check with your lecturer.');
-                return;
+        // Load upcoming scheduled online classes (from new endpoint)
+        async function loadUpcomingClasses() {
+            const container = document.getElementById('upcomingClassesList');
+            try {
+                const response = await safeApiCall('/api/students/online-classes');
+                if (response && response.ok) {
+                    const data = await response.json();
+                    const meetings = data.meetings || [];
+                    if (meetings.length === 0) { container.innerHTML = '<p><i class="fas fa-calendar-alt"></i> No upcoming online classes scheduled.</p>'; return; }
+                    let html = '';
+                    meetings.forEach(m => {
+                        const startTime = new Date(m.scheduled_start).toLocaleString();
+                        html += `
+                            <div class="online-class-card">
+                                <div class="online-class-title"><span>${escapeHtml(m.course_name)} (${escapeHtml(m.course_code)})</span><span class="online-class-duration"><i class="fas fa-clock"></i> ${m.duration_minutes} min</span></div>
+                                <div class="online-class-details"><i class="fas fa-chalkboard-teacher"></i> Platform: ${m.meeting_platform}</div>
+                                <div class="online-class-time"><i class="fas fa-calendar-alt"></i> ${startTime}</div>
+                                <button class="btn-join-scheduled" onclick="openMeeting('${m.meeting_link}', '${escapeHtml(m.course_name)}')"><i class="fas fa-video"></i> Join Class</button>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Unable to load online classes.</p>';
+                }
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Error loading online classes.</p>';
             }
+        }
+
+        function openMeeting(meetingLink, courseName) {
+            if (!meetingLink) { alert('No active meeting link available.'); return; }
             document.getElementById('meetingCourseName').textContent = courseName;
             document.getElementById('meetingIframe').src = meetingLink;
             document.getElementById('meetingModal').style.display = 'flex';
         }
-
-        function closeMeetingModal() {
-            document.getElementById('meetingIframe').src = '';
-            document.getElementById('meetingModal').style.display = 'none';
-        }
+        function closeMeetingModal() { document.getElementById('meetingIframe').src = ''; document.getElementById('meetingModal').style.display = 'none'; }
 
         async function loadRecentActivity() {
+            const container = document.getElementById('activityList');
             try {
                 const response = await safeApiCall('/api/students/activity');
                 if (response && response.ok) {
                     const activities = await response.json();
-                    const container = document.getElementById('activityList');
                     const activityList = activities.activities || [];
                     if (activityList.length > 0) {
-                        container.innerHTML = '';
-                        activityList.forEach(act => {
-                            const div = document.createElement('div');
-                            div.className = 'activity-item';
-                            div.innerHTML = `<div class="activity-icon"><i class="fas ${act.icon || 'fa-bell'}"></i></div><div class="activity-content"><div class="activity-desc">${escapeHtml(act.description)}</div><div class="activity-date">${new Date(act.date).toLocaleString()}</div></div>`;
-                            container.appendChild(div);
-                        });
-                    } else {
-                        container.innerHTML = '<div class="activity-item"><i class="fas fa-info-circle"></i> No recent activity</div>';
-                    }
-                } else {
-                    const container = document.getElementById('activityList');
-                    if (container) container.innerHTML = `<div class="activity-item"><div class="activity-icon"><i class="fas fa-rocket"></i></div><div class="activity-content"><div class="activity-desc">Welcome to GIPS College Student Portal</div><div class="activity-date">Just now</div></div></div>`;
-                }
-            } catch (error) { console.error('Error loading activity:', error); }
+                        container.innerHTML = activityList.map(act => `<div class="activity-item"><div class="activity-icon"><i class="fas ${act.icon || 'fa-bell'}"></i></div><div class="activity-content"><div class="activity-desc">${escapeHtml(act.description)}</div><div class="activity-date">${new Date(act.date).toLocaleString()}</div></div></div>`).join('');
+                    } else container.innerHTML = '<div class="activity-item"><i class="fas fa-info-circle"></i> No recent activity</div>';
+                } else container.innerHTML = '<div class="activity-item"><div class="activity-icon"><i class="fas fa-rocket"></i></div><div class="activity-content"><div class="activity-desc">Welcome to GIPS College Student Portal</div><div class="activity-date">Just now</div></div></div>';
+            } catch (error) { console.error(error); }
         }
 
-        // ============================================
-        // COMMUNITY FEED (DEMO)
-        // ============================================
+        // Community Feed (demo)
         let posts = [
-            {
-                id: 1,
-                author: "Thabo Motsamai",
-                author_avatar: "TM",
-                content: "Excited to announce that I've joined TechCorp as a Senior Software Developer!",
-                created_at: new Date(Date.now() - 2 * 24 * 3600000).toISOString(),
-                likes: 24,
-                comments: [
-                    { author: "Jane Smith", text: "Congratulations, Thabo!", date: new Date().toISOString() }
-                ],
-                liked_by_user: false
-            },
-            {
-                id: 2,
-                author: "Kelebogile Modise",
-                author_avatar: "KM",
-                content: "Looking for alumni in the finance sector. Would love to connect!",
-                created_at: new Date(Date.now() - 1 * 24 * 3600000).toISOString(),
-                likes: 12,
-                comments: [],
-                liked_by_user: false
-            },
-            {
-                id: 3,
-                author: "Sarah Johnson",
-                author_avatar: "SJ",
-                content: "Sharing my research on AI in education. Open to collaborations!",
-                created_at: new Date(Date.now() - 3 * 24 * 3600000).toISOString(),
-                likes: 8,
-                comments: [],
-                liked_by_user: false
-            }
+            { id: 1, author: "Thabo Motsamai", author_avatar: "TM", content: "Excited to announce that I've joined TechCorp as a Senior Software Developer!", created_at: new Date(Date.now() - 2 * 24 * 3600000).toISOString(), likes: 24, comments: [{ author: "Jane Smith", text: "Congratulations, Thabo!", date: new Date().toISOString() }], liked_by_user: false },
+            { id: 2, author: "Kelebogile Modise", author_avatar: "KM", content: "Looking for alumni in the finance sector. Would love to connect!", created_at: new Date(Date.now() - 1 * 24 * 3600000).toISOString(), likes: 12, comments: [], liked_by_user: false },
+            { id: 3, author: "Sarah Johnson", author_avatar: "SJ", content: "Sharing my research on AI in education. Open to collaborations!", created_at: new Date(Date.now() - 3 * 24 * 3600000).toISOString(), likes: 8, comments: [], liked_by_user: false }
         ];
-
         function renderCommunityFeed() {
             const container = document.getElementById('communityFeed');
-            if (!posts.length) {
-                container.innerHTML = '<p>No posts yet. Be the first to share something!</p>';
-                return;
-            }
+            if (!posts.length) { container.innerHTML = '<p>No posts yet. Be the first to share something!</p>'; return; }
             container.innerHTML = posts.map(post => `
                 <div class="post-card" data-post-id="${post.id}">
-                    <div class="post-header">
-                        <div class="post-avatar">${post.author_avatar || post.author.charAt(0)}</div>
-                        <div>
-                            <div class="post-author">${escapeHtml(post.author)}</div>
-                            <div class="post-time">${formatTime(post.created_at)}</div>
-                        </div>
-                    </div>
+                    <div class="post-header"><div class="post-avatar">${post.author_avatar || post.author.charAt(0)}</div><div><div class="post-author">${escapeHtml(post.author)}</div><div class="post-time">${formatTime(post.created_at)}</div></div></div>
                     <div class="post-content">${escapeHtml(post.content)}</div>
-                    <div class="post-stats">
-                        <span><i class="fas fa-heart"></i> ${post.likes} likes</span>
-                        <span><i class="fas fa-comment"></i> ${post.comments.length} comments</span>
-                    </div>
-                    <div>
-                        <button class="post-action" onclick="likePost(${post.id})"><i class="fas fa-thumbs-up"></i> Like</button>
-                        <button class="post-action" onclick="toggleComments(${post.id})"><i class="fas fa-reply"></i> Comment</button>
-                    </div>
-                    <div id="comments-${post.id}" class="comment-section">
-                        <div class="comment-input">
-                            <input type="text" id="comment-${post.id}" placeholder="Write a comment...">
-                            <button class="post-action" onclick="addComment(${post.id})">Post</button>
-                        </div>
-                        ${post.comments.map(c => `
-                            <div class="comment"><strong>${escapeHtml(c.author)}</strong> ${escapeHtml(c.text)}</div>
-                        `).join('')}
-                    </div>
+                    <div class="post-stats"><span><i class="fas fa-heart"></i> ${post.likes} likes</span><span><i class="fas fa-comment"></i> ${post.comments.length} comments</span></div>
+                    <div><button class="post-action" onclick="likePost(${post.id})"><i class="fas fa-thumbs-up"></i> Like</button><button class="post-action" onclick="toggleComments(${post.id})"><i class="fas fa-reply"></i> Comment</button></div>
+                    <div id="comments-${post.id}" class="comment-section"><div class="comment-input"><input type="text" id="comment-${post.id}" placeholder="Write a comment..."><button class="post-action" onclick="addComment(${post.id})">Post</button></div>${post.comments.map(c => `<div class="comment"><strong>${escapeHtml(c.author)}</strong> ${escapeHtml(c.text)}</div>`).join('')}</div>
                 </div>
             `).join('');
         }
-
-        window.likePost = function (postId) {
-            const post = posts.find(p => p.id === postId);
-            if (post) {
-                post.likes += post.liked_by_user ? -1 : 1;
-                post.liked_by_user = !post.liked_by_user;
-                renderCommunityFeed();
-            }
-        };
-
-        window.toggleComments = function (postId) {
-            const commentsDiv = document.getElementById(`comments-${postId}`);
-            if (commentsDiv) commentsDiv.style.display = commentsDiv.style.display === 'block' ? 'none' : 'block';
-        };
-
-        window.addComment = function (postId) {
-            const input = document.getElementById(`comment-${postId}`);
-            const text = input.value.trim();
-            if (!text) return;
-            const post = posts.find(p => p.id === postId);
-            if (post) {
-                post.comments.push({ author: user.first_name || user.username || 'You', text: text, date: new Date().toISOString() });
-                renderCommunityFeed();
-                input.value = '';
-            }
-        };
-
-        // ============================================
-        // SUGGESTED CONNECTIONS (DEMO)
-        // ============================================
+        window.likePost = function (postId) { const post = posts.find(p => p.id === postId); if (post) { post.likes += post.liked_by_user ? -1 : 1; post.liked_by_user = !post.liked_by_user; renderCommunityFeed(); } };
+        window.toggleComments = function (postId) { const div = document.getElementById(`comments-${postId}`); if (div) div.style.display = div.style.display === 'block' ? 'none' : 'block'; };
+        window.addComment = function (postId) { const input = document.getElementById(`comment-${postId}`); const text = input.value.trim(); if (!text) return; const post = posts.find(p => p.id === postId); if (post) { post.comments.push({ author: user.first_name || user.username || 'You', text: text, date: new Date().toISOString() }); renderCommunityFeed(); input.value = ''; } };
         let suggestedUsers = [
             { id: 1, name: "Jane Smith", role: "Alumni - Software Engineer", avatar: "JS", followed: false },
             { id: 2, name: "Michael Brown", role: "Student - Computer Science", avatar: "MB", followed: false },
             { id: 3, name: "Alice Johnson", role: "Alumni - Data Scientist", avatar: "AJ", followed: false }
         ];
-
         function renderSuggestions() {
             const container = document.getElementById('suggestionsList');
-            if (!suggestedUsers.length) {
-                container.innerHTML = '<p>No suggestions at the moment.</p>';
-                return;
-            }
-            container.innerHTML = suggestedUsers.map(u => `
-                <div class="suggestion-item">
-                    <div class="suggestion-avatar">${u.avatar}</div>
-                    <div class="suggestion-info">
-                        <div class="suggestion-name">${escapeHtml(u.name)}</div>
-                        <div class="suggestion-mutual">${u.role}</div>
-                    </div>
-                    <button class="follow-btn ${u.followed ? 'following-btn' : ''}" onclick="toggleFollow(${u.id})">
-                        ${u.followed ? '<i class="fas fa-check"></i> Following' : '<i class="fas fa-user-plus"></i> Follow'}
-                    </button>
-                </div>
-            `).join('');
+            if (!suggestedUsers.length) { container.innerHTML = '<p>No suggestions at the moment.</p>'; return; }
+            container.innerHTML = suggestedUsers.map(u => `<div class="suggestion-item"><div class="suggestion-avatar">${u.avatar}</div><div class="suggestion-info"><div class="suggestion-name">${escapeHtml(u.name)}</div><div class="suggestion-mutual">${u.role}</div></div><button class="follow-btn ${u.followed ? 'following-btn' : ''}" onclick="toggleFollow(${u.id})">${u.followed ? '<i class="fas fa-check"></i> Following' : '<i class="fas fa-user-plus"></i> Follow'}</button></div>`).join('');
         }
+        window.toggleFollow = function (userId) { const user = suggestedUsers.find(u => u.id === userId); if (user) { user.followed = !user.followed; renderSuggestions(); } };
+        function formatTime(dateStr) { if (!dateStr) return 'Just now'; const date = new Date(dateStr); const now = new Date(); const diff = Math.floor((now - date) / 1000); if (diff < 60) return `${diff}s ago`; if (diff < 3600) return `${Math.floor(diff / 60)}m ago`; if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`; return date.toLocaleDateString(); }
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
-        window.toggleFollow = function (userId) {
-            const user = suggestedUsers.find(u => u.id === userId);
-            if (user) {
-                user.followed = !user.followed;
-                renderSuggestions();
-            }
-        };
+        document.getElementById('logoutLink').addEventListener('click', async (e) => { e.preventDefault(); try { await safeApiCall('/api/auth/logout', { method: 'POST' }); } catch (err) { } localStorage.clear(); window.location.href = 'login.html'; });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMeetingModal(); });
 
-        function formatTime(dateStr) {
-            if (!dateStr) return 'Just now';
-            const date = new Date(dateStr);
-            const now = new Date();
-            const diff = Math.floor((now - date) / 1000);
-            if (diff < 60) return `${diff}s ago`;
-            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-            return date.toLocaleDateString();
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        document.getElementById('logoutLink').addEventListener('click', async (e) => {
-            e.preventDefault();
-            try { await safeApiCall('/api/auth/logout', { method: 'POST' }); } catch (err) { }
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // Close modal on ESC key
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                closeMeetingModal();
-            }
-        });
-
-        async function init() {
-            await loadDashboardData();
-            await loadCurrentCourses();
-            await loadRecentActivity();
-            renderCommunityFeed();
-            renderSuggestions();
-        }
+        async function init() { await loadDashboardData(); await loadCurrentCourses(); await loadUpcomingClasses(); await loadRecentActivity(); renderCommunityFeed(); renderSuggestions(); }
         init();
-
-        // Auto-refresh every 60 seconds
-        let interval = setInterval(() => { if (!document.hidden) { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); } }, 60000);
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) clearInterval(interval);
-            else interval = setInterval(() => { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); }, 60000);
-        });
+        setInterval(() => { if (!document.hidden) { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); loadUpcomingClasses(); } }, 60000);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) clearInterval(interval); else interval = setInterval(() => { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); loadUpcomingClasses(); }, 60000); });
     </script>
 </body>
 

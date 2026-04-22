@@ -1,596 +1,442 @@
-<!DOCTYPE html>
-<html lang="en">
+# backend/routes/payments.py
+"""
+Payment Routes - Stripe Integration
+With Government Sponsorship Support and Installment Plans
+"""
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Payments - GIPS College Portal</title>
-    <!-- Stripe JS -->
-    <script src="https://js.stripe.com/v3/"></script>
-    <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from datetime import datetime, timedelta
+import stripe
+import os
+import traceback
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
-            min-height: 100vh;
-        }
+from models import db, Payment, Student, ExamRegistration, AccommodationRegistration, Registration, FeesConfig
 
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            padding: 0.8rem 0;
-        }
+payments_bp = Blueprint('payments', __name__)
 
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 30px;
-        }
+# Initialize Stripe
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
-        .navbar .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+# Fee constants (used as fallback)
+SUPPLEMENTARY_FEE = 300
+RESIT_FEE = 600
+RETAKE_FEE = 1000
 
-        .navbar-brand img {
-            height: 50px;
-            width: auto;
-        }
+def calculate_fees(student, payment_type, amount=None):
+"""Calculate fees based on sponsorship and payment type"""
+if student.is_government_sponsored:
+# Government sponsored students are exempt from regular fees
+if payment_type in ['registration', 'tuition', 'accommodation', 'exam', 'full']:
+return 0, True
+# But must pay for supplementary, resit, retake
+elif payment_type == 'supplementary':
+return SUPPLEMENTARY_FEE, False
+elif payment_type == 'resit':
+return RESIT_FEE, False
+elif payment_type == 'retake':
+return RETAKE_FEE, False
+else:
+return amount or 0, False
+else:
+# Self sponsored students pay all fees
+if payment_type == 'supplementary':
+return SUPPLEMENTARY_FEE, False
+elif payment_type == 'resit':
+return RESIT_FEE, False
+elif payment_type == 'retake':
+return RETAKE_FEE, False
+else:
+return amount or 0, False
 
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
 
-        .nav-link {
-            text-decoration: none;
-            color: #4a5568;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+# ============================================
+# CONFIGURATION ENDPOINT (for frontend Stripe key)
+# ============================================
+@payments_bp.route('/config', methods=['GET'])
+def get_stripe_config():
+"""Return Stripe public key for frontend"""
+public_key = os.environ.get('STRIPE_PUBLIC_KEY', '')
+if not public_key:
+# Fallback for development (replace with your actual test key if needed)
+public_key =
+'pk_test_51QnFBDQpAhs2bhxJKRVWi5OyO3UaohNOM7A53c3UX5mtBBs423rIVDE8hvoQW26grdRdO6jNfgvQHbJyXYPCwlpl00zBTdoVmR'
+return jsonify({'publicKey': public_key}), 200
 
-        .nav-link i {
-            font-size: 1rem;
-        }
 
-        .nav-link:hover,
-        .nav-link.active {
-            color: #667eea;
-        }
+# ============================================
+# CREATE PAYMENT INTENT
+# ============================================
+@payments_bp.route('/create-payment-intent', methods=['POST'])
+@jwt_required()
+def create_payment_intent():
+"""Create a Stripe payment intent"""
+try:
+current_user_id = get_jwt_identity()
+user_id = int(current_user_id) if current_user_id else None
+student = Student.query.filter_by(user_id=user_id).first()
 
-        .payment-container {
-            max-width: 900px;
-            margin: 40px auto;
-        }
+if not student:
+return jsonify({'error': 'Student record not found'}), 404
 
-        .payment-card {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
+data = request.get_json()
 
-        .payment-card h2 {
-            font-size: 1.6rem;
-            margin-bottom: 20px;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 12px;
-        }
+# Validate required fields
+if 'amount' not in data or 'payment_type' not in data:
+return jsonify({'error': 'Missing required fields: amount, payment_type'}), 400
 
-        .fee-breakdown {
-            background: #f9fafb;
-            border-radius: 20px;
-            padding: 20px;
-            margin: 20px 0;
-        }
+try:
+amount = float(data['amount'])
+except (ValueError, TypeError):
+return jsonify({'error': 'Invalid amount format'}), 400
 
-        .fee-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
+payment_type = data['payment_type']
+currency = data.get('currency', 'bwp').lower()
+description = data.get('description', 'GIPS College Fee Payment')
+installment_plan = data.get('installment_plan', False)
 
-        .fee-total {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #667eea;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.2rem;
-        }
+# Validate amount
+if amount <= 0: return jsonify({'error': 'Amount must be greater than 0' }), 400 # Validate currency if currency not in
+    ['usd', 'bwp' , 'zar' ]: return jsonify({'error': 'Invalid currency' }), 400 # Calculate fee based on sponsorship
+    calculated_amount, is_exempt=calculate_fees(student, payment_type, amount) if is_exempt: return jsonify({ 'message'
+    : 'This fee is exempted for government sponsored students' , 'is_exempt' : True, 'amount' : 0 }), 200 # Convert to
+    cents for Stripe amount_cents=int(calculated_amount * 100) # Create metadata metadata={ 'student_id' :
+    str(student.id), 'student_number' : student.student_number, 'payment_type' : payment_type, 'user_email' :
+    student.email, 'installment_plan' : str(installment_plan) } # Add related IDs if provided if 'exam_registration_id'
+    in data: metadata['exam_registration_id']=str(data['exam_registration_id']) if 'accommodation_registration_id' in
+    data: metadata['accommodation_registration_id']=str(data['accommodation_registration_id']) if 'registration_id' in
+    data: metadata['registration_id']=str(data['registration_id']) # Create Stripe payment intent
+    intent=stripe.PaymentIntent.create( amount=amount_cents, currency=currency, metadata=metadata,
+    receipt_email=student.email, description=description, statement_descriptor=f"GIPS COLLEGE {payment_type.upper()}" )
+    # Create payment record in database payment=Payment( student_id=student.id, amount=calculated_amount,
+    currency=currency.upper(), payment_type=payment_type, stripe_payment_intent_id=intent.id, status='pending' ,
+    payment_reference=intent.client_secret, notes=f"Installment plan: {installment_plan} months" if installment_plan
+    else None ) # Link to specific registration if provided if 'exam_registration_id' in data:
+    payment.exam_registration_id=data['exam_registration_id'] if 'accommodation_registration_id' in data:
+    payment.accommodation_registration_id=data['accommodation_registration_id'] if 'registration_id' in data:
+    payment.registration_id=data['registration_id'] db.session.add(payment) db.session.commit() return
+    jsonify({ 'clientSecret' : intent.client_secret, 'paymentIntentId' : intent.id, 'amount' :
+    calculated_amount, 'currency' : currency, 'message' : 'Payment intent created successfully' , 'is_exempt' : False
+    }), 200 except stripe.error.CardError as e: return jsonify({'error': f'Card error: {e.user_message}'}), 400 except
+    stripe.error.RateLimitError: return jsonify({'error': 'Too many requests. Please try again later.' }), 429 except
+    stripe.error.InvalidRequestError as e: return jsonify({'error': f'Invalid request: {str(e)}'}), 400 except
+    stripe.error.AuthenticationError: return jsonify({'error': 'Authentication error with payment service' }), 401
+    except stripe.error.APIConnectionError: return jsonify({'error': 'Payment service connection error' }), 503 except
+    Exception as e: db.session.rollback() print(f"Payment Intent Error: {e}") traceback.print_exc() return
+    jsonify({'error': 'Failed to create payment intent' }), 500 #============================================# CONFIRM
+    PAYMENT (after Stripe success) #============================================@payments_bp.route('/confirm-payment',
+    methods=['POST']) @jwt_required() def confirm_payment(): """Confirm payment after successful Stripe charge""" try:
+    current_user_id=get_jwt_identity() user_id=int(current_user_id) if current_user_id else None
+    student=Student.query.filter_by(user_id=user_id).first() if not student: return
+    jsonify({'error': 'Student record not found' }), 404 data=request.get_json() if 'paymentIntentId' not in data:
+    return jsonify({'error': 'Payment Intent ID required' }), 400 payment_intent_id=data['paymentIntentId'] # Get
+    payment intent from Stripe try: intent=stripe.PaymentIntent.retrieve(payment_intent_id) except
+    stripe.error.InvalidRequestError: return jsonify({'error': 'Invalid payment intent ID' }), 400 # Verify payment was
+    successful if intent.status !='succeeded' : return jsonify({ 'error' : f'Payment not successful. Status:
+    {intent.status}' }), 400 # Get payment record from database payment=Payment.query.filter_by(
+    stripe_payment_intent_id=payment_intent_id, student_id=student.id ).first() if not payment: return
+    jsonify({'error': 'Payment record not found' }), 404 # Update payment status payment.status='completed'
+    payment.payment_date=datetime.utcnow() payment.transaction_id=intent.id # Generate receipt number
+    payment.receipt_number=f"RCP-{datetime.now().strftime('%Y%m%d%H%M%S')}-{payment.id}" # Update related exam
+    registration if payment.exam_registration_id: exam_reg=ExamRegistration.query.get(payment.exam_registration_id) if
+    exam_reg: exam_reg.payment_status='paid' print(f"Exam registration {exam_reg.id} marked as paid") # Update related
+    accommodation registration if payment.accommodation_registration_id:
+    accom_reg=AccommodationRegistration.query.get(payment.accommodation_registration_id) if accom_reg:
+    accom_reg.payment_status='paid' print(f"Accommodation registration {accom_reg.id} marked as paid") # Update related
+    registration if payment.registration_id: reg=Registration.query.get(payment.registration_id) if reg:
+    reg.paid_amount=(reg.paid_amount or 0) + payment.amount if reg.paid_amount>= (reg.total_fees or 0):
+    reg.payment_status = 'completed'
+    else:
+    reg.payment_status = 'partial'
+    print(f"Registration {reg.id} updated with payment")
 
-        .amount-input {
-            margin: 20px 0;
-        }
+    db.session.commit()
 
-        .amount-input label {
-            font-weight: 600;
-            display: block;
-            margin-bottom: 8px;
-        }
+    return jsonify({
+    'message': 'Payment confirmed successfully',
+    'paymentId': payment.id,
+    'amount': payment.amount,
+    'currency': payment.currency,
+    'status': payment.status,
+    'payment_date': payment.payment_date.isoformat()
+    }), 200
 
-        .amount-input input,
-        .payment-type-select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1rem;
-        }
+    except Exception as e:
+    db.session.rollback()
+    print(f"Confirm Payment Error: {e}")
+    traceback.print_exc()
+    return jsonify({'error': 'Failed to confirm payment'}), 500
 
-        .payment-type-select {
-            background: white;
-            cursor: pointer;
-        }
 
-        .card-element {
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px;
-            background: white;
-            margin: 20px 0;
-        }
+    # ============================================
+    # PAYMENT HISTORY
+    # ============================================
+    @payments_bp.route('/history', methods=['GET'])
+    @jwt_required()
+    def get_payment_history():
+    """Get student's payment history"""
+    try:
+    current_user_id = get_jwt_identity()
+    user_id = int(current_user_id) if current_user_id else None
+    student = Student.query.filter_by(user_id=user_id).first()
 
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
+    if not student:
+    return jsonify({'error': 'Student record not found'}), 404
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
-        }
+    # Get pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
 
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+    # Query payments
+    paginated_payments = Payment.query.filter_by(
+    student_id=student.id
+    ).order_by(Payment.created_at.desc()).paginate(
+    page=page,
+    per_page=per_page,
+    error_out=False
+    )
 
-        .payment-status {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 12px;
-            display: none;
-        }
+    payments_list = []
+    for payment in paginated_payments.items:
+    payments_list.append({
+    'id': payment.id,
+    'amount': float(payment.amount),
+    'currency': payment.currency,
+    'payment_type': payment.payment_type,
+    'status': payment.status,
+    'payment_date': payment.payment_date.isoformat() if payment.payment_date else None,
+    'created_at': payment.created_at.isoformat(),
+    'stripe_payment_intent_id': payment.stripe_payment_intent_id,
+    'receipt_number': payment.receipt_number,
+    'notes': payment.notes
+    })
 
-        .status-success {
-            background: #c6f6d5;
-            color: #276749;
-            border-left: 4px solid #38a169;
-        }
+    # Calculate total paid and outstanding
+    total_paid = sum(p.amount for p in Payment.query.filter_by(
+    student_id=student.id,
+    status='completed'
+    ).all())
 
-        .status-error {
-            background: #fed7d7;
-            color: #c53030;
-            border-left: 4px solid #e53e3e;
-        }
+    # Get outstanding fees from registration
+    registration = Registration.query.filter_by(
+    student_id=student.id,
+    registration_status='approved'
+    ).first()
 
-        .status-info {
-            background: #cfe2ff;
-            color: #084298;
-            border-left: 4px solid #3182ce;
-        }
+    outstanding = 0
+    if registration:
+    outstanding = (registration.total_fees or 0) - (registration.paid_amount or 0)
+    # For government sponsored, override with supplementary/resit/retake
+    if student.is_government_sponsored and registration:
+    outstanding = (registration.supplementary_exam_fees or 0) + \
+    (registration.resit_fees or 0) + \
+    (registration.retake_fees or 0)
 
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+    return jsonify({
+    'payments': payments_list,
+    'total': paginated_payments.total,
+    'pages': paginated_payments.pages,
+    'current_page': page,
+    'per_page': per_page,
+    'total_paid': float(total_paid),
+    'outstanding_balance': float(outstanding)
+    }), 200
 
-        .history-table th,
-        .history-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
+    except Exception as e:
+    print(f"Get Payment History Error: {e}")
+    traceback.print_exc()
+    return jsonify({'error': 'Failed to retrieve payment history'}), 500
 
-        .history-table th {
-            background: #f9fafb;
-            font-weight: 600;
-        }
 
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
+    # ============================================
+    # OUTSTANDING FEES
+    # ============================================
+    @payments_bp.route('/outstanding', methods=['GET'])
+    @jwt_required()
+    def get_outstanding_fees():
+    """Get student's outstanding fees"""
+    try:
+    current_user_id = get_jwt_identity()
+    user_id = int(current_user_id) if current_user_id else None
+    student = Student.query.filter_by(user_id=user_id).first()
 
-        .pagination button {
-            padding: 6px 12px;
-            border: 1px solid #e2e8f0;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+    if not student:
+    return jsonify({'error': 'Student record not found'}), 404
 
-        .footer {
-            background: #2d3748;
-            color: white;
-            text-align: center;
-            padding: 30px 0;
-            margin-top: 50px;
-        }
+    registration = Registration.query.filter_by(
+    student_id=student.id,
+    registration_status='approved'
+    ).order_by(Registration.created_at.desc()).first()
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 20px;
-            }
+    outstanding = {
+    'total_fees': 0,
+    'paid_amount': 0,
+    'outstanding_balance': 0,
+    'supplementary_fees': 0,
+    'resit_fees': 0,
+    'retake_fees': 0,
+    'exempted_amount': 0,
+    'pending_exam_fees': 0,
+    'pending_exam_count': 0
+    }
 
-            .payment-card {
-                padding: 20px;
-            }
-        }
+    if registration:
+    outstanding['total_fees'] = float(registration.total_fees or 0)
+    outstanding['paid_amount'] = float(registration.paid_amount or 0)
+    outstanding['outstanding_balance'] = outstanding['total_fees'] - outstanding['paid_amount']
+    outstanding['supplementary_fees'] = float(registration.supplementary_exam_fees or 0)
+    outstanding['resit_fees'] = float(registration.resit_fees or 0)
+    outstanding['retake_fees'] =float(registration.retake_fees or 0)
+    outstanding['exempted_amount'] = float(registration.exempted_amount or 0)
 
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #e2e8f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
+    # For government sponsored students, only show supplementary/resit/retake
+    if student.is_government_sponsored:
+    outstanding['outstanding_balance'] = (
+    outstanding['supplementary_fees'] +
+    outstanding['resit_fees'] +
+    outstanding['retake_fees']
+    )
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-</head>
+    # Get pending exam fees
+    pending_exams = ExamRegistration.query.filter_by(
+    student_id=student.id,
+    payment_status='pending'
+    ).all()
 
-<body>
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="Logo" onerror="this.style.display='none'">
-            </div>
-            <ul class="nav-menu">
-                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
-                </li>
-                <li><a href="payments.html" class="nav-link active"><i class="fas fa-credit-card"></i> Payments</a></li>
-                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-        </div>
-    </nav>
+    outstanding['pending_exam_fees'] = sum(e.fee or 0 for e in pending_exams)
+    outstanding['pending_exam_count'] = len(pending_exams)
 
-    <div class="container payment-container">
-        <!-- Outstanding Fees Card -->
-        <div class="payment-card">
-            <h2><i class="fas fa-receipt"></i> Fee Summary</h2>
-            <div id="feeSummary">Loading...</div>
-        </div>
+    return jsonify(outstanding), 200
 
-        <!-- Payment Form Card -->
-        <div class="payment-card">
-            <h2><i class="fas fa-credit-card"></i> Make a Payment</h2>
-            <div class="payment-type-select">
-                <label>Payment Type</label>
-                <select id="paymentType" class="payment-type-select">
-                    <option value="full">Pay Outstanding Balance</option>
-                    <option value="supplementary">Supplementary Exam Fees</option>
-                    <option value="resit">Resit Exam Fees</option>
-                    <option value="retake">Retake Exam Fees</option>
-                    <option value="custom">Custom Amount</option>
-                </select>
-            </div>
-            <div id="customAmountDiv" class="amount-input" style="display: none;">
-                <label>Amount (BWP)</label>
-                <input type="number" id="customAmount" step="0.01" min="1" placeholder="Enter amount">
-            </div>
-            <div class="card-element" id="card-element"></div>
-            <button id="payButton" class="btn"><i class="fas fa-lock"></i> Pay Now</button>
-            <div id="paymentStatus" class="payment-status"></div>
-        </div>
+    except Exception as e:
+    print(f"Get outstanding fees error: {e}")
+    traceback.print_exc()
+    return jsonify({'error': 'Failed to retrieve outstanding fees'}), 500
 
-        <!-- Payment History Card -->
-        <div class="payment-card">
-            <h2><i class="fas fa-history"></i> Payment History</h2>
-            <div id="historyContainer">Loading...</div>
-        </div>
-    </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 GIPS College. All rights reserved.</p>
-            <p><i class="fas fa-credit-card"></i> Secure payments powered by Stripe</p>
-        </div>
-    </footer>
+    # ============================================
+    # STRIPE WEBHOOK (optional)
+    # ============================================
+    @payments_bp.route('/webhook', methods=['POST'])
+    def stripe_webhook():
+    """Handle Stripe webhook events"""
+    try:
+    payload = request.get_data()
+    sig_header = request.headers.get('Stripe-Signature')
 
-    <script>
-        // ========== Helper functions ==========
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
-            if (!token) { window.location.href = 'login.html'; return null; }
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return response;
-            } catch (error) { console.error(`API call error to ${endpoint}:`, error); return null; }
-        }
+    webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
-        function showStatus(elementId, message, type = 'info') {
-            const el = document.getElementById(elementId);
-            el.textContent = message;
-            el.className = `payment-status status-${type}`;
-            el.style.display = 'block';
-            setTimeout(() => { el.style.display = 'none'; }, 5000);
-        }
+    if not webhook_secret:
+    # If no webhook secret, still return 200 to avoid retries
+    print("STRIPE_WEBHOOK_SECRET not configured, skipping verification")
+    event = stripe.Event.construct_from(json.loads(payload), stripe.api_key)
+    else:
+    try:
+    event = stripe.Webhook.construct_event(
+    payload,
+    sig_header,
+    webhook_secret
+    )
+    except (ValueError, stripe.error.SignatureVerificationError) as e:
+    return jsonify({'error': 'Invalid signature'}), 400
 
-        // ========== Load outstanding fees ==========
-        async function loadOutstandingFees() {
-            const container = document.getElementById('feeSummary');
-            try {
-                const response = await safeApiCall('/api/payments/outstanding');
-                if (response && response.ok) {
-                    const data = await response.json();
-                    let html = `<div class="fee-breakdown">`;
-                    html += `<div class="fee-item"><span>Total Fees Due:</span><span>P ${data.total_fees.toFixed(2)}</span></div>`;
-                    html += `<div class="fee-item"><span>Paid Amount:</span><span>P ${data.paid_amount.toFixed(2)}</span></div>`;
-                    html += `<div class="fee-item"><span>Exempted Amount:</span><span>P ${data.exempted_amount.toFixed(2)}</span></div>`;
-                    if (data.supplementary_fees > 0) html += `<div class="fee-item"><span>Supplementary Exam Fees:</span><span>P ${data.supplementary_fees.toFixed(2)}</span></div>`;
-                    if (data.resit_fees > 0) html += `<div class="fee-item"><span>Resit Exam Fees:</span><span>P ${data.resit_fees.toFixed(2)}</span></div>`;
-                    if (data.retake_fees > 0) html += `<div class="fee-item"><span>Retake Exam Fees:</span><span>P ${data.retake_fees.toFixed(2)}</span></div>`;
-                    html += `<div class="fee-total"><span>Outstanding Balance:</span><span>P ${data.outstanding_balance.toFixed(2)}</span></div>`;
-                    if (data.pending_exam_count > 0) {
-                        html += `<div class="fee-item"><span>Pending Exam Fees:</span><span>P ${data.pending_exam_fees.toFixed(2)} (${data.pending_exam_count} exams)</span></div>`;
-                    }
-                    html += `</div>`;
-                    container.innerHTML = html;
-                    // Store amounts for payment options
-                    window.outstandingData = data;
-                } else {
-                    container.innerHTML = '<p>Unable to load fee information.</p>';
-                }
-            } catch (error) {
-                console.error(error);
-                container.innerHTML = '<p>Error loading fee summary.</p>';
-            }
-        }
+    # Handle payment_intent.succeeded
+    if event['type'] == 'payment_intent.succeeded':
+    payment_intent = event['data']['object']
+    print(f"Payment succeeded: {payment_intent['id']}")
 
-        // ========== Load payment history ==========
-        let currentPage = 1;
-        async function loadPaymentHistory(page = 1) {
-            const container = document.getElementById('historyContainer');
-            container.innerHTML = '<div class="loading-spinner"></div> Loading...';
-            try {
-                const response = await safeApiCall(`/api/payments/history?page=${page}&per_page=10`);
-                if (response && response.ok) {
-                    const data = await response.json();
-                    if (data.payments.length === 0) {
-                        container.innerHTML = '<p>No payment history found.</p>';
-                        return;
-                    }
-                    let html = `<table class="history-table"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead><tbody>`;
-                    data.payments.forEach(p => {
-                        const date = p.payment_date ? new Date(p.payment_date).toLocaleDateString() : new Date(p.created_at).toLocaleDateString();
-                        const statusClass = p.status === 'completed' ? 'success' : (p.status === 'failed' ? 'error' : 'info');
-                        html += `<tr>
-                            <td>${date}</td>
-                            <td>${p.payment_type.replace('_', ' ')}</td>
-                            <td>${p.currency} ${p.amount.toFixed(2)}</td>
-                            <td style="color:${statusClass === 'success' ? '#28a745' : statusClass === 'error' ? '#dc3545' : '#f59e0b'}">${p.status}</td>
-                            <td>${p.receipt_number ? p.receipt_number : '-'}</td>
-                        </tr>`;
-                    });
-                    html += `</tbody></table>`;
-                    if (data.pages > 1) {
-                        html += `<div class="pagination">`;
-                        for (let i = 1; i <= data.pages; i++) {
-                            html += `<button onclick="loadPaymentHistory(${i})" ${i === page ? 'disabled' : ''}>${i}</button>`;
-                        }
-                        html += `</div>`;
-                    }
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = '<p>Unable to load payment history.</p>';
-                }
-            } catch (error) {
-                console.error(error);
-                container.innerHTML = '<p>Error loading payment history.</p>';
-            }
-        }
+    # Update payment record
+    payment = Payment.query.filter_by(
+    stripe_payment_intent_id=payment_intent['id']
+    ).first()
 
-        // ========== Stripe integration ==========
-        let stripe = null;
-        let elements = null;
-        let cardElement = null;
+    if payment and payment.status != 'completed':
+    payment.status = 'completed'
+    payment.payment_date = datetime.utcnow()
+    payment.transaction_id = payment_intent['id']
 
-        async function initStripe() {
-            try {
-                // Fetch Stripe public key from backend (you need to add this endpoint or hardcode for now)
-                // We'll assume there is an endpoint /api/payments/config returning { publicKey }
-                const configRes = await safeApiCall('/api/payments/config');
-                let publicKey = 'pk_test_51QnFBDQpAhs2bhxJKRVWi5OyO3UaohNOM7A53c3UX5mtBBs423rIVDE8hvoQW26grdRdO6jNfgvQHbJyXYPCwlpl00zBTdoVmR'; // fallback
-                if (configRes && configRes.ok) {
-                    const config = await configRes.json();
-                    publicKey = config.publicKey;
-                }
-                stripe = Stripe(publicKey);
-                elements = stripe.elements();
-                cardElement = elements.create('card', { style: { base: { fontSize: '16px', color: '#32325d', fontFamily: 'Arial, sans-serif' } } });
-                cardElement.mount('#card-element');
-                document.getElementById('payButton').disabled = false;
-            } catch (err) {
-                console.error('Stripe init error:', err);
-                showStatus('paymentStatus', 'Failed to initialize payment system. Please refresh.', 'error');
-            }
-        }
+    # Update related exam registration
+    if payment.exam_registration_id:
+    exam_reg = ExamRegistration.query.get(payment.exam_registration_id)
+    if exam_reg:
+    exam_reg.payment_status = 'paid'
 
-        // Payment type selection logic
-        const paymentTypeSelect = document.getElementById('paymentType');
-        const customAmountDiv = document.getElementById('customAmountDiv');
-        paymentTypeSelect.addEventListener('change', () => {
-            customAmountDiv.style.display = paymentTypeSelect.value === 'custom' ? 'block' : 'none';
-        });
+    # Update related accommodation registration
+    if payment.accommodation_registration_id:
+    accom_reg = AccommodationRegistration.query.get(payment.accommodation_registration_id)
+    if accom_reg:
+    accom_reg.payment_status = 'paid'
 
-        async function handlePayment() {
-            const payBtn = document.getElementById('payButton');
-            payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
-            const statusDiv = document.getElementById('paymentStatus');
-            statusDiv.style.display = 'none';
+    db.session.commit()
+    print(f"Payment record updated: {payment.id}")
 
-            try {
-                let amount = 0;
-                let paymentType = '';
-                const selectedType = paymentTypeSelect.value;
-                const outstanding = window.outstandingData;
+    # Handle payment_intent.payment_failed
+    elif event['type'] == 'payment_intent.payment_failed':
+    payment_intent = event['data']['object']
+    print(f"Payment failed: {payment_intent['id']}")
 
-                if (selectedType === 'full') {
-                    amount = outstanding.outstanding_balance;
-                    paymentType = 'tuition'; // or registration; adjust as needed
-                    if (amount <= 0) {
-                        showStatus('paymentStatus', 'No outstanding balance to pay.', 'error');
-                        payBtn.disabled = false;
-                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
-                        return;
-                    }
-                } else if (selectedType === 'supplementary') {
-                    amount = outstanding.supplementary_fees || 0;
-                    paymentType = 'supplementary';
-                    if (amount <= 0) {
-                        showStatus('paymentStatus', 'No supplementary fees due.', 'error');
-                        payBtn.disabled = false;
-                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
-                        return;
-                    }
-                } else if (selectedType === 'resit') {
-                    amount = outstanding.resit_fees || 0;
-                    paymentType = 'resit';
-                    if (amount <= 0) {
-                        showStatus('paymentStatus', 'No resit fees due.', 'error');
-                        payBtn.disabled = false;
-                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
-                        return;
-                    }
-                } else if (selectedType === 'retake') {
-                    amount = outstanding.retake_fees || 0;
-                    paymentType = 'retake';
-                    if (amount <= 0) {
-                        showStatus('paymentStatus', 'No retake fees due.', 'error');
-                        payBtn.disabled = false;
-                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
-                        return;
-                    }
-                } else if (selectedType === 'custom') {
-                    const custom = parseFloat(document.getElementById('customAmount').value);
-                    if (isNaN(custom) || custom <= 0) {
-                        showStatus('paymentStatus', 'Please enter a valid amount.', 'error');
-                        payBtn.disabled = false;
-                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
-                        return;
-                    }
-                    amount = custom;
-                    paymentType = 'custom';
-                }
+    payment = Payment.query.filter_by(
+    stripe_payment_intent_id=payment_intent['id']
+    ).first()
 
-                // Create PaymentIntent
-                const createIntentRes = await safeApiCall('/api/payments/create-payment-intent', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        amount: amount,
-                        payment_type: paymentType,
-                        currency: 'bwp',
-                        description: `GIPS College Fee Payment - ${paymentType}`
-                    })
-                });
-                if (!createIntentRes || !createIntentRes.ok) {
-                    const errData = await createIntentRes.json();
-                    throw new Error(errData.error || 'Failed to create payment intent');
-                }
-                const intentData = await createIntentRes.json();
-                if (intentData.is_exempt) {
-                    showStatus('paymentStatus', 'This fee is exempted for government sponsored students.', 'info');
-                    payBtn.disabled = false;
-                    payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
-                    return;
-                }
+    if payment and payment.status != 'failed':
+    payment.status = 'failed'
+    db.session.commit()
 
-                // Confirm payment with Stripe
-                const { error, paymentIntent } = await stripe.confirmCardPayment(intentData.clientSecret, {
-                    payment_method: { card: cardElement }
-                });
-                if (error) {
-                    throw new Error(error.message);
-                }
-                if (paymentIntent.status === 'succeeded') {
-                    // Confirm with backend
-                    const confirmRes = await safeApiCall('/api/payments/confirm-payment', {
-                        method: 'POST',
-                        body: JSON.stringify({ paymentIntentId: paymentIntent.id })
-                    });
-                    if (confirmRes && confirmRes.ok) {
-                        showStatus('paymentStatus', 'Payment successful! Thank you.', 'success');
-                        // Reload fee summary and history
-                        loadOutstandingFees();
-                        loadPaymentHistory(1);
-                    } else {
-                        throw new Error('Payment confirmed by Stripe but backend update failed.');
-                    }
-                }
-            } catch (err) {
-                console.error(err);
-                showStatus('paymentStatus', err.message || 'Payment failed. Please try again.', 'error');
-            } finally {
-                payBtn.disabled = false;
-                payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
-            }
-        }
+    # Handle charge.refunded
+    elif event['type'] == 'charge.refunded':
+    charge = event['data']['object']
+    print(f"Charge refunded: {charge['id']}")
 
-        // ========== Initialization ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-        document.getElementById('payButton').addEventListener('click', handlePayment);
+    # Find payment by transaction_id
+    payment = Payment.query.filter_by(transaction_id=charge['id']).first()
+    if payment and payment.status != 'refunded':
+    payment.status = 'refunded'
+    db.session.commit()
 
-        (async function init() {
-            await loadOutstandingFees();
-            await loadPaymentHistory();
-            await initStripe();
-        })();
-    </script>
-</body>
+    return jsonify({'status': 'success'}), 200
 
-</html>
+    except Exception as e:
+    print(f"Webhook Error: {e}")
+    traceback.print_exc()
+    # Always return 200 to prevent Stripe from retrying
+    return jsonify({'status': 'error', 'message': str(e)}), 200
+
+
+    # ============================================
+    # INSTALLMENT PLAN (optional)
+    # ============================================
+    @payments_bp.route('/installment-plan', methods=['POST'])
+    @jwt_required()
+    def create_installment_plan():
+    """Create an installment plan for self-sponsored students"""
+    try:
+    current_user_id = get_jwt_identity()
+    user_id = int(current_user_id) if current_user_id else None
+    student = Student.query.filter_by(user_id=user_id).first()
+
+    if not student:
+    return jsonify({'error': 'Student record not found'}), 404
+
+    if student.is_government_sponsored:
+    return jsonify({'error': 'Government sponsored students are exempt from fees'}), 400
+
+    data = request.get_json()
+    total_amount = float(data.get('total_amount', 0))
+    months = int(data.get('months', 3))
+    registration_id = data.get('registration_id')
+
+    if total_amount <= 0: return jsonify({'error': 'Invalid total amount' }), 400 if months not in [2, 3, 4, 6]: return
+        jsonify({'error': 'Installment months must be 2, 3, 4, or 6' }), 400 # Calculate installment amounts
+        installment_amount=total_amount / months start_date=datetime.utcnow().date() installments=[] for i in
+        range(months): due_date=start_date + timedelta(days=30 * (i + 1)) installments.append({ 'installment_number' : i
+        + 1, 'amount' : installment_amount, 'due_date' : due_date.isoformat(), 'status' : 'pending' }) # Create payment
+        record for the installment plan payment=Payment( student_id=student.id, registration_id=registration_id,
+        amount=total_amount, currency='BWP' , payment_type='installment_plan' , status='pending' , notes=f'Installment
+        plan over {months} months', payment_reference=f'INST-{datetime.now().strftime("%Y%m%d%H%M%S")}-{student.id}' )
+        db.session.add(payment) db.session.commit() return jsonify({ 'success' : True, 'installment_plan_id' :
+        payment.id, 'total_amount' : total_amount, 'months' : months, 'installment_amount' :
+        installment_amount, 'installments' : installments, 'message' : f'Installment plan created successfully. Pay
+        {installment_amount:.2f} per month for {months} months.' }), 200 except Exception as e: db.session.rollback()
+        print(f"Installment plan error: {e}") traceback.print_exc() return
+        jsonify({'error': 'Failed to create installment plan' }), 500

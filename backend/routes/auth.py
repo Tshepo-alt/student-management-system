@@ -1,5 +1,5 @@
 # backend/routes/auth.py
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, redirect, session
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -7,12 +7,242 @@ import re
 import traceback as tb
 import json
 import logging
+import requests
+
+# OAuth2 imports
+from authlib.integrations.flask_oauth2 import (
+    AuthorizationServer, ResourceProtector, current_token
+)
+from authlib.oauth2.rfc6749 import grants
+from authlib.oauth2.rfc6749.errors import (
+    InvalidClientError, UnauthorizedClientError,
+    InvalidGrantError, UnsupportedGrantTypeError
+)
 
 from models import db, User, Student, Program, Campus, Registration
 from backend.utils.email import EmailService
 
 logger = logging.getLogger(__name__)
 auth_bp = Blueprint('auth', __name__)
+
+# ============================================
+# OAuth2 Server Setup (for Moodle SSO)
+# ============================================
+
+# --- Helper Classes for OAuth2 ---
+
+class OAuth2User:
+    """Wrapper for user data needed by OAuth2"""
+    def __init__(self, user_id, username, email, firstname, lastname):
+        self.user_id = user_id
+        self.username = username
+        self.email = email
+        self.firstname = firstname
+        self.lastname = lastname
+
+class PasswordGrant(grants.ResourceOwnerPasswordCredentialsGrant):
+    """Resource owner password credentials grant (not used by Moodle, but required by Authlib)"""
+    def authenticate_user(self, username, password):
+        user = User.query.filter((User.email == username) | (User.username == username)).first()
+        if user and check_password_hash(user.password_hash, password):
+            student = Student.query.filter_by(user_id=user.id).first()
+            return OAuth2User(
+                user_id=user.id,
+                username=user.username,
+                email=user.email,
+                firstname=student.first_name if student else user.username,
+                lastname=student.last_name if student else ''
+            )
+        return None
+
+    def authenticate_token(self, token):
+        return None
+
+class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
+    """Authorization code grant (used by Moodle)"""
+    def authenticate_user(self, authorization_code):
+        # This method is called after the user consents.
+        # For auto-approval, we can just return the user from the code's saved data.
+        # We'll store the user_id in the code's extra data.
+        code_data = self.get_authorization_code(authorization_code)
+        if not code_data:
+            return None
+        user_id = code_data.get('user_id')
+        if not user_id:
+            return None
+        user = User.query.get(user_id)
+        if not user:
+            return None
+        student = Student.query.filter_by(user_id=user.id).first()
+        return OAuth2User(
+            user_id=user.id,
+            username=user.username,
+            email=user.email,
+            firstname=student.first_name if student else user.username,
+            lastname=student.last_name if student else ''
+        )
+
+    def get_authorization_code(self, code):
+        # In a real implementation, you would store codes in a database table.
+        # For simplicity, we use a cache dict or store in session.
+        # Here we use a simple in-memory store (for development only).
+        # For production, create an OAuth2Code model.
+        codes = getattr(current_app, '_oauth2_codes', {})
+        return codes.get(code)
+
+    def save_authorization_code(self, code, request):
+        # Store the code with user info
+        codes = getattr(current_app, '_oauth2_codes', {})
+        codes[code] = {
+            'user_id': request.user.user_id,
+            'client_id': request.client.client_id,
+            'redirect_uri': request.redirect_uri,
+            'scope': request.scope,
+            'expires_at': datetime.utcnow() + timedelta(minutes=10)
+        }
+        current_app._oauth2_codes = codes
+
+class BearerTokenGrant(grants.BearerTokenGrant):
+    """Bearer token grant for exchanging code for token"""
+    def authenticate_client(self):
+        # Basic client authentication
+        auth = request.authorization
+        if not auth:
+            # Try to get from POST body
+            client_id = request.form.get('client_id')
+            client_secret = request.form.get('client_secret')
+            if client_id and client_secret:
+                return client_id == current_app.config.get('OAUTH2_CLIENT_ID') and \
+                       client_secret == current_app.config.get('OAUTH2_CLIENT_SECRET')
+            return False
+        return auth.username == current_app.config.get('OAUTH2_CLIENT_ID') and \
+               auth.password == current_app.config.get('OAUTH2_CLIENT_SECRET')
+
+    def authenticate_token(self, token):
+        # Not needed for this flow
+        return None
+
+# Initialize OAuth2 server (to be attached to app in create_app)
+authorization = AuthorizationServer()
+
+def load_user_from_token(token):
+    """Load user from access token for the userinfo endpoint"""
+    # For simplicity, we decode the token (assuming it's a JWT signed with same secret)
+    # In production, you should store access tokens in a database and validate.
+    from authlib.jose import JsonWebToken
+    jwt = JsonWebToken(['HS256'])
+    try:
+        claims = jwt.decode(token, current_app.config.get('JWT_SECRET_KEY'))
+        user_id = claims.get('user_id')
+        if not user_id:
+            return None
+        user = User.query.get(user_id)
+        if not user:
+            return None
+        student = Student.query.filter_by(user_id=user.id).first()
+        return OAuth2User(
+            user_id=user.id,
+            username=user.username,
+            email=user.email,
+            firstname=student.first_name if student else user.username,
+            lastname=student.last_name if student else ''
+        )
+    except Exception:
+        return None
+
+resource_protector = ResourceProtector()
+resource_protector.register_token_validator(lambda token: load_user_from_token(token) is not None)
+
+# OAuth2 routes (to be added to blueprint)
+
+@auth_bp.route('/oauth2/authorize', methods=['GET'])
+def oauth2_authorize():
+    """
+    OAuth2 authorization endpoint.
+    Moodle redirects the user here. The user should be logged into your SMS.
+    """
+    # Check if user is logged into SMS (using JWT token in Authorization header or session)
+    # For simplicity, we'll check the session or a query parameter.
+    # In your frontend, you can include the JWT token as a query param.
+    token = request.args.get('jwt')
+    if token:
+        # Validate the JWT token
+        from flask_jwt_extended import decode_token
+        try:
+            decoded = decode_token(token)
+            user_id = decoded.get('sub')
+            user = User.query.get(int(user_id))
+            if not user:
+                return jsonify({'error': 'Invalid token'}), 401
+            # Set user in session for the rest of the flow
+            session['user_id'] = user.id
+        except Exception as e:
+            return jsonify({'error': str(e)}), 401
+    else:
+        # If no token, check session
+        if 'user_id' not in session:
+            # Not logged in: redirect to your SMS login page with return URL
+            frontend_url = current_app.config.get('FRONTEND_URL', 'http://localhost:5000')
+            redirect_uri = request.url
+            login_url = f"{frontend_url}/login?next={redirect_uri}"
+            return redirect(login_url)
+        user_id = session['user_id']
+        user = User.query.get(user_id)
+        if not user:
+            session.clear()
+            return jsonify({'error': 'User not found'}), 401
+
+    # Auto-approve (skip consent screen) and generate code
+    # In production, you might want a consent page.
+    client_id = request.args.get('client_id')
+    redirect_uri = request.args.get('redirect_uri')
+    response_type = request.args.get('response_type')
+    state = request.args.get('state')
+
+    # Create a fake client object for validation
+    class FakeClient:
+        def __init__(self, client_id):
+            self.client_id = client_id
+            self.redirect_uris = [redirect_uri] if redirect_uri else []
+            self.default_redirect_uri = redirect_uri
+            self.grant_types = ['authorization_code']
+            self.response_types = ['code']
+
+    client = FakeClient(client_id)
+    # Store the user info in a temporary code
+    code = authorization.create_authorization_code(client, {
+        'user_id': user.id
+    }, request)
+
+    # Redirect back to Moodle with the code
+    return redirect(f"{redirect_uri}?code={code}&state={state}")
+
+@auth_bp.route('/oauth2/token', methods=['POST'])
+def oauth2_token():
+    """OAuth2 token endpoint (exchanges code for access token)"""
+    return authorization.create_token_response()
+
+@auth_bp.route('/oauth2/userinfo', methods=['GET'])
+def oauth2_userinfo():
+    """OAuth2 userinfo endpoint (returns user details for Moodle)"""
+    # Validate the access token
+    token = request.headers.get('Authorization', '').replace('Bearer ', '')
+    if not token:
+        return jsonify({'error': 'Missing token'}), 401
+    user = load_user_from_token(token)
+    if not user:
+        return jsonify({'error': 'Invalid token'}), 401
+    return jsonify({
+        'sub': str(user.user_id),
+        'username': user.username,
+        'email': user.email,
+        'firstname': user.firstname,
+        'lastname': user.lastname
+    })
+
+# ============================================
+# Existing validation functions
+# ============================================
 
 def validate_email(email):
     """Validate email format"""
@@ -31,6 +261,9 @@ def validate_password(password):
         return False, "Password must contain at least one digit"
     return True, "Password is valid"
 
+# ============================================
+# Existing registration endpoint
+# ============================================
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -212,6 +445,9 @@ def register():
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# ============================================
+# Existing login endpoint
+# ============================================
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -308,6 +544,9 @@ def login():
         )
         refresh_token = create_refresh_token(identity=str(user.id))
 
+        # Also store user ID in session for OAuth2 flow
+        session['user_id'] = user.id
+
         return jsonify({
             'success': True,
             'message': 'Login successful',
@@ -337,6 +576,10 @@ def login():
             'traceback': tb.format_exc()
         }), 500
 
+# ============================================
+# Existing token refresh, verify, logout, profile, change-password, forgot-password, reset-password, verify-email, admin/create
+# (keep all your existing endpoints unchanged)
+# ============================================
 
 @auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
@@ -401,6 +644,8 @@ def logout():
         
         if user:
             logger.info(f"[AUTH] User logged out: {user.email}")
+            # Clear session for OAuth2
+            session.pop('user_id', None)
         
         return jsonify({'message': 'Logged out successfully'}), 200
     except Exception as e:
@@ -788,6 +1033,9 @@ def create_admin():
         tb.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# ============================================
+# Existing campus endpoints (unchanged)
+# ============================================
 
 @auth_bp.route('/campuses', methods=['GET'])
 def get_campuses():

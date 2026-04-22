@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Accommodation - GIPS College | GIPS Student Village</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -19,10 +19,9 @@
             min-height: 100vh;
         }
 
-        /* Navigation (consistent with other pages) */
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -82,24 +81,6 @@
             color: #667eea;
         }
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s;
-            transform: translateX(-50%);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 70%;
-        }
-
-        /* Hero Banner */
         .hero-banner {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 24px;
@@ -108,7 +89,7 @@
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         .hero-banner::before {
@@ -122,16 +103,6 @@
             opacity: 0.15;
         }
 
-        .hero-banner h1 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-        }
-
-        .hero-banner p {
-            opacity: 0.9;
-        }
-
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -144,14 +115,8 @@
             padding: 20px;
             border-radius: 20px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .stat-number {
@@ -160,13 +125,6 @@
             color: #667eea;
         }
 
-        .stat-label {
-            color: #718096;
-            font-size: 0.85rem;
-            margin-top: 5px;
-        }
-
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 12px;
@@ -174,7 +132,6 @@
             background: white;
             padding: 8px;
             border-radius: 20px;
-            border: 1px solid rgba(102,126,234,0.1);
             flex-wrap: wrap;
         }
 
@@ -193,14 +150,10 @@
             gap: 8px;
         }
 
-        .tab-button i {
-            font-size: 1rem;
-        }
-
         .tab-button.active {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .tab-content {
@@ -213,11 +166,17 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* Accommodation Grid */
         .accommodation-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -228,13 +187,7 @@
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            transition: all 0.3s;
-            border: 1px solid rgba(102,126,234,0.1);
-        }
-
-        .accommodation-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .card-header {
@@ -242,11 +195,6 @@
             padding: 20px;
             text-align: center;
             color: white;
-        }
-
-        .card-header i {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
         }
 
         .card-content {
@@ -275,7 +223,6 @@
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
-            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -290,7 +237,7 @@
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
         }
 
         .btn-danger {
@@ -308,7 +255,6 @@
             cursor: not-allowed;
         }
 
-        /* Badges */
         .badge {
             display: inline-block;
             padding: 4px 12px;
@@ -349,29 +295,12 @@
             gap: 10px;
         }
 
-        .info-item label {
-            font-weight: 600;
-            color: #4a5568;
-        }
-
-        /* Rules Section */
         .rules-section {
             background: white;
             border-radius: 20px;
             padding: 20px;
             margin-bottom: 25px;
-            border: 1px solid rgba(102,126,234,0.1);
-        }
-
-        .rules-section h3 {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .rules-list {
-            margin-top: 15px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .rule-item {
@@ -379,20 +308,8 @@
             border-bottom: 1px solid #e2e8f0;
             display: flex;
             gap: 12px;
-            align-items: flex-start;
         }
 
-        .rule-item:last-child {
-            border-bottom: none;
-        }
-
-        .rule-icon {
-            color: #667eea;
-            width: 24px;
-            text-align: center;
-        }
-
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -401,14 +318,14 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
             align-items: center;
             justify-content: center;
         }
 
         .modal-content {
-            background-color: white;
+            background: white;
             margin: 5% auto;
             padding: 30px;
             border-radius: 24px;
@@ -416,7 +333,6 @@
             max-width: 550px;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
         }
 
         .close {
@@ -455,22 +371,9 @@
             margin: 15px 0;
         }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(102,126,234,0.2);
-            border-radius: 50%;
-            border-top-color: #667eea;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error-message, .success-message, .info-message {
+        .error-message,
+        .success-message,
+        .info-message {
             padding: 12px 16px;
             border-radius: 12px;
             margin: 15px 0;
@@ -489,10 +392,21 @@
             border-left: 4px solid #38a169;
         }
 
-        .info-message {
-            background: #cfe2ff;
-            color: #084298;
-            border-left: 4px solid #3182ce;
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .footer {
@@ -507,40 +421,37 @@
             .container {
                 padding: 0 20px;
             }
-            .navbar .container {
-                flex-direction: column;
-            }
-            .nav-menu {
-                justify-content: center;
-                gap: 0.25rem;
-            }
-            .tabs {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
+
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+
             .accommodation-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
-                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
                 <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
-                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exams</a></li>
-                <li><a href="accomodation.html" class="nav-link active"><i class="fas fa-building"></i> Accommodation</a></li>
-                <li><a href="student-timetables.html" class="nav-link"><i class="fas fa-calendar-week"></i> Timetable</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i>
+                        Exams</a></li>
+                <li><a href="accomodation.html" class="nav-link active"><i class="fas fa-building"></i>
+                        Accommodation</a></li>
+                <li><a href="student-timetables.html" class="nav-link"><i class="fas fa-calendar-week"></i>
+                        Timetable</a></li>
                 <li><a href="results-view.html" class="nav-link"><i class="fas fa-chart-line"></i> Results</a></li>
-                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a></li>
+                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a>
+                </li>
                 <li><a href="student-profile.html" class="nav-link"><i class="fas fa-user-circle"></i> Profile</a></li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -551,7 +462,8 @@
     <div class="container">
         <div class="hero-banner">
             <h1><i class="fas fa-home"></i> GIPS Student Village</h1>
-            <p>Experience premium student living at Gaborone Main Campus. Modern facilities, 24/7 security, and a vibrant community.</p>
+            <p>Experience premium student living at Gaborone Main Campus. Modern facilities, 24/7 security, and a
+                vibrant community.</p>
         </div>
 
         <div class="stats-grid">
@@ -575,7 +487,8 @@
 
         <div class="tabs">
             <button class="tab-button active" data-tab="available"><i class="fas fa-bed"></i> Available Rooms</button>
-            <button class="tab-button" data-tab="my-application"><i class="fas fa-clipboard-list"></i> My Application</button>
+            <button class="tab-button" data-tab="my-application"><i class="fas fa-clipboard-list"></i> My
+                Application</button>
             <button class="tab-button" data-tab="rules"><i class="fas fa-gavel"></i> Rules & Regulations</button>
         </div>
 
@@ -585,11 +498,9 @@
                 <p>Loading residences...</p>
             </div>
         </div>
-
         <div id="my-application" class="tab-content">
             <div id="myApplication"></div>
         </div>
-
         <div id="rules" class="tab-content">
             <div id="rulesContent"></div>
         </div>
@@ -633,17 +544,20 @@
                 </div>
                 <div class="form-group">
                     <label>Medical Conditions (if any)</label>
-                    <textarea id="medicalConditions" rows="2" placeholder="List any medical conditions or allergies..."></textarea>
+                    <textarea id="medicalConditions" rows="2"
+                        placeholder="List any medical conditions or allergies..."></textarea>
                 </div>
                 <div class="form-group">
                     <label>Dietary Requirements</label>
-                    <textarea id="dietaryRequirements" rows="2" placeholder="Any dietary restrictions or preferences..."></textarea>
+                    <textarea id="dietaryRequirements" rows="2"
+                        placeholder="Any dietary restrictions or preferences..."></textarea>
                 </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="acceptRules" required>
                     <label>I have read and agree to the accommodation rules and regulations</label>
                 </div>
-                <button type="submit" id="submitApplicationBtn" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Submit Application</button>
+                <button type="submit" id="submitApplicationBtn" class="btn btn-primary"><i
+                        class="fas fa-paper-plane"></i> Submit Application</button>
             </form>
             <div id="applicationError" class="error-message"></div>
             <div id="applicationSuccess" class="success-message"></div>
@@ -657,8 +571,10 @@
             <p>Are you sure you want to cancel your accommodation application?</p>
             <p style="color: #e53e3e; margin: 15px 0;">This action cannot be undone.</p>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-secondary" onclick="closeModal('cancelModal')"><i class="fas fa-arrow-left"></i> Go Back</button>
-                <button id="confirmCancelBtn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Yes, Cancel Application</button>
+                <button class="btn btn-secondary" onclick="closeModal('cancelModal')"><i class="fas fa-arrow-left"></i>
+                    Go Back</button>
+                <button id="confirmCancelBtn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Yes, Cancel
+                    Application</button>
             </div>
         </div>
     </div>
@@ -672,79 +588,62 @@
 
     <script>
         // ============================================
-        // AUTHENTICATION & ADMISSION CHECK
+        // GLOBALS & AUTH
         // ============================================
         const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-
         if (!token) window.location.href = 'login.html';
 
-        // Check if user is a student (should be) and get admission status
-        let admissionStatus = 'pending'; // will be fetched
+        let admissionStatus = 'pending';
         let canApply = false;
+        let studentCampusId = null;
 
-        async function checkAdmissionStatus() {
-            const response = await safeApiCall('/api/students/status');
-            if (response && response.ok) {
-                const data = await response.json();
-                admissionStatus = data.admission_status;
-                canApply = admissionStatus === 'accepted';
-                return data;
-            }
-            // Demo: assume accepted if no API
-            canApply = true;
-            admissionStatus = 'accepted';
-            return { admission_status: 'accepted' };
-        }
-
-        // ============================================
-        // SAFE API CALL
-        // ============================================
         async function safeApiCall(endpoint, options = {}) {
             try {
                 const response = await fetch(endpoint, {
                     ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
                 });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
+                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
                 return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
+            } catch (error) { console.error(error); return null; }
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        // Check student eligibility via backend
+        async function checkEligibility() {
+            const response = await safeApiCall('/api/accommodation/check-eligibility');
+            if (response && response.ok) {
+                const data = await response.json();
+                canApply = data.eligible;
+                if (!canApply) {
+                    const msg = data.reasons ? data.reasons.join(' ') : 'You are not eligible for accommodation at this time.';
+                    document.getElementById('infoBanner').innerHTML = `<div class="info-message" style="display:block;"><i class="fas fa-info-circle"></i> ${msg}</div>`;
+                }
+                return data;
+            }
+            // fallback: try status endpoint
+            const statusResp = await safeApiCall('/api/students/status');
+            if (statusResp && statusResp.ok) {
+                const statusData = await statusResp.json();
+                admissionStatus = statusData.admission_status;
+                canApply = admissionStatus === 'accepted' && statusData.can_apply_accommodation === true;
+                if (!canApply) {
+                    document.getElementById('infoBanner').innerHTML = `<div class="info-message" style="display:block;"><i class="fas fa-info-circle"></i> Your admission is not yet approved or your campus does not offer accommodation.</div>`;
+                }
+            } else {
+                canApply = true; // assume for demo
+            }
+            return { eligible: canApply };
         }
 
         // ============================================
-        // ACCOMMODATION DATA (from database schema)
+        // ROOM AVAILABILITY (demo data, replace with real API)
         // ============================================
         const gipsVillage = {
             name: 'GIPS Student Village',
-            location: 'Gaborone Main Campus, Block 6 Along Molepolole Road',
             blocks: ['A', 'B', 'C', 'D', 'E'],
             roomsPerBlock: 32,
-            bachelorPadsPerBlock: 16,
-            threeBedRoomsPerBlock: 16,
-            bachelorPadCapacity: 2,
-            threeBedCapacity: 6,
             amenities: ['Kitchen with Electric Stove', 'Washing Basin', 'Shower', 'Water Supply', '24/7 Security', 'Study Table', 'Bed', 'Chair', 'High-Speed WiFi']
         };
-
-        // Simulated room availability (would come from database)
         let rooms = {
             A: { bachelor_pad_available: 14, three_bed_available: 12, total: 32 },
             B: { bachelor_pad_available: 10, three_bed_available: 8, total: 32 },
@@ -759,10 +658,10 @@
                 totalRooms += rooms[block].total;
                 availableRooms += rooms[block].bachelor_pad_available + rooms[block].three_bed_available;
             }
-            const occupancyRate = totalRooms > 0 ? ((totalRooms - availableRooms) / totalRooms * 100).toFixed(1) : 0;
+            const occRate = totalRooms > 0 ? ((totalRooms - availableRooms) / totalRooms * 100).toFixed(1) : 0;
             document.getElementById('totalRooms').textContent = totalRooms;
             document.getElementById('availableRooms').textContent = availableRooms;
-            document.getElementById('occupancyRate').textContent = `${occupancyRate}%`;
+            document.getElementById('occupancyRate').textContent = `${occRate}%`;
             document.getElementById('applicantsCount').textContent = '23'; // demo
         }
 
@@ -771,29 +670,19 @@
             calculateStats();
             container.innerHTML = gipsVillage.blocks.map(block => {
                 const blockData = rooms[block];
-                const bachelorAvailable = blockData.bachelor_pad_available;
-                const threeBedAvailable = blockData.three_bed_available;
-                const totalAvailable = bachelorAvailable + threeBedAvailable;
-                const bachelorPadsTotal = 16;
-                const threeBedTotal = 16;
-                const occupancyBachelor = ((bachelorPadsTotal - bachelorAvailable) / bachelorPadsTotal * 100).toFixed(0);
-                const occupancyThreeBed = ((threeBedTotal - threeBedAvailable) / threeBedTotal * 100).toFixed(0);
-
+                const bachelorAvail = blockData.bachelor_pad_available;
+                const threeBedAvail = blockData.three_bed_available;
+                const totalAvail = bachelorAvail + threeBedAvail;
                 return `
                     <div class="accommodation-card">
-                        <div class="card-header">
-                            <i class="fas fa-building"></i>
-                            <h3>Block ${block}</h3>
-                        </div>
+                        <div class="card-header"><i class="fas fa-building"></i><h3>Block ${block}</h3></div>
                         <div class="card-content">
                             <p>Located at Gaborone Main Campus. Modern, secure housing with all amenities.</p>
-                            <div class="amenities-list">
-                                ${gipsVillage.amenities.slice(0, 5).map(a => `<span class="amenity-tag"><i class="fas fa-check"></i> ${escapeHtml(a)}</span>`).join('')}
-                            </div>
-                            <div class="info-item"><label><i class="fas fa-bed"></i> Bachelor Pads:</label><span>${bachelorAvailable} / ${bachelorPadsTotal} available (${occupancyBachelor}% occupied)</span></div>
-                            <div class="info-item"><label><i class="fas fa-users"></i> Three-Bed Rooms:</label><span>${threeBedAvailable} / ${threeBedTotal} available (${occupancyThreeBed}% occupied)</span></div>
-                            <button class="btn btn-primary" onclick="openApplicationModal('Block ${block}', '${block}')" ${totalAvailable === 0 ? 'disabled' : ''}>
-                                ${totalAvailable > 0 ? '<i class="fas fa-paper-plane"></i> Apply' : '<i class="fas fa-ban"></i> Fully Booked'}
+                            <div class="amenities-list">${gipsVillage.amenities.slice(0, 5).map(a => `<span class="amenity-tag"><i class="fas fa-check"></i> ${escapeHtml(a)}</span>`).join('')}</div>
+                            <div class="info-item"><label>Bachelor Pads:</label><span>${bachelorAvail} / 16 available</span></div>
+                            <div class="info-item"><label>Three-Bed Rooms:</label><span>${threeBedAvail} / 16 available</span></div>
+                            <button class="btn btn-primary" onclick="openApplicationModal('Block ${block}', '${block}')" ${totalAvail === 0 ? 'disabled' : ''}>
+                                ${totalAvail > 0 ? '<i class="fas fa-paper-plane"></i> Apply' : '<i class="fas fa-ban"></i> Fully Booked'}
                             </button>
                         </div>
                     </div>
@@ -802,23 +691,18 @@
         }
 
         // ============================================
-        // APPLICATION LOGIC
+        // APPLICATION SUBMISSION (FIXED)
         // ============================================
         let selectedBlock = null;
-
-        async function openApplicationModal(blockName, block) {
+        window.openApplicationModal = function (blockName, block) {
             if (!canApply) {
-                alert('You can only apply for accommodation after your admission has been approved.');
+                alert('You are not eligible to apply for accommodation at this time. Your admission must be approved and your campus must offer accommodation.');
                 return;
             }
             selectedBlock = block;
-            document.getElementById('accommodationDetails').innerHTML = `
-                <i class="fas fa-info-circle"></i> <strong>Applying for Block ${escapeHtml(blockName)}</strong><br>
-                GIPS Student Village, Gaborone Main Campus.<br>
-                Fees: Government-sponsored students exempt; Self-sponsored: P5,000 deposit (refundable).
-            `;
+            document.getElementById('accommodationDetails').innerHTML = `<i class="fas fa-info-circle"></i> <strong>Applying for Block ${escapeHtml(blockName)}</strong><br>GIPS Student Village, Gaborone Main Campus.`;
             document.getElementById('applicationModal').style.display = 'block';
-        }
+        };
 
         async function submitApplication() {
             const submitBtn = document.getElementById('submitApplicationBtn');
@@ -842,7 +726,7 @@
                 return;
             }
             if (!acceptRules) {
-                errorDiv.textContent = 'Please accept the accommodation rules and regulations';
+                errorDiv.textContent = 'You must accept the accommodation rules and regulations';
                 errorDiv.style.display = 'block';
                 return;
             }
@@ -850,15 +734,15 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
 
+            // Build payload exactly as backend expects
             const payload = {
-                block: selectedBlock,
                 room_type: roomType,
                 block_preference: blockPreference || null,
                 emergency_contact_name: emergencyName,
                 emergency_contact_phone: emergencyPhone,
-                emergency_contact_relationship: emergencyRelation,
-                medical_conditions: medicalConditions,
-                dietary_requirements: dietaryRequirements,
+                emergency_contact_relationship: emergencyRelation || null,
+                medical_conditions: medicalConditions || null,
+                dietary_requirements: dietaryRequirements || null,
                 has_accepted_rules: acceptRules
             };
 
@@ -868,58 +752,68 @@
             });
 
             if (response && response.ok) {
-                successDiv.innerHTML = '<i class="fas fa-check-circle"></i> Application submitted successfully! You will receive a response within 48 hours.';
+                const result = await response.json();
+                successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message || 'Application submitted successfully! You will receive a response within 48 hours.'}`;
                 successDiv.style.display = 'block';
                 setTimeout(() => {
                     document.getElementById('applicationModal').style.display = 'none';
                     loadMyApplication();
+                    document.querySelector('[data-tab="my-application"]').click();
                 }, 2000);
             } else {
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed to submit application. Please try again.';
+                let errorMsg = 'Failed to submit application. Please try again.';
+                if (response && response.status === 400) {
+                    try {
+                        const errData = await response.json();
+                        errorMsg = errData.error || errData.message || errorMsg;
+                    } catch (e) { }
+                }
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMsg}`;
                 errorDiv.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
             }
         }
 
+        // ============================================
+        // LOAD MY APPLICATION (status)
+        // ============================================
         async function loadMyApplication() {
             const container = document.getElementById('myApplication');
             container.innerHTML = '<div class="loading-spinner"></div><p>Loading your application...</p>';
-
             const response = await safeApiCall('/api/accommodation/status');
             if (response && response.ok) {
                 const data = await response.json();
                 if (data.has_applied) {
                     const statusClass = data.status === 'pending' ? 'badge-pending' : (data.status === 'approved' ? 'badge-approved' : (data.status === 'allocated' ? 'badge-allocated' : 'badge-rejected'));
-                    const statusText = data.status === 'pending' ? 'Pending Review' : (data.status === 'approved' ? 'Approved' : (data.status === 'allocated' ? 'Allocated' : 'Rejected'));
+                    const statusText = data.status_display || data.status;
                     container.innerHTML = `
                         <div class="accommodation-card">
                             <div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Your Application Status</h3></div>
                             <div class="card-content">
-                                <div class="info-item"><label><i class="fas fa-hashtag"></i> Application ID:</label><span>#${data.application_id}</span></div>
-                                <div class="info-item"><label><i class="fas fa-info-circle"></i> Status:</label><span class="badge ${statusClass}">${statusText}</span></div>
-                                <div class="info-item"><label><i class="fas fa-bed"></i> Room Type:</label><span>${data.room_type === 'bachelor_pad' ? 'Bachelor Pad (2 students)' : 'Three-Bed Room (6 students)'}</span></div>
-                                <div class="info-item"><label><i class="fas fa-building"></i> Block Preference:</label><span>${data.block_preference || 'Any'}</span></div>
-                                ${data.allocated_room_number ? `<div class="info-item"><label><i class="fas fa-door-open"></i> Allocated Room:</label><span>Block ${data.allocated_block} - Room ${data.allocated_room_number}</span></div>` : ''}
-                                <div class="info-item"><label><i class="fas fa-calendar-alt"></i> Applied on:</label><span>${new Date(data.created_at).toLocaleDateString()}</span></div>
+                                <div class="info-item"><label>Application ID:</label><span>#${data.application_id}</span></div>
+                                <div class="info-item"><label>Status:</label><span class="badge ${statusClass}">${statusText}</span></div>
+                                <div class="info-item"><label>Room Type:</label><span>${data.room_type_display || data.room_type}</span></div>
+                                <div class="info-item"><label>Block Preference:</label><span>${data.block_preference || 'Any'}</span></div>
+                                ${data.allocated_room_number ? `<div class="info-item"><label>Allocated Room:</label><span>Block ${data.allocated_block} - Room ${data.allocated_room_number}</span></div>` : ''}
+                                <div class="info-item"><label>Applied on:</label><span>${new Date(data.applied_date).toLocaleDateString()}</span></div>
                                 ${data.status === 'pending' ? `<button class="btn btn-danger" onclick="openCancelModal()"><i class="fas fa-trash-alt"></i> Cancel Application</button>` : ''}
                             </div>
                         </div>
                     `;
-                } else if (data.wants_accommodation === false) {
-                    container.innerHTML = `<div class="accommodation-card"><div class="card-header"><i class="fas fa-info-circle"></i><h3>No Accommodation Application</h3></div><div class="card-content"><p>You indicated that you do not require on-campus accommodation. If you wish to apply, contact the Accommodation Office.</p></div></div>`;
                 } else {
                     container.innerHTML = `<div class="accommodation-card"><div class="card-header"><i class="fas fa-file-alt"></i><h3>No Application Found</h3></div><div class="card-content"><p>You have not submitted an accommodation application yet.</p><button class="btn btn-primary" onclick="document.querySelector('[data-tab=\"available\"]').click()"><i class="fas fa-bed"></i> Browse Available Rooms</button></div></div>`;
                 }
             } else {
-                // Demo fallback
-                container.innerHTML = `<div class="accommodation-card"><div class="card-header"><i class="fas fa-file-alt"></i><h3>No Application Found</h3></div><div class="card-content"><p>You have not submitted an accommodation application yet.</p><button class="btn btn-primary" onclick="document.querySelector('[data-tab=\"available\"]').click()"><i class="fas fa-bed"></i> Browse Available Rooms</button></div></div>`;
+                container.innerHTML = `<div class="accommodation-card"><div class="card-header"><i class="fas fa-file-alt"></i><h3>Unable to Load</h3></div><div class="card-content"><p>Could not fetch your application status. Please refresh.</p></div></div>`;
             }
         }
 
+        // ============================================
+        // RULES & REGULATIONS
+        // ============================================
         function loadRules() {
-            const container = document.getElementById('rulesContent');
-            container.innerHTML = `
+            document.getElementById('rulesContent').innerHTML = `
                 <div class="rules-section">
                     <h3><i class="fas fa-gavel"></i> GIPS Student Village - Rules & Regulations</h3>
                     <p>All residents must adhere to the following rules to maintain a safe, respectful, and conducive living environment.</p>
@@ -939,22 +833,39 @@
                     <div class="info-item"><label>Bachelor Pads:</label><span>2 students per room (16 per block)</span></div>
                     <div class="info-item"><label>Three-Bed Rooms:</label><span>6 students per room (16 per block)</span></div>
                     <div class="info-item"><label>Total Blocks:</label><span>5 blocks (A, B, C, D, E)</span></div>
-                    <div class="info-item"><label>Rooms per Block:</label><span>32 rooms</span></div>
                     <div class="info-item"><label>Amenities:</label><span>Kitchen, Shower, Study Table, Bed, Chair, 24/7 Security, WiFi</span></div>
                 </div>
             `;
         }
 
-        // Modal helpers
-        function openCancelModal() {
-            document.getElementById('cancelModal').style.display = 'flex';
-        }
+        // ============================================
+        // MODAL HELPERS
+        // ============================================
+        window.openCancelModal = function () { document.getElementById('cancelModal').style.display = 'flex'; };
+        window.closeModal = function (modalId) { document.getElementById(modalId).style.display = 'none'; };
+        document.getElementById('applicationForm').addEventListener('submit', (e) => { e.preventDefault(); submitApplication(); });
+        document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
+            const resp = await safeApiCall('/api/accommodation/cancel', { method: 'POST' });
+            if (resp && resp.ok) {
+                alert('Application cancelled.');
+                closeModal('cancelModal');
+                loadMyApplication();
+            } else {
+                alert('Failed to cancel. Contact accommodation office.');
+                closeModal('cancelModal');
+            }
+        });
+        document.querySelectorAll('.close').forEach(btn => {
+            btn.addEventListener('click', function () { this.closest('.modal').style.display = 'none'; });
+        });
+        window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; });
+        document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
-        // Tab switching
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
         function setupTabs() {
             const tabs = document.querySelectorAll('.tab-button');
             const contents = document.querySelectorAll('.tab-content');
@@ -972,42 +883,11 @@
             });
         }
 
-        // Event listeners
-        document.getElementById('applicationForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            submitApplication();
-        });
-        document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
-            const response = await safeApiCall('/api/accommodation/cancel', { method: 'POST' });
-            if (response && response.ok) {
-                alert('Application cancelled.');
-                closeModal('cancelModal');
-                loadMyApplication();
-            } else {
-                alert('Failed to cancel. Contact accommodation office.');
-                closeModal('cancelModal');
-            }
-        });
-        document.querySelectorAll('.close').forEach(btn => {
-            btn.addEventListener('click', function() { this.closest('.modal').style.display = 'none'; });
-        });
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
-        });
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // Global functions for onclick
-        window.openApplicationModal = openApplicationModal;
-        window.openCancelModal = openCancelModal;
-        window.closeModal = closeModal;
-
-        // Initialize
+        // ============================================
+        // INIT
+        // ============================================
         async function init() {
-            await checkAdmissionStatus();
+            await checkEligibility();
             loadAvailableAccommodation();
             loadMyApplication();
             loadRules();
@@ -1016,4 +896,5 @@
         init();
     </script>
 </body>
+
 </html>

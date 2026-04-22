@@ -774,16 +774,14 @@ def get_available_courses():
         if not program_id:
             program_id = student.program_id
 
-        semester = request.args.get('semester', 1, type=int)  # default semester = 1
+        semester = request.args.get('semester', 1, type=int)
 
-        # Get module IDs linked to the student's program
         program_modules = ProgramModule.query.filter_by(program_id=program_id).all()
         module_ids = [pm.module_id for pm in program_modules]
 
         if not module_ids:
             return jsonify([]), 200
 
-        # Filter exactly like register-semester validation
         modules = Module.query.filter(
             Module.id.in_(module_ids),
             Module.year_level == student.current_year,
@@ -840,11 +838,14 @@ def register_semester():
         course_ids = data.get('course_ids', [])
         semester = data.get('semester', 1)
         wants_accommodation = data.get('wants_accommodation', False)
+        accepted_rules = data.get('accepted_rules', False)  # Added: rule acknowledgment
 
         if not course_ids:
             return jsonify({'error': 'Please select at least one course to register.'}), 400
 
-        # Validate that all course_ids exist and belong to the student's program and year level
+        if wants_accommodation and not accepted_rules:
+            return jsonify({'error': 'You must accept the accommodation rules and regulations.'}), 400
+
         program_modules = ProgramModule.query.filter_by(program_id=student.program_id).all()
         available_module_ids = [pm.module_id for pm in program_modules]
         available_modules = Module.query.filter(
@@ -909,6 +910,7 @@ def register_semester():
                 )
                 db.session.add(enrollment)
 
+        # Accommodation application if requested
         if wants_accommodation and is_gov_sponsored:
             campus = Campus.query.get(student.campus_id)
             if campus and campus.has_accommodation:
@@ -917,9 +919,14 @@ def register_semester():
                     registration_id=registration.id,
                     wants_accommodation=True,
                     room_type='bachelor_pad',
+                    has_accepted_rules=accepted_rules,
                     status='pending'
                 )
                 db.session.add(accommodation_reg)
+                # Also update student wants_accommodation flag
+                student.wants_accommodation = True
+        elif wants_accommodation and not is_gov_sponsored:
+            return jsonify({'error': 'Accommodation is only available for government-sponsored students.'}), 400
 
         db.session.commit()
 
@@ -977,6 +984,52 @@ def get_student_online_classes():
                 'meeting_password': m.meeting_password
             })
         return jsonify({'meetings': result}), 200
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# NEW: STUDENT STATUS (for frontend checks)
+# ============================================
+@students_bp.route('/status', methods=['GET'])
+@jwt_required()
+def get_student_status():
+    """Return student status for frontend (admission, registration, accommodation eligibility)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        # Check if accommodation application exists
+        accommodation_applied = AccommodationRegistration.query.filter_by(student_id=student.id).first() is not None
+
+        # Check registration status for current semester
+        current_reg = Registration.query.filter_by(
+            student_id=student.id,
+            registration_status='approved'
+        ).order_by(Registration.created_at.desc()).first()
+
+        # Determine if student can apply for accommodation
+        can_apply_accommodation = False
+        if student.admission_status == 'accepted' and student.wants_accommodation and not accommodation_applied:
+            # Also check if campus has accommodation
+            campus = Campus.query.get(student.campus_id)
+            if campus and campus.has_accommodation:
+                can_apply_accommodation = True
+
+        return jsonify({
+            'admission_status': student.admission_status,
+            'academic_status': student.academic_status,
+            'current_year': student.current_year,
+            'is_registered': current_reg is not None,
+            'can_apply_accommodation': can_apply_accommodation,
+            'accommodation_applied': accommodation_applied,
+            'has_outstanding_fees': False,  # You can implement fee check later if needed
+            'message': 'Status retrieved successfully'
+        }), 200
     except Exception as e:
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500

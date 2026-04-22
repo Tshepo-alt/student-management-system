@@ -3,10 +3,12 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 import traceback
+import logging
 
-from models import db, User, Student, Campus, AccommodationRegistration, AccommodationRoom, AccommodationRule, Notification
+from models import db, User, Student, Campus, AccommodationRegistration, AccommodationRoom, AccommodationRule, Notification, Registration, AcademicYear, Semester
 
 accommodation_bp = Blueprint('accommodation', __name__)
+logger = logging.getLogger(__name__)
 
 
 # ============================================
@@ -30,6 +32,7 @@ def get_accommodation_rules():
             })
         return jsonify(result), 200
     except Exception as e:
+        logger.error(f"Error fetching rules: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -63,6 +66,7 @@ def acknowledge_rules():
         return jsonify({'success': True, 'message': 'Rules acknowledged successfully', 'acknowledged_at': datetime.utcnow().isoformat()}), 200
     except Exception as e:
         db.session.rollback()
+        logger.error(f"Error acknowledging rules: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -124,6 +128,7 @@ def get_available_rooms():
             'occupancy_rate': ((total_rooms - available_rooms) / total_rooms * 100) if total_rooms > 0 else 0
         }), 200
     except Exception as e:
+        logger.error(f"Error fetching rooms: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -137,35 +142,67 @@ def get_available_rooms():
 def apply_for_accommodation():
     try:
         if not request.is_json:
+            logger.warning("Request not JSON")
             return jsonify({'error': 'Content-Type must be application/json'}), 415
+
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
         data = request.get_json()
+        logger.info(f"Accommodation application data received: {data}")
+
+        # Required fields
         required_fields = ['room_type', 'emergency_contact_name', 'emergency_contact_phone', 'has_accepted_rules']
         missing_fields = [field for field in required_fields if not data.get(field)]
         if missing_fields:
+            logger.warning(f"Missing fields: {missing_fields}")
             return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
+
+        # Validate room_type
+        room_type = data.get('room_type')
+        if room_type not in ['bachelor_pad', 'three_bed']:
+            return jsonify({'error': 'Invalid room type. Must be bachelor_pad or three_bed'}), 400
+
+        # Validate rules acceptance
+        if not data.get('has_accepted_rules'):
+            return jsonify({'error': 'You must accept the accommodation rules and regulations.'}), 400
+
+        # Get user and student
         user = User.query.get(user_id)
         if not user:
             return jsonify({'error': 'User not found'}), 404
         student = Student.query.filter_by(user_id=user.id).first()
         if not student:
             return jsonify({'error': 'Student profile not found'}), 404
+
+        # Check if student is eligible (admission status 'accepted')
+        if student.admission_status != 'accepted':
+            return jsonify({'error': 'Your admission has not been accepted yet. Accommodation is only available after admission.'}), 400
+
+        # Check if campus offers accommodation
         campus = Campus.query.get(student.campus_id)
         if not campus or not campus.has_accommodation:
-            return jsonify({'error': 'Accommodation not available at your campus'}), 400
-        existing = AccommodationRegistration.query.filter_by(student_id=student.id).filter(AccommodationRegistration.status.in_(['pending', 'approved', 'allocated'])).first()
+            return jsonify({'error': 'Accommodation is not available at your campus.'}), 400
+
+        # Check for existing application
+        existing = AccommodationRegistration.query.filter_by(student_id=student.id).filter(
+            AccommodationRegistration.status.in_(['pending', 'approved', 'allocated'])
+        ).first()
         if existing:
-            return jsonify({'error': 'You already have an active application', 'application_id': existing.id, 'status': existing.status}), 409
-        room_type = data.get('room_type')
-        if room_type not in ['bachelor_pad', 'three_bed']:
-            return jsonify({'error': 'Invalid room type'}), 400
+            return jsonify({
+                'error': 'You already have an active application',
+                'application_id': existing.id,
+                'status': existing.status
+            }), 409
+
+        # Check room availability
         available_rooms = AccommodationRoom.query.filter_by(room_type=room_type, is_available=True).count()
         if available_rooms == 0:
-            return jsonify({'error': f'No {room_type} rooms available'}), 400
-        from models import Registration, AcademicYear, Semester
+            return jsonify({'error': f'No {room_type} rooms available at the moment.'}), 400
+
+        # Ensure student has an approved registration (or create one if missing)
         current_reg = Registration.query.filter_by(student_id=student.id, registration_status='approved').order_by(Registration.created_at.desc()).first()
         if not current_reg:
+            # Try to create a registration if student is eligible
             current_year = AcademicYear.query.filter_by(is_current=True).first()
             current_sem = Semester.query.filter_by(is_active=True).first()
             if current_year and current_sem:
@@ -176,12 +213,16 @@ def apply_for_accommodation():
                     year_of_study=student.current_year or 1,
                     registration_date=datetime.utcnow().date(),
                     sponsorship_type='government_sponsored' if student.is_government_sponsored else 'private',
-                    registration_status='approved',
+                    registration_status='approved',  # auto-approve for accommodation? Or keep pending?
                     payment_status='completed' if student.is_government_sponsored else 'pending'
                 )
                 db.session.add(registration)
                 db.session.flush()
                 current_reg = registration
+            else:
+                return jsonify({'error': 'No active academic year/semester found. Please contact admin.'}), 500
+
+        # Create accommodation registration
         accom_reg = AccommodationRegistration(
             student_id=student.id,
             registration_id=current_reg.id if current_reg else None,
@@ -197,19 +238,32 @@ def apply_for_accommodation():
             status='pending'
         )
         db.session.add(accom_reg)
+
+        # Update student record
         student.wants_accommodation = True
         student.updated_at = datetime.utcnow()
+
+        # Create notification
         notification = Notification(
             student_id=student.id,
             title="Accommodation Application Submitted",
-            message=f"Your accommodation application ({room_type.replace('_', ' ').title()}) has been submitted.",
+            message=f"Your accommodation application ({room_type.replace('_', ' ').title()}) has been submitted successfully.",
             notification_type="info"
         )
         db.session.add(notification)
+
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Application submitted', 'application_id': accom_reg.id, 'status': 'pending'}), 201
+
+        return jsonify({
+            'success': True,
+            'message': 'Accommodation application submitted successfully.',
+            'application_id': accom_reg.id,
+            'status': 'pending'
+        }), 201
+
     except Exception as e:
         db.session.rollback()
+        logger.error(f"Error applying for accommodation: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -229,6 +283,7 @@ def get_accommodation_status():
         registration = AccommodationRegistration.query.filter_by(student_id=student.id).order_by(AccommodationRegistration.created_at.desc()).first()
         if not registration:
             return jsonify({'has_applied': False, 'wants_accommodation': student.wants_accommodation}), 200
+
         status_map = {
             'pending': {'display': 'Pending Review', 'icon': '⏳'},
             'approved': {'display': 'Approved', 'icon': '✅'},
@@ -264,6 +319,7 @@ def get_accommodation_status():
         }
         return jsonify(result), 200
     except Exception as e:
+        logger.error(f"Error fetching accommodation status: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -284,9 +340,12 @@ def cancel_accommodation():
         student = Student.query.filter_by(user_id=user.id).first()
         if not student:
             return jsonify({'error': 'Student profile not found'}), 404
-        registration = AccommodationRegistration.query.filter_by(student_id=student.id).filter(AccommodationRegistration.status.in_(['pending', 'approved', 'waitlisted'])).order_by(AccommodationRegistration.created_at.desc()).first()
+        registration = AccommodationRegistration.query.filter_by(student_id=student.id).filter(
+            AccommodationRegistration.status.in_(['pending', 'approved', 'waitlisted'])
+        ).order_by(AccommodationRegistration.created_at.desc()).first()
         if not registration:
             return jsonify({'error': 'No active application found'}), 404
+
         registration.status = 'cancelled'
         registration.updated_at = datetime.utcnow()
         student.wants_accommodation = False
@@ -301,17 +360,19 @@ def cancel_accommodation():
         return jsonify({'success': True, 'message': 'Application cancelled'}), 200
     except Exception as e:
         db.session.rollback()
+        logger.error(f"Error cancelling accommodation: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
 # ============================================
-# ADMIN ACCOMMODATION ROUTES (for admin-accommodation.html)
+# ADMIN ACCOMMODATION ROUTES
 # ============================================
 
 def is_admin_user(user_id):
     user = User.query.get(user_id)
     return user and user.role in ['admin', 'administrator', 'staff', 'registrar', 'finance']
+
 
 @accommodation_bp.route('/admin/applications', methods=['GET'])
 @jwt_required()
@@ -348,6 +409,7 @@ def get_all_applications():
             })
         return jsonify(result), 200
     except Exception as e:
+        logger.error(f"Error fetching applications: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -377,6 +439,7 @@ def get_all_allocations():
             })
         return jsonify(result), 200
     except Exception as e:
+        logger.error(f"Error fetching allocations: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -407,6 +470,7 @@ def get_all_rooms_admin():
             })
         return jsonify(result), 200
     except Exception as e:
+        logger.error(f"Error fetching rooms admin: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -419,7 +483,7 @@ def approve_application(application_id):
         user_id = int(current_user_id) if current_user_id else None
         if not is_admin_user(user_id):
             return jsonify({'error': 'Admin access required'}), 403
-        data = request.get_json()
+        data = request.get_json() or {}
         allocated_block = data.get('allocated_block')
         allocated_room_number = data.get('allocated_room_number')
         registration = AccommodationRegistration.query.get(application_id)
@@ -427,6 +491,7 @@ def approve_application(application_id):
             return jsonify({'error': 'Application not found'}), 404
         if registration.status != 'pending':
             return jsonify({'error': f'Application already {registration.status}'}), 400
+
         if allocated_block and allocated_room_number:
             room = AccommodationRoom.query.filter_by(block_name=allocated_block, room_number=allocated_room_number, is_available=True).first()
             if not room:
@@ -448,6 +513,7 @@ def approve_application(application_id):
                 room.is_available = False
             registration.allocated_block = room.block_name
             registration.allocated_room_number = room.room_number
+
         registration.status = 'allocated'
         registration.updated_at = datetime.utcnow()
         notification = Notification(
@@ -458,9 +524,15 @@ def approve_application(application_id):
         )
         db.session.add(notification)
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Application approved and room allocated', 'allocated_block': registration.allocated_block, 'allocated_room_number': registration.allocated_room_number}), 200
+        return jsonify({
+            'success': True,
+            'message': 'Application approved and room allocated',
+            'allocated_block': registration.allocated_block,
+            'allocated_room_number': registration.allocated_room_number
+        }), 200
     except Exception as e:
         db.session.rollback()
+        logger.error(f"Error approving application: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -473,7 +545,7 @@ def reject_application(application_id):
         user_id = int(current_user_id) if current_user_id else None
         if not is_admin_user(user_id):
             return jsonify({'error': 'Admin access required'}), 403
-        data = request.get_json()
+        data = request.get_json() or {}
         reason = data.get('reason', 'No reason provided')
         registration = AccommodationRegistration.query.get(application_id)
         if not registration:
@@ -493,6 +565,7 @@ def reject_application(application_id):
         return jsonify({'success': True, 'message': 'Application rejected'}), 200
     except Exception as e:
         db.session.rollback()
+        logger.error(f"Error rejecting application: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -517,6 +590,7 @@ def update_room_maintenance(room_id):
         return jsonify({'success': True, 'message': f'Room {"available" if is_available else "unavailable for maintenance"}'}), 200
     except Exception as e:
         db.session.rollback()
+        logger.error(f"Error updating room maintenance: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -560,5 +634,56 @@ def get_accommodation_statistics():
             }
         }), 200
     except Exception as e:
+        logger.error(f"Error fetching statistics: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# CHECK ELIGIBILITY (optional, for frontend)
+# ============================================
+@accommodation_bp.route('/check-eligibility', methods=['GET'])
+@jwt_required()
+def check_eligibility():
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        student = Student.query.filter_by(user_id=user.id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        eligible = False
+        reasons = []
+
+        if student.admission_status != 'accepted':
+            reasons.append("Your admission has not been accepted yet.")
+        if student.wants_accommodation is False:
+            reasons.append("You have not indicated interest in accommodation.")
+        campus = Campus.query.get(student.campus_id)
+        if not campus or not campus.has_accommodation:
+            reasons.append("Accommodation is not available at your campus.")
+        existing = AccommodationRegistration.query.filter_by(student_id=student.id).filter(
+            AccommodationRegistration.status.in_(['pending', 'approved', 'allocated'])
+        ).first()
+        if existing:
+            reasons.append("You already have an active application.")
+
+        if not reasons and student.admission_status == 'accepted' and student.wants_accommodation and campus and campus.has_accommodation and not existing:
+            eligible = True
+            reasons.append("You are eligible to apply.")
+
+        return jsonify({
+            'eligible': eligible,
+            'reasons': reasons,
+            'admission_status': student.admission_status,
+            'wants_accommodation': student.wants_accommodation,
+            'campus_has_accommodation': campus.has_accommodation if campus else False,
+            'has_active_application': existing is not None
+        }), 200
+    except Exception as e:
+        logger.error(f"Error checking eligibility: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500

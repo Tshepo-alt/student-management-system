@@ -371,7 +371,7 @@ def register():
         return jsonify({'error': str(e)}), 500
 
 # ============================================
-# Login Endpoint
+# Login Endpoint - FIXED: prioritize user role over student record
 # ============================================
 
 @auth_bp.route('/login', methods=['POST'])
@@ -412,24 +412,11 @@ def login():
         db.session.commit()
         logger.info(f"[AUTH] Successful login for user: {email}")
 
-        student = Student.query.filter_by(user_id=user.id).first()
-
+        # ========== FIX: Determine redirect URL based on user role FIRST ==========
         redirect_url = None
-        if student:
-            if student.admission_status == 'pending':
-                redirect_url = '/pages/application-status.html'
-            elif student.admission_status == 'accepted':
-                current_reg = Registration.query.filter_by(
-                    student_id=student.id,
-                    registration_status='approved'
-                ).order_by(Registration.created_at.desc()).first()
-                if not current_reg:
-                    redirect_url = '/pages/semester-registration.html'
-                else:
-                    redirect_url = '/pages/student-dashboard.html'
-            else:
-                redirect_url = '/pages/student-dashboard.html'
-        else:
+
+        # Non-student roles (admin, lecturer, finance, registrar, staff) go to their dashboards
+        if user.role in ['admin', 'lecturer', 'finance', 'registrar', 'staff']:
             role_map = {
                 'admin': '/pages/admin-dashboard.html',
                 'lecturer': '/pages/lecturer-dashboard.html',
@@ -438,7 +425,28 @@ def login():
                 'staff': '/pages/staff-dashboard.html'
             }
             redirect_url = role_map.get(user.role, '/pages/student-dashboard.html')
+        else:
+            # Student role – check student record and admission/registration status
+            student = Student.query.filter_by(user_id=user.id).first()
+            if student:
+                if student.admission_status == 'pending':
+                    redirect_url = '/pages/application-status.html'
+                elif student.admission_status == 'accepted':
+                    current_reg = Registration.query.filter_by(
+                        student_id=student.id,
+                        registration_status='approved'
+                    ).order_by(Registration.created_at.desc()).first()
+                    if not current_reg:
+                        redirect_url = '/pages/semester-registration.html'
+                    else:
+                        redirect_url = '/pages/student-dashboard.html'
+                else:
+                    redirect_url = '/pages/student-dashboard.html'
+            else:
+                # No student record (should not happen for students, but fallback)
+                redirect_url = '/pages/student-dashboard.html'
 
+        # Create tokens
         access_token = create_access_token(
             identity=str(user.id),
             additional_claims={'role': user.role, 'email': user.email}
@@ -446,6 +454,9 @@ def login():
         refresh_token = create_refresh_token(identity=str(user.id))
 
         session['user_id'] = user.id
+
+        # Get student info (if any) for the response payload
+        student = Student.query.filter_by(user_id=user.id).first()
 
         return jsonify({
             'success': True,

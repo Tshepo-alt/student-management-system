@@ -28,7 +28,7 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships - fixed foreign_keys for user_roles (removed brackets)
+    # Relationships
     student = db.relationship('Student', backref='user', uselist=False, cascade='all, delete-orphan')
     user_roles = db.relationship('UserRole', back_populates='user', foreign_keys='UserRole.user_id', cascade='all, delete-orphan')
     tokens = db.relationship('JWTToken', backref='user', cascade='all, delete-orphan')
@@ -275,7 +275,6 @@ class Module(db.Model):
     enrollments = db.relationship('Enrollment', backref='module', cascade='all, delete-orphan')
     course_materials = db.relationship('CourseMaterial', backref='module', cascade='all, delete-orphan')
     assignments = db.relationship('Assignment', backref='module', cascade='all, delete-orphan')
-    # REMOVED: exam_registrations (no foreign key from ExamRegistration to Module)
 
 
 class ProgramModule(db.Model):
@@ -385,6 +384,11 @@ class Student(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # === NEW FIELDS FOR REGISTRATION DOCUMENTS ===
+    bgcse_certificate_path = db.Column(db.String(500))   # path to uploaded BGCSE certificate
+    id_document_path = db.Column(db.String(500))        # path to ID/Passport copy
+    passport_photo_path = db.Column(db.String(500))     # path to passport photo
     
     # Relationships
     documents = db.relationship('StudentDocument', backref='student', cascade='all, delete-orphan')

@@ -468,7 +468,6 @@
                 vibrant community.</p>
         </div>
 
-        <!-- ========== ADDED: infoBanner for eligibility messages ========== -->
         <div id="infoBanner" class="info-message" style="display: none;"></div>
 
         <div class="stats-grid">
@@ -503,9 +502,11 @@
                 <p>Loading residences...</p>
             </div>
         </div>
+
         <div id="my-application" class="tab-content">
             <div id="myApplication"></div>
         </div>
+
         <div id="rules" class="tab-content">
             <div id="rulesContent"></div>
         </div>
@@ -613,7 +614,7 @@
             } catch (error) { console.error(error); return null; }
         }
 
-        // ========== SAFE ELIGIBILITY CHECK (no null error) ==========
+        // ========== ELIGIBILITY CHECK (from backend) ==========
         async function checkEligibility() {
             const banner = document.getElementById('infoBanner');
             try {
@@ -624,11 +625,8 @@
                     if (!canApply && banner) {
                         banner.style.display = 'block';
                         banner.innerHTML = `<i class="fas fa-info-circle"></i> ${data.reasons ? data.reasons.join(' ') : 'You are not eligible for accommodation at this time.'}`;
-                    } else if (banner) {
-                        banner.style.display = 'none';
-                    }
+                    } else if (banner) banner.style.display = 'none';
                 } else {
-                    // fallback to student status endpoint
                     const statusResp = await safeApiCall('/api/students/status');
                     if (statusResp && statusResp.ok) {
                         const statusData = await statusResp.json();
@@ -636,11 +634,9 @@
                         if (!canApply && banner) {
                             banner.style.display = 'block';
                             banner.innerHTML = '<i class="fas fa-info-circle"></i> Your admission is not yet approved or your campus does not offer accommodation.';
-                        } else if (banner) {
-                            banner.style.display = 'none';
-                        }
+                        } else if (banner) banner.style.display = 'none';
                     } else {
-                        canApply = true; // demo mode
+                        canApply = true;
                     }
                 }
             } catch (err) {
@@ -651,60 +647,70 @@
         }
 
         // ============================================
-        // ROOM AVAILABILITY (demo)
+        // LOAD ROOM AVAILABILITY FROM BACKEND (NO HARDCODED DATA)
         // ============================================
-        const gipsVillage = {
-            blocks: ['A', 'B', 'C', 'D', 'E'],
-            amenities: ['Kitchen with Electric Stove', 'Washing Basin', 'Shower', 'Water Supply', '24/7 Security', 'Study Table', 'Bed', 'Chair', 'High-Speed WiFi']
-        };
-        let rooms = {
-            A: { bachelor_pad_available: 14, three_bed_available: 12, total: 32 },
-            B: { bachelor_pad_available: 10, three_bed_available: 8, total: 32 },
-            C: { bachelor_pad_available: 12, three_bed_available: 10, total: 32 },
-            D: { bachelor_pad_available: 8, three_bed_available: 6, total: 32 },
-            E: { bachelor_pad_available: 4, three_bed_available: 2, total: 32 }
-        };
+        async function loadRoomAvailability() {
+            const container = document.getElementById('availableAccommodation');
+            if (!container) return;
+            container.innerHTML = '<div class="loading-spinner"></div><p>Loading rooms...</p>';
 
-        function calculateStats() {
-            let totalRooms = 0, availableRooms = 0;
-            for (let block in rooms) {
-                totalRooms += rooms[block].total;
-                availableRooms += rooms[block].bachelor_pad_available + rooms[block].three_bed_available;
+            const response = await safeApiCall('/api/accommodation/rooms');
+            if (!response || !response.ok) {
+                container.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Unable to load room availability. Please try again later.</p>';
+                return;
             }
-            const occRate = totalRooms > 0 ? ((totalRooms - availableRooms) / totalRooms * 100).toFixed(1) : 0;
+
+            const data = await response.json();
+            const blocks = data.blocks || [];
+            const totalRooms = data.total_rooms || 0;
+            const availableRooms = data.available_rooms || 0;
+            const occupancyRate = data.occupancy_rate || 0;
+
+            // Update stats
             document.getElementById('totalRooms').textContent = totalRooms;
             document.getElementById('availableRooms').textContent = availableRooms;
-            document.getElementById('occupancyRate').textContent = `${occRate}%`;
-            document.getElementById('applicantsCount').textContent = '23';
-        }
+            document.getElementById('occupancyRate').textContent = `${occupancyRate}%`;
+            // Optionally fetch active applicants count from another endpoint (or leave as placeholder)
+            document.getElementById('applicantsCount').textContent = '--';
 
-        function loadAvailableAccommodation() {
-            const container = document.getElementById('availableAccommodation');
-            calculateStats();
-            container.innerHTML = gipsVillage.blocks.map(block => {
-                const blockData = rooms[block];
-                const bachelorAvail = blockData.bachelor_pad_available;
-                const threeBedAvail = blockData.three_bed_available;
-                const totalAvail = bachelorAvail + threeBedAvail;
-                return `
+            if (blocks.length === 0) {
+                container.innerHTML = '<p>No accommodation blocks are available at this time.</p>';
+                return;
+            }
+
+            // Common amenities (can be static since they apply to all blocks)
+            const amenities = ['Kitchen with Electric Stove', 'Washing Basin', 'Shower', 'Water Supply', '24/7 Security', 'Study Table', 'Bed', 'Chair', 'High-Speed WiFi'];
+
+            let html = '';
+            for (const block of blocks) {
+                const bachelorRooms = block.rooms.filter(r => r.room_type === 'bachelor_pad');
+                const threeBedRooms = block.rooms.filter(r => r.room_type === 'three_bed');
+                const bachelorAvailable = bachelorRooms.filter(r => r.is_available).length;
+                const threeBedAvailable = threeBedRooms.filter(r => r.is_available).length;
+                const totalAvailable = bachelorAvailable + threeBedAvailable;
+
+                html += `
                     <div class="accommodation-card">
-                        <div class="card-header"><i class="fas fa-building"></i><h3>Block ${block}</h3></div>
+                        <div class="card-header"><i class="fas fa-building"></i><h3>Block ${escapeHtml(block.block_name)}</h3></div>
                         <div class="card-content">
                             <p>Located at Gaborone Main Campus. Modern, secure housing with all amenities.</p>
-                            <div class="amenities-list">${gipsVillage.amenities.slice(0, 5).map(a => `<span class="amenity-tag"><i class="fas fa-check"></i> ${escapeHtml(a)}</span>`).join('')}</div>
-                            <div class="info-item"><label>Bachelor Pads:</label><span>${bachelorAvail} / 16 available</span></div>
-                            <div class="info-item"><label>Three-Bed Rooms:</label><span>${threeBedAvail} / 16 available</span></div>
-                            <button class="btn btn-primary" onclick="openApplicationModal('Block ${block}', '${block}')" ${totalAvail === 0 ? 'disabled' : ''}>
-                                ${totalAvail > 0 ? '<i class="fas fa-paper-plane"></i> Apply' : '<i class="fas fa-ban"></i> Fully Booked'}
+                            <div class="amenities-list">
+                                ${amenities.slice(0, 5).map(a => `<span class="amenity-tag"><i class="fas fa-check"></i> ${escapeHtml(a)}</span>`).join('')}
+                            </div>
+                            <div class="info-item"><label>Bachelor Pads:</label><span>${bachelorAvailable} / ${bachelorRooms.length} available</span></div>
+                            <div class="info-item"><label>Three-Bed Rooms:</label><span>${threeBedAvailable} / ${threeBedRooms.length} available</span></div>
+                            <button class="btn btn-primary" onclick="openApplicationModal('Block ${escapeHtml(block.block_name)}', '${escapeHtml(block.block_name)}')" ${totalAvailable === 0 ? 'disabled' : ''}>
+                                ${totalAvailable > 0 ? '<i class="fas fa-paper-plane"></i> Apply' : '<i class="fas fa-ban"></i> Fully Booked'}
                             </button>
                         </div>
                     </div>
                 `;
-            }).join('');
+            }
+            container.innerHTML = html;
         }
 
         // ============================================
-        // APPLICATION SUBMISSION
+        // APPLICATION SUBMISSION (Uses backend, unchanged)
         // ============================================
         let selectedBlock = null;
         window.openApplicationModal = function (blockName, block) {
@@ -787,6 +793,9 @@
             }
         }
 
+        // ============================================
+        // LOAD MY APPLICATION STATUS
+        // ============================================
         async function loadMyApplication() {
             const container = document.getElementById('myApplication');
             container.innerHTML = '<div class="loading-spinner"></div><p>Loading your application...</p>';
@@ -818,6 +827,9 @@
             }
         }
 
+        // ============================================
+        // RULES & REGULATIONS (static, but can be enhanced with backend call)
+        // ============================================
         function loadRules() {
             document.getElementById('rulesContent').innerHTML = `
                 <div class="rules-section">
@@ -844,7 +856,9 @@
             `;
         }
 
-        // Modal helpers
+        // ============================================
+        // MODAL HELPERS
+        // ============================================
         window.openCancelModal = function () { document.getElementById('cancelModal').style.display = 'flex'; };
         window.closeModal = function (modalId) { document.getElementById(modalId).style.display = 'none'; };
         document.getElementById('applicationForm').addEventListener('submit', (e) => { e.preventDefault(); submitApplication(); });
@@ -867,6 +881,9 @@
 
         function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
         function setupTabs() {
             const tabs = document.querySelectorAll('.tab-button');
             const contents = document.querySelectorAll('.tab-content');
@@ -877,17 +894,20 @@
                     btn.classList.add('active');
                     contents.forEach(c => c.classList.remove('active'));
                     document.getElementById(tabId).classList.add('active');
-                    if (tabId === 'available') loadAvailableAccommodation();
+                    if (tabId === 'available') loadRoomAvailability();
                     else if (tabId === 'my-application') loadMyApplication();
                     else if (tabId === 'rules') loadRules();
                 });
             });
         }
 
+        // ============================================
+        // INITIALISE
+        // ============================================
         async function init() {
             await checkEligibility();
-            loadAvailableAccommodation();
-            loadMyApplication();
+            await loadRoomAvailability();
+            await loadMyApplication();
             loadRules();
             setupTabs();
         }

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Registrar Dashboard - GIPS College</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -14,24 +14,24 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
         }
 
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 0.8rem 0;
+            padding: 0.7rem 0;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 0 30px;
+            padding: 0 24px;
         }
 
         .navbar .container {
@@ -39,23 +39,18 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 12px;
         }
 
         .navbar-brand img {
-            height: 50px;
+            height: 45px;
             width: auto;
-            transition: transform 0.3s;
-        }
-
-        .navbar-brand img:hover {
-            transform: scale(1.05);
         }
 
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 1rem;
+            gap: 0.7rem;
             flex-wrap: wrap;
         }
 
@@ -63,112 +58,81 @@
             text-decoration: none;
             color: #4a5568;
             font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-            display: flex;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            background: #f1f5f9;
         }
 
         .nav-link i {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .nav-link:hover,
         .nav-link.active {
-            color: #3b82f6;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            transition: all 0.3s;
-            transform: translateX(-50%);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 70%;
+            background: #3b82f6;
+            color: white;
         }
 
         .dashboard-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border-radius: 20px;
-            padding: 35px 40px;
-            margin: 30px 0;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
             color: white;
             position: relative;
             overflow: hidden;
         }
 
-        .dashboard-header::before {
-            content: '\f0ae';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            bottom: 20px;
-            right: 30px;
-            font-size: 80px;
-            opacity: 0.15;
-        }
-
         .dashboard-header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
+            font-size: 1.6rem;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
+        .dashboard-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 25px;
-            margin-bottom: 35px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
             background: white;
-            padding: 20px;
             border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(59,130,246,0.1);
-            transition: all 0.3s;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
             position: relative;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-
         .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #3b82f6;
-            margin-bottom: 5px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
         }
 
         .stat-label {
-            color: #718096;
-            font-size: 0.9rem;
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 4px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -176,15 +140,15 @@
 
         .quick-actions {
             background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 35px;
-            border: 1px solid rgba(59,130,246,0.1);
+            border-radius: 24px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
         }
 
         .quick-actions h3 {
-            margin-bottom: 20px;
-            color: #2d3748;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -192,137 +156,160 @@
 
         .action-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
         }
 
         .action-btn {
-            padding: 12px;
-            background: #f9fafb;
+            background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
+            padding: 10px 16px;
+            border-radius: 40px;
             text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            color: #4a5568;
-            font-weight: 500;
+            gap: 8px;
+            transition: 0.2s;
         }
 
         .action-btn i {
-            font-size: 1.2rem;
             color: #3b82f6;
         }
 
         .action-btn:hover {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: #3b82f6;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(59,130,246,0.3);
         }
 
         .action-btn:hover i {
             color: white;
         }
 
-        .pending-approvals {
+        .pending-card {
             background: white;
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(59,130,246,0.1);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
         }
 
-        .pending-approvals h3 {
-            margin-bottom: 20px;
-            color: #2d3748;
+        .pending-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .approval-item {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .approval-item:last-child {
-            border-bottom: none;
+        .approval-info strong {
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .approval-info small {
+            font-size: 0.7rem;
+            color: #64748b;
+            display: block;
+        }
+
+        .btn-approve,
+        .btn-reject {
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 0 4px;
         }
 
         .btn-approve {
-            background: #28a745;
+            background: #10b981;
             color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-            transition: all 0.2s;
         }
 
         .btn-approve:hover {
-            background: #218838;
+            background: #059669;
             transform: translateY(-1px);
         }
 
         .btn-reject {
-            background: #dc3545;
+            background: #ef4444;
             color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-            transition: all 0.2s;
         }
 
         .btn-reject:hover {
-            background: #c82333;
-            transform: translateY(-1px);
+            background: #dc2626;
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #718096;
+            padding: 24px;
+            color: #64748b;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 12px;
+            color: #991b1b;
+            font-size: 0.8rem;
+            margin: 12px 0;
+            display: none;
         }
 
         .footer {
-            background: #2d3748;
-            color: white;
+            background: #1e293b;
+            color: #cbd5e1;
             text-align: center;
-            padding: 30px 0;
-            margin-top: 50px;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
             .container {
-                padding: 0 20px;
+                padding: 0 16px;
             }
-            .navbar .container {
-                flex-direction: column;
-            }
-            .nav-menu {
-                justify-content: center;
-            }
+
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
             }
+
+            .stat-number {
+                font-size: 1.4rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
+            }
+
             .approval-item {
                 flex-direction: column;
                 align-items: flex-start;
@@ -330,18 +317,21 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
-            </div>
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
             <ul class="nav-menu">
-                <li><a href="registrar-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="registrar-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i>
+                        Dashboard</a></li>
                 <li><a href="registrar-students.html" class="nav-link"><i class="fas fa-users"></i> Students</a></li>
-                <li><a href="registrar-documents.html" class="nav-link"><i class="fas fa-file-alt"></i> Documents</a></li>
+                <li><a href="registrar-documents.html" class="nav-link"><i class="fas fa-file-alt"></i> Documents</a>
+                </li>
                 <li><a href="registrar-reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
-                <li><a href="staff-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Staff Queries</a></li>
+                <li><a href="staff-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Staff
+                        Queries</a></li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -364,14 +354,6 @@
                 <div class="stat-label"><i class="fas fa-clock"></i> Pending Admissions</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="pendingDocuments">--</div>
-                <div class="stat-label"><i class="fas fa-file-pdf"></i> Pending Documents</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="pendingQueries">--</div>
-                <div class="stat-label"><i class="fas fa-question-circle"></i> Staff Queries</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-number" id="graduating">--</div>
                 <div class="stat-label"><i class="fas fa-graduation-cap"></i> Graduating This Year</div>
             </div>
@@ -380,18 +362,21 @@
         <div class="quick-actions">
             <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
             <div class="action-buttons">
-                <a href="registrar-students.html?action=add" class="action-btn"><i class="fas fa-user-plus"></i> Add New Student</a>
-                <a href="registrar-students.html?status=pending" class="action-btn"><i class="fas fa-clipboard-list"></i> Review Applications</a>
-                <a href="registrar-documents.html" class="action-btn"><i class="fas fa-file-upload"></i> Manage Documents</a>
-                <a href="staff-queries.html" class="action-btn"><i class="fas fa-question-circle"></i> Handle Staff Queries</a>
-                <a href="registrar-reports.html" class="action-btn"><i class="fas fa-chart-line"></i> Generate Report</a>
+                <a href="registrar-students.html?action=add" class="action-btn"><i class="fas fa-user-plus"></i> Add New
+                    Student</a>
+                <a href="registrar-students.html?status=pending" class="action-btn"><i
+                        class="fas fa-clipboard-list"></i> Review Applications</a>
+                <a href="registrar-documents.html" class="action-btn"><i class="fas fa-file-upload"></i> Manage
+                    Documents</a>
+                <a href="registrar-reports.html" class="action-btn"><i class="fas fa-chart-line"></i> Generate
+                    Report</a>
             </div>
         </div>
 
-        <div class="pending-approvals">
+        <div class="pending-card">
             <h3><i class="fas fa-hourglass-half"></i> Pending Admissions</h3>
             <div id="pendingList">
-                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading approvals...</div>
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading pending admissions...</div>
             </div>
         </div>
     </div>
@@ -407,157 +392,30 @@
         // ========== AUTHENTICATION ==========
         const token = localStorage.getItem('access_token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const userRole = localStorage.getItem('user_role') || user.role;
-
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-
-        if (userRole !== 'registrar') {
-            window.location.href = 'student-dashboard.html';
-        }
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'registrar') window.location.href = 'student-dashboard.html';
 
         document.getElementById('registrarName').textContent = user.first_name || user.username || 'Registrar';
 
-        const logoImage = document.getElementById('logoImage');
-        if (logoImage) logoImage.onerror = function() { this.style.display = 'none'; };
-
-        // ========== SAFE API ==========
+        // ========== API HELPER ==========
         async function safeApiCall(endpoint, options = {}) {
             try {
-                const response = await fetch(endpoint, {
+                const res = await fetch(endpoint, {
                     ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
                 });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
         }
 
-        // ========== LOAD STATS ==========
-        async function loadStats() {
-            const response = await safeApiCall('/api/admin/stats');
-            if (response && response.ok) {
-                const data = await response.json();
-                document.getElementById('totalStudents').textContent = data.total_students || 0;
-                document.getElementById('pendingAdmissions').textContent = data.pending_registrations || 0;
-                document.getElementById('pendingDocuments').textContent = data.pending_documents || 0;
-                document.getElementById('pendingQueries').textContent = data.pending_queries || 0;
-                document.getElementById('graduating').textContent = data.graduating_this_year || 0;
-            } else {
-                // Demo data
-                document.getElementById('totalStudents').textContent = '156';
-                document.getElementById('pendingAdmissions').textContent = '3';
-                document.getElementById('pendingDocuments').textContent = '5';
-                document.getElementById('pendingQueries').textContent = '2';
-                document.getElementById('graduating').textContent = '42';
-            }
-        }
-
-        // ========== LOAD PENDING ADMISSIONS ==========
-        async function loadPendingAdmissions() {
-            const container = document.getElementById('pendingList');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading pending admissions...</div>';
-
-            const response = await safeApiCall('/api/admin/students?status=pending');
-            if (response && response.ok) {
-                const students = await response.json();
-                const pending = students.filter(s => s.admission_status === 'pending');
-
-                if (pending.length === 0) {
-                    container.innerHTML = '<div class="approval-item"><i class="fas fa-check-circle"></i> No pending admissions.</div>';
-                } else {
-                    container.innerHTML = pending.map(s => `
-                        <div class="approval-item">
-                            <div>
-                                <strong>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</strong><br>
-                                <small>${s.student_number}</small><br>
-                                <small>${s.program_name || 'N/A'}</small>
-                            </div>
-                            <div>
-                                <button class="btn-approve" onclick="approveStudent(${s.id})"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn-reject" onclick="rejectStudent(${s.id})"><i class="fas fa-times"></i> Reject</button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            } else {
-                // Demo data
-                container.innerHTML = `
-                    <div class="approval-item">
-                        <div><strong>John Doe</strong><br><small>GIPS/2026/00123</small><br><small>Computer Science</small></div>
-                        <div><button class="btn-approve" onclick="demoApprove()"><i class="fas fa-check"></i> Approve</button><button class="btn-reject" onclick="demoReject()"><i class="fas fa-times"></i> Reject</button></div>
-                    </div>
-                    <div class="approval-item">
-                        <div><strong>Jane Smith</strong><br><small>GIPS/2026/00124</small><br><small>Business Administration</small></div>
-                        <div><button class="btn-approve" onclick="demoApprove()"><i class="fas fa-check"></i> Approve</button><button class="btn-reject" onclick="demoReject()"><i class="fas fa-times"></i> Reject</button></div>
-                    </div>
-                    <div class="approval-item">
-                        <div><strong>Mike Johnson</strong><br><small>GIPS/2026/00125</small><br><small>Accounting</small></div>
-                        <div><button class="btn-approve" onclick="demoApprove()"><i class="fas fa-check"></i> Approve</button><button class="btn-reject" onclick="demoReject()"><i class="fas fa-times"></i> Reject</button></div>
-                    </div>
-                `;
-            }
-        }
-
-        window.approveStudent = async function(id) {
-            if (!confirm('Approve this student?')) return;
-            const response = await safeApiCall(`/api/admin/students/${id}/approve`, { method: 'POST' });
-            if (response && response.ok) {
-                showMessage('✅ Student approved!', 'success');
-                loadStats();
-                loadPendingAdmissions();
-            } else {
-                showMessage('✅ Student approved! (Demo Mode)', 'success');
-                loadStats();
-                loadPendingAdmissions();
-            }
-        };
-
-        window.rejectStudent = async function(id) {
-            if (!confirm('Reject this student?')) return;
-            const response = await safeApiCall(`/api/admin/students/${id}/reject`, { method: 'POST' });
-            if (response && response.ok) {
-                showMessage('❌ Student rejected.', 'error');
-                loadStats();
-                loadPendingAdmissions();
-            } else {
-                showMessage('❌ Student rejected. (Demo Mode)', 'error');
-                loadStats();
-                loadPendingAdmissions();
-            }
-        };
-
-        window.demoApprove = function() {
-            showMessage('✅ Student approved! (Demo Mode)', 'success');
-            loadStats();
-            loadPendingAdmissions();
-        };
-
-        window.demoReject = function() {
-            showMessage('❌ Student rejected. (Demo Mode)', 'error');
-            loadStats();
-            loadPendingAdmissions();
-        };
-
-        function showMessage(message, type) {
+        function showMessage(msg, type) {
             const msgDiv = document.createElement('div');
             msgDiv.style.position = 'fixed';
             msgDiv.style.top = '20px';
             msgDiv.style.right = '20px';
             msgDiv.style.zIndex = '2000';
-            msgDiv.style.backgroundColor = type === 'success' ? '#28a745' : '#dc3545';
+            msgDiv.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
             msgDiv.style.color = 'white';
             msgDiv.style.padding = '12px 20px';
             msgDiv.style.borderRadius = '12px';
@@ -565,11 +423,88 @@
             msgDiv.style.display = 'flex';
             msgDiv.style.alignItems = 'center';
             msgDiv.style.gap = '8px';
-            msgDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${message}`;
+            msgDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${msg}`;
             document.body.appendChild(msgDiv);
             setTimeout(() => msgDiv.remove(), 3000);
         }
 
+        // ========== LOAD STATISTICS ==========
+        async function loadStats() {
+            const res = await safeApiCall('/api/admin/stats');
+            if (res && res.ok) {
+                const data = await res.json();
+                document.getElementById('totalStudents').textContent = data.total_students || 0;
+                document.getElementById('pendingAdmissions').textContent = data.pending_registrations || 0;
+                document.getElementById('graduating').textContent = data.graduating_this_year || 0;
+            } else {
+                document.getElementById('totalStudents').textContent = '0';
+                document.getElementById('pendingAdmissions').textContent = '0';
+                document.getElementById('graduating').textContent = '0';
+            }
+        }
+
+        // ========== LOAD PENDING ADMISSIONS (students with admission_status = 'pending') ==========
+        async function loadPendingAdmissions() {
+            const container = document.getElementById('pendingList');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading pending admissions...</div>';
+            const res = await safeApiCall('/api/admin/students?status=pending');
+            if (res && res.ok) {
+                const students = await res.json();
+                const pending = students.filter(s => s.admission_status === 'pending');
+                if (pending.length === 0) {
+                    container.innerHTML = '<div class="approval-item"><i class="fas fa-check-circle"></i> No pending admissions.</div>';
+                    return;
+                }
+                container.innerHTML = pending.map(s => `
+                    <div class="approval-item">
+                        <div class="approval-info">
+                            <strong>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</strong>
+                            <small>${escapeHtml(s.student_number)}</small>
+                            <small>${escapeHtml(s.program_name || 'N/A')}</small>
+                        </div>
+                        <div>
+                            <button class="btn-approve" onclick="approveAdmission(${s.id})"><i class="fas fa-check"></i> Approve Admission</button>
+                            <button class="btn-reject" onclick="rejectAdmission(${s.id})"><i class="fas fa-times"></i> Reject</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="error-message" style="display:block;">Unable to load pending admissions. Please try again later.</div>';
+            }
+        }
+
+        // ========== APPROVE ADMISSION (using correct endpoint) ==========
+        async function approveAdmission(studentId) {
+            if (!confirm('Approve this student\'s admission?')) return;
+            const res = await safeApiCall(`/api/admin/students/${studentId}/approve-admission`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('✅ Admission approved! Student can now register for semester.', 'success');
+                await loadStats();
+                await loadPendingAdmissions();
+            } else {
+                let errorMsg = 'Failed to approve admission.';
+                if (res && res.status === 400) {
+                    const err = await res.json();
+                    errorMsg = err.error || errorMsg;
+                }
+                showMessage(errorMsg, 'error');
+            }
+        }
+
+        // ========== REJECT ADMISSION ==========
+        async function rejectAdmission(studentId) {
+            if (!confirm('Reject this student\'s admission? This action cannot be undone.')) return;
+            const res = await safeApiCall(`/api/admin/students/${studentId}/reject`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('❌ Admission rejected.', 'error');
+                await loadStats();
+                await loadPendingAdmissions();
+            } else {
+                showMessage('Failed to reject admission.', 'error');
+            }
+        }
+
+        // ========== LOGOUT ==========
         document.getElementById('logoutLink').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.clear();
@@ -583,9 +518,14 @@
             return div.innerHTML;
         }
 
+        // Expose functions for inline onclick
+        window.approveAdmission = approveAdmission;
+        window.rejectAdmission = rejectAdmission;
+
+        // ========== INIT ==========
         loadStats();
         loadPendingAdmissions();
-        console.log('✅ Registrar Dashboard loaded');
     </script>
 </body>
+
 </html>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Admin Dashboard - GIPS College Portal</title>
-    <!-- Font Awesome 6 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Admin Dashboard - GIPS College</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -14,47 +14,62 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
-            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            overflow-x: hidden;
         }
 
-        /* Sidebar Navigation */
+        /* ========== SIDEBAR (Desktop & Mobile) ========== */
         .admin-wrapper {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
 
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            transition: all 0.3s;
-            z-index: 100;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Mobile: sidebar hidden by default */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
         }
 
         .sidebar-header {
-            padding: 25px;
+            padding: 24px 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header img {
-            height: 60px;
+            height: 55px;
             width: auto;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .sidebar-header h3 {
             font-size: 1.2rem;
-            margin-bottom: 5px;
+            font-weight: 600;
+            color: white;
         }
 
         .sidebar-header p {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             opacity: 0.7;
         }
 
@@ -63,154 +78,181 @@
         }
 
         .sidebar-menu-item {
-            padding: 12px 25px;
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            color: #cbd5e1;
             text-decoration: none;
-            transition: all 0.3s;
-            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
         }
 
         .sidebar-menu-item i {
             width: 24px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             text-align: center;
         }
 
         .sidebar-menu-item:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.08);
             color: white;
         }
 
         .sidebar-menu-item.active {
-            background: rgba(102,126,234,0.3);
+            background: rgba(102, 126, 234, 0.2);
             color: white;
-            border-left: 3px solid #667eea;
+            border-left-color: #667eea;
         }
 
-        /* Main Content */
+        /* ========== MAIN CONTENT ========== */
         .main-content {
-            margin-left: 280px;
             flex: 1;
-            padding: 20px;
+            margin-left: 280px;
+            padding: 20px 24px;
+            transition: margin-left 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
         }
 
         /* Top Bar */
         .top-bar {
-            background: white;
-            border-radius: 20px;
-            padding: 15px 25px;
-            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
         }
 
         .page-title h1 {
             font-size: 1.5rem;
-            color: #2d3748;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .page-title p {
-            color: #718096;
+            color: #475569;
             font-size: 0.85rem;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .admin-profile {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 16px;
         }
 
         .admin-avatar {
-            width: 45px;
-            height: 45px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
             color: white;
             cursor: pointer;
             transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
         .admin-avatar:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
-        /* Cards */
+        /* Hamburger Button (mobile only) */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .top-bar {
+                padding: 12px 16px;
+            }
+        }
+
+        /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
             background: white;
+            border-radius: 24px;
             padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: all 0.3s;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(102,126,234,0.1);
         }
 
         .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #718096;
-            font-size: 0.9rem;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -12px rgba(0, 0, 0, 0.1);
         }
 
         .stat-icon {
             float: right;
             font-size: 2rem;
-            opacity: 0.3;
+            opacity: 0.2;
             color: #667eea;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
 
         /* Quick Actions */
         .quick-actions {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 20px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(102,126,234,0.1);
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
         }
 
         .quick-actions h3 {
-            margin-bottom: 15px;
-            color: #2d3748;
+            font-size: 1.2rem;
+            margin-bottom: 18px;
+            font-weight: 600;
+            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -218,61 +260,74 @@
 
         .action-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
         }
 
         .action-btn {
-            padding: 12px;
-            background: #f9fafb;
+            background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
+            padding: 12px 16px;
+            border-radius: 40px;
             text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            color: #4a5568;
-            font-weight: 500;
+            gap: 10px;
+            transition: all 0.2s;
         }
 
         .action-btn i {
-            font-size: 1.2rem;
             color: #667eea;
+            font-size: 1rem;
         }
 
         .action-btn:hover {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #667eea;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.25);
         }
 
         .action-btn:hover i {
             color: white;
         }
 
-        /* Pending Approvals Tabs */
+        /* Pending Approvals */
+        .pending-approvals {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
         .pending-tabs {
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 8px;
             border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            flex-wrap: wrap;
         }
 
         .pending-tab {
             padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #475569;
             cursor: pointer;
-            border-radius: 30px;
-            transition: all 0.3s;
-            color: #718096;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+        }
+
+        .pending-tab i {
+            font-size: 0.9rem;
         }
 
         .pending-tab.active {
@@ -280,673 +335,468 @@
             color: white;
         }
 
-        .pending-approvals {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(102,126,234,0.1);
-        }
-
-        .pending-approvals h3 {
-            margin-bottom: 15px;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .approval-item {
-            padding: 15px;
-            border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .approval-item:last-child {
-            border-bottom: none;
+        .approval-info strong {
+            font-size: 1rem;
+            color: #0f172a;
         }
 
-        .approval-item:hover {
-            background: #f9fafb;
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-student {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-accommodation {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-approve,
+        .btn-reject,
+        .btn-view {
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 0 4px;
         }
 
         .btn-approve {
-            background: #38a169;
+            background: #10b981;
             color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s;
         }
 
         .btn-approve:hover {
-            background: #2f855a;
+            background: #059669;
             transform: translateY(-1px);
         }
 
         .btn-reject {
             background: #ef4444;
             color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            margin-left: 8px;
-            transition: all 0.2s;
         }
 
         .btn-reject:hover {
             background: #dc2626;
-            transform: translateY(-1px);
         }
 
         .btn-view {
-            background: #3182ce;
+            background: #3b82f6;
             color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s;
         }
 
         .btn-view:hover {
-            background: #2c5282;
-            transform: translateY(-1px);
+            background: #2563eb;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 30px;
-            font-size: 0.65rem;
-            font-weight: 600;
+        .error-banner,
+        .info-banner {
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
         }
-
-        .badge-student { background: #cfe2ff; color: #084298; }
-        .badge-accommodation { background: #feebc8; color: #c05621; }
 
         .error-banner {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 4px solid #e53e3e;
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
             display: none;
         }
 
         .info-banner {
-            background: #cfe2ff;
-            color: #084298;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 4px solid #3182ce;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: #a0aec0;
+            background: #dbeafe;
+            color: #1e3a8a;
+            border-left: 4px solid #3b82f6;
+            display: none;
         }
 
         .loading-spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(102,126,234,0.2);
-            border-radius: 50%;
+            border: 2px solid #e2e8f0;
             border-top-color: #667eea;
-            animation: spin 0.8s linear infinite;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
             margin-right: 8px;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-            }
-            .sidebar-header h3, .sidebar-header p, .sidebar-menu-item span {
-                display: none;
-            }
-            .sidebar-menu-item i {
-                margin: 0 auto;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
-            .action-buttons {
-                grid-template-columns: 1fr;
-            }
+        .footer {
+            text-align: center;
+            padding: 24px 0;
+            margin-top: 32px;
+            color: #64748b;
+            font-size: 0.75rem;
+            border-top: 1px solid #e2e8f0;
         }
     </style>
 </head>
+
 <body>
     <div class="admin-wrapper">
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
                 <h3>Admin Portal</h3>
                 <p>GIPS College</p>
             </div>
             <div class="sidebar-menu">
-                <a href="admin-dashboard.html" class="sidebar-menu-item active">
-                    <i class="fas fa-chalkboard"></i> <span>Dashboard</span>
-                </a>
-                <a href="admin-students.html" class="sidebar-menu-item">
-                    <i class="fas fa-users"></i> <span>Students</span>
-                </a>
-                <a href="admin-staff.html" class="sidebar-menu-item">
-                    <i class="fas fa-user-tie"></i> <span>Staff</span>
-                </a>
-                <a href="admin-programs.html" class="sidebar-menu-item">
-                    <i class="fas fa-book-open"></i> <span>Programs</span>
-                </a>
-                <a href="admin-modules.html" class="sidebar-menu-item">
-                    <i class="fas fa-layer-group"></i> <span>Modules</span>
-                </a>
-                <a href="admin-accommodation.html" class="sidebar-menu-item">
-                    <i class="fas fa-building"></i> <span>Accommodation</span>
-                </a>
-                <a href="admin-payments.html" class="sidebar-menu-item">
-                    <i class="fas fa-credit-card"></i> <span>Payments</span>
-                </a>
-                <a href="admin-tickets.html" class="sidebar-menu-item">
-                    <i class="fas fa-ticket-alt"></i> <span>Support Tickets</span>
-                </a>
-                <a href="admin-reports.html" class="sidebar-menu-item">
-                    <i class="fas fa-chart-line"></i> <span>Reports</span>
-                </a>
-                <!-- Developer Tools section -->
-                <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);"></div>
-                <a href="admin-api.html" class="sidebar-menu-item">
-                    <i class="fas fa-plug"></i> <span>API Management</span>
-                </a>
-                <a href="admin-test.html" class="sidebar-menu-item">
-                    <i class="fas fa-flask"></i> <span>Test Tools</span>
-                </a>
-                <a href="admin-settings.html" class="sidebar-menu-item">
-                    <i class="fas fa-cog"></i> <span>Settings</span>
-                </a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item">
-                    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-                </a>
+                <a href="admin-dashboard.html" class="sidebar-menu-item active"><i class="fas fa-chalkboard"></i>
+                    Dashboard</a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
+                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i>
+                    Accommodation</a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+                <div style="margin: 12px 20px; border-top: 1px solid #334155;"></div>
+                <a href="admin-api.html" class="sidebar-menu-item"><i class="fas fa-plug"></i> API</a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="main-content">
+            <!-- Top Bar -->
             <div class="top-bar">
-                <div class="page-title">
-                    <h1>Admin Dashboard</h1>
-                    <p>Welcome back, <span id="adminName">Admin</span>! Here's what's happening today.</p>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <div class="page-title">
+                        <h1>Admin Dashboard</h1>
+                        <p>Welcome back, <span id="adminName">Admin</span></p>
+                    </div>
                 </div>
                 <div class="admin-profile">
-                    <div class="admin-avatar" id="adminAvatar" title="Profile">A</div>
+                    <div class="admin-avatar" id="adminAvatar">A</div>
                 </div>
             </div>
 
+            <!-- Messages -->
             <div id="errorMessage" class="error-banner"></div>
-            <div id="infoMessage" class="info-banner" style="display: none;"></div>
+            <div id="infoMessage" class="info-banner"></div>
 
             <!-- Stats Grid -->
             <div class="stats-grid" id="statsGrid">
-                <div class="loading"><span class="loading-spinner"></span> Loading statistics...</div>
+                <div class="loading-spinner"></div> Loading...
             </div>
 
             <!-- Quick Actions -->
             <div class="quick-actions">
                 <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
                 <div class="action-buttons">
-                    <a href="admin-students.html?action=add" class="action-btn"><i class="fas fa-user-plus"></i> Add New Student</a>
-                    <a href="admin-staff.html?action=add" class="action-btn"><i class="fas fa-user-plus"></i> Add Staff Member</a>
-                    <a href="admin-programs.html?action=add" class="action-btn"><i class="fas fa-plus-circle"></i> Create Program</a>
-                    <a href="admin-accommodation.html" class="action-btn"><i class="fas fa-building"></i> Manage Accommodation</a>
-                    <a href="admin-reports.html" class="action-btn"><i class="fas fa-chart-line"></i> Generate Report</a>
+                    <a href="admin-students.html?action=add" class="action-btn"><i class="fas fa-user-plus"></i> Add
+                        Student</a>
+                    <a href="admin-staff.html?action=add" class="action-btn"><i class="fas fa-user-plus"></i> Add
+                        Staff</a>
+                    <a href="admin-programs.html?action=add" class="action-btn"><i class="fas fa-plus-circle"></i>
+                        Create Program</a>
+                    <a href="admin-accommodation.html" class="action-btn"><i class="fas fa-building"></i> Manage
+                        Housing</a>
+                    <a href="admin-reports.html" class="action-btn"><i class="fas fa-chart-line"></i> Generate
+                        Report</a>
                     <a href="admin-settings.html" class="action-btn"><i class="fas fa-cog"></i> System Settings</a>
                 </div>
             </div>
 
-            <!-- Pending Approvals Tabs -->
+            <!-- Pending Approvals -->
             <div class="pending-approvals">
                 <div class="pending-tabs">
-                    <div class="pending-tab active" data-tab="students"><i class="fas fa-user-graduate"></i> Student Registrations</div>
-                    <div class="pending-tab" data-tab="accommodation"><i class="fas fa-home"></i> Accommodation Applications</div>
+                    <div class="pending-tab active" data-tab="students"><i class="fas fa-user-graduate"></i> Student
+                        Registrations</div>
+                    <div class="pending-tab" data-tab="accommodation"><i class="fas fa-home"></i> Accommodation
+                        Applications</div>
                 </div>
                 <div id="pendingStudentsList">
-                    <div class="loading"><span class="loading-spinner"></span> Loading student registrations...</div>
+                    <div class="loading-spinner"></div> Loading...
                 </div>
                 <div id="pendingAccommodationList" style="display: none;">
-                    <div class="loading"><span class="loading-spinner"></span> Loading accommodation applications...</div>
+                    <div class="loading-spinner"></div> Loading...
                 </div>
             </div>
+
+            <div class="footer">© 2026 GIPS College. All rights reserved.</div>
         </div>
     </div>
 
     <script>
-        // ============================================
-        // AUTHENTICATION CHECK
-        // ============================================
+        // ========== AUTH & GLOBALS ==========
         const token = localStorage.getItem('access_token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const userRole = localStorage.getItem('user_role');
-        
-        if (!token) {
+
+        if (!token || (userRole !== 'admin' && userRole !== 'administrator')) {
             window.location.href = 'login.html';
         }
-        
-        if (userRole !== 'admin' && userRole !== 'administrator') {
-            window.location.href = 'student-dashboard.html';
-        }
-        
-        // Set admin name and avatar click to profile
-        const adminName = user.first_name || user.username || 'Admin';
-        document.getElementById('adminName').textContent = adminName;
-        const avatar = document.getElementById('adminAvatar');
-        avatar.textContent = adminName.charAt(0).toUpperCase();
-        avatar.addEventListener('click', () => {
-            window.location.href = 'admin-profile.html';
-        });
-        
-        // ============================================
-        // SAFE API CALL FUNCTION
-        // ============================================
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return null;
+
+        document.getElementById('adminName').textContent = user.first_name || user.username || 'Admin';
+        document.getElementById('adminAvatar').textContent = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
+        document.getElementById('adminAvatar').addEventListener('click', () => window.location.href = 'admin-profile.html');
+
+        // ========== SIDEBAR TOGGLE (Mobile) ==========
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        // Close when clicking outside on mobile?
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('open');
             }
-            
+        });
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
             try {
                 const response = await fetch(endpoint, {
                     ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
                 });
-                
-                if (response.status === 401) {
-                    console.warn('Token expired, redirecting to login...');
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                
+                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
                 return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        function showMessage(msg, type) {
+            const errDiv = document.getElementById('errorMessage');
+            const infoDiv = document.getElementById('infoMessage');
+            if (type === 'error') {
+                errDiv.textContent = msg;
+                errDiv.style.display = 'block';
+                infoDiv.style.display = 'none';
+                setTimeout(() => errDiv.style.display = 'none', 5000);
+            } else {
+                infoDiv.textContent = msg;
+                infoDiv.style.display = 'block';
+                errDiv.style.display = 'none';
+                setTimeout(() => infoDiv.style.display = 'none', 5000);
             }
         }
-        
-        // ============================================
-        // LOAD STATISTICS
-        // ============================================
+
+        // ========== LOAD STATS (REAL BACKEND) ==========
         async function loadStats() {
-            const statsGrid = document.getElementById('statsGrid');
-            const errorDiv = document.getElementById('errorMessage');
-            
-            statsGrid.innerHTML = '<div class="loading"><span class="loading-spinner"></span> Loading statistics...</div>';
-            
+            const container = document.getElementById('statsGrid');
+            container.innerHTML = '<div class="loading-spinner"></div> Loading statistics...';
             const response = await safeApiCall('/api/admin/stats');
-            
             if (response && response.ok) {
                 const stats = await response.json();
-                
-                statsGrid.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-number">${stats.total_students || 0}</div>
-                        <div class="stat-label">Total Students</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
-                        <div class="stat-number">${(stats.staff || 0) + (stats.lecturers || 0)}</div>
-                        <div class="stat-label">Staff Members</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                        <div class="stat-number">${stats.pending_registrations || 0}</div>
-                        <div class="stat-label">Pending Registrations</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
-                        <div class="stat-number">${stats.pending_payments || 0}</div>
-                        <div class="stat-label">Pending Payments</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
-                        <div class="stat-number">${stats.open_tickets || 0}</div>
-                        <div class="stat-label">Open Tickets</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-home"></i></div>
-                        <div class="stat-number">${stats.pending_accommodation || 0}</div>
-                        <div class="stat-label">Accommodation Applications</div>
-                    </div>
-                `;
-                errorDiv.style.display = 'none';
+                container.innerHTML = `
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-number">${stats.total_students || 0}</div><div class="stat-label">Total Students</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-tie"></i></div><div class="stat-number">${(stats.staff || 0) + (stats.lecturers || 0)}</div><div class="stat-label">Staff Members</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-number">${stats.pending_registrations || 0}</div><div class="stat-label">Pending Registrations</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-credit-card"></i></div><div class="stat-number">${stats.pending_payments || 0}</div><div class="stat-label">Pending Payments</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-number">${stats.open_tickets || 0}</div><div class="stat-label">Open Tickets</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-home"></i></div><div class="stat-number">${stats.pending_accommodation || 0}</div><div class="stat-label">Accommodation Apps</div></div>
+            `;
             } else {
-                // Demo data
-                statsGrid.innerHTML = `
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-number">156</div><div class="stat-label">Total Students</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-tie"></i></div><div class="stat-number">24</div><div class="stat-label">Staff Members</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-number">3</div><div class="stat-label">Pending Registrations</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-credit-card"></i></div><div class="stat-number">5</div><div class="stat-label">Pending Payments</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-number">2</div><div class="stat-label">Open Tickets</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-home"></i></div><div class="stat-number">4</div><div class="stat-label">Accommodation Apps</div></div>
-                `;
+                container.innerHTML = '<div class="error-banner" style="display:block;">Failed to load statistics</div>';
+                showMessage('Could not load dashboard stats. Check network or backend.', 'error');
             }
         }
-        
-        // ============================================
-        // LOAD PENDING STUDENT REGISTRATIONS
-        // ============================================
+
+        // ========== LOAD PENDING STUDENTS ==========
         async function loadPendingStudents() {
             const container = document.getElementById('pendingStudentsList');
-            container.innerHTML = '<div class="loading"><span class="loading-spinner"></span> Loading student registrations...</div>';
-            
+            container.innerHTML = '<div class="loading-spinner"></div> Loading student registrations...';
             const response = await safeApiCall('/api/admin/students?status=pending');
-            
             if (response && response.ok) {
                 const students = await response.json();
                 const pending = students.filter(s => s.admission_status === 'pending');
-                
-                if (pending.length > 0) {
-                    container.innerHTML = pending.map(student => `
-                        <div class="approval-item">
-                            <div>
-                                <strong>${escapeHtml(student.first_name)} ${escapeHtml(student.last_name)}</strong>
-                                <span class="badge badge-student" style="margin-left: 10px;">Student</span><br>
-                                <small>Program: ${escapeHtml(student.program_name || 'N/A')}</small><br>
-                                <small>Student #: ${escapeHtml(student.student_number)}</small><br>
-                                <small>Email: ${escapeHtml(student.email)}</small>
-                            </div>
-                            <div>
-                                <button class="btn-approve" onclick="approveStudent(${student.id})"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn-reject" onclick="rejectStudent(${student.id})"><i class="fas fa-times"></i> Reject</button>
-                                <button class="btn-view" onclick="viewStudent(${student.id})"><i class="fas fa-eye"></i> View</button>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<div class="approval-item"><i class="fas fa-check-circle"></i> No pending student registrations</div>';
+                if (pending.length === 0) {
+                    container.innerHTML = '<div class="approval-item">✅ No pending student registrations.</div>';
+                    return;
                 }
+                container.innerHTML = pending.map(s => `
+                <div class="approval-item">
+                    <div class="approval-info">
+                        <strong>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</strong>
+                        <span class="badge badge-student">Student</span><br>
+                        <small>${escapeHtml(s.program_name || 'N/A')}</small><br>
+                        <small>${escapeHtml(s.student_number)}</small><br>
+                        <small>${escapeHtml(s.email)}</small>
+                    </div>
+                    <div>
+                        <button class="btn-approve" onclick="approveStudent(${s.id})"><i class="fas fa-check"></i> Approve</button>
+                        <button class="btn-reject" onclick="rejectStudent(${s.id})"><i class="fas fa-times"></i> Reject</button>
+                        <button class="btn-view" onclick="viewStudent(${s.id})"><i class="fas fa-eye"></i> View</button>
+                    </div>
+                </div>
+            `).join('');
             } else {
-                // Demo data
-                container.innerHTML = `
-                    <div class="approval-item">
-                        <div><strong>John Doe</strong><span class="badge badge-student" style="margin-left:10px;">Student</span><br><small>Program: Computer Science</small><br><small>Student #: GIPS/2026/00123</small></div>
-                        <div><button class="btn-approve" onclick="demoApproveStudent(1)"><i class="fas fa-check"></i> Approve</button><button class="btn-reject" onclick="demoRejectStudent(1)"><i class="fas fa-times"></i> Reject</button><button class="btn-view" onclick="alert('View student details')"><i class="fas fa-eye"></i> View</button></div>
-                    </div>
-                    <div class="approval-item">
-                        <div><strong>Jane Smith</strong><span class="badge badge-student" style="margin-left:10px;">Student</span><br><small>Program: Business Administration</small><br><small>Student #: GIPS/2026/00124</small></div>
-                        <div><button class="btn-approve" onclick="demoApproveStudent(2)"><i class="fas fa-check"></i> Approve</button><button class="btn-reject" onclick="demoRejectStudent(2)"><i class="fas fa-times"></i> Reject</button><button class="btn-view" onclick="alert('View student details')"><i class="fas fa-eye"></i> View</button></div>
-                    </div>
-                `;
+                container.innerHTML = '<div class="approval-item">❌ Unable to load pending students.</div>';
             }
         }
-        
-        // ============================================
-        // LOAD PENDING ACCOMMODATION APPLICATIONS
-        // ============================================
+
+        // ========== LOAD PENDING ACCOMMODATION ==========
         async function loadPendingAccommodation() {
             const container = document.getElementById('pendingAccommodationList');
-            container.innerHTML = '<div class="loading"><span class="loading-spinner"></span> Loading accommodation applications...</div>';
-            
+            container.innerHTML = '<div class="loading-spinner"></div> Loading accommodation applications...';
             const response = await safeApiCall('/api/admin/accommodation/applications?status=pending');
-            
             if (response && response.ok) {
-                const applications = await response.json();
-                
-                if (applications.length > 0) {
-                    container.innerHTML = applications.map(app => `
-                        <div class="approval-item">
-                            <div>
-                                <strong>${escapeHtml(app.student_name)}</strong>
-                                <span class="badge badge-accommodation" style="margin-left: 10px;">Accommodation</span><br>
-                                <small>Student #: ${escapeHtml(app.student_number)}</small><br>
-                                <small>Room Type: ${app.room_type === 'bachelor_pad' ? 'Bachelor Pad (2 students)' : 'Three-Bed Room (6 students)'}</small><br>
-                                <small>Block Preference: ${app.block_preference || 'Any'}</small>
-                            </div>
-                            <div>
-                                <button class="btn-approve" onclick="approveAccommodation(${app.id})"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn-reject" onclick="rejectAccommodation(${app.id})"><i class="fas fa-times"></i> Reject</button>
-                                <button class="btn-view" onclick="viewAccommodation(${app.id})"><i class="fas fa-eye"></i> View</button>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<div class="approval-item"><i class="fas fa-check-circle"></i> No pending accommodation applications</div>';
+                const apps = await response.json();
+                if (apps.length === 0) {
+                    container.innerHTML = '<div class="approval-item">✅ No pending accommodation applications.</div>';
+                    return;
                 }
+                container.innerHTML = apps.map(app => `
+                <div class="approval-item">
+                    <div class="approval-info">
+                        <strong>${escapeHtml(app.student_name)}</strong>
+                        <span class="badge badge-accommodation">Accommodation</span><br>
+                        <small>${escapeHtml(app.student_number)}</small><br>
+                        <small>${app.room_type === 'bachelor_pad' ? 'Bachelor Pad' : 'Three-Bed Room'}</small>
+                    </div>
+                    <div>
+                        <button class="btn-approve" onclick="approveAccommodation(${app.id})"><i class="fas fa-check"></i> Approve</button>
+                        <button class="btn-reject" onclick="rejectAccommodation(${app.id})"><i class="fas fa-times"></i> Reject</button>
+                        <button class="btn-view" onclick="viewAccommodation(${app.id})"><i class="fas fa-eye"></i> View</button>
+                    </div>
+                </div>
+            `).join('');
             } else {
-                // Demo data
-                container.innerHTML = `
-                    <div class="approval-item">
-                        <div><strong>Thabo Motsamai</strong><span class="badge badge-accommodation" style="margin-left:10px;">Accommodation</span><br><small>Student #: GIPS/2026/00125</small><br><small>Room Type: Bachelor Pad (2 students)</small><br><small>Block Preference: Block A</small></div>
-                        <div><button class="btn-approve" onclick="demoApproveAccommodation(1)"><i class="fas fa-check"></i> Approve</button><button class="btn-reject" onclick="demoRejectAccommodation(1)"><i class="fas fa-times"></i> Reject</button><button class="btn-view" onclick="alert('View accommodation details')"><i class="fas fa-eye"></i> View</button></div>
-                    </div>
-                    <div class="approval-item">
-                        <div><strong>Kelebogile Modise</strong><span class="badge badge-accommodation" style="margin-left:10px;">Accommodation</span><br><small>Student #: GIPS/2026/00126</small><br><small>Room Type: Three-Bed Room (6 students)</small><br><small>Block Preference: Block B</small></div>
-                        <div><button class="btn-approve" onclick="demoApproveAccommodation(2)"><i class="fas fa-check"></i> Approve</button><button class="btn-reject" onclick="demoRejectAccommodation(2)"><i class="fas fa-times"></i> Reject</button><button class="btn-view" onclick="alert('View accommodation details')"><i class="fas fa-eye"></i> View</button></div>
-                    </div>
-                `;
+                container.innerHTML = '<div class="approval-item">❌ Unable to load accommodation applications.</div>';
             }
         }
-        
-        // ============================================
-        // TAB SWITCHING
-        // ============================================
+
+        // ========== ACTIONS (REAL BACKEND) ==========
+        async function approveStudent(id) {
+            if (!confirm('Approve this student registration?')) return;
+            const response = await safeApiCall(`/api/admin/students/${id}/approve`, { method: 'POST' });
+            if (response && response.ok) {
+                showMessage('Student approved successfully!', 'success');
+                await loadStats();
+                await loadPendingStudents();
+            } else {
+                showMessage('Failed to approve student.', 'error');
+            }
+        }
+
+        async function rejectStudent(id) {
+            if (!confirm('Reject this student registration?')) return;
+            const response = await safeApiCall(`/api/admin/students/${id}/reject`, { method: 'POST' });
+            if (response && response.ok) {
+                showMessage('Student rejected.', 'error');
+                await loadStats();
+                await loadPendingStudents();
+            } else {
+                showMessage('Failed to reject student.', 'error');
+            }
+        }
+
+        async function approveAccommodation(id) {
+            if (!confirm('Approve this accommodation application?')) return;
+            const response = await safeApiCall(`/api/admin/accommodation/applications/${id}/approve`, { method: 'POST' });
+            if (response && response.ok) {
+                showMessage('Accommodation approved!', 'success');
+                await loadStats();
+                await loadPendingAccommodation();
+            } else {
+                showMessage('Failed to approve accommodation.', 'error');
+            }
+        }
+
+        async function rejectAccommodation(id) {
+            if (!confirm('Reject this accommodation application?')) return;
+            const response = await safeApiCall(`/api/admin/accommodation/applications/${id}/reject`, { method: 'POST' });
+            if (response && response.ok) {
+                showMessage('Accommodation rejected.', 'error');
+                await loadStats();
+                await loadPendingAccommodation();
+            } else {
+                showMessage('Failed to reject accommodation.', 'error');
+            }
+        }
+
+        function viewStudent(id) { window.location.href = `admin-students.html?view=${id}`; }
+        function viewAccommodation(id) { window.location.href = `admin-accommodation.html?view=${id}`; }
+
+        // ========== TAB SWITCHING ==========
         function setupTabs() {
             const tabs = document.querySelectorAll('.pending-tab');
-            const studentsList = document.getElementById('pendingStudentsList');
-            const accommodationList = document.getElementById('pendingAccommodationList');
-            
+            const studentsDiv = document.getElementById('pendingStudentsList');
+            const accomDiv = document.getElementById('pendingAccommodationList');
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     tabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
-                    
                     if (tab.dataset.tab === 'students') {
-                        studentsList.style.display = 'block';
-                        accommodationList.style.display = 'none';
+                        studentsDiv.style.display = 'block';
+                        accomDiv.style.display = 'none';
                     } else {
-                        studentsList.style.display = 'none';
-                        accommodationList.style.display = 'block';
+                        studentsDiv.style.display = 'none';
+                        accomDiv.style.display = 'block';
                     }
                 });
             });
         }
-        
-        // ============================================
-        // STUDENT ACTIONS
-        // ============================================
-        async function approveStudent(id) {
-            if (!confirm('Approve this student registration?')) return;
-            
-            const response = await safeApiCall(`/api/admin/students/${id}/approve`, { method: 'POST' });
-            
-            if (response && response.ok) {
-                showMessage('Student approved successfully!', 'success');
-                loadStats();
-                loadPendingStudents();
-            } else {
-                showMessage('Student approved! (Demo Mode)', 'success');
-                loadStats();
-                loadPendingStudents();
-            }
-        }
-        
-        async function rejectStudent(id) {
-            if (!confirm('Reject this student registration?')) return;
-            
-            const response = await safeApiCall(`/api/admin/students/${id}/reject`, { method: 'POST' });
-            
-            if (response && response.ok) {
-                showMessage('Student rejected.', 'error');
-                loadStats();
-                loadPendingStudents();
-            } else {
-                showMessage('Student rejected. (Demo Mode)', 'error');
-                loadStats();
-                loadPendingStudents();
-            }
-        }
-        
-        // ============================================
-        // ACCOMMODATION ACTIONS
-        // ============================================
-        async function approveAccommodation(id) {
-            if (!confirm('Approve this accommodation application?')) return;
-            
-            const response = await safeApiCall(`/api/admin/accommodation/applications/${id}/approve`, { method: 'POST' });
-            
-            if (response && response.ok) {
-                showMessage('Accommodation application approved!', 'success');
-                loadStats();
-                loadPendingAccommodation();
-            } else {
-                showMessage('Accommodation approved! (Demo Mode)', 'success');
-                loadStats();
-                loadPendingAccommodation();
-            }
-        }
-        
-        async function rejectAccommodation(id) {
-            if (!confirm('Reject this accommodation application?')) return;
-            
-            const response = await safeApiCall(`/api/admin/accommodation/applications/${id}/reject`, { method: 'POST' });
-            
-            if (response && response.ok) {
-                showMessage('Accommodation application rejected.', 'error');
-                loadStats();
-                loadPendingAccommodation();
-            } else {
-                showMessage('Accommodation rejected. (Demo Mode)', 'error');
-                loadStats();
-                loadPendingAccommodation();
-            }
-        }
-        
-        function viewStudent(id) {
-            window.location.href = `admin-students.html?view=${id}`;
-        }
-        
-        function viewAccommodation(id) {
-            window.location.href = `admin-accommodation.html?view=${id}`;
-        }
-        
-        // ============================================
-        // DEMO FUNCTIONS
-        // ============================================
-        function demoApproveStudent(id) {
-            showMessage('Student approved! (Demo Mode)', 'success');
-            loadPendingStudents();
-            loadStats();
-        }
-        
-        function demoRejectStudent(id) {
-            showMessage('Student rejected. (Demo Mode)', 'error');
-            loadPendingStudents();
-            loadStats();
-        }
-        
-        function demoApproveAccommodation(id) {
-            showMessage('Accommodation approved! (Demo Mode)', 'success');
-            loadPendingAccommodation();
-            loadStats();
-        }
-        
-        function demoRejectAccommodation(id) {
-            showMessage('Accommodation rejected. (Demo Mode)', 'error');
-            loadPendingAccommodation();
-            loadStats();
-        }
-        
-        // ============================================
-        // MESSAGE FUNCTIONS
-        // ============================================
-        function showMessage(message, type) {
-            const errorDiv = document.getElementById('errorMessage');
-            const infoDiv = document.getElementById('infoMessage');
-            
-            if (type === 'error') {
-                errorDiv.textContent = message;
-                errorDiv.style.display = 'block';
-                infoDiv.style.display = 'none';
-                setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
-            } else {
-                infoDiv.textContent = message;
-                infoDiv.style.display = 'block';
-                errorDiv.style.display = 'none';
-                setTimeout(() => { infoDiv.style.display = 'none'; }, 5000);
-            }
-        }
-        
-        // ============================================
-        // LOGOUT
-        // ============================================
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-        
-        // ============================================
-        // HELPER
-        // ============================================
+
+        // ========== HELPER ==========
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-        
-        // ============================================
-        // EXPOSE GLOBAL FUNCTIONS
-        // ============================================
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
         window.approveStudent = approveStudent;
         window.rejectStudent = rejectStudent;
         window.approveAccommodation = approveAccommodation;
         window.rejectAccommodation = rejectAccommodation;
         window.viewStudent = viewStudent;
         window.viewAccommodation = viewAccommodation;
-        window.demoApproveStudent = demoApproveStudent;
-        window.demoRejectStudent = demoRejectStudent;
-        window.demoApproveAccommodation = demoApproveAccommodation;
-        window.demoRejectAccommodation = demoRejectAccommodation;
-        
-        // ============================================
-        // INITIALIZE
-        // ============================================
+
         loadStats();
         loadPendingStudents();
         loadPendingAccommodation();
         setupTabs();
-        
-        // Auto-refresh every 60 seconds
+
+        // Auto‑refresh every 60 seconds
         setInterval(() => {
             loadStats();
-            if (document.querySelector('.pending-tab.active').dataset.tab === 'students') {
-                loadPendingStudents();
-            } else {
-                loadPendingAccommodation();
-            }
+            const activeTab = document.querySelector('.pending-tab.active')?.dataset.tab;
+            if (activeTab === 'students') loadPendingStudents();
+            else loadPendingAccommodation();
         }, 60000);
-        
-        console.log('✅ Admin Dashboard loaded – Complete navigation to all admin files');
     </script>
 </body>
+
 </html>

@@ -48,10 +48,6 @@
             transition: transform 0.3s;
         }
 
-        .navbar-brand img:hover {
-            transform: scale(1.05);
-        }
-
         .nav-menu {
             display: flex;
             list-style: none;
@@ -392,6 +388,13 @@
             border-left: 4px solid #38a169;
         }
 
+        .info-message {
+            background: #cfe2ff;
+            color: #084298;
+            border-left: 4px solid #3182ce;
+            display: block;
+        }
+
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -436,9 +439,8 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" onerror="this.style.display='none'">
-            </div>
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College Logo"
+                    onerror="this.style.display='none'"></div>
             <ul class="nav-menu">
                 <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
                 </li>
@@ -465,6 +467,9 @@
             <p>Experience premium student living at Gaborone Main Campus. Modern facilities, 24/7 security, and a
                 vibrant community.</p>
         </div>
+
+        <!-- ========== ADDED: infoBanner for eligibility messages ========== -->
+        <div id="infoBanner" class="info-message" style="display: none;"></div>
 
         <div class="stats-grid">
             <div class="stat-card">
@@ -506,6 +511,7 @@
         </div>
     </div>
 
+    <!-- Application Modal -->
     <div id="applicationModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -564,6 +570,7 @@
         </div>
     </div>
 
+    <!-- Cancel Modal -->
     <div id="cancelModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -588,14 +595,12 @@
 
     <script>
         // ============================================
-        // GLOBALS & AUTH
+        // AUTH & SAFE API CALL
         // ============================================
         const token = localStorage.getItem('access_token');
         if (!token) window.location.href = 'login.html';
 
-        let admissionStatus = 'pending';
         let canApply = false;
-        let studentCampusId = null;
 
         async function safeApiCall(endpoint, options = {}) {
             try {
@@ -608,40 +613,48 @@
             } catch (error) { console.error(error); return null; }
         }
 
-        // Check student eligibility via backend
+        // ========== SAFE ELIGIBILITY CHECK (no null error) ==========
         async function checkEligibility() {
-            const response = await safeApiCall('/api/accommodation/check-eligibility');
-            if (response && response.ok) {
-                const data = await response.json();
-                canApply = data.eligible;
-                if (!canApply) {
-                    const msg = data.reasons ? data.reasons.join(' ') : 'You are not eligible for accommodation at this time.';
-                    document.getElementById('infoBanner').innerHTML = `<div class="info-message" style="display:block;"><i class="fas fa-info-circle"></i> ${msg}</div>`;
+            const banner = document.getElementById('infoBanner');
+            try {
+                const response = await safeApiCall('/api/accommodation/check-eligibility');
+                if (response && response.ok) {
+                    const data = await response.json();
+                    canApply = data.eligible;
+                    if (!canApply && banner) {
+                        banner.style.display = 'block';
+                        banner.innerHTML = `<i class="fas fa-info-circle"></i> ${data.reasons ? data.reasons.join(' ') : 'You are not eligible for accommodation at this time.'}`;
+                    } else if (banner) {
+                        banner.style.display = 'none';
+                    }
+                } else {
+                    // fallback to student status endpoint
+                    const statusResp = await safeApiCall('/api/students/status');
+                    if (statusResp && statusResp.ok) {
+                        const statusData = await statusResp.json();
+                        canApply = statusData.admission_status === 'accepted' && statusData.can_apply_accommodation === true;
+                        if (!canApply && banner) {
+                            banner.style.display = 'block';
+                            banner.innerHTML = '<i class="fas fa-info-circle"></i> Your admission is not yet approved or your campus does not offer accommodation.';
+                        } else if (banner) {
+                            banner.style.display = 'none';
+                        }
+                    } else {
+                        canApply = true; // demo mode
+                    }
                 }
-                return data;
+            } catch (err) {
+                console.warn('Eligibility check failed:', err);
+                canApply = true;
             }
-            // fallback: try status endpoint
-            const statusResp = await safeApiCall('/api/students/status');
-            if (statusResp && statusResp.ok) {
-                const statusData = await statusResp.json();
-                admissionStatus = statusData.admission_status;
-                canApply = admissionStatus === 'accepted' && statusData.can_apply_accommodation === true;
-                if (!canApply) {
-                    document.getElementById('infoBanner').innerHTML = `<div class="info-message" style="display:block;"><i class="fas fa-info-circle"></i> Your admission is not yet approved or your campus does not offer accommodation.</div>`;
-                }
-            } else {
-                canApply = true; // assume for demo
-            }
-            return { eligible: canApply };
+            return canApply;
         }
 
         // ============================================
-        // ROOM AVAILABILITY (demo data, replace with real API)
+        // ROOM AVAILABILITY (demo)
         // ============================================
         const gipsVillage = {
-            name: 'GIPS Student Village',
             blocks: ['A', 'B', 'C', 'D', 'E'],
-            roomsPerBlock: 32,
             amenities: ['Kitchen with Electric Stove', 'Washing Basin', 'Shower', 'Water Supply', '24/7 Security', 'Study Table', 'Bed', 'Chair', 'High-Speed WiFi']
         };
         let rooms = {
@@ -662,7 +675,7 @@
             document.getElementById('totalRooms').textContent = totalRooms;
             document.getElementById('availableRooms').textContent = availableRooms;
             document.getElementById('occupancyRate').textContent = `${occRate}%`;
-            document.getElementById('applicantsCount').textContent = '23'; // demo
+            document.getElementById('applicantsCount').textContent = '23';
         }
 
         function loadAvailableAccommodation() {
@@ -691,12 +704,12 @@
         }
 
         // ============================================
-        // APPLICATION SUBMISSION (FIXED)
+        // APPLICATION SUBMISSION
         // ============================================
         let selectedBlock = null;
         window.openApplicationModal = function (blockName, block) {
             if (!canApply) {
-                alert('You are not eligible to apply for accommodation at this time. Your admission must be approved and your campus must offer accommodation.');
+                alert('You are not eligible to apply for accommodation at this time.');
                 return;
             }
             selectedBlock = block;
@@ -734,7 +747,6 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
 
-            // Build payload exactly as backend expects
             const payload = {
                 room_type: roomType,
                 block_preference: blockPreference || null,
@@ -753,7 +765,7 @@
 
             if (response && response.ok) {
                 const result = await response.json();
-                successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message || 'Application submitted successfully! You will receive a response within 48 hours.'}`;
+                successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message || 'Application submitted successfully!'}`;
                 successDiv.style.display = 'block';
                 setTimeout(() => {
                     document.getElementById('applicationModal').style.display = 'none';
@@ -775,9 +787,6 @@
             }
         }
 
-        // ============================================
-        // LOAD MY APPLICATION (status)
-        // ============================================
         async function loadMyApplication() {
             const container = document.getElementById('myApplication');
             container.innerHTML = '<div class="loading-spinner"></div><p>Loading your application...</p>';
@@ -809,9 +818,6 @@
             }
         }
 
-        // ============================================
-        // RULES & REGULATIONS
-        // ============================================
         function loadRules() {
             document.getElementById('rulesContent').innerHTML = `
                 <div class="rules-section">
@@ -838,9 +844,7 @@
             `;
         }
 
-        // ============================================
-        // MODAL HELPERS
-        // ============================================
+        // Modal helpers
         window.openCancelModal = function () { document.getElementById('cancelModal').style.display = 'flex'; };
         window.closeModal = function (modalId) { document.getElementById(modalId).style.display = 'none'; };
         document.getElementById('applicationForm').addEventListener('submit', (e) => { e.preventDefault(); submitApplication(); });
@@ -863,9 +867,6 @@
 
         function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
-        // ============================================
-        // TAB SWITCHING
-        // ============================================
         function setupTabs() {
             const tabs = document.querySelectorAll('.tab-button');
             const contents = document.querySelectorAll('.tab-content');
@@ -883,9 +884,6 @@
             });
         }
 
-        // ============================================
-        // INIT
-        // ============================================
         async function init() {
             await checkEligibility();
             loadAvailableAccommodation();

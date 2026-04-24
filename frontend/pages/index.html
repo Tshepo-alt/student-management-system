@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>GIPS College - 35 Years of Excellence in Higher Learning</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -12,713 +12,599 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
             overflow-x: hidden;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+
+        /* Animated bubbles (same as login) */
+        .bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
         }
-        
+
+        .bubble {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 50%;
+            backdrop-filter: blur(1px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 500;
+            color: rgba(102, 126, 234, 0.3);
+            white-space: nowrap;
+            animation: floatBubble linear infinite;
+        }
+
+        @keyframes floatBubble {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.5;
+            }
+
+            80% {
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
         /* Navigation */
         .navbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 0.8rem 0;
-            transition: all 0.3s ease;
+            padding: 0.7rem 0;
         }
-        
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
         .navbar .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
+
         .navbar-brand img {
-            height: 55px;
+            height: 45px;
             width: auto;
-            transition: transform 0.3s ease;
+            transition: transform 0.2s;
         }
-        
-        .navbar-brand img:hover {
-            transform: scale(1.05);
-        }
-        
+
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 2rem;
-            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
-        
+
         .nav-link {
             text-decoration: none;
-            color: #333;
+            color: #334155;
             font-weight: 500;
-            transition: all 0.3s;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            position: relative;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
         }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s;
-            transform: translateX(-50%);
+
+        .nav-link i {
+            font-size: 0.9rem;
         }
-        
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 70%;
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
         }
-        
-        .nav-link:hover, .nav-link.active {
-            color: #667eea;
-        }
-        
+
         .user-greeting {
             display: flex;
             align-items: center;
-            gap: 15px;
-            background: #f0f2f5;
-            padding: 5px 15px;
+            gap: 12px;
+            background: #f1f5f9;
+            padding: 4px 16px 4px 12px;
             border-radius: 40px;
         }
-        
-        .user-name {
-            font-weight: 600;
-            color: #667eea;
-        }
-        
+
         .user-avatar {
-            width: 35px;
-            height: 35px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
         }
-        
+
+        .user-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
         .logout-btn {
-            background: #dc3545;
+            background: #ef4444;
             color: white;
             border: none;
-            padding: 6px 15px;
-            border-radius: 20px;
+            padding: 4px 12px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
+            font-size: 0.75rem;
+            transition: 0.2s;
         }
-        
+
         .logout-btn:hover {
-            background: #c82333;
-            transform: translateY(-2px);
+            background: #dc2626;
         }
-        
+
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 80px 0;
+            padding: 60px 0;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x bottom;
-            opacity: 0.3;
-            pointer-events: none;
-            animation: wave 20s linear infinite;
-        }
-        
-        @keyframes wave {
-            0% {
-                background-position: 0 bottom;
-            }
-            100% {
-                background-position: 1440px bottom;
-            }
-        }
-        
+
         .hero-section h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            animation: fadeInUp 0.8s ease;
-            position: relative;
-            z-index: 1;
+            font-size: 2.2rem;
+            margin-bottom: 16px;
+            font-weight: 700;
         }
-        
-        .hero-section .celebration {
-            font-size: 1.2rem;
-            color: #ffd700;
-            margin-bottom: 20px;
-            font-weight: bold;
-            animation: fadeInUp 0.8s ease 0.1s forwards;
-            opacity: 0;
-            animation-fill-mode: forwards;
-        }
-        
-        .hero-section .slogan {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #e9d8fd;
-            font-weight: 600;
-            position: relative;
-            z-index: 1;
-            animation: fadeInUp 0.8s ease 0.2s forwards;
-            opacity: 0;
-            animation-fill-mode: forwards;
-        }
-        
-        .hero-section .slogan-purple {
-            font-size: 1.2rem;
-            color: #c084fc;
-            margin-bottom: 25px;
-            font-style: italic;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-            animation: fadeInUp 0.8s ease 0.3s forwards;
-            opacity: 0;
-            animation-fill-mode: forwards;
-        }
-        
-        .hero-section .mission-text {
+
+        .celebration {
             font-size: 1rem;
-            max-width: 800px;
-            margin: 0 auto 30px;
-            line-height: 1.6;
-            position: relative;
-            z-index: 1;
-            animation: fadeInUp 0.8s ease 0.4s forwards;
-            opacity: 0;
-            animation-fill-mode: forwards;
+            background: rgba(255, 215, 0, 0.2);
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 40px;
+            margin-bottom: 20px;
         }
-        
+
+        .slogan {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .slogan-purple {
+            font-size: 1rem;
+            color: #e9d8fd;
+            margin-bottom: 20px;
+        }
+
+        .mission-text {
+            max-width: 700px;
+            margin: 0 auto 30px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
         .cta-buttons {
-            animation: fadeInUp 0.8s ease 0.5s forwards;
-            opacity: 0;
-            animation-fill-mode: forwards;
-            position: relative;
-            z-index: 1;
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 16px;
             flex-wrap: wrap;
         }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Moving Messages Marquee */
-        .moving-messages {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 15px 0;
-            overflow: hidden;
-            position: relative;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .marquee {
-            white-space: nowrap;
-            overflow: hidden;
-            display: flex;
-            animation: scrollMarquee 40s linear infinite;
-        }
-        
-        .marquee-content {
-            display: flex;
-            gap: 50px;
-            padding-right: 50px;
-        }
-        
-        .marquee-item {
+
+        .btn {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-        
-        @keyframes scrollMarquee {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%);
-            }
-        }
-        
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            padding: 14px 35px;
-            border-radius: 50px;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 40px;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: none;
-            font-size: 1rem;
+            transition: 0.2s;
+            font-size: 0.9rem;
         }
-        
+
         .btn-light {
             background: white;
             color: #667eea;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        
+
         .btn-light:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
-        
+
         .btn-outline-light {
             border: 2px solid white;
             color: white;
             background: transparent;
         }
-        
+
         .btn-outline-light:hover {
             background: white;
             color: #667eea;
-            transform: translateY(-3px);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
         }
-        
+
+        /* Moving Marquee */
+        .moving-messages {
+            background: #1e1b4b;
+            padding: 12px 0;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .marquee {
+            display: flex;
+            animation: scrollMarquee 30s linear infinite;
+        }
+
+        .marquee-content {
+            display: flex;
+            gap: 40px;
+            padding-right: 40px;
+        }
+
+        .marquee-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        @keyframes scrollMarquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
         /* Features Section */
         .features-section {
-            padding: 80px 0;
-            background: #f8f9fa;
+            padding: 60px 0;
+            background: white;
         }
-        
-        .features-section h2 {
+
+        .section-title {
             text-align: center;
-            font-size: 2.2rem;
-            color: #333;
-            margin-bottom: 20px;
-            position: relative;
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            color: #0f172a;
         }
-        
-        .features-section h2:after {
+
+        .section-title:after {
             content: '';
             display: block;
             width: 80px;
-            height: 4px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 15px auto 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            margin: 12px auto 0;
             border-radius: 2px;
         }
-        
+
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
-            margin-top: 50px;
         }
-        
+
         .feature-card {
-            background: white;
-            padding: 35px 25px;
-            border-radius: 15px;
+            background: #f8fafc;
+            padding: 28px 20px;
+            border-radius: 24px;
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            transition: 0.2s;
+            border: 1px solid #e2e8f0;
         }
-        
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transform: scaleX(0);
-            transition: transform 0.3s;
-        }
-        
-        .feature-card:hover::before {
-            transform: scaleX(1);
-        }
-        
+
         .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
         }
-        
+
         .feature-card .icon {
-            font-size: 3.5rem;
-            display: inline-block;
-            margin-bottom: 20px;
+            font-size: 2.5rem;
             color: #667eea;
+            margin-bottom: 16px;
         }
-        
+
         .feature-card h3 {
-            color: #667eea;
-            margin: 20px 0 15px;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #0f172a;
         }
-        
+
         .feature-card p {
-            color: #666;
-            line-height: 1.6;
+            color: #475569;
+            line-height: 1.5;
+            font-size: 0.85rem;
         }
-        
+
         /* Programs Section */
         .programs-section {
-            padding: 80px 0;
-            background: white;
+            padding: 60px 0;
+            background: #f8fafc;
         }
-        
-        .programs-section h2 {
-            text-align: center;
-            font-size: 2.2rem;
-            color: #333;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        .programs-section h2:after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 15px auto 0;
-            border-radius: 2px;
-        }
-        
+
         .programs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            margin-top: 50px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
         }
-        
+
         .program-card {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 12px;
-            border-left: 4px solid #667eea;
-            transition: all 0.3s;
-            position: relative;
-        }
-        
-        .program-card:hover {
-            transform: translateX(8px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             background: white;
+            padding: 20px;
+            border-radius: 20px;
+            border-left: 4px solid #667eea;
+            transition: 0.2s;
         }
-        
+
+        .program-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
         .program-card h3 {
-            color: #333;
-            margin-bottom: 12px;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #0f172a;
         }
-        
+
         .program-card p {
-            color: #666;
-            line-height: 1.6;
+            color: #475569;
+            font-size: 0.85rem;
             margin-bottom: 12px;
         }
-        
+
         .program-type {
             display: inline-block;
             padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
             font-weight: 600;
         }
-        
+
         .program-type.degree {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: #dbeafe;
+            color: #1e40af;
         }
-        
+
         .program-type.diploma {
-            background: #f3e5f5;
-            color: #7b1fa2;
+            background: #f3e8ff;
+            color: #6b21a5;
         }
-        
+
         /* Stats Section */
         .stats-section {
-            padding: 80px 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            position: relative;
-            overflow: hidden;
         }
-        
-        .stats-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x bottom;
-            opacity: 0.3;
-        }
-        
-        .stats-section h2 {
-            text-align: center;
-            font-size: 2.2rem;
-            margin-bottom: 50px;
+
+        .stats-section .section-title {
             color: white;
-            position: relative;
-            z-index: 1;
         }
-        
+
+        .stats-section .section-title:after {
+            background: white;
+        }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 30px;
             text-align: center;
-            position: relative;
-            z-index: 1;
         }
-        
+
         .stat-box {
-            padding: 25px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            padding: 20px;
+            border-radius: 24px;
         }
-        
-        .stat-box:hover {
-            transform: translateY(-8px);
-            background: rgba(255,255,255,0.2);
-        }
-        
+
         .stat-number {
-            font-size: 2.8rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 2rem;
+            font-weight: 800;
         }
-        
+
         .stat-label {
-            font-size: 1rem;
+            font-size: 0.85rem;
             opacity: 0.9;
+            margin-top: 8px;
         }
-        
+
         /* Footer */
         .footer {
-            background: #1a202c;
-            color: white;
+            background: #0f172a;
+            color: #cbd5e1;
             text-align: center;
-            padding: 50px 0;
+            padding: 40px 0;
+            font-size: 0.8rem;
         }
-        
+
         .footer p {
             margin-bottom: 12px;
-            opacity: 0.8;
         }
-        
+
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 25px;
-            margin-top: 25px;
+            gap: 20px;
             flex-wrap: wrap;
+            margin-top: 20px;
         }
-        
+
         .footer-links a {
-            color: #a0aec0;
+            color: #94a3b8;
             text-decoration: none;
-            transition: color 0.3s;
+            transition: 0.2s;
         }
-        
+
         .footer-links a:hover {
             color: white;
         }
-        
-        /* Chatbot Preview */
+
+        /* Chatbot Button */
         .chatbot-preview {
             position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 65px;
-            height: 65px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: 0.2s;
             z-index: 1000;
-            animation: bounce 2s infinite;
         }
-        
-        .chatbot-preview:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-        }
-        
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-        
+
         .chatbot-preview i {
-            font-size: 32px;
+            font-size: 28px;
             color: white;
         }
-        
+
+        .chatbot-preview:hover {
+            transform: scale(1.08);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
             .navbar .container {
                 flex-direction: column;
-                gap: 15px;
+                gap: 12px;
             }
-            
+
             .nav-menu {
-                flex-wrap: wrap;
                 justify-content: center;
-                gap: 1rem;
             }
-            
-            .hero-section {
-                padding: 60px 0;
-            }
-            
+
             .hero-section h1 {
-                font-size: 2rem;
+                font-size: 1.6rem;
             }
-            
-            .hero-section .slogan {
-                font-size: 1.2rem;
-            }
-            
-            .hero-section .slogan-purple {
+
+            .slogan {
                 font-size: 1rem;
             }
-            
-            .hero-section .mission-text {
-                font-size: 0.9rem;
-                padding: 0 15px;
-            }
-            
+
             .cta-buttons {
                 flex-direction: column;
                 align-items: center;
             }
-            
-            .features-grid, .programs-grid {
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .features-grid,
+            .programs-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .navbar-brand img {
-                height: 45px;
-            }
-            
+
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
             }
-            
-            .marquee-item {
-                font-size: 0.8rem;
+
+            .stat-number {
+                font-size: 1.6rem;
             }
         }
-        
+
         @media (max-width: 480px) {
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+
+            .marquee-item {
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
+
 <body>
-    <!-- Navigation Bar -->
+    <div class="bubbles" id="bubbles"></div>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" id="logoImage" onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="/" class="nav-link active">Home</a></li>
-                <!-- Dynamic content will be inserted here by JavaScript -->
+                <li><a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="pages/login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                <li><a href="pages/register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></li>
+                <li><a href="pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
             <h1>Welcome to GIPS College</h1>
-            <div class="celebration"><i class="fas fa-trophy"></i> Celebrating 35 Years of Excellence in Higher Learning <i class="fas fa-trophy"></i></div>
-            <div class="slogan"><i class="fas fa-graduation-cap"></i> "Excellence in Higher Learning" <i class="fas fa-graduation-cap"></i></div>
-            <div class="slogan-purple"><i class="fas fa-star"></i> The Ultimate Journey to a Higher Education <i class="fas fa-star"></i></div>
+            <div class="celebration"><i class="fas fa-trophy"></i> Celebrating 35 Years of Excellence in Higher Learning
+                <i class="fas fa-trophy"></i></div>
+            <div class="slogan"><i class="fas fa-graduation-cap"></i> "Excellence in Higher Learning" <i
+                    class="fas fa-graduation-cap"></i></div>
+            <div class="slogan-purple"><i class="fas fa-star"></i> The Ultimate Journey to a Higher Education <i
+                    class="fas fa-star"></i></div>
             <div class="mission-text">
-                To deliver high-quality education and training that equips students with practical skills, knowledge, and personal development needed for the modern workforce.
+                To deliver high-quality education and training that equips students with practical skills, knowledge,
+                and personal development needed for the modern workforce.
             </div>
             <div class="cta-buttons" id="ctaButtons">
-                <a href="/pages/login.html" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Student Login</a>
-                <a href="/pages/register.html" class="btn btn-outline-light"><i class="fas fa-edit"></i> Apply Now</a>
+                <a href="pages/login.html" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Student Login</a>
+                <a href="pages/register.html" class="btn btn-outline-light"><i class="fas fa-edit"></i> Apply Now</a>
             </div>
         </div>
     </section>
 
-    <!-- Moving Messages Marquee -->
     <div class="moving-messages">
         <div class="marquee">
             <div class="marquee-content">
@@ -730,21 +616,8 @@
                 <span class="marquee-item"><i class="fas fa-chart-line"></i> Business Administration</span>
                 <span class="marquee-item"><i class="fas fa-coins"></i> Banking & Finance</span>
                 <span class="marquee-item"><i class="fas fa-calculator"></i> Accounting</span>
-                <span class="marquee-item"><i class="fas fa-cogs"></i> Engineering Programs</span>
                 <span class="marquee-item"><i class="fas fa-handshake"></i> 50+ Industry Partners</span>
                 <span class="marquee-item"><i class="fas fa-users"></i> 5000+ Graduates</span>
-                <span class="marquee-item"><i class="fas fa-certificate"></i> Quality Education</span>
-                <span class="marquee-item"><i class="fas fa-lightbulb"></i> Innovation & Technology</span>
-                <span class="marquee-item"><i class="fas fa-network-wired"></i> Strong Industry Connections</span>
-                <span class="marquee-item"><i class="fas fa-chart-simple"></i> Career-Focused Learning</span>
-                <span class="marquee-item"><i class="fas fa-medal"></i> Excellence Award Winner</span>
-                <span class="marquee-item"><i class="fas fa-globe"></i> Botswana's Leading Institution</span>
-                <span class="marquee-item"><i class="fas fa-user-graduate"></i> Job-Ready Graduates</span>
-                <span class="marquee-item"><i class="fas fa-check-circle"></i> BQA Accredited Programs</span>
-                <span class="marquee-item"><i class="fas fa-graduation-cap"></i> Diploma & Degree Programs</span>
-                <span class="marquee-item"><i class="fas fa-desktop"></i> Modern Facilities</span>
-                <span class="marquee-item"><i class="fas fa-chalkboard-user"></i> Expert Lecturers</span>
-                <span class="marquee-item"><i class="fas fa-rocket"></i> Your Success Starts Here</span>
             </div>
             <div class="marquee-content">
                 <span class="marquee-item"><i class="fas fa-trophy"></i> 35 Years of Excellence</span>
@@ -755,236 +628,215 @@
                 <span class="marquee-item"><i class="fas fa-chart-line"></i> Business Administration</span>
                 <span class="marquee-item"><i class="fas fa-coins"></i> Banking & Finance</span>
                 <span class="marquee-item"><i class="fas fa-calculator"></i> Accounting</span>
-                <span class="marquee-item"><i class="fas fa-cogs"></i> Engineering Programs</span>
                 <span class="marquee-item"><i class="fas fa-handshake"></i> 50+ Industry Partners</span>
                 <span class="marquee-item"><i class="fas fa-users"></i> 5000+ Graduates</span>
-                <span class="marquee-item"><i class="fas fa-certificate"></i> Quality Education</span>
-                <span class="marquee-item"><i class="fas fa-lightbulb"></i> Innovation & Technology</span>
-                <span class="marquee-item"><i class="fas fa-network-wired"></i> Strong Industry Connections</span>
-                <span class="marquee-item"><i class="fas fa-chart-simple"></i> Career-Focused Learning</span>
-                <span class="marquee-item"><i class="fas fa-medal"></i> Excellence Award Winner</span>
-                <span class="marquee-item"><i class="fas fa-globe"></i> Botswana's Leading Institution</span>
-                <span class="marquee-item"><i class="fas fa-user-graduate"></i> Job-Ready Graduates</span>
-                <span class="marquee-item"><i class="fas fa-check-circle"></i> BQA Accredited Programs</span>
-                <span class="marquee-item"><i class="fas fa-graduation-cap"></i> Diploma & Degree Programs</span>
-                <span class="marquee-item"><i class="fas fa-desktop"></i> Modern Facilities</span>
-                <span class="marquee-item"><i class="fas fa-chalkboard-user"></i> Expert Lecturers</span>
-                <span class="marquee-item"><i class="fas fa-rocket"></i> Your Success Starts Here</span>
             </div>
         </div>
     </div>
 
-    <!-- Features Section -->
     <section class="features-section">
         <div class="container">
-            <h2>Why Choose GIPS College?</h2>
+            <h2 class="section-title">Why Choose GIPS College?</h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="icon"><i class="fas fa-trophy"></i></div>
                     <h3>35 Years of Excellence</h3>
-                    <p>Celebrating 35 years of quality education, shaping futures and empowering minds in Botswana</p>
+                    <p>Shaping futures and empowering minds in Botswana for over three decades.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon"><i class="fas fa-briefcase"></i></div>
                     <h3>Employability Focus</h3>
-                    <p>Producing job-ready graduates with practical skills, not just theory</p>
+                    <p>Job-ready graduates with practical skills, not just theory.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon"><i class="fas fa-microchip"></i></div>
                     <h3>Innovation & Technology</h3>
-                    <p>AI, Cybersecurity, Data Analytics, and modern business trends</p>
+                    <p>AI, Cybersecurity, Data Analytics, and modern business trends.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon"><i class="fas fa-handshake"></i></div>
                     <h3>Industry Partnerships</h3>
-                    <p>Strong links with companies for internships, attachments, and job placements</p>
+                    <p>Internships, attachments, and job placements with 50+ partners.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon"><i class="fas fa-users"></i></div>
                     <h3>Student-Centered Learning</h3>
-                    <p>Focusing on student success, development, and career readiness</p>
+                    <p>Focus on student success, development, and career readiness.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon"><i class="fas fa-chart-line"></i></div>
                     <h3>Community Development</h3>
-                    <p>Contributing to Botswana's economic growth through skilled professionals</p>
+                    <p>Contributing to Botswana's economic growth through skilled professionals.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Programs Section -->
     <section class="programs-section">
         <div class="container">
-            <h2>Our Programs</h2>
+            <h2 class="section-title">Our Programs</h2>
             <div class="programs-grid">
                 <div class="program-card">
                     <h3><i class="fas fa-laptop-code"></i> Information Technology</h3>
-                    <p>Bachelor of Science in Computer Science - 4 years</p>
-                    <span class="program-type degree"><i class="fas fa-graduation-cap"></i> Degree</span>
+                    <p>BSc Computer Science - 4 years</p><span class="program-type degree">Degree</span>
                 </div>
                 <div class="program-card">
                     <h3><i class="fas fa-chart-line"></i> Business Administration</h3>
-                    <p>BBA in Management, HR, Marketing, Tourism - 4 years</p>
-                    <span class="program-type degree"><i class="fas fa-graduation-cap"></i> Degree</span>
+                    <p>BBA in Management, HR, Marketing - 4 years</p><span class="program-type degree">Degree</span>
                 </div>
                 <div class="program-card">
                     <h3><i class="fas fa-coins"></i> Commerce & Finance</h3>
-                    <p>BCom in Entrepreneurship, Banking & Finance, Supply Chain - 4 years</p>
-                    <span class="program-type degree"><i class="fas fa-graduation-cap"></i> Degree</span>
+                    <p>BCom in Entrepreneurship, Banking & Finance - 4 years</p><span
+                        class="program-type degree">Degree</span>
                 </div>
                 <div class="program-card">
                     <h3><i class="fas fa-calculator"></i> Accounting & Finance</h3>
-                    <p>Bachelor of Accounting and Finance - 4 years</p>
-                    <span class="program-type degree"><i class="fas fa-graduation-cap"></i> Degree</span>
+                    <p>Bachelor of Accounting and Finance - 4 years</p><span class="program-type degree">Degree</span>
                 </div>
                 <div class="program-card">
                     <h3><i class="fas fa-cogs"></i> Engineering Programs</h3>
-                    <p>Automotive, Diesel Engineering, Vehicle Body Repair - 3 years</p>
-                    <span class="program-type diploma"><i class="fas fa-certificate"></i> Diploma</span>
+                    <p>Automotive, Diesel Engineering - 3 years</p><span class="program-type diploma">Diploma</span>
                 </div>
                 <div class="program-card">
                     <h3><i class="fas fa-book-open"></i> Diploma Programs</h3>
-                    <p>Diploma in Business, Accounting, IT, Tourism - 2-3 years</p>
-                    <span class="program-type diploma"><i class="fas fa-certificate"></i> Diploma</span>
+                    <p>Diploma in Business, Accounting, IT, Tourism - 2-3 years</p><span
+                        class="program-type diploma">Diploma</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Stats Section -->
     <section class="stats-section">
         <div class="container">
-            <h2>GIPS College at a Glance</h2>
+            <h2 class="section-title">GIPS College at a Glance</h2>
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-number">35+</div>
-                    <div class="stat-label"><i class="fas fa-trophy"></i> Years of Excellence</div>
+                    <div class="stat-label">Years of Excellence</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-number">15+</div>
-                    <div class="stat-label"><i class="fas fa-graduation-cap"></i> Degree Programs</div>
+                    <div class="stat-label">Degree Programs</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-number">20+</div>
-                    <div class="stat-label"><i class="fas fa-certificate"></i> Diploma Programs</div>
+                    <div class="stat-label">Diploma Programs</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-number">5000+</div>
-                    <div class="stat-label"><i class="fas fa-users"></i> Graduates</div>
+                    <div class="stat-label">Graduates</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-number">90%</div>
-                    <div class="stat-label"><i class="fas fa-briefcase"></i> Employment Rate</div>
+                    <div class="stat-label">Employment Rate</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-number">50+</div>
-                    <div class="stat-label"><i class="fas fa-handshake"></i> Industry Partners</div>
+                    <div class="stat-label">Industry Partners</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <p><i class="fas fa-copyright"></i> 2026 GIPS College. All rights reserved.</p>
-            <p><i class="fas fa-map-marker-alt"></i> Address: Gaborone, Botswana | <i class="fas fa-phone"></i> Phone: +267 71234560 | <i class="fas fa-envelope"></i> Email: info@gipscollege.edu.bw</p>
-            <p><i class="fas fa-star"></i> "For over 35 years, GIPS College has remained committed to shaping futures, empowering minds, and driving Botswana forward through quality education and innovation."</p>
+            <p><i class="fas fa-map-marker-alt"></i> Gaborone, Botswana | <i class="fas fa-phone"></i> +267 71234560 |
+                <i class="fas fa-envelope"></i> info@gipscollege.edu.bw</p>
+            <p><i class="fas fa-star"></i> "Shaping futures, empowering minds, driving Botswana forward."</p>
             <div class="footer-links">
-                <a href="#"><i class="fas fa-info-circle"></i> About Us</a>
+                <a href="#"><i class="fas fa-info-circle"></i> About</a>
                 <a href="#"><i class="fas fa-graduation-cap"></i> Programs</a>
-                <a href="#"><i class="fas fa-edit"></i> Admissions</a>
-                <a href="#"><i class="fas fa-envelope"></i> Contact Us</a>
-                <a href="#"><i class="fas fa-lock"></i> Privacy Policy</a>
-                <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                <a href="pages/register.html"><i class="fas fa-edit"></i> Admissions</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                <a href="#"><i class="fas fa-lock"></i> Privacy</a>
             </div>
         </div>
     </footer>
 
-    <!-- Chatbot Preview Button -->
-    <div class="chatbot-preview" onclick="window.location.href='/pages/chatbot.html'">
+    <div class="chatbot-preview" onclick="window.location.href='pages/chatbot.html'">
         <i class="fas fa-comment-dots"></i>
     </div>
 
     <script>
-        // Check if user is logged in
+        // Bubbles
+        function createBubbles() {
+            const container = document.getElementById('bubbles');
+            const texts = ["Excellence in Higher Learning", "The Ultimate Journey", "35 Years of Excellence", "Your Success Starts Here"];
+            for (let i = 0; i < 40; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = Math.random() * 100 + 50;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDuration = Math.random() * 12 + 8 + 's';
+                bubble.style.animationDelay = Math.random() * 10 + 's';
+                bubble.innerText = texts[Math.floor(Math.random() * texts.length)];
+                container.appendChild(bubble);
+            }
+        }
+
+        // Navigation based on login status
         const token = localStorage.getItem('access_token');
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        
-        // Get navigation menu
+
         const navMenu = document.getElementById('navMenu');
         const ctaButtons = document.getElementById('ctaButtons');
-        
-        // Update navigation based on login status
+
         function updateNavigation() {
             if (token && isLoggedIn) {
-                // User is logged in - show dashboard and logout
                 const userName = user.first_name || user.username || user.email?.split('@')[0] || 'Student';
                 const userInitial = userName.charAt(0).toUpperCase();
-                
                 navMenu.innerHTML = `
-                    <li><a href="/" class="nav-link active">Home</a></li>
-                    <li><a href="/pages/student-dashboard.html" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="/pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                    <li><a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="pages/student-dashboard.html" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                     <li>
                         <div class="user-greeting">
                             <div class="user-avatar">${userInitial}</div>
-                            <span class="user-name">${userName}</span>
+                            <span class="user-name">${escapeHtml(userName)}</span>
                             <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
                         </div>
                     </li>
                 `;
-                
-                // Update CTA buttons for logged-in users
                 ctaButtons.innerHTML = `
-                    <a href="/pages/student-dashboard.html" class="btn btn-light"><i class="fas fa-chart-line"></i> Go to Dashboard</a>
-                    <a href="/pages/chatbot.html" class="btn btn-outline-light"><i class="fas fa-comment-dots"></i> Chat with Samantha</a>
+                    <a href="pages/student-dashboard.html" class="btn btn-light"><i class="fas fa-chart-line"></i> Go to Dashboard</a>
+                    <a href="pages/chatbot.html" class="btn btn-outline-light"><i class="fas fa-comment-dots"></i> Chat with Samantha</a>
                 `;
             } else {
-                // User is not logged in - show login and register
                 navMenu.innerHTML = `
-                    <li><a href="/" class="nav-link active">Home</a></li>
-                    <li><a href="/pages/login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-                    <li><a href="/pages/register.html" class="nav-link"><i class="fas fa-edit"></i> Register</a></li>
-                    <li><a href="/pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                    <li><a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="pages/login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                    <li><a href="pages/register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></li>
+                    <li><a href="pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 `;
-                
-                // Reset CTA buttons
                 ctaButtons.innerHTML = `
-                    <a href="/pages/login.html" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Student Login</a>
-                    <a href="/pages/register.html" class="btn btn-outline-light"><i class="fas fa-edit"></i> Apply Now</a>
+                    <a href="pages/login.html" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Student Login</a>
+                    <a href="pages/register.html" class="btn btn-outline-light"><i class="fas fa-edit"></i> Apply Now</a>
                 `;
             }
         }
-        
-        // Logout function
+
         function logout() {
             localStorage.clear();
-            alert('Logged out successfully!');
-            window.location.href = '/';
+            window.location.href = 'index.html';
         }
-        
-        // Handle logo loading error
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Logo fallback
         const logoImage = document.getElementById('logoImage');
-        if (logoImage) {
-            logoImage.onerror = function() {
-                this.style.display = 'none';
-                const fallback = document.createElement('h1');
-                fallback.innerHTML = '<i class="fas fa-graduation-cap"></i> GIPS College';
-                fallback.style.color = '#667eea';
-                fallback.style.fontSize = '1.3rem';
-                this.parentElement.appendChild(fallback);
-            };
-        }
-        
-        // Animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
+        if (logoImage) logoImage.onerror = function () { this.style.display = 'none'; };
+
+        // Scroll animations for cards
+        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -993,31 +845,16 @@
                 }
             });
         }, observerOptions);
-        
-        // Observe all feature cards, program cards, and stat boxes
         document.querySelectorAll('.feature-card, .program-card, .stat-box').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(30px)';
             el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(el);
         });
-        
-        // Navbar background change on scroll
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.style.background = 'white';
-                navbar.style.boxShadow = '0 2px 15px rgba(0,0,0,0.1)';
-            } else {
-                navbar.style.background = 'white';
-                navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-            }
-        });
-        
-        // Initialize navigation
+
+        createBubbles();
         updateNavigation();
-        
-        console.log('Home page loaded - Login status:', token ? 'Logged in' : 'Not logged in');
     </script>
 </body>
+
 </html>

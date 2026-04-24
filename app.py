@@ -1,17 +1,25 @@
-# app.py
+# ============================================
+# FIX MODULE PATH: Add project root to sys.path
+# ============================================
 import sys
-import os
 from pathlib import Path
+
+# Add the project root directory to the Python module search path.
+# This is necessary for Render and other production environments
+# where the project structure may not be in the default path.
+project_root = Path(__file__).parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+# ============================================
+# STANDARD IMPORTS
+# ============================================
+import os
 from datetime import datetime
 import json
 import base64
 import traceback
 import logging
-
-# Add backend directory to Python path
-backend_dir = Path(__file__).parent
-sys.path.insert(0, str(backend_dir))
-sys.path.insert(0, str(backend_dir / 'backend'))
 
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
@@ -611,7 +619,7 @@ def create_app(config_name=None):
             'departments': list(chatbot.departments.keys()) if hasattr(chatbot, 'departments') else [],
             'max_tickets_per_student': app.config.get('CHATBOT_MAX_TICKETS_PER_STUDENT', 5),
             'response_time': 'Immediate for FAQs, 2-48 hours for tickets'
-        }), 200
+        }), 200)
 
     # ==================== ERROR HANDLERS ====================
 

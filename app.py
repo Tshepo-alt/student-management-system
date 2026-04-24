@@ -619,7 +619,7 @@ def create_app(config_name=None):
             'departments': list(chatbot.departments.keys()) if hasattr(chatbot, 'departments') else [],
             'max_tickets_per_student': app.config.get('CHATBOT_MAX_TICKETS_PER_STUDENT', 5),
             'response_time': 'Immediate for FAQs, 2-48 hours for tickets'
-        }), 200)
+        }), 200
 
     # ==================== ERROR HANDLERS ====================
 

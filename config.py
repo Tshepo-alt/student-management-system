@@ -4,6 +4,16 @@ from datetime import timedelta
 from pathlib import Path
 from urllib.parse import quote_plus, urlparse, parse_qs, urlunparse
 
+# ============================================
+# MOODLE INTEGRATION – MODULE‑LEVEL VARIABLES
+# ============================================
+MOODLE_URL = os.environ.get('MOODLE_URL', 'https://gipscollegelms.moodlecloud.com')
+MOODLE_API_TOKEN = os.environ.get('MOODLE_API_TOKEN', '')
+# The token should be generated from Moodle: Site administration → Plugins → Web services → Manage tokens
+
+# ============================================
+# CONFIGURATION CLASS
+# ============================================
 class Config:
     """Base configuration"""
     

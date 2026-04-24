@@ -21,7 +21,6 @@
             overflow-x: hidden;
         }
 
-        /* Animated bubbles */
         .bubbles {
             position: fixed;
             top: 0;
@@ -69,7 +68,6 @@
             }
         }
 
-        /* Navigation */
         .navbar {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
@@ -100,10 +98,6 @@
             transition: transform 0.2s;
         }
 
-        .navbar-brand img:hover {
-            transform: scale(1.03);
-        }
-
         .nav-menu {
             display: flex;
             list-style: none;
@@ -117,7 +111,7 @@
             font-weight: 500;
             padding: 0.4rem 1rem;
             border-radius: 30px;
-            transition: all 0.2s;
+            transition: 0.2s;
             font-size: 0.85rem;
             display: inline-flex;
             align-items: center;
@@ -135,7 +129,6 @@
             color: white;
         }
 
-        /* Animated Slogan */
         .animated-slogan {
             background: linear-gradient(90deg, #f59e0b, #fbbf24);
             padding: 8px 0;
@@ -167,7 +160,6 @@
             }
         }
 
-        /* Auth Section */
         .auth-section {
             min-height: calc(100vh - 140px);
             display: flex;
@@ -235,7 +227,7 @@
             border: 1px solid #e2e8f0;
             border-radius: 20px;
             font-size: 1rem;
-            transition: all 0.2s;
+            transition: 0.2s;
             background: #fafcff;
         }
 
@@ -254,7 +246,7 @@
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: 0.2s;
             width: 100%;
             display: flex;
             align-items: center;
@@ -270,7 +262,6 @@
         .btn-primary:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
         .loading-spinner {
@@ -309,6 +300,22 @@
             background: #dcfce7;
             color: #15803d;
             border-left: 4px solid #10b981;
+        }
+
+        .forgot-link {
+            text-align: center;
+            margin: 16px 0 8px;
+        }
+
+        .forgot-link a {
+            color: #f59e0b;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .forgot-link a:hover {
+            text-decoration: underline;
         }
 
         .demo-buttons {
@@ -364,7 +371,6 @@
             font-size: 0.75rem;
         }
 
-        /* Welcome Overlay */
         .welcome-overlay {
             position: fixed;
             top: 0;
@@ -467,17 +473,12 @@
             .demo-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-
-            .dashboard-header h1 {
-                font-size: 1.2rem;
-            }
         }
     </style>
 </head>
 
 <body>
     <div class="bubbles" id="bubbles"></div>
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -490,20 +491,17 @@
             </ul>
         </div>
     </nav>
-
     <div class="animated-slogan">
         <div class="slogan-wrapper">
             <span class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to Higher Education | 35
                 Years of Excellence | Your Success Starts Here</span>
         </div>
     </div>
-
     <section class="auth-section">
         <div class="container">
             <div class="auth-card">
                 <h2>Welcome Back!</h2>
                 <div class="role-badge" id="roleBadge"><i class="fas fa-graduation-cap"></i> Student Portal Access</div>
-
                 <form id="loginForm">
                     <div class="form-group">
                         <label><i class="fas fa-envelope"></i> Email / Username</label>
@@ -516,10 +514,11 @@
                     <button type="submit" id="loginBtn" class="btn-primary"><i class="fas fa-sign-in-alt"></i>
                         Login</button>
                 </form>
-
                 <div id="loginMessage" class="error-message"></div>
                 <div id="loginSuccessMessage" class="success-message"></div>
-
+                <div class="forgot-link">
+                    <a href="forgot-password.html"><i class="fas fa-key"></i> Forgot Password?</a>
+                </div>
                 <div class="demo-buttons">
                     <p><i class="fas fa-key"></i> Quick Login (Demo)</p>
                     <div class="demo-grid">
@@ -549,14 +548,12 @@
             </div>
         </div>
     </section>
-
     <footer class="footer">
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-graduation-cap"></i> Excellence in Higher Learning</p>
         </div>
     </footer>
-
     <div id="welcomeOverlay" class="welcome-overlay">
         <div class="hourglass">
             <div class="top"></div>
@@ -564,9 +561,7 @@
         </div>
         <div class="welcome-text" id="welcomeMessage">Welcome!</div>
     </div>
-
     <script>
-        // Bubbles
         function createBubbles() {
             const container = document.getElementById('bubbles');
             const texts = ["Excellence in Higher Learning", "The Ultimate Journey", "35 Years of Excellence", "Your Success Starts Here"];
@@ -583,8 +578,6 @@
                 container.appendChild(bubble);
             }
         }
-
-        // DOM elements
         const loginForm = document.getElementById('loginForm');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
@@ -594,13 +587,11 @@
         const roleBadge = document.getElementById('roleBadge');
         const welcomeOverlay = document.getElementById('welcomeOverlay');
         const welcomeMsg = document.getElementById('welcomeMessage');
-
         function fillCredentials(email, password) {
             emailInput.value = email;
             passwordInput.value = password;
             updateRoleBadge();
         }
-
         function updateRoleBadge() {
             const email = emailInput.value.trim().toLowerCase();
             const map = {
@@ -625,7 +616,6 @@
             roleBadge.style.background = '#667eea20';
         }
         emailInput.addEventListener('input', updateRoleBadge);
-
         function showError(msg) { errorDiv.textContent = msg; errorDiv.style.display = 'block'; successDiv.style.display = 'none'; setTimeout(() => errorDiv.style.display = 'none', 5000); }
         function showSuccess(msg) { successDiv.textContent = msg; successDiv.style.display = 'block'; errorDiv.style.display = 'none'; setTimeout(() => successDiv.style.display = 'none', 5000); }
         function hideMessages() { errorDiv.style.display = 'none'; successDiv.style.display = 'none'; }
@@ -633,14 +623,12 @@
             if (loading) { loginBtn.disabled = true; loginBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...'; }
             else { loginBtn.disabled = false; loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login'; }
         }
-
         async function safeApiCall(endpoint, options = {}) {
             try {
                 const response = await fetch(endpoint, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } });
                 return response;
             } catch (error) { console.error(error); return null; }
         }
-
         function showWelcomeOverlay(role, name) {
             let msg = '';
             switch (role) {
@@ -654,7 +642,6 @@
             welcomeOverlay.style.display = 'flex';
             setTimeout(() => welcomeOverlay.style.display = 'none', 2000);
         }
-
         async function handleLogin(email, password) {
             try {
                 const response = await safeApiCall('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
@@ -676,7 +663,6 @@
                     if (userData.is_government_sponsored !== undefined) localStorage.setItem('is_government_sponsored', userData.is_government_sponsored);
                     if (userData.campus_id) localStorage.setItem('campus_id', userData.campus_id);
                     if (userData.wants_accommodation !== undefined) localStorage.setItem('wants_accommodation', userData.wants_accommodation);
-
                     const redirectUrl = data.redirect_url || (userData.role === 'student' ? 'student-dashboard.html' : 'admin-dashboard.html');
                     showWelcomeOverlay(userData.role, fullName);
                     setTimeout(() => { window.location.href = redirectUrl; }, 2200);
@@ -695,7 +681,6 @@
                 return false;
             }
         }
-
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = emailInput.value.trim();
@@ -707,7 +692,6 @@
             await handleLogin(email, password);
             setLoading(false);
         });
-
         function checkExistingSession() {
             const token = localStorage.getItem('access_token');
             const expiry = localStorage.getItem('token_expiry');
@@ -719,7 +703,6 @@
                 localStorage.clear();
             }
         }
-
         function init() {
             createBubbles();
             updateRoleBadge();

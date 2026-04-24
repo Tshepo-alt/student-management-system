@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>My Documents - GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+        }
+
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .upload-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .upload-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .upload-card h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            background: white;
+            margin-bottom: 12px;
+        }
+
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+        }
+
+        .upload-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .file-name {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 8px;
+            word-break: break-all;
+        }
+
+        /* Documents List */
+        .documents-section {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .documents-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .doc-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 16px;
+            transition: 0.2s;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .doc-info {
+            flex: 1;
+        }
+
+        .doc-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .doc-meta {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .doc-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #1e293b;
+        }
+
+        .doc-btn:hover {
+            background: #cbd5e1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 12px;
+            color: #991b1b;
+            font-size: 0.8rem;
+            margin: 12px 0;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            border-left: 4px solid #10b981;
+            padding: 12px;
+            border-radius: 12px;
+            color: #15803d;
+            font-size: 0.8rem;
+            margin: 12px 0;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .page-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .documents-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="student-documents.html" class="nav-link active"><i class="fas fa-file-alt"></i>
+                        Documents</a></li>
+                <li><a href="student-profile.html" class="nav-link"><i class="fas fa-user-circle"></i> Profile</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-file-alt"></i> My Documents</h1>
+            <p>Upload and manage your required documents: BGCSE certificate, ID/Passport copy, passport photo.</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <h2><i class="fas fa-upload"></i> Upload Documents</h2>
+            <div class="upload-grid">
+                <div class="upload-card">
+                    <h3><i class="fas fa-certificate"></i> BGCSE Certificate</h3>
+                    <input type="file" id="bgcseFile" accept=".pdf,.jpg,.jpeg,.png" class="file-input">
+                    <button class="upload-btn" onclick="uploadDocument('bgcse', 'bgcse_certificate')"><i
+                            class="fas fa-cloud-upload-alt"></i> Upload</button>
+                    <div id="bgcseFileName" class="file-name"></div>
+                </div>
+                <div class="upload-card">
+                    <h3><i class="fas fa-id-card"></i> ID / Passport Copy</h3>
+                    <input type="file" id="idFile" accept=".pdf,.jpg,.jpeg,.png" class="file-input">
+                    <button class="upload-btn" onclick="uploadDocument('id', 'id_document')"><i
+                            class="fas fa-cloud-upload-alt"></i> Upload</button>
+                    <div id="idFileName" class="file-name"></div>
+                </div>
+                <div class="upload-card">
+                    <h3><i class="fas fa-camera"></i> Passport Photo</h3>
+                    <input type="file" id="photoFile" accept="image/*" class="file-input">
+                    <button class="upload-btn" onclick="uploadDocument('photo', 'passport_photo')"><i
+                            class="fas fa-cloud-upload-alt"></i> Upload</button>
+                    <div id="photoFileName" class="file-name"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents List -->
+        <div class="documents-section">
+            <h2><i class="fas fa-folder-open"></i> Uploaded Documents</h2>
+            <div id="documentsList">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading your documents...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-file-alt"></i> Document Management</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            msgDiv.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+            const container = document.querySelector('.upload-section');
+            container.parentNode.insertBefore(msgDiv, container.nextSibling);
+            setTimeout(() => msgDiv.remove(), 5000);
+        }
+
+        // ========== UPLOAD DOCUMENT ==========
+        async function uploadDocument(type, docType) {
+            let fileInput, fieldName;
+            if (type === 'bgcse') {
+                fileInput = document.getElementById('bgcseFile');
+                fieldName = 'bgcse_certificate';
+            } else if (type === 'id') {
+                fileInput = document.getElementById('idFile');
+                fieldName = 'id_document';
+            } else {
+                fileInput = document.getElementById('photoFile');
+                fieldName = 'passport_photo';
+            }
+
+            const file = fileInput.files[0];
+            if (!file) {
+                showMessage('Please select a file first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append(fieldName, file);
+            formData.append('document_type', docType);
+
+            const btn = fileInput.nextElementSibling;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Uploading...';
+
+            try {
+                const response = await safeApiCall('/api/students/documents', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response && response.ok) {
+                    showMessage(`${file.name} uploaded successfully!`, 'success');
+                    fileInput.value = '';
+                    document.getElementById(`${type}FileName`).textContent = '';
+                    loadDocuments(); // refresh list
+                } else {
+                    showMessage('Upload failed. Please try again.', 'error');
+                }
+            } catch (err) {
+                showMessage('Network error. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // ========== LOAD DOCUMENTS ==========
+        async function loadDocuments() {
+            const container = document.getElementById('documentsList');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading documents...</div>';
+
+            const response = await safeApiCall('/api/students/documents');
+            if (!response) return;
+
+            if (response.status === 404) {
+                container.innerHTML = '<div class="empty-state">No documents found. Upload your documents above.</div>';
+                return;
+            }
+
+            if (response.ok) {
+                const docs = await response.json();
+                if (!docs.length) {
+                    container.innerHTML = '<div class="empty-state">No documents uploaded yet.</div>';
+                    return;
+                }
+
+                const typeMap = {
+                    'bgcse_certificate': { icon: 'fa-certificate', label: 'BGCSE Certificate' },
+                    'id_document': { icon: 'fa-id-card', label: 'ID / Passport Copy' },
+                    'passport_photo': { icon: 'fa-camera', label: 'Passport Photo' }
+                };
+
+                container.innerHTML = `
+                    <div class="documents-grid">
+                        ${docs.map(doc => `
+                            <div class="doc-card">
+                                <div class="doc-info">
+                                    <div class="doc-name">
+                                        <i class="fas ${typeMap[doc.document_type]?.icon || 'fa-file'}"></i>
+                                        ${typeMap[doc.document_type]?.label || doc.document_type}
+                                    </div>
+                                    <div class="doc-meta">
+                                        ${doc.file_name}<br>
+                                        Uploaded: ${new Date(doc.uploaded_at).toLocaleDateString()}
+                                    </div>
+                                </div>
+                                <div class="doc-actions">
+                                    <a href="${doc.file_url}" class="doc-btn" target="_blank"><i class="fas fa-eye"></i> View</a>
+                                    <a href="${doc.file_url}" download class="doc-btn"><i class="fas fa-download"></i> Download</a>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="error-message">Unable to load documents. Please try again later.</div>';
+            }
+        }
+
+        // Display selected file names
+        document.getElementById('bgcseFile').addEventListener('change', (e) => {
+            const name = e.target.files[0]?.name || '';
+            document.getElementById('bgcseFileName').textContent = name ? `Selected: ${name}` : '';
+        });
+        document.getElementById('idFile').addEventListener('change', (e) => {
+            const name = e.target.files[0]?.name || '';
+            document.getElementById('idFileName').textContent = name ? `Selected: ${name}` : '';
+        });
+        document.getElementById('photoFile').addEventListener('change', (e) => {
+            const name = e.target.files[0]?.name || '';
+            document.getElementById('photoFileName').textContent = name ? `Selected: ${name}` : '';
+        });
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
+        loadDocuments();
+    </script>
+</body>
+
+</html>

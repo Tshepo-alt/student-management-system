@@ -1,10 +1,14 @@
 # backend/routes/lecturer.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 import traceback
 
 from models import db, User, Course, Assignment, Module, AssignmentSubmission, Student, Enrollment, OnlineMeeting
+
+# ========== MOODLE INTEGRATION IMPORTS ==========
+from services.moodle_integration import MoodleClient
+from config import MOODLE_URL, MOODLE_API_TOKEN
 
 lecturer_bp = Blueprint('lecturer', __name__)
 
@@ -242,7 +246,7 @@ def get_submissions(assignment_id):
 
 # ============================================
 # POST /api/lecturer/submissions/<int:submission_id>/grade
-# Grade a student's submission
+# Grade a student's submission and sync to Moodle
 # ============================================
 @lecturer_bp.route('/submissions/<int:submission_id>/grade', methods=['POST'])
 @jwt_required()
@@ -286,6 +290,24 @@ def grade_submission(submission_id):
                 submission.grade = 'F'
 
         db.session.commit()
+
+        # ========== MOODLE INTEGRATION ==========
+        # Sync grade to Moodle if the student has a Moodle user ID and the module has a Moodle course ID
+        student = submission.student
+        module = submission.assignment.module
+        if student and student.moodle_user_id and module and hasattr(module, 'moodle_course_id') and module.moodle_course_id:
+            try:
+                moodle = MoodleClient(MOODLE_URL, MOODLE_API_TOKEN)
+                moodle.set_user_grade(
+                    user_id=student.moodle_user_id,
+                    course_id=module.moodle_course_id,
+                    grade=score,
+                    rawgrade=score
+                )
+                current_app.logger.info(f"Grade {score} synced to Moodle for student {student.email} in module {module.module_code}")
+            except Exception as e:
+                current_app.logger.error(f"Failed to sync grade to Moodle for student {student.id}: {e}")
+        # ======================================
 
         return jsonify({'message': 'Submission graded successfully'}), 200
     except Exception as e:

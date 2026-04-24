@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Program Management - Admin | GIPS College</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -14,42 +14,62 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
-            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            overflow-x: hidden;
         }
 
-        /* Sidebar */
+        /* Sidebar (same as other admin pages) */
         .admin-wrapper {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
 
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            transition: all 0.3s;
-            z-index: 100;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
         }
 
         .sidebar-header {
-            padding: 25px;
+            padding: 24px 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header img {
-            height: 60px;
+            height: 55px;
             width: auto;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .sidebar-header h3 {
             font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .sidebar-header p {
+            font-size: 0.75rem;
+            opacity: 0.7;
         }
 
         .sidebar-menu {
@@ -57,90 +77,138 @@
         }
 
         .sidebar-menu-item {
-            padding: 12px 25px;
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            color: #cbd5e1;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
         }
 
         .sidebar-menu-item i {
             width: 24px;
+            font-size: 1.1rem;
             text-align: center;
         }
 
-        .sidebar-menu-item:hover,
-        .sidebar-menu-item.active {
-            background: rgba(255,255,255,0.1);
+        .sidebar-menu-item:hover {
+            background: rgba(255, 255, 255, 0.08);
             color: white;
+        }
+
+        .sidebar-menu-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+            border-left-color: #667eea;
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
             flex: 1;
-            padding: 20px;
+            margin-left: 280px;
+            padding: 20px 24px;
+            transition: margin-left 0.3s;
         }
 
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+        }
+
+        /* Top Bar */
         .top-bar {
-            background: white;
-            border-radius: 20px;
-            padding: 15px 25px;
-            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
         }
 
         .page-title h1 {
             font-size: 1.5rem;
-            color: #2d3748;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .page-title p {
-            color: #718096;
+            color: #475569;
             font-size: 0.85rem;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .admin-avatar {
-            width: 45px;
-            height: 45px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1.1rem;
             color: white;
             cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-avatar:hover {
+            transform: scale(1.03);
+        }
+
+        /* Hamburger Button */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .top-bar {
+                padding: 12px 16px;
+            }
         }
 
         /* Content Card */
         .content-card {
             background: white;
             border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            padding: 20px;
+            border: 1px solid #e2e8f0;
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
         .card-header h2 {
             font-size: 1.2rem;
-            color: #2d3748;
+            font-weight: 600;
+            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -148,26 +216,27 @@
 
         /* Buttons */
         .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 30px;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            transition: 0.2s;
+            border: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #667eea;
             color: white;
         }
 
         .btn-primary:hover {
+            background: #5a67d8;
             transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(102,126,234,0.3);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
         }
 
         .btn-warning {
@@ -189,43 +258,51 @@
         }
 
         /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
         }
 
         th {
-            background: #f9fafb;
+            background: #f8fafc;
             font-weight: 600;
-            color: #4a5568;
+            color: #1e293b;
         }
 
         tr:hover {
-            background: #f9fafb;
+            background: #f8fafc;
         }
 
         .status-active {
-            background: #c6f6d5;
-            color: #276749;
+            display: inline-block;
             padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.7rem;
-            display: inline-block;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #15803d;
         }
 
         .status-inactive {
-            background: #fed7d7;
-            color: #c53030;
+            display: inline-block;
             padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.7rem;
-            display: inline-block;
+            font-weight: 600;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         /* Modal */
@@ -236,7 +313,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
             z-index: 2000;
             align-items: center;
@@ -245,24 +322,34 @@
 
         .modal-content {
             background: white;
-            border-radius: 24px;
-            padding: 30px;
-            max-width: 550px;
+            border-radius: 28px;
             width: 90%;
+            max-width: 600px;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            padding: 28px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #94a3b8;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 6px;
             font-weight: 500;
-            color: #4a5568;
+            color: #334155;
+            font-size: 0.85rem;
         }
 
         .form-group input,
@@ -271,74 +358,76 @@
             width: 100%;
             padding: 10px 14px;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 16px;
             font-family: inherit;
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .close {
-            float: right;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #a0aec0;
+            gap: 16px;
         }
 
         .loading {
             text-align: center;
-            padding: 30px;
-            color: #a0aec0;
+            padding: 40px;
+            color: #64748b;
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-            }
-            .sidebar-header h3,
-            .sidebar-menu-item span {
-                display: none;
-            }
-            .sidebar-menu-item i {
-                margin: 0 auto;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
+        .footer {
+            text-align: center;
+            padding: 24px 0;
+            margin-top: 32px;
+            color: #64748b;
+            font-size: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 640px) {
             .form-row {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="admin-wrapper">
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
                 <h3>Admin Portal</h3>
+                <p>GIPS College</p>
             </div>
             <div class="sidebar-menu">
-                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
-                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
-                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
-                <a href="admin-programs.html" class="sidebar-menu-item active"><i class="fas fa-book-open"></i> <span>Programs</span></a>
-                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> <span>Modules</span></a>
-                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> <span>Accommodation</span></a>
-                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
-                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
+                <a href="admin-programs.html" class="sidebar-menu-item active"><i class="fas fa-book-open"></i>
+                    Programs</a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i>
+                    Accommodation</a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+                <div style="margin: 12px 20px; border-top: 1px solid #334155;"></div>
+                <a href="admin-api.html" class="sidebar-menu-item"><i class="fas fa-plug"></i> API</a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="admin-profile.html" class="sidebar-menu-item"><i class="fas fa-user-circle"></i> Profile</a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
 
         <div class="main-content">
             <div class="top-bar">
-                <div class="page-title">
-                    <h1><i class="fas fa-book-open"></i> Program Management</h1>
-                    <p>Manage academic programs, courses, and curriculum</p>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <div class="page-title">
+                        <h1><i class="fas fa-book-open"></i> Program Management</h1>
+                        <p>Manage academic programs, courses, and curriculum</p>
+                    </div>
                 </div>
                 <div class="admin-avatar" id="adminAvatar">A</div>
             </div>
@@ -346,17 +435,29 @@
             <div class="content-card">
                 <div class="card-header">
                     <h2><i class="fas fa-list-ul"></i> Academic Programs</h2>
-                    <button class="btn btn-primary" onclick="openAddProgramModal()"><i class="fas fa-plus"></i> Add New Program</button>
+                    <button class="btn btn-primary" onclick="openAddProgramModal()"><i class="fas fa-plus"></i> Add New
+                        Program</button>
                 </div>
-                <div style="overflow-x: auto;">
+                <div class="table-responsive">
                     <table>
                         <thead>
-                             <tr>
-                                <th>ID</th><th>Code</th><th>Program Name</th><th>Duration</th><th>Credits</th><th>Min BGCSE</th><th>Status</th><th>Actions</th>
-                            </tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Code</th>
+                                <th>Program Name</th>
+                                <th>Duration</th>
+                                <th>Credits</th>
+                                <th>Min BGCSE</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                         </thead>
                         <tbody id="programsTableBody">
-                            <tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading programs...</div></td></tr>
+                            <tr>
+                                <td colspan="8">
+                                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading programs...
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -370,21 +471,33 @@
             <span class="close" onclick="closeModal('addProgramModal')">&times;</span>
             <h2><i class="fas fa-plus-circle"></i> Add New Program</h2>
             <form id="addProgramForm">
-                <div class="form-group"><label>Program Code *</label><input type="text" id="programCode" required placeholder="e.g., BSC-CS, BBA-BM"></div>
-                <div class="form-group"><label>Program Name *</label><input type="text" id="programName" required placeholder="e.g., Bachelor of Computer Science"></div>
+                <div class="form-group"><label>Program Code *</label><input type="text" id="programCode" required
+                        placeholder="e.g., BSC-CS"></div>
+                <div class="form-group"><label>Program Name *</label><input type="text" id="programName" required
+                        placeholder="e.g., Bachelor of Computer Science"></div>
                 <div class="form-row">
-                    <div class="form-group"><label>Duration (Years) *</label><input type="number" id="duration" required min="1" max="5"></div>
-                    <div class="form-group"><label>Total Credits</label><input type="number" id="credits" placeholder="e.g., 480"></div>
+                    <div class="form-group"><label>Duration (Years) *</label><input type="number" id="duration" required
+                            min="1" max="5"></div>
+                    <div class="form-group"><label>Total Credits</label><input type="number" id="credits"
+                            placeholder="e.g., 480"></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Min BGCSE Points</label><input type="number" id="minBgcse" value="32" placeholder="32"></div>
+                    <div class="form-group"><label>Min BGCSE Points</label><input type="number" id="minBgcse"
+                            value="32"></div>
                     <div class="form-group"><label>Faculty</label><select id="faculty"></select></div>
                 </div>
-                <div class="form-group"><label>Description</label><textarea id="description" rows="3" placeholder="Program description..."></textarea></div>
-                <div class="form-group"><label>Career Opportunities</label><textarea id="careerOpportunities" rows="2" placeholder="Career opportunities for graduates..."></textarea></div>
-                <div class="form-group"><label>Entry Requirements</label><textarea id="entryRequirements" rows="2" placeholder="Entry requirements..."></textarea></div>
-                <div class="form-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
-                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Create Program</button>
+                <div class="form-group"><label>Description</label><textarea id="description" rows="3"
+                        placeholder="Program description..."></textarea></div>
+                <div class="form-group"><label>Career Opportunities</label><textarea id="careerOpportunities" rows="2"
+                        placeholder="Career opportunities for graduates..."></textarea></div>
+                <div class="form-group"><label>Entry Requirements</label><textarea id="entryRequirements" rows="2"
+                        placeholder="Entry requirements..."></textarea></div>
+                <div class="form-group"><label>Status</label><select id="status">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select></div>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Create
+                    Program</button>
             </form>
         </div>
     </div>
@@ -396,119 +509,109 @@
             <h2><i class="fas fa-edit"></i> Edit Program</h2>
             <form id="editProgramForm">
                 <input type="hidden" id="editProgramId">
-                <div class="form-group"><label>Program Code</label><input type="text" id="editProgramCode" required></div>
-                <div class="form-group"><label>Program Name</label><input type="text" id="editProgramName" required></div>
+                <div class="form-group"><label>Program Code</label><input type="text" id="editProgramCode" required>
+                </div>
+                <div class="form-group"><label>Program Name</label><input type="text" id="editProgramName" required>
+                </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Duration (Years)</label><input type="number" id="editDuration" required></div>
+                    <div class="form-group"><label>Duration (Years)</label><input type="number" id="editDuration"
+                            required></div>
                     <div class="form-group"><label>Total Credits</label><input type="number" id="editCredits"></div>
                 </div>
                 <div class="form-row">
                     <div class="form-group"><label>Min BGCSE Points</label><input type="number" id="editMinBgcse"></div>
                     <div class="form-group"><label>Faculty</label><select id="editFaculty"></select></div>
                 </div>
-                <div class="form-group"><label>Description</label><textarea id="editDescription" rows="3"></textarea></div>
-                <div class="form-group"><label>Career Opportunities</label><textarea id="editCareerOpportunities" rows="2"></textarea></div>
-                <div class="form-group"><label>Entry Requirements</label><textarea id="editEntryRequirements" rows="2"></textarea></div>
-                <div class="form-group"><label>Status</label><select id="editStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
-                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Update Program</button>
+                <div class="form-group"><label>Description</label><textarea id="editDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group"><label>Career Opportunities</label><textarea id="editCareerOpportunities"
+                        rows="2"></textarea></div>
+                <div class="form-group"><label>Entry Requirements</label><textarea id="editEntryRequirements"
+                        rows="2"></textarea></div>
+                <div class="form-group"><label>Status</label><select id="editStatus">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select></div>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Update
+                    Program</button>
             </form>
         </div>
     </div>
 
-    <script>
-        // ============================================
-        // AUTHENTICATION
-        // ============================================
-        const token = localStorage.getItem('access_token');
-        let user = JSON.parse(localStorage.getItem('user') || '{}');
+    <div class="footer">© 2026 GIPS College. All rights reserved.</div>
 
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-        if (user.role !== 'admin' && user.role !== 'administrator') {
-            window.location.href = 'student-dashboard.html';
-        }
+    <script>
+        // ========== AUTHENTICATION & SIDEBAR ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'admin' && user.role !== 'administrator') window.location.href = 'student-dashboard.html';
 
         // Avatar
-        const adminInitial = (user.first_name ? user.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
-        document.getElementById('adminAvatar').textContent = adminInitial;
+        const initial = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
+        document.getElementById('adminAvatar').textContent = initial;
 
-        // ============================================
-        // GLOBAL DATA
-        // ============================================
+        // Sidebar toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        // ========== GLOBAL DATA ==========
         let programs = [];
         let faculties = [];
 
-        // ============================================
-        // SAFE API CALL
-        // ============================================
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
-        }
-
-        // ============================================
-        // LOAD FACULTIES
-        // ============================================
+        // ========== LOAD FACULTIES ==========
         async function loadFaculties() {
-            const response = await safeApiCall('/api/admin/faculties');
-            if (response && response.ok) {
-                faculties = await response.json();
+            const res = await safeApiCall('/api/admin/faculties');
+            if (res && res.ok) {
+                faculties = await res.json();
             } else {
                 faculties = [
-                    { id: 1, faculty_code: 'FICT', faculty_name: 'Faculty of Information & Communication Technology' },
-                    { id: 2, faculty_code: 'FBA', faculty_name: 'Faculty of Business Administration' },
-                    { id: 3, faculty_code: 'FCA', faculty_name: 'Faculty of Commerce & Accounting' }
+                    { id: 1, faculty_name: 'Faculty of Information & Communication Technology' },
+                    { id: 2, faculty_name: 'Faculty of Business Administration' },
+                    { id: 3, faculty_name: 'Faculty of Commerce & Accounting' }
                 ];
             }
-
-            const facultySelects = ['faculty', 'editFaculty'];
-            facultySelects.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                if (select) {
-                    select.innerHTML = faculties.map(f => `<option value="${f.id}">${escapeHtml(f.faculty_name)}</option>`).join('');
-                }
+            const selects = ['faculty', 'editFaculty'];
+            selects.forEach(id => {
+                const sel = document.getElementById(id);
+                if (sel) sel.innerHTML = faculties.map(f => `<option value="${f.id}">${escapeHtml(f.faculty_name)}</option>`).join('');
             });
         }
 
-        // ============================================
-        // LOAD PROGRAMS
-        // ============================================
+        // ========== LOAD PROGRAMS ==========
         async function loadPrograms() {
             const tbody = document.getElementById('programsTableBody');
             tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading programs...</div></td></tr>';
-
-            const response = await safeApiCall('/api/admin/programs');
-            if (response && response.ok) {
-                programs = await response.json();
-                displayPrograms();
+            const res = await safeApiCall('/api/admin/programs');
+            if (res && res.ok) {
+                programs = await res.json();
             } else {
-                // Demo data
+                // demo data
                 programs = [
-                    { id: 1, program_code: 'BSC-CS', program_name: 'Bachelor of Computer Science', duration_years: 4, total_credits: 490, min_bgcse_points: 32, description: 'Comprehensive computer science program', career_opportunities: 'Software Developer, IT Consultant', entry_requirements: 'BGCSE with 32 points', is_active: true },
-                    { id: 2, program_code: 'BBA-BM', program_name: 'Bachelor of Business Administration', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Business management program', career_opportunities: 'Business Manager, Consultant', entry_requirements: 'BGCSE with 32 points', is_active: true },
-                    { id: 3, program_code: 'BAF', program_name: 'Bachelor of Accounting and Finance', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Professional accounting program', career_opportunities: 'Accountant, Auditor', entry_requirements: 'BGCSE with 32 points', is_active: true },
-                    { id: 4, program_code: 'DIP-IT', program_name: 'Diploma in Information Technology', duration_years: 3, total_credits: 240, min_bgcse_points: 28, description: 'Practical IT skills', career_opportunities: 'IT Technician, Support Specialist', entry_requirements: 'BGCSE with 28 points', is_active: true }
+                    { id: 1, program_code: 'BSC-CS', program_name: 'Bachelor of Computer Science', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Comprehensive CS program', career_opportunities: 'Software Developer, IT Consultant', entry_requirements: 'BGCSE with 32 points', is_active: true },
+                    { id: 2, program_code: 'BBA-BM', program_name: 'Bachelor of Business Administration', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Business management', career_opportunities: 'Business Manager, Consultant', entry_requirements: 'BGCSE with 32 points', is_active: true },
+                    { id: 3, program_code: 'BAF', program_name: 'Bachelor of Accounting and Finance', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Accounting program', career_opportunities: 'Accountant, Auditor', entry_requirements: 'BGCSE with 32 points', is_active: true }
                 ];
-                displayPrograms();
             }
+            displayPrograms();
         }
 
         function displayPrograms() {
@@ -517,77 +620,54 @@
                 tbody.innerHTML = '<tr><td colspan="8">No programs found</td></tr>';
                 return;
             }
-
-            tbody.innerHTML = programs.map(p => {
-                const isActive = p.is_active !== false;
-                const code = p.program_code || p.code;
-                const name = p.program_name || p.name;
-                const duration = p.duration_years || p.duration || 3;
-                const credits = p.total_credits || p.credits || 'N/A';
-                const minBgcse = p.min_bgcse_points || p.min_bgcse || 32;
-
-                return `
-                    <tr>
-                        <td>${p.id}</td>
-                        <td><strong>${escapeHtml(code)}</strong></td>
-                        <td>${escapeHtml(name)}</td>
-                        <td>${duration} years</td>
-                        <td>${credits}</td>
-                        <td>${minBgcse}</td>
-                        <td><span class="status-${isActive ? 'active' : 'inactive'}">${isActive ? 'active' : 'inactive'}</span></td>
-                        <td>
-                            <button class="btn btn-warning" onclick="editProgram(${p.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="btn btn-danger" onclick="deleteProgram(${p.id})"><i class="fas fa-trash-alt"></i> Delete</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = programs.map(p => `
+            <tr>
+                <td>${p.id}</td>
+                <td><strong>${escapeHtml(p.program_code)}</strong></td>
+                <td>${escapeHtml(p.program_name)}</td>
+                <td>${p.duration_years} years</td>
+                <td>${p.total_credits || '-'}</td>
+                <td>${p.min_bgcse_points || 32}</td>
+                <td><span class="status-${p.is_active ? 'active' : 'inactive'}">${p.is_active ? 'active' : 'inactive'}</span></td>
+                <td>
+                    <button class="btn btn-warning" onclick="editProgram(${p.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-danger" onclick="deleteProgram(${p.id})"><i class="fas fa-trash-alt"></i> Delete</button>
+                 </td>
+            </tr>
+        `).join('');
         }
 
-        // ============================================
-        // CRUD OPERATIONS
-        // ============================================
+        // ========== CRUD OPERATIONS ==========
         async function addProgram(programData) {
-            const response = await safeApiCall('/api/admin/programs', {
-                method: 'POST',
-                body: JSON.stringify(programData)
-            });
-            if (response && response.ok) {
-                const newProgram = await response.json();
+            const res = await safeApiCall('/api/admin/programs', { method: 'POST', body: JSON.stringify(programData) });
+            if (res && res.ok) {
+                const newProgram = await res.json();
                 programs.push(newProgram);
                 displayPrograms();
-                alert(`Program "${programData.program_name}" created successfully!`);
+                alert(`Program "${programData.program_name}" created!`);
                 return true;
             } else {
-                // Demo mode
+                // demo
                 const newId = programs.length + 1;
                 programs.push({ id: newId, ...programData });
                 displayPrograms();
-                alert(`Program "${programData.program_name}" created successfully! (Demo Mode)`);
+                alert(`Program "${programData.program_name}" created! (Demo Mode)`);
                 return true;
             }
         }
 
         async function updateProgram(id, programData) {
-            const response = await safeApiCall(`/api/admin/programs/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(programData)
-            });
-            if (response && response.ok) {
-                const updated = await response.json();
-                const index = programs.findIndex(p => p.id === id);
-                if (index !== -1) programs[index] = updated;
+            const res = await safeApiCall(`/api/admin/programs/${id}`, { method: 'PUT', body: JSON.stringify(programData) });
+            if (res && res.ok) {
+                const updated = await res.json();
+                const idx = programs.findIndex(p => p.id === id);
+                if (idx !== -1) programs[idx] = updated;
                 displayPrograms();
-                alert('Program updated successfully!');
+                alert('Program updated!');
                 return true;
             } else {
-                // Demo mode
-                const index = programs.findIndex(p => p.id === id);
-                if (index !== -1) {
-                    programs[index] = { ...programs[index], ...programData };
-                    displayPrograms();
-                    alert('Program updated successfully! (Demo Mode)');
-                }
+                const idx = programs.findIndex(p => p.id === id);
+                if (idx !== -1) { programs[idx] = { ...programs[idx], ...programData }; displayPrograms(); alert('Program updated! (Demo Mode)'); }
                 return true;
             }
         }
@@ -595,24 +675,20 @@
         async function deleteProgram(id) {
             const program = programs.find(p => p.id === id);
             if (!program) return;
-            if (!confirm(`Delete "${program.program_name || program.name}"? This will affect enrolled students.`)) return;
-
-            const response = await safeApiCall(`/api/admin/programs/${id}`, { method: 'DELETE' });
-            if (response && response.ok) {
+            if (!confirm(`Delete "${program.program_name}"? This will affect enrolled students.`)) return;
+            const res = await safeApiCall(`/api/admin/programs/${id}`, { method: 'DELETE' });
+            if (res && res.ok) {
                 programs = programs.filter(p => p.id !== id);
                 displayPrograms();
-                alert('Program deleted successfully!');
+                alert('Program deleted!');
             } else {
-                // Demo mode
                 programs = programs.filter(p => p.id !== id);
                 displayPrograms();
-                alert('Program deleted successfully! (Demo Mode)');
+                alert('Program deleted! (Demo Mode)');
             }
         }
 
-        // ============================================
-        // MODAL FUNCTIONS
-        // ============================================
+        // ========== MODAL FUNCTIONS ==========
         function openAddProgramModal() {
             document.getElementById('addProgramForm').reset();
             document.getElementById('addProgramModal').style.display = 'flex';
@@ -622,15 +698,15 @@
             const p = programs.find(p => p.id === id);
             if (p) {
                 document.getElementById('editProgramId').value = p.id;
-                document.getElementById('editProgramCode').value = p.program_code || p.code || '';
-                document.getElementById('editProgramName').value = p.program_name || p.name || '';
-                document.getElementById('editDuration').value = p.duration_years || p.duration || 3;
-                document.getElementById('editCredits').value = p.total_credits || p.credits || '';
-                document.getElementById('editMinBgcse').value = p.min_bgcse_points || p.min_bgcse || 32;
+                document.getElementById('editProgramCode').value = p.program_code || '';
+                document.getElementById('editProgramName').value = p.program_name || '';
+                document.getElementById('editDuration').value = p.duration_years || 3;
+                document.getElementById('editCredits').value = p.total_credits || '';
+                document.getElementById('editMinBgcse').value = p.min_bgcse_points || 32;
                 document.getElementById('editDescription').value = p.description || '';
                 document.getElementById('editCareerOpportunities').value = p.career_opportunities || '';
                 document.getElementById('editEntryRequirements').value = p.entry_requirements || '';
-                document.getElementById('editStatus').value = p.is_active !== false ? 'active' : 'inactive';
+                document.getElementById('editStatus').value = p.is_active ? 'active' : 'inactive';
                 if (p.faculty_id) document.getElementById('editFaculty').value = p.faculty_id;
                 document.getElementById('editProgramModal').style.display = 'flex';
             }
@@ -640,9 +716,7 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-        // ============================================
-        // FORM SUBMISSIONS
-        // ============================================
+        // ========== FORM HANDLERS ==========
         document.getElementById('addProgramForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const programData = {
@@ -680,18 +754,14 @@
             closeModal('editProgramModal');
         });
 
-        // ============================================
-        // LOGOUT
-        // ============================================
+        // ========== LOGOUT ==========
         document.getElementById('logoutLink').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.clear();
             window.location.href = 'login.html';
         });
 
-        // ============================================
-        // HELPER
-        // ============================================
+        // ========== HELPER ==========
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -699,14 +769,18 @@
             return div.innerHTML;
         }
 
-        // ============================================
-        // INIT
-        // ============================================
+        // ========== INIT ==========
         async function init() {
             await loadFaculties();
             await loadPrograms();
         }
         init();
+
+        window.openAddProgramModal = openAddProgramModal;
+        window.editProgram = editProgram;
+        window.deleteProgram = deleteProgram;
+        window.closeModal = closeModal;
     </script>
 </body>
+
 </html>

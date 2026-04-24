@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Admin Profile - GIPS College</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -14,42 +14,62 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
-            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            overflow-x: hidden;
         }
 
-        /* Sidebar */
+        /* Sidebar (same as admin dashboard) */
         .admin-wrapper {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
 
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            transition: all 0.3s;
-            z-index: 100;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
         }
 
         .sidebar-header {
-            padding: 25px;
+            padding: 24px 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header img {
-            height: 60px;
+            height: 55px;
             width: auto;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .sidebar-header h3 {
             font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .sidebar-header p {
+            font-size: 0.75rem;
+            opacity: 0.7;
         }
 
         .sidebar-menu {
@@ -57,88 +77,130 @@
         }
 
         .sidebar-menu-item {
-            padding: 12px 25px;
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            color: #cbd5e1;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
         }
 
         .sidebar-menu-item i {
             width: 24px;
+            font-size: 1.1rem;
             text-align: center;
         }
 
-        .sidebar-menu-item:hover,
-        .sidebar-menu-item.active {
-            background: rgba(255,255,255,0.1);
+        .sidebar-menu-item:hover {
+            background: rgba(255, 255, 255, 0.08);
             color: white;
+        }
+
+        .sidebar-menu-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+            border-left-color: #667eea;
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
             flex: 1;
-            padding: 20px;
+            margin-left: 280px;
+            padding: 20px 24px;
+            transition: margin-left 0.3s;
         }
 
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+        }
+
+        /* Top Bar */
         .top-bar {
-            background: white;
-            border-radius: 20px;
-            padding: 15px 25px;
-            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
         }
 
         .page-title h1 {
             font-size: 1.5rem;
-            color: #2d3748;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .page-title p {
-            color: #718096;
+            color: #475569;
             font-size: 0.85rem;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .admin-avatar {
-            width: 45px;
-            height: 45px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1.1rem;
             color: white;
             cursor: pointer;
             transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
         .admin-avatar:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
+        }
+
+        /* Hamburger Button */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .top-bar {
+                padding: 12px 16px;
+            }
         }
 
         /* Profile Card */
         .profile-card {
             background: white;
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            border-radius: 28px;
+            padding: 28px;
             max-width: 800px;
             margin: 0 auto;
+            border: 1px solid #e2e8f0;
         }
 
         .profile-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
 
         .profile-avatar {
@@ -150,11 +212,11 @@
             align-items: center;
             justify-content: center;
             font-size: 2.5rem;
-            font-weight: bold;
+            font-weight: 700;
             color: white;
-            margin: 0 auto 15px;
+            margin: 0 auto 16px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: 0.2s;
         }
 
         .profile-avatar:hover {
@@ -162,22 +224,24 @@
         }
 
         .profile-header h2 {
-            font-size: 1.5rem;
-            color: #2d3748;
-            margin-bottom: 5px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
         }
 
         .profile-header p {
-            color: #718096;
-            margin-bottom: 10px;
+            color: #475569;
+            margin-bottom: 8px;
         }
 
         .role-badge {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #667eea;
             color: white;
         }
 
@@ -190,7 +254,8 @@
             display: block;
             margin-bottom: 6px;
             font-weight: 500;
-            color: #4a5568;
+            color: #334155;
+            font-size: 0.85rem;
         }
 
         .form-group input,
@@ -199,9 +264,9 @@
             width: 100%;
             padding: 10px 14px;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 16px;
             font-family: inherit;
-            transition: all 0.2s;
+            transition: 0.2s;
         }
 
         .form-group input:focus,
@@ -209,7 +274,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .form-row {
@@ -219,25 +284,27 @@
         }
 
         .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
+            padding: 10px 24px;
+            border-radius: 40px;
             font-weight: 600;
-            transition: all 0.2s;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #667eea;
             color: white;
         }
 
         .btn-primary:hover {
+            background: #5a67d8;
             transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
         }
 
         .btn-danger {
@@ -252,14 +319,14 @@
 
         /* Activity Log */
         .activity-log {
-            margin-top: 30px;
+            margin-top: 28px;
             padding-top: 20px;
             border-top: 1px solid #e2e8f0;
         }
 
         .activity-log h3 {
             font-size: 1.1rem;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -267,79 +334,79 @@
 
         .activity-item {
             padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #f1f5f9;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.85rem;
         }
 
         .activity-date {
-            color: #a0aec0;
-            font-size: 0.75rem;
+            color: #64748b;
+            font-size: 0.7rem;
         }
 
         .loading {
             text-align: center;
             padding: 20px;
-            color: #a0aec0;
+            color: #64748b;
         }
 
         hr {
-            margin: 20px 0;
+            margin: 24px 0;
             border: none;
             border-top: 1px solid #e2e8f0;
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-            }
-            .sidebar-header h3,
-            .sidebar-menu-item span {
-                display: none;
-            }
-            .sidebar-menu-item i {
-                margin: 0 auto;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
+        @media (max-width: 640px) {
             .form-row {
                 grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .profile-card {
+                padding: 20px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="admin-wrapper">
-        <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
                 <h3>Admin Portal</h3>
+                <p>GIPS College</p>
             </div>
             <div class="sidebar-menu">
-                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
-                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
-                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
-                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> <span>Programs</span></a>
-                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> <span>Modules</span></a>
-                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> <span>Accommodation</span></a>
-                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
-                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
-                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> <span>Reports</span></a>
-                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
-                <a href="admin-profile.html" class="sidebar-menu-item active"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
+                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i>
+                    Accommodation</a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+                <div style="margin: 12px 20px; border-top: 1px solid #334155;"></div>
+                <a href="admin-api.html" class="sidebar-menu-item"><i class="fas fa-plug"></i> API</a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="admin-profile.html" class="sidebar-menu-item active"><i class="fas fa-user-circle"></i>
+                    Profile</a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
             <div class="top-bar">
-                <div class="page-title">
-                    <h1><i class="fas fa-user-circle"></i> Admin Profile</h1>
-                    <p>Manage your account information and security</p>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <div class="page-title">
+                        <h1><i class="fas fa-user-circle"></i> Admin Profile</h1>
+                        <p>Manage your account information and security</p>
+                    </div>
                 </div>
                 <div class="admin-avatar" id="adminAvatar" onclick="changeAvatar()">A</div>
             </div>
@@ -413,232 +480,41 @@
                 <hr>
 
                 <div style="text-align: center;">
-                    <button class="btn btn-danger" onclick="logoutAllSessions()"><i class="fas fa-sign-out-alt"></i> Logout from All Devices</button>
+                    <button class="btn btn-danger" onclick="logoutAllSessions()"><i class="fas fa-sign-out-alt"></i>
+                        Logout from All Devices</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ============================================
-        // AUTHENTICATION CHECK
-        // ============================================
+        // ========== AUTHENTICATION & SIDEBAR ==========
         const token = localStorage.getItem('access_token');
         let user = JSON.parse(localStorage.getItem('user') || '{}');
 
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-        if (user.role !== 'admin' && user.role !== 'administrator') {
-            window.location.href = 'student-dashboard.html';
-        }
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'admin' && user.role !== 'administrator') window.location.href = 'student-dashboard.html';
 
-        // ============================================
-        // SAFE API CALL (only redirects on 401)
-        // ============================================
+        // Sidebar toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // ========== HELPER FUNCTIONS ==========
         async function safeApiCall(endpoint, options = {}) {
             try {
-                const response = await fetch(endpoint, {
+                const res = await fetch(endpoint, {
                     ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
                 });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
-        }
-
-        // ============================================
-        // PROFILE MANAGEMENT
-        // ============================================
-        async function loadProfile() {
-            const response = await safeApiCall('/api/auth/profile');
-            if (response && response.ok) {
-                const profileData = await response.json();
-                user = profileData;
-                localStorage.setItem('user', JSON.stringify(user));
-
-                document.getElementById('firstName').value = profileData.first_name || '';
-                document.getElementById('lastName').value = profileData.last_name || '';
-                document.getElementById('email').value = profileData.email || '';
-                document.getElementById('phone').value = profileData.phone || '';
-                document.getElementById('department').value = profileData.department || 'Administration';
-                document.getElementById('bio').value = profileData.bio || '';
-
-                const displayName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || profileData.username || 'Admin';
-                document.getElementById('displayName').textContent = displayName;
-                document.getElementById('displayEmail').textContent = profileData.email || user.email;
-                document.getElementById('userRole').innerHTML = `<i class="fas fa-crown"></i> ${(profileData.role || user.role || 'Administrator').toUpperCase()}`;
-
-                const initial = (profileData.first_name ? profileData.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
-                document.getElementById('adminAvatar').textContent = initial;
-                document.getElementById('profileAvatar').textContent = initial;
-            } else {
-                // Fallback to localStorage
-                console.log('Using localStorage profile data');
-                const profileData = JSON.parse(localStorage.getItem('admin_profile') || '{}');
-                document.getElementById('firstName').value = profileData.first_name || user.first_name || '';
-                document.getElementById('lastName').value = profileData.last_name || user.last_name || '';
-                document.getElementById('email').value = profileData.email || user.email || '';
-                document.getElementById('phone').value = profileData.phone || '';
-                document.getElementById('department').value = profileData.department || 'Administration';
-                document.getElementById('bio').value = profileData.bio || '';
-
-                const displayName = `${profileData.first_name || user.first_name || ''} ${profileData.last_name || user.last_name || ''}`.trim() || user.username || 'Admin';
-                document.getElementById('displayName').textContent = displayName;
-                document.getElementById('displayEmail').textContent = profileData.email || user.email;
-                document.getElementById('userRole').innerHTML = `<i class="fas fa-crown"></i> ${(user.role || 'Administrator').toUpperCase()}`;
-
-                const initial = (profileData.first_name ? profileData.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
-                document.getElementById('adminAvatar').textContent = initial;
-                document.getElementById('profileAvatar').textContent = initial;
-            }
-        }
-
-        async function saveProfile(profileData) {
-            const response = await safeApiCall('/api/auth/profile', {
-                method: 'PUT',
-                body: JSON.stringify(profileData)
-            });
-
-            if (response && response.ok) {
-                const updatedUser = await response.json();
-                user = updatedUser;
-                localStorage.setItem('user', JSON.stringify(user));
-                localStorage.setItem('admin_profile', JSON.stringify(profileData));
-
-                const displayName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.username || 'Admin';
-                document.getElementById('displayName').textContent = displayName;
-                document.getElementById('displayEmail').textContent = profileData.email || user.email;
-
-                const initial = (profileData.first_name ? profileData.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
-                document.getElementById('adminAvatar').textContent = initial;
-                document.getElementById('profileAvatar').textContent = initial;
-
-                await addActivity('Profile updated');
-                alert('✅ Profile updated successfully!');
-                return true;
-            } else {
-                // Demo mode
-                localStorage.setItem('admin_profile', JSON.stringify(profileData));
-                const userData = JSON.parse(localStorage.getItem('user') || '{}');
-                userData.first_name = profileData.first_name;
-                userData.last_name = profileData.last_name;
-                userData.email = profileData.email;
-                userData.phone = profileData.phone;
-                localStorage.setItem('user', JSON.stringify(userData));
-
-                const displayName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.username || 'Admin';
-                document.getElementById('displayName').textContent = displayName;
-                document.getElementById('displayEmail').textContent = profileData.email || user.email;
-
-                const initial = (profileData.first_name ? profileData.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
-                document.getElementById('adminAvatar').textContent = initial;
-                document.getElementById('profileAvatar').textContent = initial;
-
-                await addActivity('Profile updated (Demo Mode)');
-                alert('✅ Profile updated successfully! (Demo Mode)');
-                return true;
-            }
-        }
-
-        async function changePasswordAPI(currentPassword, newPassword) {
-            const response = await safeApiCall('/api/auth/change-password', {
-                method: 'POST',
-                body: JSON.stringify({
-                    current_password: currentPassword,
-                    new_password: newPassword
-                })
-            });
-
-            if (response && response.ok) {
-                alert('✅ Password changed successfully! Please login again.');
-                await addActivity('Password changed');
-                setTimeout(() => {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                }, 2000);
-                return true;
-            } else {
-                alert('✅ Password changed successfully! (Demo Mode) Please login again.');
-                await addActivity('Password changed (Demo Mode)');
-                setTimeout(() => {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                }, 2000);
-                return true;
-            }
-        }
-
-        // ============================================
-        // ACTIVITY LOG
-        // ============================================
-        async function loadActivity() {
-            const container = document.getElementById('activityList');
-            const response = await safeApiCall('/api/auth/activity');
-            if (response && response.ok) {
-                const activities = await response.json();
-                if (activities.length === 0) {
-                    container.innerHTML = '<p>No recent activity</p>';
-                } else {
-                    container.innerHTML = activities.slice(0, 10).map(a => `
-                        <div class="activity-item">
-                            <span><i class="fas fa-clock"></i> ${escapeHtml(a.action)}</span>
-                            <span class="activity-date">${new Date(a.created_at).toLocaleString()}</span>
-                        </div>
-                    `).join('');
-                }
-            } else {
-                const activities = JSON.parse(localStorage.getItem('admin_activity') || '[]');
-                if (activities.length === 0) {
-                    container.innerHTML = '<p>No recent activity</p>';
-                } else {
-                    container.innerHTML = activities.slice(0, 10).map(a => `
-                        <div class="activity-item">
-                            <span><i class="fas fa-clock"></i> ${escapeHtml(a.action)}</span>
-                            <span class="activity-date">${new Date(a.date).toLocaleString()}</span>
-                        </div>
-                    `).join('');
-                }
-            }
-        }
-
-        async function addActivity(action) {
-            const response = await safeApiCall('/api/auth/activity', {
-                method: 'POST',
-                body: JSON.stringify({ action })
-            });
-            if (!response || !response.ok) {
-                const activities = JSON.parse(localStorage.getItem('admin_activity') || '[]');
-                activities.unshift({ action, date: new Date().toISOString() });
-                localStorage.setItem('admin_activity', JSON.stringify(activities.slice(0, 50)));
-            }
-            loadActivity();
-        }
-
-        // ============================================
-        // UTILITY FUNCTIONS
-        // ============================================
-        function changeAvatar() {
-            alert('Avatar change feature coming soon! You can upload a profile picture in the next update.');
-        }
-
-        async function logoutAllSessions() {
-            if (confirm('⚠️ This will log you out from all devices. Are you sure?')) {
-                const response = await safeApiCall('/api/auth/logout-all', { method: 'POST' });
-                localStorage.clear();
-                window.location.href = 'login.html';
-            }
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
         }
 
         function escapeHtml(text) {
@@ -648,12 +524,168 @@
             return div.innerHTML;
         }
 
-        // ============================================
-        // FORM HANDLERS
-        // ============================================
+        // ========== PROFILE MANAGEMENT ==========
+        async function loadProfile() {
+            const res = await safeApiCall('/api/auth/profile');
+            if (res && res.ok) {
+                const data = await res.json();
+                user = data;
+                localStorage.setItem('user', JSON.stringify(user));
+
+                document.getElementById('firstName').value = data.first_name || '';
+                document.getElementById('lastName').value = data.last_name || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('phone').value = data.phone || '';
+                document.getElementById('department').value = data.department || 'Administration';
+                document.getElementById('bio').value = data.bio || '';
+
+                const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.username || 'Admin';
+                document.getElementById('displayName').textContent = fullName;
+                document.getElementById('displayEmail').textContent = data.email || user.email;
+                document.getElementById('userRole').innerHTML = `<i class="fas fa-crown"></i> ${(data.role || user.role || 'Administrator').toUpperCase()}`;
+
+                const initial = (data.first_name ? data.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
+                document.getElementById('adminAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+            } else {
+                // fallback
+                document.getElementById('firstName').value = user.first_name || '';
+                document.getElementById('lastName').value = user.last_name || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('department').value = user.department || 'Administration';
+                document.getElementById('bio').value = user.bio || '';
+
+                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'Admin';
+                document.getElementById('displayName').textContent = fullName;
+                document.getElementById('displayEmail').textContent = user.email || '';
+                document.getElementById('userRole').innerHTML = `<i class="fas fa-crown"></i> ${(user.role || 'Administrator').toUpperCase()}`;
+
+                const initial = (user.first_name ? user.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
+                document.getElementById('adminAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+            }
+        }
+
+        async function saveProfile(profileData) {
+            const res = await safeApiCall('/api/auth/profile', {
+                method: 'PUT',
+                body: JSON.stringify(profileData)
+            });
+            if (res && res.ok) {
+                const updated = await res.json();
+                user = updated;
+                localStorage.setItem('user', JSON.stringify(user));
+
+                const fullName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.username || 'Admin';
+                document.getElementById('displayName').textContent = fullName;
+                document.getElementById('displayEmail').textContent = profileData.email || user.email;
+
+                const initial = (profileData.first_name ? profileData.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
+                document.getElementById('adminAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+
+                addActivity('Profile updated');
+                alert('✅ Profile updated successfully!');
+                return true;
+            } else {
+                // demo fallback
+                localStorage.setItem('user', JSON.stringify({ ...user, ...profileData }));
+                const fullName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.username || 'Admin';
+                document.getElementById('displayName').textContent = fullName;
+                document.getElementById('displayEmail').textContent = profileData.email || user.email;
+                const initial = (profileData.first_name ? profileData.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
+                document.getElementById('adminAvatar').textContent = initial;
+                document.getElementById('profileAvatar').textContent = initial;
+                addActivity('Profile updated (Demo)');
+                alert('✅ Profile updated successfully! (Demo Mode)');
+                return true;
+            }
+        }
+
+        async function changePasswordAPI(current, newPwd) {
+            const res = await safeApiCall('/api/auth/change-password', {
+                method: 'POST',
+                body: JSON.stringify({ current_password: current, new_password: newPwd })
+            });
+            if (res && res.ok) {
+                alert('✅ Password changed successfully! Please login again.');
+                addActivity('Password changed');
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }, 2000);
+                return true;
+            } else {
+                alert('✅ Password changed successfully! (Demo Mode) Please login again.');
+                addActivity('Password changed (Demo)');
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }, 2000);
+                return true;
+            }
+        }
+
+        // ========== ACTIVITY LOG ==========
+        async function loadActivity() {
+            const container = document.getElementById('activityList');
+            const res = await safeApiCall('/api/auth/activity');
+            if (res && res.ok) {
+                const acts = await res.json();
+                if (!acts.length) {
+                    container.innerHTML = '<p>No recent activity</p>';
+                } else {
+                    container.innerHTML = acts.slice(0, 10).map(a => `
+                    <div class="activity-item">
+                        <span><i class="fas fa-clock"></i> ${escapeHtml(a.action)}</span>
+                        <span class="activity-date">${new Date(a.created_at).toLocaleString()}</span>
+                    </div>
+                `).join('');
+                }
+            } else {
+                const acts = JSON.parse(localStorage.getItem('admin_activity') || '[]');
+                if (!acts.length) {
+                    container.innerHTML = '<p>No recent activity</p>';
+                } else {
+                    container.innerHTML = acts.slice(0, 10).map(a => `
+                    <div class="activity-item">
+                        <span><i class="fas fa-clock"></i> ${escapeHtml(a.action)}</span>
+                        <span class="activity-date">${new Date(a.date).toLocaleString()}</span>
+                    </div>
+                `).join('');
+                }
+            }
+        }
+
+        async function addActivity(action) {
+            const res = await safeApiCall('/api/auth/activity', {
+                method: 'POST',
+                body: JSON.stringify({ action })
+            });
+            if (!res || !res.ok) {
+                const acts = JSON.parse(localStorage.getItem('admin_activity') || '[]');
+                acts.unshift({ action, date: new Date().toISOString() });
+                localStorage.setItem('admin_activity', JSON.stringify(acts.slice(0, 50)));
+            }
+            loadActivity();
+        }
+
+        // ========== UTILITIES ==========
+        function changeAvatar() {
+            alert('Avatar upload feature coming soon.');
+        }
+
+        async function logoutAllSessions() {
+            if (!confirm('⚠️ This will log you out from all devices. Are you sure?')) return;
+            const res = await safeApiCall('/api/auth/logout-all', { method: 'POST' });
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const profileData = {
+            const data = {
                 first_name: document.getElementById('firstName').value,
                 last_name: document.getElementById('lastName').value,
                 email: document.getElementById('email').value,
@@ -661,7 +693,7 @@
                 department: document.getElementById('department').value,
                 bio: document.getElementById('bio').value
             };
-            await saveProfile(profileData);
+            await saveProfile(data);
         });
 
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {
@@ -670,11 +702,11 @@
             const newPwd = document.getElementById('newPassword').value;
             const confirm = document.getElementById('confirmPassword').value;
             if (!current || !newPwd || !confirm) {
-                alert('Please fill in all password fields');
+                alert('Please fill all password fields');
                 return;
             }
             if (newPwd !== confirm) {
-                alert('New passwords do not match!');
+                alert('New passwords do not match');
                 return;
             }
             if (newPwd.length < 8) {
@@ -691,15 +723,16 @@
             window.location.href = 'login.html';
         });
 
-        // ============================================
-        // INIT
-        // ============================================
         async function init() {
             await loadProfile();
             await loadActivity();
             await addActivity('Profile page viewed');
         }
         init();
+
+        window.changeAvatar = changeAvatar;
+        window.logoutAllSessions = logoutAllSessions;
     </script>
 </body>
+
 </html>

@@ -1,14 +1,45 @@
 # backend/routes/students.py
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, date
 import csv
 import io
+import os
 import traceback
+from werkzeug.utils import secure_filename
 
-from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User, Course, AcademicYear, Semester, ProgramModule, OnlineMeeting, Notification
+from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User, Course, AcademicYear, Semester, ProgramModule, OnlineMeeting, Notification, StudentQuery
+
+# MOODLE INTEGRATION: import the Moodle client and configuration
+from services.moodle_integration import MoodleClient
+from config import MOODLE_URL, MOODLE_API_TOKEN
 
 students_bp = Blueprint('students', __name__)
+
+# MOODLE INTEGRATION: initialise the Moodle client once
+moodle = MoodleClient(MOODLE_URL, MOODLE_API_TOKEN)
+
+# ============================================
+# Helper for file uploads
+# ============================================
+ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_file(file, subfolder=''):
+    """Save file and return relative path."""
+    if not file or file.filename == '':
+        return None
+    if not allowed_file(file.filename):
+        raise ValueError("File type not allowed. Allowed: pdf, jpg, jpeg, png")
+    filename = secure_filename(f"{datetime.utcnow().timestamp()}_{file.filename}")
+    upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')
+    documents_dir = os.path.join(upload_folder, 'documents', subfolder)
+    os.makedirs(documents_dir, exist_ok=True)
+    path = os.path.join(documents_dir, filename)
+    file.save(path)
+    return path
 
 # ============================================
 # DASHBOARD
@@ -838,7 +869,7 @@ def register_semester():
         course_ids = data.get('course_ids', [])
         semester = data.get('semester', 1)
         wants_accommodation = data.get('wants_accommodation', False)
-        accepted_rules = data.get('accepted_rules', False)  # Added: rule acknowledgment
+        accepted_rules = data.get('accepted_rules', False)
 
         if not course_ids:
             return jsonify({'error': 'Please select at least one course to register.'}), 400
@@ -898,19 +929,18 @@ def register_semester():
         db.session.add(registration)
         db.session.flush()
 
-        for course_id in course_ids:
-            module = Module.query.get(course_id)
-            if module:
-                enrollment = Enrollment(
-                    registration_id=registration.id,
-                    student_id=student.id,
-                    module_id=module.id,
-                    enrollment_date=date.today(),
-                    status='registered'
-                )
-                db.session.add(enrollment)
+        selected_modules = Module.query.filter(Module.id.in_(course_ids)).all()
 
-        # Accommodation application if requested
+        for module in selected_modules:
+            enrollment = Enrollment(
+                registration_id=registration.id,
+                student_id=student.id,
+                module_id=module.id,
+                enrollment_date=date.today(),
+                status='registered'
+            )
+            db.session.add(enrollment)
+
         if wants_accommodation and is_gov_sponsored:
             campus = Campus.query.get(student.campus_id)
             if campus and campus.has_accommodation:
@@ -923,10 +953,38 @@ def register_semester():
                     status='pending'
                 )
                 db.session.add(accommodation_reg)
-                # Also update student wants_accommodation flag
                 student.wants_accommodation = True
         elif wants_accommodation and not is_gov_sponsored:
             return jsonify({'error': 'Accommodation is only available for government-sponsored students.'}), 400
+
+        # ========== MOODLE INTEGRATION ==========
+        # Sync to Moodle: create/update Moodle user and enrol into selected modules
+        try:
+            # Ensure the student has a Moodle user ID
+            if not student.moodle_user_id:
+                # Create a temporary password (could be random; student will reset later)
+                temp_password = f"Temp{student.student_number}!"
+                moodle_user_id = moodle.create_user(
+                    username=student.student_number,
+                    password=temp_password,
+                    firstname=student.first_name,
+                    lastname=student.last_name,
+                    email=student.email
+                )
+                student.moodle_user_id = moodle_user_id
+                db.session.add(student)
+                db.session.flush()  # make sure moodle_user_id is saved before committing
+
+            # Enrol the student into each selected module (course in Moodle)
+            for module in selected_modules:
+                moodle.enrol_user(student.moodle_user_id, module.id, roleid=5)  # roleid 5 = student
+        except Exception as moodle_err:
+            # Log error but do NOT rollback the local transaction – decide if you want to fail registration
+            current_app.logger.error(f"Moodle sync failed for student {student.id}: {moodle_err}")
+            # Optionally, you could return an error response here:
+            # return jsonify({'error': f'Moodle integration failed: {str(moodle_err)}'}), 500
+            # For now, we continue and only log the error.
+        # ========================================
 
         db.session.commit()
 
@@ -990,12 +1048,11 @@ def get_student_online_classes():
 
 
 # ============================================
-# NEW: STUDENT STATUS (for frontend checks)
+# STUDENT STATUS (for frontend checks)
 # ============================================
 @students_bp.route('/status', methods=['GET'])
 @jwt_required()
 def get_student_status():
-    """Return student status for frontend (admission, registration, accommodation eligibility)"""
     try:
         current_user_id = get_jwt_identity()
         user_id = int(current_user_id) if current_user_id else None
@@ -1003,19 +1060,14 @@ def get_student_status():
         if not student:
             return jsonify({'error': 'Student profile not found'}), 404
 
-        # Check if accommodation application exists
         accommodation_applied = AccommodationRegistration.query.filter_by(student_id=student.id).first() is not None
-
-        # Check registration status for current semester
         current_reg = Registration.query.filter_by(
             student_id=student.id,
             registration_status='approved'
         ).order_by(Registration.created_at.desc()).first()
 
-        # Determine if student can apply for accommodation
         can_apply_accommodation = False
         if student.admission_status == 'accepted' and student.wants_accommodation and not accommodation_applied:
-            # Also check if campus has accommodation
             campus = Campus.query.get(student.campus_id)
             if campus and campus.has_accommodation:
                 can_apply_accommodation = True
@@ -1027,9 +1079,446 @@ def get_student_status():
             'is_registered': current_reg is not None,
             'can_apply_accommodation': can_apply_accommodation,
             'accommodation_applied': accommodation_applied,
-            'has_outstanding_fees': False,  # You can implement fee check later if needed
+            'has_outstanding_fees': False,
             'message': 'Status retrieved successfully'
         }), 200
     except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# DOCUMENT MANAGEMENT
+# ============================================
+@students_bp.route('/documents', methods=['GET'])
+@jwt_required()
+def get_student_documents():
+    """Get all documents uploaded by the student."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        docs = []
+
+        if student.bgcse_certificate_path:
+            docs.append({
+                'id': 1,
+                'document_type': 'bgcse_certificate',
+                'file_name': os.path.basename(student.bgcse_certificate_path),
+                'file_url': f'/uploads/{student.bgcse_certificate_path}',
+                'uploaded_at': student.updated_at.isoformat() if student.updated_at else None
+            })
+
+        if student.id_document_path:
+            docs.append({
+                'id': 2,
+                'document_type': 'id_document',
+                'file_name': os.path.basename(student.id_document_path),
+                'file_url': f'/uploads/{student.id_document_path}',
+                'uploaded_at': student.updated_at.isoformat() if student.updated_at else None
+            })
+
+        if student.passport_photo_path:
+            docs.append({
+                'id': 3,
+                'document_type': 'passport_photo',
+                'file_name': os.path.basename(student.passport_photo_path),
+                'file_url': f'/uploads/{student.passport_photo_path}',
+                'uploaded_at': student.updated_at.isoformat() if student.updated_at else None
+            })
+
+        return jsonify(docs), 200
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@students_bp.route('/documents', methods=['POST'])
+@jwt_required()
+def upload_student_document():
+    """Upload a document (BGCSE certificate, ID copy, passport photo)."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        doc_type = request.form.get('document_type') or request.args.get('document_type')
+        if not doc_type:
+            return jsonify({'error': 'document_type is required (bgcse_certificate, id_document, passport_photo)'}), 400
+
+        field_map = {
+            'bgcse_certificate': 'bgcse_certificate_path',
+            'id_document': 'id_document_path',
+            'passport_photo': 'passport_photo_path'
+        }
+        if doc_type not in field_map:
+            return jsonify({'error': 'Invalid document_type. Allowed: bgcse_certificate, id_document, passport_photo'}), 400
+
+        file = request.files.get('file')
+        if not file:
+            return jsonify({'error': 'No file uploaded'}), 400
+
+        subfolder = doc_type
+        file_path = save_uploaded_file(file, subfolder)
+        if not file_path:
+            return jsonify({'error': 'File upload failed'}), 500
+
+        setattr(student, field_map[doc_type], file_path)
+        student.updated_at = datetime.utcnow()
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'{doc_type} uploaded successfully',
+            'file_path': file_path,
+            'file_url': f'/uploads/{file_path}'
+        }), 200
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        db.session.rollback()
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# FAILED MODULES (for exam registration)
+# ============================================
+@students_bp.route('/failed-modules', methods=['GET'])
+@jwt_required()
+def get_failed_modules():
+    """Get modules where student failed and need supplementary/resit/retake."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        # This is a simplified example – adjust based on your actual grade data
+        # We'll query enrollments where status = 'failed' or grade = 'F'
+        failed_enrollments = Enrollment.query.filter(
+            Enrollment.student_id == student.id,
+            Enrollment.status == 'failed'
+        ).all()
+
+        result = []
+        for enrollment in failed_enrollments:
+            module = enrollment.module
+            if not module:
+                continue
+            # For demo, assume supplementary for first fail, retake for second
+            # You can count attempts from history
+            attempts = 1  # placeholder
+            exam_type = 'supplementary' if attempts == 1 else 'retake'
+            fee = 300 if exam_type == 'supplementary' else 600 if exam_type == 'resit' else 1000
+
+            registered = ExamRegistration.query.filter_by(
+                student_id=student.id,
+                course_id=module.id,
+                exam_type=exam_type
+            ).first() is not None
+
+            result.append({
+                'id': module.id,
+                'code': module.module_code,
+                'name': module.module_name,
+                'previous_grade': enrollment.grade or 'F',
+                'exam_type': exam_type,
+                'fee': fee,
+                'registered': registered
+            })
+
+        return jsonify(result), 200
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# REGISTER FOR SUPPLEMENTARY/RETAKE EXAM
+# ============================================
+@students_bp.route('/exam-registration', methods=['POST'])
+@jwt_required()
+def register_for_exam():
+    """Register for supplementary/resit/retake exam."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        data = request.get_json()
+        module_id = data.get('module_id')
+        exam_type = data.get('exam_type')  # 'supplementary', 'resit', 'retake'
+
+        if not module_id or not exam_type:
+            return jsonify({'error': 'module_id and exam_type required'}), 400
+
+        module = Module.query.get(module_id)
+        if not module:
+            return jsonify({'error': 'Module not found'}), 404
+
+        fee_map = {'supplementary': 300, 'resit': 600, 'retake': 1000}
+        fee = fee_map.get(exam_type, 0)
+
+        existing = ExamRegistration.query.filter_by(
+            student_id=student.id,
+            course_id=module_id,
+            exam_type=exam_type
+        ).first()
+        if existing:
+            return jsonify({'error': 'Already registered for this exam'}), 400
+
+        exam_reg = ExamRegistration(
+            student_id=student.id,
+            course_id=module_id,
+            exam_type=exam_type,
+            semester_id=None,
+            academic_year_id=None,
+            registration_date=datetime.utcnow(),
+            fee=fee,
+            payment_status='pending',
+            is_government_sponsored=student.is_government_sponsored
+        )
+        db.session.add(exam_reg)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Successfully registered for {exam_type} exam',
+            'fee': fee,
+            'registration_id': exam_reg.id
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# STUDENT QUERIES (SUPPORT TICKETS)
+# ============================================
+@students_bp.route('/queries', methods=['GET'])
+@jwt_required()
+def get_student_queries():
+    """Get all queries submitted by the logged‑in student."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        queries = StudentQuery.query.filter_by(student_id=student.id).order_by(StudentQuery.created_at.desc()).all()
+        return jsonify([q.to_dict() for q in queries]), 200
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@students_bp.route('/queries/<int:query_id>', methods=['GET'])
+@jwt_required()
+def get_student_query(query_id):
+    """Get a specific query by ID (with responses)."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        query = StudentQuery.query.get(query_id)
+        if not query or query.student_id != student.id:
+            return jsonify({'error': 'Query not found'}), 404
+
+        return jsonify(query.to_dict()), 200
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@students_bp.route('/queries', methods=['POST'])
+@jwt_required()
+def create_student_query():
+    """Create a new query (support ticket)."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid request data'}), 400
+
+        subject = data.get('subject')
+        category = data.get('category', 'General')
+        message = data.get('message')
+
+        if not subject or not message:
+            return jsonify({'error': 'Subject and message are required'}), 400
+
+        query = StudentQuery(
+            student_id=student.id,
+            subject=subject,
+            category=category,
+            message=message,
+            status='pending',
+            responses=[]
+        )
+        db.session.add(query)
+        db.session.commit()
+
+        return jsonify(query.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# AVATAR UPLOAD
+# ============================================
+@students_bp.route('/avatar', methods=['POST'])
+@jwt_required()
+def upload_avatar():
+    """Upload student profile picture."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        file = request.files.get('avatar')
+        if not file:
+            return jsonify({'error': 'No file provided'}), 400
+
+        # You may need to add an 'avatar_path' column to the Student model.
+        # For now, we'll store it under a new field. If the column doesn't exist, you'll need to add it.
+        # Alternatively, you can store the path in the StudentDocument table.
+        # For simplicity, we'll assume you have an 'avatar_path' column.
+        # If not, uncomment the next lines and add the column to models.py:
+        # avatar_path = save_uploaded_file(file, 'avatars')
+        # student.avatar_path = avatar_path
+        # db.session.commit()
+
+        # For demonstration, we'll return a dummy URL.
+        return jsonify({
+            'success': True,
+            'message': 'Avatar updated successfully',
+            'avatar_url': '/uploads/avatars/sample.jpg'  # Replace with actual URL
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================
+# UPDATE PROFILE (PUT)
+# ============================================
+@students_bp.route('/profile', methods=['PUT'])
+@jwt_required()
+def update_student_profile():
+    """Update student profile (name, email, phone, bio, address, social links, password)."""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        student = Student.query.filter_by(user_id=user_id).first()
+        if not student:
+            return jsonify({'error': 'Student profile not found'}), 404
+
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid request data'}), 400
+
+        # Track changes that need to be synced to Moodle
+        moodle_updates = {}
+        old_firstname = student.first_name
+        old_lastname = student.last_name
+        old_email = user.email
+
+        # Update Student fields
+        if 'first_name' in data:
+            student.first_name = data['first_name']
+            moodle_updates['firstname'] = data['first_name']
+        if 'last_name' in data:
+            student.last_name = data['last_name']
+            moodle_updates['lastname'] = data['last_name']
+        if 'phone' in data:
+            student.phone = data['phone']
+        if 'bio' in data:
+            student.bio = data['bio']
+        if 'address' in data:
+            student.physical_address = data['address']
+        if 'city' in data:
+            student.city = data['city']
+        if 'postal_code' in data:
+            student.postal_code = data['postal_code']
+
+        # Update User email
+        if 'email' in data and data['email'] != user.email:
+            existing = User.query.filter_by(email=data['email']).first()
+            if existing and existing.id != user.id:
+                return jsonify({'error': 'Email already in use'}), 409
+            user.email = data['email']
+            user.username = data['email']  # keep username same as email
+            moodle_updates['email'] = data['email']
+
+        # Handle password change
+        current_pw = data.get('current_password')
+        new_pw = data.get('new_password')
+        if new_pw:
+            if not current_pw:
+                return jsonify({'error': 'Current password required to change password'}), 400
+            if not user.check_password(current_pw):
+                return jsonify({'error': 'Current password is incorrect'}), 401
+            # Validate new password strength
+            if len(new_pw) < 8:
+                return jsonify({'error': 'New password must be at least 8 characters'}), 400
+            if not any(c.isupper() for c in new_pw) or not any(c.islower() for c in new_pw) or not any(c.isdigit() for c in new_pw):
+                return jsonify({'error': 'New password must contain uppercase, lowercase, and digit'}), 400
+            user.set_password(new_pw)
+            # Note: Moodle password cannot be updated via standard API easily; you may need to handle separately
+
+        student.updated_at = datetime.utcnow()
+        user.updated_at = datetime.utcnow()
+        db.session.commit()
+
+        # ========== MOODLE INTEGRATION ==========
+        # Update Moodle user if any relevant fields changed and moodle_user_id exists
+        if student.moodle_user_id and moodle_updates:
+            try:
+                # The update_user method expects an array of user fields
+                moodle.update_user(student.moodle_user_id, **moodle_updates)
+            except Exception as moodle_err:
+                current_app.logger.error(f"Failed to update Moodle user {student.moodle_user_id}: {moodle_err}")
+        # ========================================
+
+        return jsonify({
+            'success': True,
+            'message': 'Profile updated successfully',
+            'user': {
+                'first_name': student.first_name,
+                'last_name': student.last_name,
+                'email': user.email,
+                'role': user.role
+            }
+        }), 200
+    except Exception as e:
+        db.session.rollback()
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500

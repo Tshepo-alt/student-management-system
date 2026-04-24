@@ -392,6 +392,13 @@ class Config:
     FLASK_DEBUG = os.environ.get('FLASK_DEBUG', 'True').lower() == 'true'
     FLASK_HOST = os.environ.get('FLASK_HOST', '0.0.0.0')
     FLASK_PORT = int(os.environ.get('FLASK_PORT', 5000))
+    
+    # ============================================
+    # MOODLE API CONFIGURATION (REST API integration)
+    # ============================================
+    MOODLE_URL = os.environ.get('MOODLE_URL', 'https://gipscollegelms.moodlecloud.com')
+    MOODLE_API_TOKEN = os.environ.get('MOODLE_API_TOKEN', '')
+    # The token should be generated from Moodle: Site administration → Plugins → Web services → Manage tokens
 
 
 # ============================================

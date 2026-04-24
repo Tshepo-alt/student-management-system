@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Staff Management - Admin | GIPS College</title>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -14,42 +15,62 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
-            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            overflow-x: hidden;
         }
 
-        /* Sidebar */
+        /* Sidebar (consistent with other admin pages) */
         .admin-wrapper {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
 
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            transition: all 0.3s;
-            z-index: 100;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
         }
 
         .sidebar-header {
-            padding: 25px;
+            padding: 24px 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header img {
-            height: 60px;
+            height: 55px;
             width: auto;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .sidebar-header h3 {
             font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .sidebar-header p {
+            font-size: 0.75rem;
+            opacity: 0.7;
         }
 
         .sidebar-menu {
@@ -57,132 +78,188 @@
         }
 
         .sidebar-menu-item {
-            padding: 12px 25px;
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            color: #cbd5e1;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
         }
 
         .sidebar-menu-item i {
             width: 24px;
+            font-size: 1.1rem;
             text-align: center;
         }
 
-        .sidebar-menu-item:hover,
-        .sidebar-menu-item.active {
-            background: rgba(255,255,255,0.1);
+        .sidebar-menu-item:hover {
+            background: rgba(255, 255, 255, 0.08);
             color: white;
+        }
+
+        .sidebar-menu-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+            border-left-color: #667eea;
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
             flex: 1;
-            padding: 20px;
+            margin-left: 280px;
+            padding: 20px 24px;
+            transition: margin-left 0.3s;
         }
 
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+        }
+
+        /* Top Bar */
         .top-bar {
-            background: white;
-            border-radius: 20px;
-            padding: 15px 25px;
-            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
         }
 
         .page-title h1 {
             font-size: 1.5rem;
-            color: #2d3748;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .page-title p {
-            color: #718096;
+            color: #475569;
             font-size: 0.85rem;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .admin-avatar {
-            width: 45px;
-            height: 45px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1.1rem;
             color: white;
             cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-avatar:hover {
+            transform: scale(1.03);
+        }
+
+        /* Hamburger Button */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .top-bar {
+                padding: 12px 16px;
+            }
         }
 
         /* Content Card */
         .content-card {
             background: white;
             border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
         .card-header h2 {
             font-size: 1.2rem;
-            color: #2d3748;
+            font-weight: 600;
+            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        /* Search Bar */
+        /* Search & Buttons */
         .search-bar {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .search-bar input {
-            padding: 8px 15px;
+            padding: 8px 16px;
             border: 1px solid #e2e8f0;
-            border-radius: 30px;
-            background: #f9fafb;
-            width: 250px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            width: 240px;
+            background: #f8fafc;
         }
 
-        /* Buttons */
+        .search-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
         .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 30px;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            transition: 0.2s;
+            border: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #667eea;
             color: white;
         }
 
         .btn-primary:hover {
+            background: #5a67d8;
             transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(102,126,234,0.3);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
         }
 
         .btn-warning {
@@ -204,28 +281,34 @@
         }
 
         /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
         }
 
         th {
-            background: #f9fafb;
+            background: #f8fafc;
             font-weight: 600;
-            color: #4a5568;
+            color: #1e293b;
         }
 
         tr:hover {
-            background: #f9fafb;
+            background: #f8fafc;
         }
 
-        /* Role Badges */
+        /* Role Badges & Status */
         .role-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -233,27 +316,50 @@
             font-size: 0.7rem;
             font-weight: 600;
         }
-        .role-admin { background: #cfe2ff; color: #084298; }
-        .role-lecturer { background: #c6f6d5; color: #276749; }
-        .role-staff { background: #cfe2ff; color: #084298; }
-        .role-finance { background: #feebc8; color: #c05621; }
-        .role-registrar { background: #fed7d7; color: #c53030; }
+
+        .role-admin {
+            background: #e0e7ff;
+            color: #1e3a8a;
+        }
+
+        .role-lecturer {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .role-staff {
+            background: #e0e7ff;
+            color: #1e3a8a;
+        }
+
+        .role-finance {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .role-registrar {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
         .status-active {
-            background: #c6f6d5;
-            color: #276749;
+            display: inline-block;
             padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.7rem;
-            display: inline-block;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #15803d;
         }
+
         .status-inactive {
-            background: #fed7d7;
-            color: #c53030;
+            display: inline-block;
             padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.7rem;
-            display: inline-block;
+            font-weight: 600;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         /* Modal */
@@ -264,7 +370,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
             z-index: 2000;
             align-items: center;
@@ -273,24 +379,34 @@
 
         .modal-content {
             background: white;
-            border-radius: 24px;
-            padding: 30px;
-            max-width: 500px;
+            border-radius: 28px;
             width: 90%;
+            max-width: 550px;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            padding: 28px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #94a3b8;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 6px;
             font-weight: 500;
-            color: #4a5568;
+            color: #334155;
+            font-size: 0.85rem;
         }
 
         .form-group input,
@@ -298,71 +414,83 @@
             width: 100%;
             padding: 10px 14px;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-        }
-
-        .close {
-            float: right;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #a0aec0;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 0.9rem;
         }
 
         .loading {
             text-align: center;
-            padding: 30px;
-            color: #a0aec0;
+            padding: 40px;
+            color: #64748b;
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
+        .footer {
+            text-align: center;
+            padding: 24px 0;
+            margin-top: 32px;
+            color: #64748b;
+            font-size: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 640px) {
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
             }
-            .sidebar-header h3,
-            .sidebar-menu-item span {
-                display: none;
-            }
-            .sidebar-menu-item i {
-                margin: 0 auto;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
+
             .search-bar {
                 width: 100%;
                 flex-direction: column;
             }
+
             .search-bar input {
                 width: 100%;
+            }
+
+            .btn {
+                justify-content: center;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="admin-wrapper">
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
                 <h3>Admin Portal</h3>
+                <p>GIPS College</p>
             </div>
             <div class="sidebar-menu">
-                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
-                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
-                <a href="admin-staff.html" class="sidebar-menu-item active"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
-                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> <span>Programs</span></a>
-                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> <span>Modules</span></a>
-                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> <span>Accommodation</span></a>
-                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
-                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
+                <a href="admin-staff.html" class="sidebar-menu-item active"><i class="fas fa-user-tie"></i> Staff</a>
+                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i>
+                    Accommodation</a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+                <div style="margin: 12px 20px; border-top: 1px solid #334155;"></div>
+                <a href="admin-api.html" class="sidebar-menu-item"><i class="fas fa-plug"></i> API</a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="admin-profile.html" class="sidebar-menu-item"><i class="fas fa-user-circle"></i> Profile</a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
 
         <div class="main-content">
             <div class="top-bar">
-                <div class="page-title">
-                    <h1><i class="fas fa-user-tie"></i> Staff Management</h1>
-                    <p>Manage lecturers, administrators, and support staff</p>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <div class="page-title">
+                        <h1><i class="fas fa-user-tie"></i> Staff Management</h1>
+                        <p>Manage lecturers, administrators, finance, and support staff</p>
+                    </div>
                 </div>
                 <div class="admin-avatar" id="adminAvatar">A</div>
             </div>
@@ -372,21 +500,37 @@
                     <h2><i class="fas fa-list-ul"></i> Staff Members</h2>
                     <div class="search-bar">
                         <input type="text" id="searchInput" placeholder="Search by name, email, role...">
-                        <button class="btn btn-primary" onclick="searchStaff()"><i class="fas fa-search"></i> Search</button>
-                        <button class="btn btn-primary" onclick="openAddStaffModal()"><i class="fas fa-plus"></i> Add Staff</button>
+                        <button class="btn btn-primary" onclick="searchStaff()"><i class="fas fa-search"></i>
+                            Search</button>
+                        <button class="btn btn-primary" onclick="openAddStaffModal()"><i class="fas fa-plus"></i> Add
+                            Staff</button>
                     </div>
                 </div>
-                <div style="overflow-x: auto;">
-                    证
+                <div class="table-responsive">
+                    <table>
                         <thead>
-                            的人
-                                <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Department</th><th>Status</th><th>Actions</th>
-                            </thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
                         <tbody id="staffTableBody">
-                            72<td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading staff...</div>72</tbody>
-                    证
+                            <tr>
+                                <td colspan="8">
+                                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading staff...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+            <div class="footer">© 2026 GIPS College. All rights reserved.</div>
         </div>
     </div>
 
@@ -409,9 +553,11 @@
                         <option value="registrar">Registrar</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Department</label><input type="text" id="department" placeholder="e.g., Computer Science"></div>
+                <div class="form-group"><label>Department</label><input type="text" id="department"
+                        placeholder="e.g., Computer Science"></div>
                 <div class="form-group"><label>Password *</label><input type="password" id="password" required></div>
-                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Create Staff Account</button>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Create
+                    Staff Account</button>
             </form>
         </div>
     </div>
@@ -443,69 +589,55 @@
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Update Staff</button>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Update
+                    Staff</button>
             </form>
         </div>
     </div>
 
     <script>
-        // ============================================
-        // AUTHENTICATION
-        // ============================================
+        // ========== AUTH & SIDEBAR ==========
         const token = localStorage.getItem('access_token');
-        let user = JSON.parse(localStorage.getItem('user') || '{}');
-
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-        if (user.role !== 'admin' && user.role !== 'administrator') {
-            window.location.href = 'student-dashboard.html';
-        }
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'admin' && user.role !== 'administrator') window.location.href = 'student-dashboard.html';
 
         // Avatar
-        const adminInitial = (user.first_name ? user.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
-        document.getElementById('adminAvatar').textContent = adminInitial;
+        const initial = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
+        document.getElementById('adminAvatar').textContent = initial;
 
-        // ============================================
-        // GLOBAL DATA
-        // ============================================
-        let staffData = [];
+        // Sidebar toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
 
-        // ============================================
-        // SAFE API CALL
-        // ============================================
+        // ========== API HELPER ==========
         async function safeApiCall(endpoint, options = {}) {
             try {
-                const response = await fetch(endpoint, {
+                const res = await fetch(endpoint, {
                     ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
                 });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
         }
 
-        // ============================================
-        // LOAD STAFF
-        // ============================================
+        // ========== GLOBAL DATA ==========
+        let staffData = [];
+
+        // ========== LOAD STAFF ==========
         async function loadStaff() {
             const tbody = document.getElementById('staffTableBody');
-            tbody.innerHTML = '的人<td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading staff...</div> </tbody>';
-
-            const response = await safeApiCall('/api/admin/users?role=staff,lecturer,finance,registrar');
-            if (response && response.ok) {
-                const data = await response.json();
+            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading staff...</div></td></tr>';
+            const res = await safeApiCall('/api/admin/users?role=staff,lecturer,finance,registrar,admin');
+            if (res && res.ok) {
+                const data = await res.json();
                 staffData = data.filter(u => u.role !== 'student');
                 displayStaff();
             } else {
@@ -521,37 +653,38 @@
             }
         }
 
-        function displayStaff(search = '') {
+        function displayStaff(searchTerm = '') {
             const tbody = document.getElementById('staffTableBody');
-            let filtered = staffData;
-            if (search) {
-                const term = search.toLowerCase();
+            let filtered = [...staffData];
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
                 filtered = staffData.filter(s =>
                     (s.first_name || '').toLowerCase().includes(term) ||
                     (s.last_name || '').toLowerCase().includes(term) ||
                     (s.email || '').toLowerCase().includes(term) ||
-                    (s.role || '').toLowerCase().includes(term)
+                    (s.role || '').toLowerCase().includes(term) ||
+                    (s.department || '').toLowerCase().includes(term)
                 );
             }
-            if (!filtered.length) {
-                tbody.innerHTML = '的人<td colspan="8">No staff members found</td> </tbody>';
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8">No staff members found</td></tr>';
                 return;
             }
             tbody.innerHTML = filtered.map(s => `
-                 <tr>
-                    <td>${s.id}</td>
-                    <td>${escapeHtml(s.first_name || '')} ${escapeHtml(s.last_name || '')}</td>
-                    <td>${escapeHtml(s.email || '')}</td>
-                    <td>${escapeHtml(s.phone || 'N/A')}</td>
-                    <td><span class="role-badge role-${s.role}">${(s.role || '').toUpperCase()}</span></td>
-                    <td>${escapeHtml(s.department || 'N/A')}</td>
-                    <td><span class="status-${s.status || 'active'}">${s.status || 'active'}</span></td>
-                    <td>
-                        <button class="btn btn-warning" onclick="editStaff(${s.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn btn-danger" onclick="deleteStaff(${s.id})"><i class="fas fa-trash-alt"></i> Delete</button>
-                    </td>
-                 </tr>
-            `).join('');
+            <tr>
+                <td>${s.id}</td>
+                <td>${escapeHtml(s.first_name || '')} ${escapeHtml(s.last_name || '')}</td>
+                <td>${escapeHtml(s.email || '')}</td>
+                <td>${escapeHtml(s.phone || 'N/A')}</td>
+                <td><span class="role-badge role-${s.role}">${(s.role || '').toUpperCase()}</span></td>
+                <td>${escapeHtml(s.department || 'N/A')}</td>
+                <td><span class="status-${s.status === 'inactive' ? 'inactive' : 'active'}">${s.status === 'inactive' ? 'inactive' : 'active'}</span></td>
+                <td>
+                    <button class="btn btn-warning" onclick="editStaff(${s.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-danger" onclick="deleteStaff(${s.id})"><i class="fas fa-trash-alt"></i> Delete</button>
+                </td>
+            </tr>
+        `).join('');
         }
 
         function searchStaff() {
@@ -559,47 +692,38 @@
             displayStaff(term);
         }
 
-        // ============================================
-        // CRUD OPERATIONS
-        // ============================================
-        async function addStaff(staff) {
-            const response = await safeApiCall('/api/admin/users', {
-                method: 'POST',
-                body: JSON.stringify(staff)
-            });
-            if (response && response.ok) {
-                const newStaff = await response.json();
+        // ========== CRUD OPERATIONS ==========
+        async function addStaff(staffPayload) {
+            const res = await safeApiCall('/api/admin/users', { method: 'POST', body: JSON.stringify(staffPayload) });
+            if (res && res.ok) {
+                const newStaff = await res.json();
                 staffData.push(newStaff);
-                displayStaff();
-                alert(`Staff member ${staff.first_name} ${staff.last_name} added!`);
+                displayStaff(document.getElementById('searchInput').value);
+                alert(`Staff ${staffPayload.first_name} ${staffPayload.last_name} created!`);
                 return true;
             } else {
-                // Demo mode
                 const newId = staffData.length + 1;
-                staffData.push({ id: newId, ...staff, status: 'active' });
-                displayStaff();
-                alert(`Staff member ${staff.first_name} ${staff.last_name} added! (Demo Mode)`);
+                staffData.push({ id: newId, ...staffPayload, status: 'active' });
+                displayStaff(document.getElementById('searchInput').value);
+                alert(`Staff ${staffPayload.first_name} ${staffPayload.last_name} added! (Demo Mode)`);
                 return true;
             }
         }
 
-        async function updateStaff(id, staff) {
-            const response = await safeApiCall(`/api/admin/users/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(staff)
-            });
-            if (response && response.ok) {
-                const updated = await response.json();
-                const index = staffData.findIndex(s => s.id === id);
-                if (index !== -1) staffData[index] = updated;
-                displayStaff();
+        async function updateStaff(id, staffPayload) {
+            const res = await safeApiCall(`/api/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(staffPayload) });
+            if (res && res.ok) {
+                const updated = await res.json();
+                const idx = staffData.findIndex(s => s.id === id);
+                if (idx !== -1) staffData[idx] = updated;
+                displayStaff(document.getElementById('searchInput').value);
                 alert('Staff updated!');
                 return true;
             } else {
-                const index = staffData.findIndex(s => s.id === id);
-                if (index !== -1) {
-                    staffData[index] = { ...staffData[index], ...staff };
-                    displayStaff();
+                const idx = staffData.findIndex(s => s.id === id);
+                if (idx !== -1) {
+                    staffData[idx] = { ...staffData[idx], ...staffPayload };
+                    displayStaff(document.getElementById('searchInput').value);
                     alert('Staff updated! (Demo Mode)');
                 }
                 return true;
@@ -609,23 +733,20 @@
         async function deleteStaff(id) {
             const staff = staffData.find(s => s.id === id);
             if (!staff) return;
-            if (!confirm(`Delete ${staff.first_name} ${staff.last_name}?`)) return;
-
-            const response = await safeApiCall(`/api/admin/users/${id}`, { method: 'DELETE' });
-            if (response && response.ok) {
+            if (!confirm(`Delete ${staff.first_name} ${staff.last_name}? This action is permanent.`)) return;
+            const res = await safeApiCall(`/api/admin/users/${id}`, { method: 'DELETE' });
+            if (res && res.ok) {
                 staffData = staffData.filter(s => s.id !== id);
-                displayStaff();
+                displayStaff(document.getElementById('searchInput').value);
                 alert('Staff deleted!');
             } else {
                 staffData = staffData.filter(s => s.id !== id);
-                displayStaff();
+                displayStaff(document.getElementById('searchInput').value);
                 alert('Staff deleted! (Demo Mode)');
             }
         }
 
-        // ============================================
-        // MODAL HANDLERS
-        // ============================================
+        // ========== MODAL HANDLERS ==========
         function openAddStaffModal() {
             document.getElementById('addStaffForm').reset();
             document.getElementById('addStaffModal').style.display = 'flex';
@@ -641,7 +762,7 @@
                 document.getElementById('editPhone').value = staff.phone || '';
                 document.getElementById('editRole').value = staff.role || 'staff';
                 document.getElementById('editDepartment').value = staff.department || '';
-                document.getElementById('editStatus').value = staff.status || 'active';
+                document.getElementById('editStatus').value = staff.status === 'inactive' ? 'inactive' : 'active';
                 document.getElementById('editStaffModal').style.display = 'flex';
             }
         }
@@ -650,12 +771,10 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-        // ============================================
-        // FORM SUBMISSIONS
-        // ============================================
+        // ========== FORM SUBMISSIONS ==========
         document.getElementById('addStaffForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const staff = {
+            const payload = {
                 first_name: document.getElementById('firstName').value,
                 last_name: document.getElementById('lastName').value,
                 email: document.getElementById('email').value,
@@ -664,14 +783,14 @@
                 department: document.getElementById('department').value,
                 password: document.getElementById('password').value
             };
-            await addStaff(staff);
+            await addStaff(payload);
             closeModal('addStaffModal');
         });
 
         document.getElementById('editStaffForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = parseInt(document.getElementById('editStaffId').value);
-            const staff = {
+            const payload = {
                 first_name: document.getElementById('editFirstName').value,
                 last_name: document.getElementById('editLastName').value,
                 email: document.getElementById('editEmail').value,
@@ -680,22 +799,18 @@
                 department: document.getElementById('editDepartment').value,
                 status: document.getElementById('editStatus').value
             };
-            await updateStaff(id, staff);
+            await updateStaff(id, payload);
             closeModal('editStaffModal');
         });
 
-        // ============================================
-        // LOGOUT
-        // ============================================
+        // ========== LOGOUT ==========
         document.getElementById('logoutLink').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.clear();
             window.location.href = 'login.html';
         });
 
-        // ============================================
-        // HELPER
-        // ============================================
+        // ========== HELPER ==========
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -703,10 +818,15 @@
             return div.innerHTML;
         }
 
-        // ============================================
-        // INIT
-        // ============================================
+        // ========== INIT ==========
         loadStaff();
+
+        window.searchStaff = searchStaff;
+        window.openAddStaffModal = openAddStaffModal;
+        window.editStaff = editStaff;
+        window.deleteStaff = deleteStaff;
+        window.closeModal = closeModal;
     </script>
 </body>
+
 </html>

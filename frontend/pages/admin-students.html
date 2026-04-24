@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management - GIPS College</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Student Management - Admin | GIPS College</title>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -14,48 +15,62 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
-            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            overflow-x: hidden;
         }
 
-        /* Admin Wrapper */
+        /* Sidebar (same as other admin pages) */
         .admin-wrapper {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
 
-        /* Sidebar */
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-            color: white;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
         }
 
         .sidebar-header {
-            padding: 25px;
+            padding: 24px 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header img {
-            height: 60px;
+            height: 55px;
             width: auto;
-            margin-bottom: 15px;
-            transition: transform 0.3s;
-        }
-
-        .sidebar-header img:hover {
-            transform: scale(1.05);
+            margin-bottom: 12px;
         }
 
         .sidebar-header h3 {
             font-size: 1.2rem;
             font-weight: 600;
+            color: white;
+        }
+
+        .sidebar-header p {
+            font-size: 0.75rem;
+            opacity: 0.7;
         }
 
         .sidebar-menu {
@@ -63,179 +78,239 @@
         }
 
         .sidebar-menu-item {
-            padding: 12px 25px;
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            color: #cbd5e1;
             text-decoration: none;
-            transition: all 0.3s;
-            font-size: 0.95rem;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
         }
 
         .sidebar-menu-item i {
-            width: 20px;
-            font-size: 1rem;
+            width: 24px;
+            font-size: 1.1rem;
+            text-align: center;
         }
 
-        .sidebar-menu-item:hover,
-        .sidebar-menu-item.active {
-            background: rgba(102,126,234,0.2);
+        .sidebar-menu-item:hover {
+            background: rgba(255, 255, 255, 0.08);
             color: white;
-            border-left: 3px solid #667eea;
+        }
+
+        .sidebar-menu-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+            border-left-color: #667eea;
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
             flex: 1;
-            padding: 30px;
+            margin-left: 280px;
+            padding: 20px 24px;
+            transition: margin-left 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
         }
 
         /* Top Bar */
         .top-bar {
-            background: white;
-            border-radius: 20px;
-            padding: 20px 25px;
-            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
         }
 
         .page-title h1 {
             font-size: 1.5rem;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .page-title p {
-            color: #718096;
+            color: #475569;
             font-size: 0.85rem;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .admin-avatar {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
             color: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-avatar:hover {
+            transform: scale(1.03);
+        }
+
+        /* Hamburger Button */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .top-bar {
+                padding: 12px 16px;
+            }
         }
 
         /* Content Card */
         .content-card {
             background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
         .card-header h2 {
-            font-size: 1.3rem;
-            color: #2d3748;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        /* Search Bar */
+        /* Search & Buttons */
         .search-bar {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .search-bar input {
-            padding: 10px 15px;
+            padding: 8px 16px;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            width: 250px;
-            transition: all 0.2s;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            width: 240px;
+            background: #f8fafc;
         }
 
         .search-bar input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
 
-        /* Buttons */
         .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
+            padding: 8px 18px;
+            border-radius: 40px;
             font-weight: 600;
-            transition: all 0.2s;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.9rem;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
         }
 
         .btn-success {
-            background: #28a745;
+            background: #10b981;
             color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
         }
 
         .btn-danger {
-            background: #dc3545;
+            background: #ef4444;
             color: white;
         }
 
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
         .btn-warning {
-            background: #ffc107;
-            color: #2d3748;
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
         }
 
         /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
         }
 
         th {
             background: #f8fafc;
             font-weight: 600;
-            color: #4a5568;
+            color: #1e293b;
         }
 
         tr:hover {
@@ -244,27 +319,27 @@
 
         /* Status Badges */
         .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
             display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
 
         .status-approved,
         .status-accepted {
-            background: #d4edda;
-            color: #155724;
+            background: #dcfce7;
+            color: #15803d;
         }
 
         .status-pending {
-            background: #fff3cd;
-            color: #856404;
+            background: #fef9c3;
+            color: #854d0e;
         }
 
         .status-rejected {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         /* Modal */
@@ -275,7 +350,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -283,27 +359,22 @@
 
         .modal-content {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 550px;
+            border-radius: 28px;
             width: 90%;
-            max-height: 80vh;
+            max-width: 560px;
+            max-height: 85vh;
             overflow-y: auto;
+            padding: 28px;
             position: relative;
         }
 
         .close {
             position: absolute;
             top: 20px;
-            right: 25px;
-            font-size: 28px;
+            right: 24px;
+            font-size: 1.4rem;
             cursor: pointer;
-            color: #a0aec0;
-            transition: color 0.2s;
-        }
-
-        .close:hover {
-            color: #2d3748;
+            color: #94a3b8;
         }
 
         .form-group {
@@ -312,165 +383,191 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #4a5568;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #334155;
+            font-size: 0.85rem;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 10px 14px;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 16px;
+            font-family: inherit;
             font-size: 0.9rem;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 16px;
         }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: #718096;
+            color: #64748b;
         }
 
         .status-message {
-            padding: 12px 20px;
-            border-radius: 12px;
             margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid;
         }
 
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
+        .alert-success {
+            background: #dcfce7;
+            color: #15803d;
+            border-left-color: #22c55e;
         }
 
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
+        .alert-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-left-color: #ef4444;
         }
 
-        .status-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border-left: 4px solid #17a2b8;
+        .alert-info {
+            background: #e0f2fe;
+            color: #0369a1;
+            border-left-color: #0ea5e9;
         }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 70px;
+        .footer {
+            text-align: center;
+            padding: 24px 0;
+            margin-top: 32px;
+            color: #64748b;
+            font-size: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 640px) {
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
             }
-            .sidebar-header h3,
-            .sidebar-menu-item span {
-                display: none;
-            }
-            .sidebar-menu-item i {
-                margin: 0;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
+
             .search-bar {
+                width: 100%;
                 flex-direction: column;
             }
+
+            .search-bar input {
+                width: 100%;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
             .form-row {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="admin-wrapper">
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
                 <h3 id="portalTitle">Admin Portal</h3>
+                <p>GIPS College</p>
             </div>
-            <div class="sidebar-menu" id="sidebarMenu">
-                <!-- Links will be populated dynamically by JavaScript -->
-            </div>
+            <div class="sidebar-menu" id="sidebarMenu"></div>
         </div>
 
         <div class="main-content">
             <div class="top-bar">
-                <div class="page-title">
-                    <h1><i class="fas fa-users"></i> Student Management</h1>
-                    <p>Manage student records, registrations, and approvals</p>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <div class="page-title">
+                        <h1><i class="fas fa-users"></i> Student Management</h1>
+                        <p>Manage student records, registrations, and approvals</p>
+                    </div>
                 </div>
                 <div class="admin-avatar" id="adminAvatar">A</div>
             </div>
 
-            <div id="statusMessage" style="margin-bottom: 15px;"></div>
+            <div id="statusMessage" class="status-message"></div>
 
             <div class="content-card">
                 <div class="card-header">
                     <h2><i class="fas fa-user-graduate"></i> All Students</h2>
                     <div class="search-bar">
-                        <input type="text" id="searchInput" placeholder="Search by name, email, student number...">
-                        <button class="btn btn-primary" onclick="searchStudents()"><i class="fas fa-search"></i> Search</button>
-                        <button class="btn btn-primary" onclick="openAddStudentModal()"><i class="fas fa-plus"></i> Add Student</button>
+                        <input type="text" id="searchInput" placeholder="Search by name, email, student #...">
+                        <button class="btn btn-primary" onclick="searchStudents()"><i class="fas fa-search"></i>
+                            Search</button>
+                        <button class="btn btn-primary" onclick="openAddStudentModal()"><i class="fas fa-plus"></i> Add
+                            Student</button>
                     </div>
                 </div>
-
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
+                <div class="table-responsive">
+                    <table>
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Student Number</th>
+                                <th>Student #</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Program</th>
-                                <th>Status</th>
+                                <th>Admission</th>
                                 <th>Registration</th>
                                 <th>Actions</th>
-                            </thead>
+                            </tr>
+                        </thead>
                         <tbody id="studentsTableBody">
-                            72<td colspan="8"><div class="loading">Loading students...</div>72</tr>
+                            <tr>
+                                <td colspan="8">
+                                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading students...
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+            <div class="footer">© 2026 GIPS College. All rights reserved.</div>
         </div>
     </div>
 
     <!-- Add Student Modal -->
     <div id="addStudentModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('addStudentModal')"><i class="fas fa-times"></i></span>
+            <span class="close" onclick="closeModal('addStudentModal')">&times;</span>
             <h2><i class="fas fa-user-plus"></i> Add New Student</h2>
             <form id="addStudentForm">
                 <div class="form-row">
-                    <div class="form-group"><label><i class="fas fa-user"></i> First Name *</label><input type="text" id="firstName" required></div>
-                    <div class="form-group"><label><i class="fas fa-user"></i> Last Name *</label><input type="text" id="lastName" required></div>
+                    <div class="form-group"><label>First Name *</label><input type="text" id="firstName" required></div>
+                    <div class="form-group"><label>Last Name *</label><input type="text" id="lastName" required></div>
                 </div>
-                <div class="form-group"><label><i class="fas fa-envelope"></i> Email *</label><input type="email" id="email" required></div>
-                <div class="form-group"><label><i class="fas fa-phone"></i> Phone</label><input type="tel" id="phone"></div>
-                <div class="form-group"><label><i class="fas fa-graduation-cap"></i> Program *</label><select id="programId" required></select></div>
-                <div class="form-group"><label><i class="fas fa-lock"></i> Password *</label><input type="password" id="password" required></div>
-                <div class="form-group"><label><i class="fas fa-check-circle"></i> Admission Status</label>
+                <div class="form-group"><label>Email *</label><input type="email" id="email" required></div>
+                <div class="form-group"><label>Phone</label><input type="tel" id="phone"></div>
+                <div class="form-group"><label>Program *</label><select id="programId" required></select></div>
+                <div class="form-group"><label>Password *</label><input type="password" id="password" required></div>
+                <div class="form-group"><label>Admission Status</label>
                     <select id="admissionStatus">
                         <option value="accepted">Accepted</option>
                         <option value="pending">Pending</option>
                         <option value="rejected">Rejected</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Create Student</button>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Create
+                    Student</button>
             </form>
         </div>
     </div>
@@ -478,139 +575,122 @@
     <!-- Edit Student Modal -->
     <div id="editStudentModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('editStudentModal')"><i class="fas fa-times"></i></span>
+            <span class="close" onclick="closeModal('editStudentModal')">&times;</span>
             <h2><i class="fas fa-edit"></i> Edit Student</h2>
             <form id="editStudentForm">
                 <input type="hidden" id="editStudentId">
                 <div class="form-row">
-                    <div class="form-group"><label><i class="fas fa-user"></i> First Name</label><input type="text" id="editFirstName" required></div>
-                    <div class="form-group"><label><i class="fas fa-user"></i> Last Name</label><input type="text" id="editLastName" required></div>
+                    <div class="form-group"><label>First Name</label><input type="text" id="editFirstName" required>
+                    </div>
+                    <div class="form-group"><label>Last Name</label><input type="text" id="editLastName" required></div>
                 </div>
-                <div class="form-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="editEmail" required></div>
-                <div class="form-group"><label><i class="fas fa-phone"></i> Phone</label><input type="tel" id="editPhone"></div>
-                <div class="form-group"><label><i class="fas fa-graduation-cap"></i> Program</label><select id="editProgramId" required></select></div>
-                <div class="form-group"><label><i class="fas fa-check-circle"></i> Admission Status</label>
+                <div class="form-group"><label>Email</label><input type="email" id="editEmail" required></div>
+                <div class="form-group"><label>Phone</label><input type="tel" id="editPhone"></div>
+                <div class="form-group"><label>Program</label><select id="editProgramId" required></select></div>
+                <div class="form-group"><label>Admission Status</label>
                     <select id="editAdmissionStatus">
                         <option value="accepted">Accepted</option>
                         <option value="pending">Pending</option>
                         <option value="rejected">Rejected</option>
                     </select>
                 </div>
-                <div class="form-group"><label><i class="fas fa-chart-line"></i> Academic Status</label>
+                <div class="form-group"><label>Academic Status</label>
                     <select id="editAcademicStatus">
                         <option value="good_standing">Good Standing</option>
                         <option value="probation">Probation</option>
                         <option value="suspended">Suspended</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Update Student</button>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Update
+                    Student</button>
             </form>
         </div>
     </div>
 
     <script>
-        // ========== AUTHENTICATION & ROLE CHECK ==========
+        // ========== AUTHENTICATION & ROLE SETUP ==========
         const token = localStorage.getItem('access_token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const userRole = localStorage.getItem('user_role') || user.role;
-
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-
-        // Allow admin, administrator, and registrar
+        if (!token) window.location.href = 'login.html';
         const allowedRoles = ['admin', 'administrator', 'registrar'];
-        if (!allowedRoles.includes(userRole)) {
-            console.warn('Unauthorized access. Redirecting to student dashboard.');
-            window.location.href = 'student-dashboard.html';
-        }
+        if (!allowedRoles.includes(user.role)) window.location.href = 'student-dashboard.html';
 
-        // Set portal title based on role
+        // Portal title & sidebar based on role
         const portalTitle = document.getElementById('portalTitle');
-        if (userRole === 'registrar') {
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        if (user.role === 'registrar') {
             portalTitle.textContent = 'Registrar Portal';
+            sidebarMenu.innerHTML = `
+            <a href="registrar-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="admin-students.html" class="sidebar-menu-item active"><i class="fas fa-users"></i> Students</a>
+            <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
+            <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+            <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+            <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        `;
         } else {
             portalTitle.textContent = 'Admin Portal';
-        }
-
-        // Build sidebar based on role (with Font Awesome icons)
-        const sidebarMenu = document.getElementById('sidebarMenu');
-        if (userRole === 'registrar') {
             sidebarMenu.innerHTML = `
-                <a href="registrar-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
-                <a href="admin-students.html" class="sidebar-menu-item active"><i class="fas fa-users"></i> <span>Students</span></a>
-                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-graduation-cap"></i> <span>Programs</span></a>
-                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-book"></i> <span>Modules</span></a>
-                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
-            `;
-        } else {
-            sidebarMenu.innerHTML = `
-                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a>
-                <a href="admin-students.html" class="sidebar-menu-item active"><i class="fas fa-users"></i> <span>Students</span></a>
-                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
-                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-graduation-cap"></i> <span>Programs</span></a>
-                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-book"></i> <span>Modules</span></a>
-                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-bed"></i> <span>Accommodation</span></a>
-                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
-                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
-            `;
+            <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> Dashboard</a>
+            <a href="admin-students.html" class="sidebar-menu-item active"><i class="fas fa-users"></i> Students</a>
+            <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
+            <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
+            <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+            <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> Accommodation</a>
+            <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
+            <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
+            <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+            <div style="margin: 12px 20px; border-top: 1px solid #334155;"></div>
+            <a href="admin-api.html" class="sidebar-menu-item"><i class="fas fa-plug"></i> API</a>
+            <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> Settings</a>
+            <a href="admin-profile.html" class="sidebar-menu-item"><i class="fas fa-user-circle"></i> Profile</a>
+            <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        `;
         }
 
         // Avatar
-        const adminInitial = (user.first_name ? user.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'A')).toUpperCase();
-        document.getElementById('adminAvatar').textContent = adminInitial;
+        const initial = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
+        document.getElementById('adminAvatar').textContent = initial;
+
+        // Mobile sidebar toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        function showMessage(msg, type = 'success') {
+            const container = document.getElementById('statusMessage');
+            const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+            container.innerHTML = `<div class="alert alert-${type}"><i class="fas ${icon}"></i> ${msg}</div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 4500);
+        }
 
         // ========== GLOBAL DATA ==========
         let students = [];
         let programs = [];
 
-        // ========== SAFE API CALL ==========
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return null;
-            }
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
-        }
-
-        // ========== UI HELPERS ==========
-        function showMessage(message, type = 'success') {
-            const statusDiv = document.getElementById('statusMessage');
-            const alertClass = type === 'success' ? 'status-success' : (type === 'error' ? 'status-error' : 'status-info');
-            statusDiv.innerHTML = `<div class="status-message ${alertClass}">${message}</div>`;
-            setTimeout(() => {
-                statusDiv.innerHTML = '';
-            }, 3000);
-        }
-
         // ========== LOAD PROGRAMS ==========
         async function loadPrograms() {
-            const response = await safeApiCall('/api/admin/programs');
-            if (response && response.ok) {
-                programs = await response.json();
+            const res = await safeApiCall('/api/admin/programs');
+            if (res && res.ok) {
+                programs = await res.json();
             } else {
-                // Demo data
                 programs = [
                     { id: 1, program_name: 'Bachelor of Computer Science', program_code: 'BSC-CS' },
                     { id: 2, program_name: 'Bachelor of Business Administration', program_code: 'BBA-BM' },
@@ -618,29 +698,22 @@
                     { id: 4, program_name: 'Diploma in Information Technology', program_code: 'DIP-IT' }
                 ];
             }
-
-            // Populate dropdowns
             const programSelect = document.getElementById('programId');
             const editProgramSelect = document.getElementById('editProgramId');
-            if (programSelect) {
-                programSelect.innerHTML = programs.map(p => `<option value="${p.id}">${p.program_name}</option>`).join('');
-            }
-            if (editProgramSelect) {
-                editProgramSelect.innerHTML = programs.map(p => `<option value="${p.id}">${p.program_name}</option>`).join('');
-            }
+            if (programSelect) programSelect.innerHTML = programs.map(p => `<option value="${p.id}">${escapeHtml(p.program_name)}</option>`).join('');
+            if (editProgramSelect) editProgramSelect.innerHTML = programs.map(p => `<option value="${p.id}">${escapeHtml(p.program_name)}</option>`).join('');
         }
 
         // ========== LOAD STUDENTS ==========
         async function loadStudents(search = '') {
             const tbody = document.getElementById('studentsTableBody');
-            tbody.innerHTML = '<tr><td colspan="8"><div class="loading">Loading students...</div></td></tr>';
-
-            const response = await safeApiCall('/api/admin/students');
-            if (response && response.ok) {
-                students = await response.json();
+            tbody.innerHTML = `<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading students...</div></td></tr>`;
+            const res = await safeApiCall('/api/admin/students');
+            if (res && res.ok) {
+                students = await res.json();
                 displayStudents(students, search);
             } else {
-                // Demo data
+                // demo data
                 students = [
                     { id: 1, student_number: 'GIPS/2026/00001', first_name: 'John', last_name: 'Doe', email: 'john@example.com', phone: '+26771123456', program_name: 'Computer Science', program_id: 1, admission_status: 'accepted', academic_status: 'good_standing', registration_status: 'approved' },
                     { id: 2, student_number: 'GIPS/2026/00002', first_name: 'Jane', last_name: 'Smith', email: 'jane@example.com', phone: '+26771234567', program_name: 'Business Administration', program_id: 2, admission_status: 'pending', academic_status: 'good_standing', registration_status: 'pending' },
@@ -651,10 +724,9 @@
             }
         }
 
-        function displayStudents(data, search) {
+        function displayStudents(data, search = '') {
             const tbody = document.getElementById('studentsTableBody');
             let filtered = data;
-
             if (search) {
                 const term = search.toLowerCase();
                 filtered = data.filter(s =>
@@ -664,147 +736,117 @@
                     (s.student_number || '').toLowerCase().includes(term)
                 );
             }
-
-            if (!filtered || filtered.length === 0) {
+            if (!filtered.length) {
                 tbody.innerHTML = '<tr><td colspan="8">No students found</td></tr>';
                 return;
             }
-
             tbody.innerHTML = filtered.map(s => {
-                const statusClass = s.admission_status === 'accepted' || s.admission_status === 'approved' ? 'status-approved' :
-                    (s.admission_status === 'pending' ? 'status-pending' : 'status-rejected');
-                const statusText = s.admission_status || 'pending';
-                const regStatusClass = s.registration_status === 'approved' ? 'status-approved' : 'status-pending';
-                const regStatusText = s.registration_status || 'pending';
-
+                const admissionClass = s.admission_status === 'accepted' || s.admission_status === 'approved' ? 'status-approved' : (s.admission_status === 'pending' ? 'status-pending' : 'status-rejected');
+                const regClass = s.registration_status === 'approved' ? 'status-approved' : 'status-pending';
                 return `
-                    <tr>
-                        <td>${s.id}</td>
-                        <td><strong>${s.student_number || 'N/A'}</strong></td>
-                        <td>${s.first_name} ${s.last_name}</td>
-                        <td>${s.email}</td>
-                        <td>${s.program_name || 'N/A'}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td><span class="status-badge ${regStatusClass}">${regStatusText}</span></td>
-                        <td>
-                            <button class="btn btn-warning" onclick="editStudent(${s.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
-                            ${s.admission_status === 'pending' ? `
-                                <button class="btn btn-success" onclick="approveStudent(${s.id})" style="margin-right:5px"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn btn-danger" onclick="rejectStudent(${s.id})"><i class="fas fa-times"></i> Reject</button>
-                            ` : ''}
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${s.id}</td>
+                    <td><strong>${escapeHtml(s.student_number || 'N/A')}</strong></td>
+                    <td>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</td>
+                    <td>${escapeHtml(s.email)}</td>
+                    <td>${escapeHtml(s.program_name || 'N/A')}</td>
+                    <td><span class="status-badge ${admissionClass}">${escapeHtml(s.admission_status || 'pending')}</span></td>
+                    <td><span class="status-badge ${regClass}">${escapeHtml(s.registration_status || 'pending')}</span></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editStudent(${s.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
+                        ${s.admission_status === 'pending' ? `
+                            <button class="btn btn-success" onclick="approveStudent(${s.id})" style="margin-right:5px"><i class="fas fa-check"></i> Approve</button>
+                            <button class="btn btn-danger" onclick="rejectStudent(${s.id})"><i class="fas fa-times"></i> Reject</button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
             }).join('');
         }
 
         function searchStudents() {
-            const searchTerm = document.getElementById('searchInput').value;
-            loadStudents(searchTerm);
+            const term = document.getElementById('searchInput').value;
+            displayStudents(students, term);
         }
 
-        // ========== STUDENT ACTIONS ==========
+        // ========== CRUD & ACTIONS ==========
         async function approveStudent(id) {
             if (!confirm('Approve this student registration?')) return;
-            const response = await safeApiCall(`/api/admin/students/${id}/approve`, { method: 'POST' });
-            if (response && response.ok) {
-                showMessage('✅ Student approved successfully!', 'success');
+            const res = await safeApiCall(`/api/admin/students/${id}/approve`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('Student approved successfully', 'success');
                 loadStudents();
             } else {
-                // Demo
                 const student = students.find(s => s.id === id);
-                if (student) {
-                    student.admission_status = 'accepted';
-                    displayStudents(students, document.getElementById('searchInput').value);
-                }
-                showMessage('✅ Student approved! (Demo Mode)', 'success');
+                if (student) { student.admission_status = 'accepted'; student.registration_status = 'approved'; }
+                displayStudents(students, document.getElementById('searchInput').value);
+                showMessage('Student approved (Demo Mode)', 'success');
             }
         }
 
         async function rejectStudent(id) {
             if (!confirm('Reject this student registration?')) return;
-            const response = await safeApiCall(`/api/admin/students/${id}/reject`, { method: 'POST' });
-            if (response && response.ok) {
-                showMessage('❌ Student rejected.', 'error');
+            const res = await safeApiCall(`/api/admin/students/${id}/reject`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('Student rejected', 'error');
                 loadStudents();
             } else {
                 const student = students.find(s => s.id === id);
-                if (student) {
-                    student.admission_status = 'rejected';
-                    displayStudents(students, document.getElementById('searchInput').value);
-                }
-                showMessage('❌ Student rejected. (Demo Mode)', 'error');
+                if (student) { student.admission_status = 'rejected'; }
+                displayStudents(students, document.getElementById('searchInput').value);
+                showMessage('Student rejected (Demo Mode)', 'error');
             }
         }
 
-        async function addStudent(studentData) {
-            const response = await safeApiCall('/api/admin/students', {
-                method: 'POST',
-                body: JSON.stringify(studentData)
-            });
-            if (response && response.ok) {
-                const newStudent = await response.json();
+        async function addStudent(payload) {
+            const res = await safeApiCall('/api/admin/students', { method: 'POST', body: JSON.stringify(payload) });
+            if (res && res.ok) {
+                const newStudent = await res.json();
                 students.push(newStudent);
                 displayStudents(students, '');
-                showMessage(`✅ Student ${studentData.first_name} ${studentData.last_name} created!`, 'success');
-                return true;
+                showMessage(`Student ${payload.first_name} ${payload.last_name} created`, 'success');
             } else {
-                const program = programs.find(p => p.id === parseInt(studentData.program_id));
+                const program = programs.find(p => p.id === parseInt(payload.program_id));
+                const newId = students.length + 1;
                 const newStudent = {
-                    id: students.length + 1,
-                    student_number: `GIPS/2026/${String(students.length + 1).padStart(5, '0')}`,
-                    first_name: studentData.first_name,
-                    last_name: studentData.last_name,
-                    email: studentData.email,
-                    phone: studentData.phone,
+                    id: newId,
+                    student_number: `GIPS/2026/${String(newId).padStart(5, '0')}`,
+                    first_name: payload.first_name,
+                    last_name: payload.last_name,
+                    email: payload.email,
+                    phone: payload.phone,
                     program_name: program ? program.program_name : 'N/A',
-                    program_id: studentData.program_id,
-                    admission_status: studentData.admission_status,
+                    program_id: payload.program_id,
+                    admission_status: payload.admission_status,
                     academic_status: 'good_standing',
                     registration_status: 'pending'
                 };
                 students.push(newStudent);
                 displayStudents(students, '');
-                showMessage(`✅ Student ${studentData.first_name} ${studentData.last_name} created! (Demo Mode)`, 'success');
-                return true;
+                showMessage(`Student ${payload.first_name} ${payload.last_name} created (Demo)`, 'success');
             }
         }
 
-        async function updateStudent(id, studentData) {
-            const response = await safeApiCall(`/api/admin/students/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(studentData)
-            });
-            if (response && response.ok) {
-                const updated = await response.json();
-                const index = students.findIndex(s => s.id === id);
-                if (index !== -1) students[index] = updated;
+        async function updateStudent(id, payload) {
+            const res = await safeApiCall(`/api/admin/students/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+            if (res && res.ok) {
+                const updated = await res.json();
+                const idx = students.findIndex(s => s.id === id);
+                if (idx !== -1) students[idx] = updated;
                 displayStudents(students, '');
-                showMessage('✅ Student updated successfully!', 'success');
-                return true;
+                showMessage('Student updated successfully', 'success');
             } else {
-                const index = students.findIndex(s => s.id === id);
-                if (index !== -1) {
-                    const program = programs.find(p => p.id === parseInt(studentData.program_id));
-                    students[index] = {
-                        ...students[index],
-                        first_name: studentData.first_name,
-                        last_name: studentData.last_name,
-                        email: studentData.email,
-                        phone: studentData.phone,
-                        program_name: program ? program.program_name : students[index].program_name,
-                        program_id: studentData.program_id,
-                        admission_status: studentData.admission_status,
-                        academic_status: studentData.academic_status
-                    };
+                const idx = students.findIndex(s => s.id === id);
+                if (idx !== -1) {
+                    const program = programs.find(p => p.id === parseInt(payload.program_id));
+                    students[idx] = { ...students[idx], ...payload, program_name: program ? program.program_name : students[idx].program_name };
                     displayStudents(students, '');
-                    showMessage('✅ Student updated successfully! (Demo Mode)', 'success');
+                    showMessage('Student updated (Demo Mode)', 'success');
                 }
-                return true;
             }
         }
 
-        // ========== MODAL FUNCTIONS ==========
+        // ========== MODAL HANDLERS ==========
         function openAddStudentModal() {
             document.getElementById('addStudentForm').reset();
             document.getElementById('addStudentModal').style.display = 'flex';
@@ -832,7 +874,7 @@
         // ========== FORM SUBMISSIONS ==========
         document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const studentData = {
+            const payload = {
                 first_name: document.getElementById('firstName').value,
                 last_name: document.getElementById('lastName').value,
                 email: document.getElementById('email').value,
@@ -841,14 +883,14 @@
                 password: document.getElementById('password').value,
                 admission_status: document.getElementById('admissionStatus').value
             };
-            await addStudent(studentData);
+            await addStudent(payload);
             closeModal('addStudentModal');
         });
 
         document.getElementById('editStudentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = parseInt(document.getElementById('editStudentId').value);
-            const studentData = {
+            const payload = {
                 first_name: document.getElementById('editFirstName').value,
                 last_name: document.getElementById('editLastName').value,
                 email: document.getElementById('editEmail').value,
@@ -857,16 +899,20 @@
                 admission_status: document.getElementById('editAdmissionStatus').value,
                 academic_status: document.getElementById('editAcademicStatus').value
             };
-            await updateStudent(id, studentData);
+            await updateStudent(id, payload);
             closeModal('editStudentModal');
         });
 
         // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'logoutLink' || e.target.closest('#logoutLink')) {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
         });
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
 
         // ========== INIT ==========
         async function init() {
@@ -874,7 +920,15 @@
             await loadStudents();
         }
         init();
-        console.log('✅ Student Management page loaded – accessible to admin, administrator, and registrar.');
+
+        // Expose globals
+        window.searchStudents = searchStudents;
+        window.openAddStudentModal = openAddStudentModal;
+        window.editStudent = editStudent;
+        window.approveStudent = approveStudent;
+        window.rejectStudent = rejectStudent;
+        window.closeModal = closeModal;
     </script>
 </body>
+
 </html>

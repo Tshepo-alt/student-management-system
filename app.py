@@ -29,7 +29,7 @@ from models import db, User
 from config import config
 from backend.utils.email import mail
 
-# Import OAuth2 components from auth.py (BearerTokenGrant and resource_protector removed)
+# Import OAuth2 components from auth.py
 from backend.routes.auth import (
     authorization, PasswordGrant, AuthorizationCodeGrant, load_user_from_token
 )
@@ -186,6 +186,7 @@ def create_app(config_name=None):
     print(f"   📁 Upload Folder: {upload_folder}")
     print(f"   🔐 JWT Secret: {'✅ Configured' if app.config.get('JWT_SECRET_KEY') else '❌ Not set'}")
     print(f"   🔗 CORS: Enabled for all origins")
+    print(f"   🎓 Moodle Integration: {'✅ Enabled' if app.config.get('MOODLE_URL') and app.config.get('MOODLE_API_TOKEN') else '❌ Not configured'}")
 
     # ============================================
     # INITIALIZE EXTENSIONS
@@ -456,6 +457,10 @@ def create_app(config_name=None):
             'database': 'MySQL',
             'datetime': datetime.now().isoformat(),
             'email_service': '✅ Enabled' if app.config.get('MAIL_USERNAME') else '❌ Disabled',
+            'moodle_integration': {
+                'configured': bool(app.config.get('MOODLE_URL') and app.config.get('MOODLE_API_TOKEN')),
+                'url': app.config.get('MOODLE_URL')
+            },
             'endpoints': {
                 'api': '/api',
                 'health': '/api/health',
@@ -529,6 +534,10 @@ def create_app(config_name=None):
             'environment': config_name,
             'database': 'MySQL',
             'email_service': 'Configured' if app.config.get('MAIL_USERNAME') else 'Not configured',
+            'moodle_integration': {
+                'configured': bool(app.config.get('MOODLE_URL') and app.config.get('MOODLE_API_TOKEN')),
+                'url': app.config.get('MOODLE_URL')
+            },
             'timestamp': datetime.now().isoformat(),
             'blueprints_registered': blueprints_registered,
             'blueprints_count': len(blueprints_registered),
@@ -572,6 +581,10 @@ def create_app(config_name=None):
                         'admission_decision',
                         'payment_confirmation'
                     ]
+                },
+                'moodle': {
+                    'configured': bool(app.config.get('MOODLE_URL') and app.config.get('MOODLE_API_TOKEN')),
+                    'url': app.config.get('MOODLE_URL')
                 },
                 'blueprints': {
                     'registered': len(blueprints_registered),

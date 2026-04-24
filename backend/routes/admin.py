@@ -1,5 +1,5 @@
 # backend/routes/admin.py
-from flask import Blueprint, jsonify, request, send_file
+from flask import Blueprint, jsonify, request, send_file, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash
 import sys
@@ -14,7 +14,11 @@ from sqlalchemy import func, text
 # Add backend directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from models import db, User, Student, Program, Module, Accommodation, Registration, Payment, Notification, TokenBlocklist, Campus, AccommodationRegistration, AccommodationRoom, AcademicRecord, ExamRegistration, FeesConfig, Course, Enrollment
+from models import db, User, Student, Program, Module, Accommodation, Registration, Payment, Notification, TokenBlocklist, Campus, AccommodationRegistration, AccommodationRoom, AcademicRecord, ExamRegistration, FeesConfig, Course, Enrollment, StaffQuery
+
+# ========== MOODLE INTEGRATION IMPORTS ==========
+from services.moodle_integration import MoodleClient
+from config import MOODLE_URL, MOODLE_API_TOKEN
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
@@ -194,7 +198,8 @@ def get_students():
                 'is_government_sponsored': student.is_government_sponsored,
                 'wants_accommodation': student.wants_accommodation,
                 'enrollment_date': student.enrollment_date.isoformat() if hasattr(student, 'enrollment_date') and student.enrollment_date else None,
-                'created_at': student.created_at.isoformat() if hasattr(student, 'created_at') and student.created_at else None
+                'created_at': student.created_at.isoformat() if hasattr(student, 'created_at') and student.created_at else None,
+                'moodle_user_id': student.moodle_user_id if hasattr(student, 'moodle_user_id') else None
             })
         return jsonify(result), 200
     except Exception as e:
@@ -246,12 +251,32 @@ def create_student():
             admission_status='accepted'
         )
         db.session.add(student)
+        
+        # ========== MOODLE INTEGRATION ==========
+        # Create the same user in Moodle and store the Moodle user ID
+        try:
+            moodle = MoodleClient(MOODLE_URL, MOODLE_API_TOKEN)
+            moodle_user_id = moodle.create_user(
+                username=student_number,  # use student number as username for uniqueness
+                password=data.get('password', 'Student123!'),
+                firstname=student.first_name,
+                lastname=student.last_name,
+                email=student.email
+            )
+            student.moodle_user_id = moodle_user_id
+            current_app.logger.info(f"Moodle user created for {student.email} with ID {moodle_user_id}")
+        except Exception as e:
+            # Log error but continue – the local student is still created
+            current_app.logger.error(f"Moodle user creation failed for {student.email}: {e}")
+        # ======================================
+        
         db.session.commit()
         
         return jsonify({
             'message': 'Student created successfully',
             'student_id': student.id,
-            'student_number': student_number
+            'student_number': student_number,
+            'moodle_user_id': student.moodle_user_id
         }), 201
     except Exception as e:
         db.session.rollback()
@@ -623,7 +648,8 @@ def get_modules():
                 'module_type': getattr(module, 'module_type', 'core'),
                 'has_practicals': getattr(module, 'has_practicals', False),
                 'description': getattr(module, 'description', ''),
-                'prerequisites': getattr(module, 'prerequisites', '')
+                'prerequisites': getattr(module, 'prerequisites', ''),
+                'moodle_course_id': getattr(module, 'moodle_course_id', None)
             })
         return jsonify(result), 200
     except Exception as e:
@@ -633,7 +659,7 @@ def get_modules():
 @jwt_required()
 @admin_required
 def create_module():
-    """Create a new module"""
+    """Create a new module and optionally create a Moodle course"""
     try:
         data = request.get_json()
         
@@ -649,11 +675,29 @@ def create_module():
             prerequisites=data.get('prerequisites', '')
         )
         db.session.add(module)
+        db.session.flush()  # get the module.id
+        
+        # ========== MOODLE INTEGRATION ==========
+        # Create a corresponding course in Moodle
+        try:
+            moodle = MoodleClient(MOODLE_URL, MOODLE_API_TOKEN)
+            moodle_course_id = moodle.create_course(
+                fullname=module.module_name,
+                shortname=module.module_code,
+                categoryid=1  # default category, change as needed
+            )
+            module.moodle_course_id = moodle_course_id
+            current_app.logger.info(f"Moodle course created for module {module.module_code} with ID {moodle_course_id}")
+        except Exception as e:
+            current_app.logger.error(f"Moodle course creation failed for module {module.module_code}: {e}")
+        # ======================================
+        
         db.session.commit()
         
         return jsonify({
             'message': 'Module created successfully',
-            'module_id': module.id
+            'module_id': module.id,
+            'moodle_course_id': module.moodle_course_id if hasattr(module, 'moodle_course_id') else None
         }), 201
     except Exception as e:
         db.session.rollback()
@@ -993,6 +1037,159 @@ def allocate_accommodation(app_id):
     except Exception as e:
         db.session.rollback()
         print(f"Allocate accommodation error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ==================== NEW: STAFF QUERIES MANAGEMENT ====================
+
+@admin_bp.route('/tickets', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_staff_queries():
+    """Get all staff queries (tickets) with optional filters"""
+    try:
+        status = request.args.get('status')
+        priority = request.args.get('priority')
+        limit = request.args.get('limit', type=int)
+        
+        query = StaffQuery.query.order_by(StaffQuery.created_at.desc())
+        if status:
+            query = query.filter_by(status=status)
+        if priority:
+            query = query.filter_by(priority=priority)
+        if limit:
+            query = query.limit(limit)
+        
+        queries = query.all()
+        return jsonify([q.to_dict() for q in queries]), 200
+    except Exception as e:
+        print(f"Get staff queries error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/tickets/<int:ticket_id>', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_staff_query(ticket_id):
+    """Get a single staff query by ID"""
+    try:
+        ticket = StaffQuery.query.get(ticket_id)
+        if not ticket:
+            return jsonify({'error': 'Ticket not found'}), 404
+        return jsonify(ticket.to_dict()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/tickets', methods=['POST'])
+@jwt_required()
+def create_staff_query():
+    """Create a new staff query (used by staff)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(int(current_user_id))
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        data = request.get_json()
+        required = ['subject', 'message']
+        missing = [f for f in required if not data.get(f)]
+        if missing:
+            return jsonify({'error': f'Missing fields: {missing}'}), 400
+        
+        # Get staff details (assuming staff have a Student record? or use user info)
+        student = Student.query.filter_by(user_id=user.id).first()
+        staff_name = f"{student.first_name} {student.last_name}" if student else user.username
+        staff_email = user.email
+        department = data.get('department') or (student.program.program_name if student and student.program else 'General')
+        
+        ticket = StaffQuery(
+            staff_id=user.id,
+            staff_name=staff_name,
+            staff_email=staff_email,
+            department=department,
+            subject=data['subject'],
+            message=data['message'],
+            priority=data.get('priority', 'medium'),
+            status='pending',
+            responses=[]
+        )
+        db.session.add(ticket)
+        db.session.commit()
+        
+        return jsonify(ticket.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/tickets/<int:ticket_id>/respond', methods=['POST'])
+@jwt_required()
+@admin_required
+def respond_to_ticket(ticket_id):
+    """Add a response to a ticket (admin/registrar)"""
+    try:
+        ticket = StaffQuery.query.get(ticket_id)
+        if not ticket:
+            return jsonify({'error': 'Ticket not found'}), 404
+        
+        data = request.get_json()
+        message = data.get('message')
+        if not message:
+            return jsonify({'error': 'Response message required'}), 400
+        
+        current_user_id = get_jwt_identity()
+        user = User.query.get(int(current_user_id))
+        admin_name = user.username or 'Registrar'
+        
+        response_entry = {
+            'admin': admin_name,
+            'message': message,
+            'date': datetime.utcnow().isoformat()
+        }
+        if not ticket.responses:
+            ticket.responses = []
+        ticket.responses.append(response_entry)
+        ticket.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({'message': 'Response added', 'responses': ticket.responses}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/tickets/<int:ticket_id>/resolve', methods=['POST'])
+@jwt_required()
+@admin_required
+def resolve_ticket(ticket_id):
+    """Mark a ticket as resolved"""
+    try:
+        ticket = StaffQuery.query.get(ticket_id)
+        if not ticket:
+            return jsonify({'error': 'Ticket not found'}), 404
+        ticket.status = 'resolved'
+        ticket.updated_at = datetime.utcnow()
+        db.session.commit()
+        return jsonify({'message': 'Ticket resolved'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/tickets/stats', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_ticket_stats():
+    """Get ticket statistics"""
+    try:
+        total = StaffQuery.query.count()
+        pending = StaffQuery.query.filter_by(status='pending').count()
+        resolved = StaffQuery.query.filter_by(status='resolved').count()
+        high_priority = StaffQuery.query.filter_by(priority='high', status='pending').count()
+        return jsonify({
+            'total': total,
+            'pending': pending,
+            'resolved': resolved,
+            'high_priority': high_priority
+        }), 200
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 # ==================== CSV EXPORTS ====================

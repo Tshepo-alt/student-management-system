@@ -269,6 +269,8 @@ class Module(db.Model):
     prerequisites = db.Column(db.Text)
     recommended_reading = db.Column(db.Text)
     is_active = db.Column(db.Boolean, default=True)
+    # === MOODLE INTEGRATION FIELD ===
+    moodle_course_id = db.Column(db.Integer, nullable=True, unique=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     program_modules = db.relationship('ProgramModule', backref='module', cascade='all, delete-orphan')
@@ -385,10 +387,13 @@ class Student(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # === NEW FIELDS FOR REGISTRATION DOCUMENTS ===
-    bgcse_certificate_path = db.Column(db.String(500))   # path to uploaded BGCSE certificate
-    id_document_path = db.Column(db.String(500))        # path to ID/Passport copy
-    passport_photo_path = db.Column(db.String(500))     # path to passport photo
+    # === REGISTRATION DOCUMENTS FIELDS ===
+    bgcse_certificate_path = db.Column(db.String(500))
+    id_document_path = db.Column(db.String(500))
+    passport_photo_path = db.Column(db.String(500))
+    
+    # === MOODLE INTEGRATION FIELD ===
+    moodle_user_id = db.Column(db.Integer, nullable=True, unique=True, index=True)
     
     # Relationships
     documents = db.relationship('StudentDocument', backref='student', cascade='all, delete-orphan')
@@ -919,6 +924,76 @@ class Notification(db.Model):
     def mark_as_read(self):
         self.is_read = True
 
+
+# ==================== STAFF QUERIES MODEL ====================
+
+class StaffQuery(db.Model):
+    __tablename__ = 'staff_queries'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    staff_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    staff_name = db.Column(db.String(200), nullable=False)
+    staff_email = db.Column(db.String(255), nullable=False)
+    department = db.Column(db.String(100))
+    subject = db.Column(db.String(255), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    priority = db.Column(db.Enum('high', 'medium', 'low'), default='medium')
+    status = db.Column(db.Enum('pending', 'resolved'), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    responses = db.Column(db.JSON, default=list)
+    
+    staff = db.relationship('User', backref='staff_queries')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'staff_id': self.staff_id,
+            'staff_name': self.staff_name,
+            'staff_email': self.staff_email,
+            'department': self.department,
+            'subject': self.subject,
+            'message': self.message,
+            'priority': self.priority,
+            'status': self.status,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+            'responses': self.responses or []
+        }
+
+
+# ==================== STUDENT QUERIES MODEL (NEW) ====================
+class StudentQuery(db.Model):
+    __tablename__ = 'student_queries'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    subject = db.Column(db.String(255), nullable=False)
+    category = db.Column(db.String(100), default='General')
+    message = db.Column(db.Text, nullable=False)
+    status = db.Column(db.Enum('pending', 'in-progress', 'resolved'), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    responses = db.Column(db.JSON, default=list)
+    
+    student = db.relationship('Student', backref='queries')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'subject': self.subject,
+            'category': self.category,
+            'message': self.message,
+            'status': self.status,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+            'responses': self.responses or []
+        }
+
+
+# ==================== AUDIT LOG MODEL ====================
 
 class AuditLog(db.Model):
     __tablename__ = 'audit_logs'

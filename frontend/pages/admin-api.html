@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>API Status - Admin | GIPS College</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -14,8 +14,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
         }
 
@@ -27,29 +27,43 @@
 
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            transition: all 0.3s;
-            z-index: 100;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
         }
 
         .sidebar-header {
-            padding: 25px;
+            padding: 24px 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header img {
-            height: 60px;
+            height: 55px;
             width: auto;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .sidebar-header h3 {
             font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
         }
 
         .sidebar-menu {
@@ -57,94 +71,140 @@
         }
 
         .sidebar-menu-item {
-            padding: 12px 25px;
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            color: #cbd5e1;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
         }
 
         .sidebar-menu-item i {
             width: 24px;
+            font-size: 1.1rem;
             text-align: center;
         }
 
-        .sidebar-menu-item:hover,
-        .sidebar-menu-item.active {
-            background: rgba(255,255,255,0.1);
+        .sidebar-menu-item:hover {
+            background: rgba(255, 255, 255, 0.08);
             color: white;
+        }
+
+        .sidebar-menu-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+            border-left-color: #667eea;
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
             flex: 1;
-            padding: 20px;
+            margin-left: 280px;
+            padding: 20px 24px;
+            transition: margin-left 0.3s;
         }
 
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+        }
+
+        /* Top Bar */
         .top-bar {
-            background: white;
-            border-radius: 20px;
-            padding: 15px 25px;
-            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
         }
 
         .page-title h1 {
             font-size: 1.5rem;
-            color: #2d3748;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .page-title p {
-            color: #718096;
+            color: #475569;
             font-size: 0.85rem;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .admin-avatar {
-            width: 45px;
-            height: 45px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1.1rem;
             color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
-        /* Stats Grid */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
             background: white;
             border-radius: 20px;
-            padding: 20px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
             text-align: center;
-            border: 1px solid rgba(102,126,234,0.1);
-            transition: all 0.3s;
+            transition: 0.2s;
         }
 
         .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
         }
 
         .stat-card h3 {
-            font-size: 2rem;
-            color: #667eea;
-            margin-bottom: 5px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .stat-card p {
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
         /* Badges */
@@ -155,35 +215,47 @@
             font-size: 0.7rem;
             font-weight: 600;
         }
-        .status-online { background: #c6f6d5; color: #276749; }
-        .status-offline { background: #fed7d7; color: #c53030; }
-        .status-warning { background: #feebc8; color: #c05621; }
+
+        .status-online {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
 
         /* API List */
         .api-list {
             background: white;
             border-radius: 24px;
             padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(102,126,234,0.1);
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
         }
 
         .api-list h2 {
             font-size: 1.2rem;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .api-item {
-            padding: 15px;
+            padding: 14px;
             border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
 
         .api-item:last-child {
@@ -191,124 +263,128 @@
         }
 
         .api-method {
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.7rem;
             font-weight: 600;
-            display: inline-block;
         }
-        .method-get { background: #c6f6d5; color: #276749; }
-        .method-post { background: #cfe2ff; color: #084298; }
-        .method-put { background: #feebc8; color: #c05621; }
-        .method-delete { background: #fed7d7; color: #c53030; }
+
+        .method-get {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .method-post {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .method-put {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .method-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
         .btn {
-            padding: 6px 14px;
-            border: none;
+            padding: 6px 16px;
             border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.75rem;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            transition: 0.2s;
+            border: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.8rem;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(102,126,234,0.3);
         }
 
-        /* Response Viewer */
-        .response-container {
-            margin-top: 15px;
+        .btn-primary {
+            background: #667eea;
+            color: white;
         }
-        select {
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        select,
+        pre {
             width: 100%;
             padding: 10px 14px;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            background: #f9fafb;
-        }
-        pre {
-            background: #f9fafb;
-            padding: 15px;
             border-radius: 16px;
-            overflow-x: auto;
-            font-size: 0.8rem;
+            background: #f8fafc;
             font-family: 'Courier New', monospace;
-            margin-top: 10px;
-            border: 1px solid #e2e8f0;
+            font-size: 0.8rem;
+        }
+
+        pre {
+            overflow-x: auto;
+            margin-top: 12px;
+            padding: 16px;
+            background: #1e293b;
+            color: #e2e8f0;
         }
 
         .loading {
             text-align: center;
-            padding: 20px;
-            color: #a0aec0;
+            padding: 40px;
+            color: #64748b;
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-            }
-            .sidebar-header h3,
-            .sidebar-menu-item span {
-                display: none;
-            }
-            .sidebar-menu-item i {
-                margin: 0 auto;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .api-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        .footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
         }
     </style>
 </head>
+
 <body>
     <div class="admin-wrapper">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'">
                 <h3>Admin Portal</h3>
             </div>
             <div class="sidebar-menu">
-                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
-                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
-                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
-                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> <span>Programs</span></a>
-                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> <span>Modules</span></a>
-                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> <span>Accommodation</span></a>
-                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
-                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
-                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> <span>Reports</span></a>
-                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
-                <a href="admin-profile.html" class="sidebar-menu-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
-                <a href="admin-api.html" class="sidebar-menu-item active"><i class="fas fa-plug"></i> <span>API Status</span></a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
+                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i>
+                    Accommodation</a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="admin-profile.html" class="sidebar-menu-item"><i class="fas fa-user-circle"></i> Profile</a>
+                <a href="admin-api.html" class="sidebar-menu-item active"><i class="fas fa-plug"></i> API Status</a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
 
         <div class="main-content">
             <div class="top-bar">
-                <div class="page-title">
-                    <h1><i class="fas fa-plug"></i> API Status & Monitoring</h1>
-                    <p>Monitor API endpoints, response times, and system health</p>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <div class="page-title">
+                        <h1><i class="fas fa-plug"></i> API Status & Monitoring</h1>
+                        <p>Monitor API endpoints, response times, and system health</p>
+                    </div>
                 </div>
                 <div class="admin-avatar" id="adminAvatar">A</div>
             </div>
 
-            <!-- System Health Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3 id="apiStatus"><i class="fas fa-circle"></i></h3>
@@ -328,89 +404,45 @@
                 </div>
             </div>
 
-            <!-- API Endpoints List -->
             <div class="api-list">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
                     <h2><i class="fas fa-code-branch"></i> API Endpoints</h2>
-                    <button class="btn btn-primary" onclick="testAllEndpoints()"><i class="fas fa-play"></i> Test All Endpoints</button>
+                    <button class="btn btn-primary" onclick="testAllEndpoints()"><i class="fas fa-play"></i> Test
+                        All</button>
                 </div>
                 <div id="endpointsList">
-                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading endpoints...</div>
+                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div>
                 </div>
             </div>
 
-            <!-- API Response Viewer -->
             <div class="api-list">
                 <h2><i class="fas fa-eye"></i> API Response Viewer</h2>
-                <div style="margin-top: 15px;">
-                    <label><i class="fas fa-code"></i> Select Endpoint</label>
-                    <select id="endpointSelect" style="margin-top: 5px;">
-                        <option value="/api/health">GET /api/health - Health Check</option>
-                        <option value="/api/admin/stats">GET /api/admin/stats - Admin Stats</option>
-                        <option value="/api/admin/users">GET /api/admin/users - Users List</option>
-                        <option value="/api/admin/students">GET /api/admin/students - Students List</option>
-                        <option value="/api/admin/programs">GET /api/admin/programs - Programs List</option>
-                        <option value="/api/admin/modules">GET /api/admin/modules - Modules List</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" onclick="testSelectedEndpoint()" style="margin-top: 15px;"><i class="fas fa-paper-plane"></i> Send Request</button>
-                <div id="responseDisplay" style="margin-top: 20px;">
-                    <pre id="responseJson" style="background: #f9fafb; padding: 15px; border-radius: 16px; min-height: 200px;">Click "Send Request" to test API endpoint...</pre>
-                </div>
+                <select id="endpointSelect"></select>
+                <button class="btn btn-primary" onclick="testSelectedEndpoint()" style="margin-top: 12px;"><i
+                        class="fas fa-paper-plane"></i> Send Request</button>
+                <pre id="responseJson">Click "Send Request" to test...</pre>
             </div>
         </div>
     </div>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-code"></i> API Monitoring Dashboard</p>
+        </div>
+    </footer>
 
     <script>
-        // ============================================
-        // AUTHENTICATION CHECK
-        // ============================================
+        // ========== AUTH & SIDEBAR ==========
         const token = localStorage.getItem('access_token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'login.html';
+        if (!['admin', 'administrator'].includes(user.role)) window.location.href = 'student-dashboard.html';
+        document.getElementById('adminAvatar').textContent = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
+        document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+        document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
 
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-
-        if (user.role !== 'admin' && user.role !== 'administrator') {
-            window.location.href = 'student-dashboard.html';
-        }
-
-        // Display admin avatar
-        const adminName = user.first_name || user.username || 'Admin';
-        document.getElementById('adminAvatar').textContent = adminName.charAt(0).toUpperCase();
-
-        // ============================================
-        // SAFE API CALL FUNCTION
-        // ============================================
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-
-                if (response.status === 401) {
-                    console.warn('Token expired, redirecting to login...');
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
-        }
-
-        // ============================================
-        // API ENDPOINTS LIST
-        // ============================================
+        // ========== ENDPOINTS ==========
         const endpoints = [
             { method: 'GET', url: '/api/health', name: 'Health Check', auth: false },
             { method: 'GET', url: '/api/admin/stats', name: 'Admin Stats', auth: true },
@@ -421,138 +453,107 @@
             { method: 'POST', url: '/api/auth/login', name: 'Login (Test)', auth: false }
         ];
 
-        function displayEndpoints() {
+        function renderEndpoints() {
             const container = document.getElementById('endpointsList');
             container.innerHTML = endpoints.map(ep => `
-                <div class="api-item">
-                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <span class="api-method method-${ep.method.toLowerCase()}">${ep.method}</span>
-                        <strong>${ep.url}</strong>
-                        <span style="color: #718096;">${ep.name}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span id="status-${ep.url.replace(/\//g, '-')}" class="status-badge status-warning">Not Tested</span>
-                        <button class="btn btn-primary" onclick="testEndpoint('${ep.url}', '${ep.method}', ${ep.auth})"><i class="fas fa-play"></i> Test</button>
-                    </div>
+            <div class="api-item">
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <span class="api-method method-${ep.method.toLowerCase()}">${ep.method}</span>
+                    <strong>${ep.url}</strong>
+                    <span style="color:#475569;">${ep.name}</span>
                 </div>
-            `).join('');
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span id="status-${ep.url.replace(/\//g, '-')}" class="status-badge status-warning">Not Tested</span>
+                    <button class="btn btn-primary" onclick="testEndpoint('${ep.url}', '${ep.method}', ${ep.auth})"><i class="fas fa-play"></i> Test</button>
+                </div>
+            </div>
+        `).join('');
+            const select = document.getElementById('endpointSelect');
+            select.innerHTML = endpoints.map(ep => `<option value="${ep.url}">${ep.method} ${ep.url} - ${ep.name}</option>`).join('');
         }
 
         async function testEndpoint(url, method, requiresAuth) {
             const statusId = `status-${url.replace(/\//g, '-')}`;
-            const statusSpan = document.getElementById(statusId);
-            if (!statusSpan) return;
-
-            statusSpan.textContent = 'Testing...';
-            statusSpan.className = 'status-badge status-warning';
-
-            const startTime = Date.now();
-
+            const span = document.getElementById(statusId);
+            if (!span) return;
+            span.textContent = 'Testing...';
+            span.className = 'status-badge status-warning';
+            const start = Date.now();
             try {
-                const headers = {};
+                const headers = { 'Content-Type': 'application/json' };
                 if (requiresAuth && token) headers['Authorization'] = `Bearer ${token}`;
-                headers['Content-Type'] = 'application/json';
-
                 const options = { method, headers };
-
                 if (method === 'POST' && url === '/api/auth/login') {
                     options.body = JSON.stringify({ email: 'admin@gipscollege.edu.bw', password: 'Admin123!' });
                 }
-
-                const response = await fetch(url, options);
-                const endTime = Date.now();
-                const responseTime = endTime - startTime;
-
-                if (response.ok) {
-                    statusSpan.textContent = `✓ OK (${responseTime}ms)`;
-                    statusSpan.className = 'status-badge status-online';
+                const res = await fetch(url, options);
+                const elapsed = Date.now() - start;
+                if (res.ok) {
+                    span.textContent = `✓ OK (${elapsed}ms)`;
+                    span.className = 'status-badge status-online';
                 } else {
-                    statusSpan.textContent = `✗ Error ${response.status}`;
-                    statusSpan.className = 'status-badge status-offline';
+                    span.textContent = `✗ Error ${res.status}`;
+                    span.className = 'status-badge status-offline';
                 }
-            } catch (error) {
-                statusSpan.textContent = '✗ Offline';
-                statusSpan.className = 'status-badge status-offline';
+            } catch (err) {
+                span.textContent = '✗ Offline';
+                span.className = 'status-badge status-offline';
             }
-
             updateStats();
         }
 
         async function testAllEndpoints() {
             for (const ep of endpoints) {
                 await testEndpoint(ep.url, ep.method, ep.auth);
-                await new Promise(resolve => setTimeout(resolve, 300));
+                await new Promise(r => setTimeout(r, 300));
             }
         }
 
         async function testSelectedEndpoint() {
-            const select = document.getElementById('endpointSelect');
-            const selectedUrl = select.value;
-            const endpoint = endpoints.find(e => e.url === selectedUrl);
-
-            if (endpoint) {
-                await testEndpoint(endpoint.url, endpoint.method, endpoint.auth);
-                await showResponse(endpoint.url, endpoint.method, endpoint.auth);
+            const url = document.getElementById('endpointSelect').value;
+            const ep = endpoints.find(e => e.url === url);
+            if (ep) {
+                await testEndpoint(ep.url, ep.method, ep.auth);
+                await showResponse(ep.url, ep.method, ep.auth);
             }
         }
 
         async function showResponse(url, method, requiresAuth) {
-            const responseDisplay = document.getElementById('responseJson');
-            responseDisplay.textContent = 'Loading...';
-
+            const pre = document.getElementById('responseJson');
+            pre.textContent = 'Loading...';
             try {
-                const headers = {};
+                const headers = { 'Content-Type': 'application/json' };
                 if (requiresAuth && token) headers['Authorization'] = `Bearer ${token}`;
-                headers['Content-Type'] = 'application/json';
-
                 const options = { method, headers };
-
                 if (method === 'POST' && url === '/api/auth/login') {
                     options.body = JSON.stringify({ email: 'admin@gipscollege.edu.bw', password: 'Admin123!' });
                 }
-
-                const response = await fetch(url, options);
-
-                if (response.status === 401) {
-                    responseDisplay.textContent = JSON.stringify({
-                        error: 'Unauthorized',
-                        message: 'Token expired or invalid. Please login again.',
-                        status: 401
-                    }, null, 2);
-                    return;
-                }
-
-                const data = await response.json();
-                responseDisplay.textContent = JSON.stringify(data, null, 2);
-            } catch (error) {
-                responseDisplay.textContent = `Error: ${error.message}`;
+                const res = await fetch(url, options);
+                const data = await res.json();
+                pre.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                pre.textContent = `Error: ${err.message}`;
             }
         }
 
         async function updateStats() {
             try {
-                const startTime = Date.now();
-                const response = await safeApiCall('/api/health');
-
-                if (response && response.ok) {
-                    const endTime = Date.now();
-                    const data = await response.json();
-
-                    document.getElementById('apiStatus').innerHTML = '<i class="fas fa-check-circle" style="color:#38a169;"></i> Online';
-                    document.getElementById('responseTime').textContent = `${endTime - startTime}ms`;
-                    document.getElementById('uptime').textContent = data.status === 'healthy' ? '99.9%' : 'Degraded';
-
+                const start = Date.now();
+                const res = await fetch('/api/health', { headers: { 'Authorization': `Bearer ${token}` } });
+                const elapsed = Date.now() - start;
+                if (res.ok) {
+                    document.getElementById('apiStatus').innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i> Online';
+                    document.getElementById('responseTime').textContent = `${elapsed}ms`;
+                    document.getElementById('uptime').textContent = '99.9%';
                     const requests = JSON.parse(localStorage.getItem('api_requests') || '[]');
                     const today = new Date().toDateString();
-                    const todayRequests = requests.filter(r => new Date(r.date).toDateString() === today).length;
-                    document.getElementById('requestsToday').textContent = todayRequests;
+                    const todayCount = requests.filter(r => new Date(r.date).toDateString() === today).length;
+                    document.getElementById('requestsToday').textContent = todayCount;
                 } else {
-                    document.getElementById('apiStatus').innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> Degraded';
-                    document.getElementById('responseTime').textContent = '--';
-                    document.getElementById('uptime').textContent = '--';
+                    throw new Error('Health check failed');
                 }
-            } catch (error) {
-                document.getElementById('apiStatus').innerHTML = '<i class="fas fa-times-circle" style="color:#e53e3e;"></i> Offline';
+            } catch {
+                document.getElementById('apiStatus').innerHTML = '<i class="fas fa-times-circle" style="color:#ef4444;"></i> Offline';
                 document.getElementById('responseTime').textContent = '--';
                 document.getElementById('uptime').textContent = '--';
             }
@@ -565,29 +566,15 @@
             updateStats();
         }
 
-        // Logout
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // Initialize
-        displayEndpoints();
-        updateStats();
-        trackRequest();
-
-        // Auto-test on load
-        setTimeout(() => {
-            testAllEndpoints();
-        }, 1000);
-
-        // Make functions global
         window.testEndpoint = testEndpoint;
         window.testAllEndpoints = testAllEndpoints;
         window.testSelectedEndpoint = testSelectedEndpoint;
 
-        console.log('✅ Admin API page loaded - API calls will not cause logout');
+        renderEndpoints();
+        updateStats();
+        trackRequest();
+        setTimeout(() => testAllEndpoints(), 1000);
     </script>
 </body>
+
 </html>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Staff Queries - Registrar | GIPS College</title>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -14,24 +14,24 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
         }
 
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 0.8rem 0;
+            padding: 0.7rem 0;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 0 30px;
+            padding: 0 24px;
         }
 
         .navbar .container {
@@ -39,23 +39,18 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 12px;
         }
 
         .navbar-brand img {
-            height: 50px;
+            height: 45px;
             width: auto;
-            transition: transform 0.3s;
-        }
-
-        .navbar-brand img:hover {
-            transform: scale(1.05);
         }
 
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 1rem;
+            gap: 0.7rem;
             flex-wrap: wrap;
         }
 
@@ -63,111 +58,81 @@
             text-decoration: none;
             color: #4a5568;
             font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-            display: flex;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            background: #f1f5f9;
         }
 
         .nav-link i {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .nav-link:hover,
         .nav-link.active {
-            color: #3b82f6;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            transition: all 0.3s;
-            transform: translateX(-50%);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 70%;
+            background: #3b82f6;
+            color: white;
         }
 
         .page-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border-radius: 20px;
-            padding: 30px;
-            margin: 30px 0;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
             color: white;
             position: relative;
             overflow: hidden;
         }
 
-        .page-header::before {
-            content: '\f059';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            bottom: 20px;
-            right: 30px;
-            font-size: 80px;
-            opacity: 0.15;
-        }
-
         .page-header h1 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
+        .page-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
             background: white;
-            padding: 20px;
             border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(59,130,246,0.1);
-            transition: all 0.3s;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
             position: relative;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-
         .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #3b82f6;
-            margin-bottom: 5px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
         }
 
         .stat-label {
-            color: #718096;
-            font-size: 0.9rem;
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 4px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -175,25 +140,23 @@
 
         .content-card {
             background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(59,130,246,0.1);
-            margin-bottom: 30px;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 15px;
+            margin-bottom: 20px;
         }
 
         .card-header h2 {
-            font-size: 1.3rem;
-            color: #2d3748;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -201,83 +164,79 @@
 
         .search-bar {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         .search-bar input,
         .search-bar select {
-            padding: 10px 15px;
+            padding: 10px 16px;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 0.9rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
             background: white;
+            min-width: 140px;
         }
 
         .search-bar input:focus,
         .search-bar select:focus {
             outline: none;
             border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 12px;
-            cursor: pointer;
+            border-radius: 40px;
             font-weight: 600;
-            transition: all 0.2s;
+            cursor: pointer;
+            transition: 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: #3b82f6;
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59,130,246,0.4);
+            background: #2563eb;
+            transform: translateY(-1px);
         }
 
         .btn-success {
-            background: #28a745;
+            background: #10b981;
             color: white;
         }
 
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #2d3748;
+        .btn-success:hover {
+            background: #059669;
         }
 
         .query-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
         }
 
         .query-card {
-            background: #f9fafb;
-            border-radius: 16px;
+            background: #f8fafc;
+            border-radius: 20px;
             padding: 18px;
             border-left: 4px solid #3b82f6;
-            transition: all 0.3s;
+            transition: 0.2s;
+            cursor: pointer;
         }
 
         .query-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             background: white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
         }
 
         .query-title {
@@ -291,42 +250,48 @@
         }
 
         .query-meta {
-            font-size: 0.8rem;
-            color: #718096;
+            font-size: 0.75rem;
+            color: #64748b;
             margin: 8px 0;
         }
 
         .badge {
+            display: inline-block;
             padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.7rem;
             font-weight: 600;
-            display: inline-block;
         }
 
         .badge-pending {
-            background: #feebc8;
-            color: #c05621;
+            background: #fef3c7;
+            color: #92400e;
         }
 
         .badge-resolved {
-            background: #c6f6d5;
-            color: #276749;
+            background: #dcfce7;
+            color: #15803d;
         }
 
         .badge-high {
-            background: #fed7d7;
-            color: #9b2c2c;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         .badge-medium {
-            background: #feebc8;
-            color: #c05621;
+            background: #fef3c7;
+            color: #92400e;
         }
 
         .badge-low {
-            background: #c6f6d5;
-            color: #276749;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            border-radius: 30px;
         }
 
         .modal {
@@ -336,7 +301,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -344,11 +310,11 @@
 
         .modal-content {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 28px;
+            padding: 28px;
             max-width: 600px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
             position: relative;
         }
@@ -356,15 +322,22 @@
         .close {
             position: absolute;
             top: 20px;
-            right: 25px;
-            font-size: 28px;
+            right: 24px;
+            font-size: 1.4rem;
             cursor: pointer;
-            color: #a0aec0;
-            transition: color 0.2s;
+            color: #94a3b8;
         }
 
         .close:hover {
-            color: #2d3748;
+            color: #1e293b;
+        }
+
+        .reply-item {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            border-left: 3px solid #3b82f6;
         }
 
         .form-group {
@@ -373,82 +346,96 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #4a5568;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #334155;
         }
 
-        .form-group input,
-        .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 0.9rem;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-        }
-
-        .reply-item {
-            background: #f8fafc;
             padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border-left: 3px solid #3b82f6;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: inherit;
         }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: #718096;
+            color: #64748b;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 12px;
+            color: #991b1b;
+            font-size: 0.8rem;
         }
 
         .footer {
-            background: #2d3748;
-            color: white;
+            background: #1e293b;
+            color: #cbd5e1;
             text-align: center;
-            padding: 30px 0;
-            margin-top: 50px;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 640px) {
             .container {
-                padding: 0 20px;
+                padding: 0 16px;
             }
-            .navbar .container {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.4rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .search-bar {
                 flex-direction: column;
             }
-            .nav-menu {
-                justify-content: center;
+
+            .search-bar input,
+            .search-bar select {
+                width: 100%;
             }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+
             .query-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
             }
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
-            </div>
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
             <ul class="nav-menu">
-                <li><a href="registrar-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="registrar-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
                 <li><a href="registrar-students.html" class="nav-link"><i class="fas fa-users"></i> Students</a></li>
-                <li><a href="registrar-documents.html" class="nav-link"><i class="fas fa-file-alt"></i> Documents</a></li>
+                <li><a href="registrar-documents.html" class="nav-link"><i class="fas fa-file-alt"></i> Documents</a>
+                </li>
                 <li><a href="registrar-reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
-                <li><a href="staff-queries.html" class="nav-link active"><i class="fas fa-question-circle"></i> Staff Queries</a></li>
+                <li><a href="staff-queries.html" class="nav-link active"><i class="fas fa-question-circle"></i> Staff
+                        Queries</a></li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -496,8 +483,10 @@
                         <option value="medium">Medium</option>
                         <option value="low">Low</option>
                     </select>
-                    <button class="btn btn-primary" onclick="searchQueries()"><i class="fas fa-search"></i> Search</button>
-                    <button class="btn btn-primary" onclick="exportQueries()"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn btn-primary" onclick="searchQueries()"><i class="fas fa-search"></i>
+                        Search</button>
+                    <button class="btn btn-primary" onclick="exportQueries()"><i class="fas fa-download"></i>
+                        Export</button>
                 </div>
             </div>
             <div id="queriesList" class="query-grid">
@@ -506,7 +495,6 @@
         </div>
     </div>
 
-    <!-- Query Details Modal -->
     <div id="queryModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('queryModal')"><i class="fas fa-times"></i></span>
@@ -514,10 +502,12 @@
             <div id="queryDetails"></div>
             <hr style="margin: 15px 0;">
             <h3><i class="fas fa-reply"></i> Add Response</h3>
-            <textarea id="responseMessage" rows="3" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:12px;" placeholder="Type your response..."></textarea>
-            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="sendResponse()"><i class="fas fa-paper-plane"></i> Send Response</button>
-                <button class="btn btn-success" onclick="resolveQuery()"><i class="fas fa-check"></i> Mark as Resolved</button>
+            <textarea id="responseMessage" rows="3" placeholder="Type your response..."></textarea>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="sendResponse()"><i class="fas fa-paper-plane"></i> Send
+                    Response</button>
+                <button class="btn btn-success" onclick="resolveQuery()"><i class="fas fa-check"></i> Mark
+                    Resolved</button>
             </div>
         </div>
     </div>
@@ -533,136 +523,149 @@
         // ========== AUTHENTICATION ==========
         const token = localStorage.getItem('access_token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const userRole = localStorage.getItem('user_role') || user.role;
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'registrar') window.location.href = 'student-dashboard.html';
 
-        if (!token) {
-            window.location.href = 'login.html';
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
         }
 
-        if (userRole !== 'registrar') {
-            window.location.href = 'student-dashboard.html';
+        function showMessage(msg, type) {
+            const div = document.createElement('div');
+            div.style.position = 'fixed';
+            div.style.top = '20px';
+            div.style.right = '20px';
+            div.style.zIndex = '2000';
+            div.style.backgroundColor = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#f59e0b');
+            div.style.color = 'white';
+            div.style.padding = '12px 20px';
+            div.style.borderRadius = '12px';
+            div.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.gap = '8px';
+            div.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle')}"></i> ${msg}`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
         }
 
-        const logoImage = document.getElementById('logoImage');
-        if (logoImage) logoImage.onerror = function() { this.style.display = 'none'; };
-
-        // ========== DEMO DATA ==========
-        let queries = [
-            { id: 1, staff_name: 'Dr. Sarah Johnson', staff_email: 'sarah.johnson@gipscollege.edu.bw', department: 'Computer Science', subject: 'Student Registration Issue', message: 'A student is unable to register for CS301. The system shows prerequisite not met, but the student completed the required module.', priority: 'high', status: 'pending', created_at: '2026-03-24T09:30:00', responses: [] },
-            { id: 2, staff_name: 'Prof. Michael Brown', staff_email: 'michael.brown@gipscollege.edu.bw', department: 'Business Administration', subject: 'Grade Upload Error', message: 'I cannot upload final grades for BBA 401. The system keeps timing out.', priority: 'medium', status: 'pending', created_at: '2026-03-23T14:15:00', responses: [] },
-            { id: 3, staff_name: 'Dr. Emily Davis', staff_email: 'emily.davis@gipscollege.edu.bw', department: 'Accounting', subject: 'Transcript Request', message: 'A graduating student needs an official transcript by next week. Can we expedite?', priority: 'high', status: 'pending', created_at: '2026-03-22T11:20:00', responses: [] },
-            { id: 4, staff_name: 'Mr. David Wilson', staff_email: 'david.wilson@gipscollege.edu.bw', department: 'Library Services', subject: 'Library System Access', message: 'Staff library accounts are not syncing with the new system.', priority: 'medium', status: 'resolved', created_at: '2026-03-21T09:45:00', responses: [{ admin: 'Registrar', message: 'Issue resolved. Accounts synchronized.', date: '2026-03-22T10:30:00' }] },
-            { id: 5, staff_name: 'Ms. Linda Taylor', staff_email: 'linda.taylor@gipscollege.edu.bw', department: 'Admissions', subject: 'Document Upload Problem', message: 'Applicants are reporting errors when uploading documents. Please check the portal.', priority: 'high', status: 'pending', created_at: '2026-03-25T08:00:00', responses: [] }
-        ];
-
-        // ========== HELPER FUNCTIONS ==========
-        function showMessage(message, type) {
-            const msgDiv = document.createElement('div');
-            msgDiv.style.position = 'fixed';
-            msgDiv.style.top = '20px';
-            msgDiv.style.right = '20px';
-            msgDiv.style.zIndex = '2000';
-            msgDiv.style.backgroundColor = type === 'success' ? '#28a745' : (type === 'error' ? '#dc3545' : '#ffc107');
-            msgDiv.style.color = type === 'warning' ? '#2d3748' : 'white';
-            msgDiv.style.padding = '12px 20px';
-            msgDiv.style.borderRadius = '12px';
-            msgDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-            msgDiv.style.display = 'flex';
-            msgDiv.style.alignItems = 'center';
-            msgDiv.style.gap = '8px';
-            msgDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle')}"></i> ${message}`;
-            document.body.appendChild(msgDiv);
-            setTimeout(() => msgDiv.remove(), 3000);
+        // ========== LOAD STATISTICS ==========
+        async function loadStats() {
+            const res = await safeApiCall('/api/admin/tickets/stats');
+            if (res && res.ok) {
+                const stats = await res.json();
+                document.getElementById('totalQueries').textContent = stats.total || 0;
+                document.getElementById('pendingQueries').textContent = stats.pending || 0;
+                document.getElementById('resolvedQueries').textContent = stats.resolved || 0;
+                document.getElementById('highPriorityQueries').textContent = stats.high_priority || 0;
+            } else {
+                // Fallback to zeros (no demo numbers)
+                document.getElementById('totalQueries').textContent = '0';
+                document.getElementById('pendingQueries').textContent = '0';
+                document.getElementById('resolvedQueries').textContent = '0';
+                document.getElementById('highPriorityQueries').textContent = '0';
+            }
         }
 
-        function updateStats() {
-            const total = queries.length;
-            const pending = queries.filter(q => q.status === 'pending').length;
-            const resolved = queries.filter(q => q.status === 'resolved').length;
-            const highPriority = queries.filter(q => q.priority === 'high' && q.status === 'pending').length;
-            document.getElementById('totalQueries').textContent = total;
-            document.getElementById('pendingQueries').textContent = pending;
-            document.getElementById('resolvedQueries').textContent = resolved;
-            document.getElementById('highPriorityQueries').textContent = highPriority;
+        // ========== LOAD / SEARCH QUERIES ==========
+        let currentFilter = { search: '', status: 'all', priority: 'all' };
+        let allQueries = [];
+
+        async function searchQueries() {
+            currentFilter.search = document.getElementById('searchInput').value;
+            currentFilter.status = document.getElementById('statusFilter').value;
+            currentFilter.priority = document.getElementById('priorityFilter').value;
+            await loadQueries();
         }
 
-        function renderQueries(search = '', statusFilter = 'all', priorityFilter = 'all') {
+        async function loadQueries() {
             const container = document.getElementById('queriesList');
-            let filtered = queries;
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading queries...</div>';
 
-            if (search) {
-                const term = search.toLowerCase();
-                filtered = filtered.filter(q => 
-                    q.staff_name.toLowerCase().includes(term) ||
-                    q.department.toLowerCase().includes(term) ||
-                    q.subject.toLowerCase().includes(term)
-                );
-            }
-            if (statusFilter !== 'all') {
-                filtered = filtered.filter(q => q.status === statusFilter);
-            }
-            if (priorityFilter !== 'all') {
-                filtered = filtered.filter(q => q.priority === priorityFilter);
-            }
+            let url = '/api/admin/tickets?';
+            if (currentFilter.status !== 'all') url += `status=${currentFilter.status}&`;
+            if (currentFilter.priority !== 'all') url += `priority=${currentFilter.priority}&`;
+            if (currentFilter.search) url += `search=${encodeURIComponent(currentFilter.search)}&`;
+            url = url.slice(0, -1); // remove trailing & or ?
 
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="loading"><i class="fas fa-info-circle"></i> No queries found.</div>';
-                return;
+            const res = await safeApiCall(url);
+            if (res && res.ok) {
+                const queries = await res.json();
+                allQueries = queries;
+                if (!queries.length) {
+                    container.innerHTML = '<div class="loading">No queries found.</div>';
+                    return;
+                }
+                // Apply local search (backend search may not be implemented; we do it client-side)
+                let filtered = [...queries];
+                if (currentFilter.search) {
+                    const term = currentFilter.search.toLowerCase();
+                    filtered = filtered.filter(q =>
+                        q.staff_name.toLowerCase().includes(term) ||
+                        (q.department || '').toLowerCase().includes(term) ||
+                        q.subject.toLowerCase().includes(term)
+                    );
+                }
+                if (filtered.length === 0) {
+                    container.innerHTML = '<div class="loading">No matching queries.</div>';
+                    return;
+                }
+                container.innerHTML = filtered.map(q => {
+                    const statusClass = q.status === 'pending' ? 'badge-pending' : 'badge-resolved';
+                    const priorityClass = `badge-${q.priority}`;
+                    return `
+                        <div class="query-card" onclick="viewQuery(${q.id})">
+                            <div class="query-title">
+                                <i class="fas fa-user-tie"></i> ${escapeHtml(q.staff_name)}
+                                <span class="badge ${statusClass}" style="margin-left: auto;">${q.status}</span>
+                            </div>
+                            <div class="query-meta">
+                                <i class="fas fa-building"></i> ${escapeHtml(q.department || 'General')}<br>
+                                <i class="fas fa-tag"></i> ${escapeHtml(q.subject)}<br>
+                                <i class="fas fa-calendar-alt"></i> ${new Date(q.created_at).toLocaleDateString()}
+                            </div>
+                            <div style="margin: 8px 0;">
+                                <span class="badge ${priorityClass}"><i class="fas fa-flag"></i> ${q.priority}</span>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); viewQuery(${q.id})"><i class="fas fa-eye"></i> View</button>
+                                ${q.status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="event.stopPropagation(); resolveQueryQuick(${q.id})"><i class="fas fa-check"></i> Resolve</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = '<div class="error-message">Unable to load queries. Please try again later.</div>';
             }
-
-            container.innerHTML = filtered.map(q => {
-                const statusClass = q.status === 'pending' ? 'badge-pending' : 'badge-resolved';
-                const statusText = q.status.charAt(0).toUpperCase() + q.status.slice(1);
-                const priorityClass = `badge-${q.priority}`;
-                const priorityText = q.priority.charAt(0).toUpperCase() + q.priority.slice(1);
-                return `
-                    <div class="query-card" onclick="viewQuery(${q.id})">
-                        <div class="query-title">
-                            <i class="fas fa-user-tie"></i> ${escapeHtml(q.staff_name)}
-                            <span class="badge ${statusClass}" style="margin-left: auto;">${statusText}</span>
-                        </div>
-                        <div class="query-meta">
-                            <i class="fas fa-building"></i> ${escapeHtml(q.department)}<br>
-                            <i class="fas fa-tag"></i> ${escapeHtml(q.subject)}<br>
-                            <i class="fas fa-calendar-alt"></i> ${new Date(q.created_at).toLocaleDateString()}
-                        </div>
-                        <div style="margin-top: 8px;">
-                            <span class="badge ${priorityClass}"><i class="fas fa-flag"></i> ${priorityText}</span>
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); viewQuery(${q.id})" style="padding: 4px 12px; font-size: 0.75rem;"><i class="fas fa-eye"></i> View</button>
-                            ${q.status === 'pending' ? `
-                                <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); resolveQueryQuick(${q.id})" style="padding: 4px 12px; font-size: 0.75rem;"><i class="fas fa-check"></i> Resolve</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
-        function searchQueries() {
-            const searchTerm = document.getElementById('searchInput').value;
-            const status = document.getElementById('statusFilter').value;
-            const priority = document.getElementById('priorityFilter').value;
-            renderQueries(searchTerm, status, priority);
-        }
-
-        // ========== QUERY ACTIONS ==========
+        // ========== VIEW QUERY ==========
         let currentQueryId = null;
 
-        function viewQuery(id) {
-            const query = queries.find(q => q.id === id);
-            if (!query) return;
-
-            currentQueryId = id;
+        async function viewQuery(id) {
+            const res = await safeApiCall(`/api/admin/tickets/${id}`);
+            if (!res || !res.ok) {
+                showMessage('Could not load query details', 'error');
+                return;
+            }
+            const q = await res.json();
+            currentQueryId = q.id;
 
             const modal = document.getElementById('queryModal');
             const detailsDiv = document.getElementById('queryDetails');
 
             let responsesHtml = '';
-            if (query.responses && query.responses.length > 0) {
-                responsesHtml = '<h4><i class="fas fa-history"></i> Conversation History</h4>';
-                query.responses.forEach(r => {
+            if (q.responses && q.responses.length) {
+                responsesHtml = '<h4 style="margin: 15px 0 8px;">Conversation History</h4>';
+                q.responses.forEach(r => {
                     responsesHtml += `
                         <div class="reply-item">
                             <strong>${escapeHtml(r.admin)}</strong> - ${new Date(r.date).toLocaleString()}<br>
@@ -674,20 +677,17 @@
                 responsesHtml = '<p>No responses yet.</p>';
             }
 
-            const statusClass = query.status === 'pending' ? 'badge-pending' : 'badge-resolved';
-            const priorityClass = `badge-${query.priority}`;
-
             detailsDiv.innerHTML = `
-                <div style="margin: 15px 0;">
-                    <p><strong><i class="fas fa-user-tie"></i> Staff:</strong> ${escapeHtml(query.staff_name)} (${escapeHtml(query.staff_email)})</p>
-                    <p><strong><i class="fas fa-building"></i> Department:</strong> ${escapeHtml(query.department)}</p>
-                    <p><strong><i class="fas fa-tag"></i> Subject:</strong> ${escapeHtml(query.subject)}</p>
-                    <p><strong><i class="fas fa-align-left"></i> Message:</strong> ${escapeHtml(query.message)}</p>
-                    <p><strong><i class="fas fa-flag"></i> Priority:</strong> <span class="badge ${priorityClass}">${query.priority.toUpperCase()}</span></p>
-                    <p><strong><i class="fas fa-chart-simple"></i> Status:</strong> <span class="badge ${statusClass}">${query.status.toUpperCase()}</span></p>
-                    <p><strong><i class="fas fa-calendar-alt"></i> Created:</strong> ${new Date(query.created_at).toLocaleString()}</p>
+                <div style="margin: 10px 0;">
+                    <p><strong><i class="fas fa-user-tie"></i> Staff:</strong> ${escapeHtml(q.staff_name)} (${escapeHtml(q.staff_email)})</p>
+                    <p><strong><i class="fas fa-building"></i> Department:</strong> ${escapeHtml(q.department || 'General')}</p>
+                    <p><strong><i class="fas fa-tag"></i> Subject:</strong> ${escapeHtml(q.subject)}</p>
+                    <p><strong><i class="fas fa-align-left"></i> Message:</strong> ${escapeHtml(q.message)}</p>
+                    <p><strong><i class="fas fa-flag"></i> Priority:</strong> <span class="badge badge-${q.priority}">${q.priority}</span></p>
+                    <p><strong><i class="fas fa-chart-simple"></i> Status:</strong> <span class="badge ${q.status === 'pending' ? 'badge-pending' : 'badge-resolved'}">${q.status}</span></p>
+                    <p><strong><i class="fas fa-calendar-alt"></i> Created:</strong> ${new Date(q.created_at).toLocaleString()}</p>
                 </div>
-                <h4><i class="fas fa-comments"></i> Conversation</h4>
+                <h4 style="margin-top: 15px;">Conversation</h4>
                 ${responsesHtml}
             `;
 
@@ -695,87 +695,117 @@
             modal.style.display = 'flex';
         }
 
-        function sendResponse() {
+        // ========== SEND RESPONSE ==========
+        async function sendResponse() {
             const message = document.getElementById('responseMessage').value.trim();
             if (!message) {
-                showMessage('Please enter a response message', 'warning');
+                showMessage('Please enter a response', 'warning');
                 return;
             }
-
-            const query = queries.find(q => q.id === currentQueryId);
-            if (!query) return;
-
-            if (!query.responses) query.responses = [];
-            query.responses.push({
-                admin: user.first_name || user.username || 'Registrar',
-                message: message,
-                date: new Date().toISOString()
+            const res = await safeApiCall(`/api/admin/tickets/${currentQueryId}/respond`, {
+                method: 'POST',
+                body: JSON.stringify({ message })
             });
-
-            showMessage('Response added successfully!', 'success');
-            // Update the modal to show new response
-            viewQuery(currentQueryId);
-            // Refresh list if needed
-            searchQueries();
-            updateStats();
+            if (res && res.ok) {
+                showMessage('Response added', 'success');
+                await viewQuery(currentQueryId);
+                await loadQueries();
+                await loadStats();
+            } else {
+                showMessage('Failed to add response', 'error');
+            }
         }
 
-        function resolveQuery() {
+        // ========== RESOLVE QUERY ==========
+        async function resolveQuery() {
             if (!confirm('Mark this query as resolved?')) return;
-            const query = queries.find(q => q.id === currentQueryId);
-            if (query) {
-                query.status = 'resolved';
-                showMessage('Query marked as resolved!', 'success');
+            const res = await safeApiCall(`/api/admin/tickets/${currentQueryId}/resolve`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('Query resolved', 'success');
                 closeModal('queryModal');
-                searchQueries();
-                updateStats();
+                await loadQueries();
+                await loadStats();
+            } else {
+                showMessage('Failed to resolve query', 'error');
             }
         }
 
-        function resolveQueryQuick(id) {
+        async function resolveQueryQuick(id) {
             if (!confirm('Mark this query as resolved?')) return;
-            const query = queries.find(q => q.id === id);
-            if (query) {
-                query.status = 'resolved';
-                showMessage('Query marked as resolved!', 'success');
-                searchQueries();
-                updateStats();
+            const res = await safeApiCall(`/api/admin/tickets/${id}/resolve`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('Query resolved', 'success');
+                await loadQueries();
+                await loadStats();
+            } else {
+                showMessage('Failed to resolve query', 'error');
             }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
         }
 
         // ========== EXPORT ==========
-        function exportQueries() {
+        async function exportQueries() {
+            // Use current filtered list from the displayed queries
+            const container = document.getElementById('queriesList');
+            const cards = container.querySelectorAll('.query-card');
+            if (!cards.length) {
+                showMessage('No data to export', 'warning');
+                return;
+            }
+            // We need the actual data; easiest: refetch with current filters or use stored allQueries
+            let url = '/api/admin/tickets?';
+            if (currentFilter.status !== 'all') url += `status=${currentFilter.status}&`;
+            if (currentFilter.priority !== 'all') url += `priority=${currentFilter.priority}&`;
+            if (currentFilter.search) url += `search=${encodeURIComponent(currentFilter.search)}&`;
+            url = url.slice(0, -1);
+            const res = await safeApiCall(url);
+            if (!res || !res.ok) {
+                showMessage('Could not fetch data for export', 'error');
+                return;
+            }
+            let queries = await res.json();
+            if (currentFilter.search) {
+                const term = currentFilter.search.toLowerCase();
+                queries = queries.filter(q =>
+                    q.staff_name.toLowerCase().includes(term) ||
+                    (q.department || '').toLowerCase().includes(term) ||
+                    q.subject.toLowerCase().includes(term)
+                );
+            }
+            if (!queries.length) {
+                showMessage('No data to export', 'warning');
+                return;
+            }
             const data = queries.map(q => ({
                 'Staff Name': q.staff_name,
                 'Staff Email': q.staff_email,
-                'Department': q.department,
+                'Department': q.department || '',
                 'Subject': q.subject,
                 'Message': q.message,
                 'Priority': q.priority,
                 'Status': q.status,
                 'Created': new Date(q.created_at).toLocaleString(),
-                'Responses': q.responses.map(r => `${r.admin}: ${r.message}`).join(' | ')
+                'Responses': (q.responses || []).map(r => `${r.admin}: ${r.message}`).join(' | ')
             }));
             const csv = convertToCSV(data);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
+            const urlObj = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
+            a.href = urlObj;
             a.download = `staff_queries_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
-            URL.revokeObjectURL(url);
-            showMessage('Export started!', 'success');
+            URL.revokeObjectURL(urlObj);
+            showMessage('Export completed', 'success');
         }
 
         function convertToCSV(arr) {
             if (!arr.length) return '';
             const headers = Object.keys(arr[0]).join(',');
-            const rows = arr.map(obj => Object.values(obj).map(v => `"${v}"`).join(','));
+            const rows = arr.map(obj => Object.values(obj).map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
             return [headers, ...rows].join('\n');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
 
         function escapeHtml(text) {
@@ -793,11 +823,12 @@
         });
 
         // ========== INIT ==========
-        function init() {
-            updateStats();
-            renderQueries();
+        async function init() {
+            await loadStats();
+            await loadQueries();
         }
         init();
     </script>
 </body>
+
 </html>

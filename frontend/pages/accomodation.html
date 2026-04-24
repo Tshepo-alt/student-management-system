@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Accommodation - GIPS College | GIPS Student Village</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -14,24 +14,25 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
         }
 
+        /* Navigation */
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 0.8rem 0;
+            padding: 0.7rem 0;
         }
 
         .container {
             max-width: 1280px;
             margin: 0 auto;
-            padding: 0 30px;
+            padding: 0 24px;
         }
 
         .navbar .container {
@@ -39,19 +40,18 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 12px;
         }
 
         .navbar-brand img {
-            height: 50px;
+            height: 45px;
             width: auto;
-            transition: transform 0.3s;
         }
 
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 1rem;
+            gap: 0.7rem;
             flex-wrap: wrap;
         }
 
@@ -59,97 +59,116 @@
             text-decoration: none;
             color: #4a5568;
             font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-            display: flex;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            background: #f1f5f9;
         }
 
         .nav-link i {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .nav-link:hover,
         .nav-link.active {
-            color: #667eea;
+            background: #667eea;
+            color: white;
         }
 
+        /* Hero Banner */
         .hero-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 24px;
-            padding: 35px 40px;
-            margin: 30px 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
-        .hero-banner::before {
-            content: "\f015";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            bottom: 20px;
-            right: 30px;
-            font-size: 80px;
-            opacity: 0.15;
+        .hero-banner h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
+        .hero-banner p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
-            margin-bottom: 35px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
             background: white;
-            padding: 20px;
             border-radius: 20px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
         }
 
+        .stat-label {
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* Tabs */
         .tabs {
             display: flex;
-            gap: 12px;
-            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 32px;
             background: white;
             padding: 8px;
-            border-radius: 20px;
-            flex-wrap: wrap;
+            border-radius: 60px;
+            border: 1px solid #e2e8f0;
         }
 
         .tab-button {
-            padding: 10px 24px;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: 0.2s;
             background: none;
             border: none;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #718096;
-            border-radius: 16px;
-            transition: all 0.3s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
         .tab-button.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #667eea;
             color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
         }
 
         .tab-content {
@@ -173,17 +192,24 @@
             }
         }
 
+        /* Room Cards */
         .accommodation-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
         }
 
         .accommodation-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
-            border: 1px solid rgba(102, 126, 234, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+
+        .accommodation-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.1);
         }
 
         .card-header {
@@ -191,6 +217,11 @@
             padding: 20px;
             text-align: center;
             color: white;
+        }
+
+        .card-header i {
+            font-size: 2rem;
+            margin-bottom: 8px;
         }
 
         .card-content {
@@ -201,29 +232,42 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin: 15px 0;
+            margin: 16px 0;
         }
 
         .amenity-tag {
             background: #f1f5f9;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 30px;
             font-size: 0.7rem;
-            color: #4a5568;
+            color: #334155;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 12px;
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .btn {
             padding: 10px 20px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 0.85rem;
+            border-radius: 40px;
             font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             width: 100%;
-            justify-content: center;
+            border: none;
         }
 
         .btn-primary {
@@ -242,8 +286,9 @@
         }
 
         .btn-secondary {
-            background: #cbd5e0;
-            color: #4a5568;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #e2e8f0;
         }
 
         .btn:disabled {
@@ -260,83 +305,78 @@
         }
 
         .badge-pending {
-            background: #feebc8;
-            color: #c05621;
+            background: #fef3c7;
+            color: #92400e;
         }
 
         .badge-approved {
-            background: #c6f6d5;
-            color: #276749;
+            background: #dcfce7;
+            color: #15803d;
         }
 
         .badge-allocated {
-            background: #cfe2ff;
-            color: #084298;
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .badge-rejected {
-            background: #fed7d7;
-            color: #c53030;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
-        .info-item {
-            margin: 12px 0;
-            padding: 8px 12px;
-            background: #f9fafb;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
+        /* Rules Section */
         .rules-section {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(102, 126, 234, 0.1);
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
         }
 
         .rule-item {
             padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #f1f5f9;
             display: flex;
             gap: 12px;
         }
 
+        .rule-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
-            z-index: 2000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
+            z-index: 2000;
             align-items: center;
             justify-content: center;
         }
 
         .modal-content {
             background: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 24px;
+            border-radius: 28px;
             width: 90%;
             max-width: 550px;
             max-height: 85vh;
             overflow-y: auto;
+            padding: 28px;
+            position: relative;
         }
 
         .close {
-            float: right;
-            font-size: 1.5rem;
-            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 1.4rem;
             cursor: pointer;
-            color: #a0aec0;
+            color: #94a3b8;
         }
 
         .form-group {
@@ -347,7 +387,8 @@
             display: block;
             margin-bottom: 6px;
             font-weight: 500;
-            color: #4a5568;
+            color: #334155;
+            font-size: 0.85rem;
         }
 
         .form-group input,
@@ -356,7 +397,7 @@
             width: 100%;
             padding: 10px 14px;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 16px;
             font-family: inherit;
         }
 
@@ -364,34 +405,35 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 15px 0;
+            margin: 20px 0;
         }
 
         .error-message,
         .success-message,
         .info-message {
             padding: 12px 16px;
-            border-radius: 12px;
-            margin: 15px 0;
+            border-radius: 16px;
+            margin: 16px 0;
+            font-size: 0.85rem;
             display: none;
         }
 
         .error-message {
-            background: #fed7d7;
-            color: #c53030;
-            border-left: 4px solid #e53e3e;
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
         }
 
         .success-message {
-            background: #c6f6d5;
-            color: #276749;
-            border-left: 4px solid #38a169;
+            background: #dcfce7;
+            color: #15803d;
+            border-left: 4px solid #10b981;
         }
 
         .info-message {
-            background: #cfe2ff;
-            color: #084298;
-            border-left: 4px solid #3182ce;
+            background: #e0f2fe;
+            color: #0c4a6e;
+            border-left: 4px solid #0284c7;
             display: block;
         }
 
@@ -399,11 +441,10 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 50%;
+            border: 2px solid #e2e8f0;
             border-top-color: #667eea;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
         }
 
         @keyframes spin {
@@ -413,20 +454,44 @@
         }
 
         .footer {
-            background: #2d3748;
-            color: white;
+            background: #1e293b;
+            color: #cbd5e1;
             text-align: center;
-            padding: 30px 0;
-            margin-top: 50px;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
             .container {
-                padding: 0 20px;
+                padding: 0 16px;
+            }
+
+            .navbar .container {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
             }
 
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.4rem;
+            }
+
+            .hero-banner h1 {
+                font-size: 1.2rem;
+            }
+
+            .tabs {
+                border-radius: 40px;
             }
 
             .accommodation-grid {
@@ -439,7 +504,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College Logo"
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
                     onerror="this.style.display='none'"></div>
             <ul class="nav-menu">
                 <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
@@ -467,8 +532,6 @@
             <p>Experience premium student living at Gaborone Main Campus. Modern facilities, 24/7 security, and a
                 vibrant community.</p>
         </div>
-
-        <div id="infoBanner" class="info-message" style="display: none;"></div>
 
         <div class="stats-grid">
             <div class="stat-card">
@@ -499,7 +562,7 @@
         <div id="available" class="tab-content active">
             <div id="availableAccommodation" class="accommodation-grid">
                 <div class="loading-spinner"></div>
-                <p>Loading residences...</p>
+                <p>Loading rooms...</p>
             </div>
         </div>
 
@@ -519,50 +582,30 @@
             <h2><i class="fas fa-pen-alt"></i> Apply for Accommodation</h2>
             <div id="accommodationDetails" class="info-message" style="display: block; margin-bottom: 15px;"></div>
             <form id="applicationForm">
-                <div class="form-group">
-                    <label>Room Type *</label>
-                    <select id="roomType" required>
+                <div class="form-group"><label>Room Type *</label><select id="roomType" required>
                         <option value="bachelor_pad">Bachelor Pad (2 students per room)</option>
                         <option value="three_bed">Three-Bed Room (6 students per room)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Block Preference (Optional)</label>
-                    <select id="blockPreference">
+                    </select></div>
+                <div class="form-group"><label>Block Preference (Optional)</label><select id="blockPreference">
                         <option value="">Any block</option>
                         <option value="A">Block A</option>
                         <option value="B">Block B</option>
                         <option value="C">Block C</option>
                         <option value="D">Block D</option>
                         <option value="E">Block E</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Emergency Contact Name *</label>
-                    <input type="text" id="emergencyName" required placeholder="Full name of emergency contact">
-                </div>
-                <div class="form-group">
-                    <label>Emergency Contact Phone *</label>
-                    <input type="tel" id="emergencyPhone" required placeholder="+267 71234567">
-                </div>
-                <div class="form-group">
-                    <label>Emergency Contact Relationship</label>
-                    <input type="text" id="emergencyRelation" placeholder="e.g., Parent, Guardian, Sibling">
-                </div>
-                <div class="form-group">
-                    <label>Medical Conditions (if any)</label>
-                    <textarea id="medicalConditions" rows="2"
-                        placeholder="List any medical conditions or allergies..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Dietary Requirements</label>
-                    <textarea id="dietaryRequirements" rows="2"
-                        placeholder="Any dietary restrictions or preferences..."></textarea>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="acceptRules" required>
-                    <label>I have read and agree to the accommodation rules and regulations</label>
-                </div>
+                    </select></div>
+                <div class="form-group"><label>Emergency Contact Name *</label><input type="text" id="emergencyName"
+                        required placeholder="Full name of emergency contact"></div>
+                <div class="form-group"><label>Emergency Contact Phone *</label><input type="tel" id="emergencyPhone"
+                        required placeholder="+267 71234567"></div>
+                <div class="form-group"><label>Emergency Contact Relationship</label><input type="text"
+                        id="emergencyRelation" placeholder="e.g., Parent, Guardian, Sibling"></div>
+                <div class="form-group"><label>Medical Conditions (if any)</label><textarea id="medicalConditions"
+                        rows="2" placeholder="List any medical conditions or allergies..."></textarea></div>
+                <div class="form-group"><label>Dietary Requirements</label><textarea id="dietaryRequirements" rows="2"
+                        placeholder="Any dietary restrictions or preferences..."></textarea></div>
+                <div class="checkbox-group"><input type="checkbox" id="acceptRules" required><label>I have read and
+                        agree to the accommodation rules and regulations</label></div>
                 <button type="submit" id="submitApplicationBtn" class="btn btn-primary"><i
                         class="fas fa-paper-plane"></i> Submit Application</button>
             </form>
@@ -595,9 +638,7 @@
     </footer>
 
     <script>
-        // ============================================
-        // AUTH & SAFE API CALL
-        // ============================================
+        // ========== AUTH & SAFE API ==========
         const token = localStorage.getItem('access_token');
         if (!token) window.location.href = 'login.html';
 
@@ -605,102 +646,81 @@
 
         async function safeApiCall(endpoint, options = {}) {
             try {
-                const response = await fetch(endpoint, {
+                const res = await fetch(endpoint, {
                     ...options,
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
                 });
-                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return response;
-            } catch (error) { console.error(error); return null; }
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
         }
 
-        // ========== ELIGIBILITY CHECK (from backend) ==========
+        // ========== ELIGIBILITY ==========
         async function checkEligibility() {
             const banner = document.getElementById('infoBanner');
+            if (!banner) return;
             try {
-                const response = await safeApiCall('/api/accommodation/check-eligibility');
-                if (response && response.ok) {
-                    const data = await response.json();
+                const res = await safeApiCall('/api/accommodation/check-eligibility');
+                if (res && res.ok) {
+                    const data = await res.json();
                     canApply = data.eligible;
-                    if (!canApply && banner) {
+                    if (!canApply) {
                         banner.style.display = 'block';
                         banner.innerHTML = `<i class="fas fa-info-circle"></i> ${data.reasons ? data.reasons.join(' ') : 'You are not eligible for accommodation at this time.'}`;
-                    } else if (banner) banner.style.display = 'none';
+                    } else {
+                        banner.style.display = 'none';
+                    }
                 } else {
-                    const statusResp = await safeApiCall('/api/students/status');
-                    if (statusResp && statusResp.ok) {
-                        const statusData = await statusResp.json();
+                    const statusRes = await safeApiCall('/api/students/status');
+                    if (statusRes && statusRes.ok) {
+                        const statusData = await statusRes.json();
                         canApply = statusData.admission_status === 'accepted' && statusData.can_apply_accommodation === true;
-                        if (!canApply && banner) {
-                            banner.style.display = 'block';
-                            banner.innerHTML = '<i class="fas fa-info-circle"></i> Your admission is not yet approved or your campus does not offer accommodation.';
-                        } else if (banner) banner.style.display = 'none';
+                        if (!canApply) banner.innerHTML = '<i class="fas fa-info-circle"></i> Your admission is not yet approved or your campus does not offer accommodation.';
+                        else banner.style.display = 'none';
                     } else {
                         canApply = true;
                     }
                 }
-            } catch (err) {
-                console.warn('Eligibility check failed:', err);
-                canApply = true;
-            }
-            return canApply;
+            } catch (err) { console.warn(err); canApply = true; }
         }
 
-        // ============================================
-        // LOAD ROOM AVAILABILITY FROM BACKEND (NO HARDCODED DATA)
-        // ============================================
+        // ========== ROOM AVAILABILITY ==========
         async function loadRoomAvailability() {
             const container = document.getElementById('availableAccommodation');
-            if (!container) return;
             container.innerHTML = '<div class="loading-spinner"></div><p>Loading rooms...</p>';
-
-            const response = await safeApiCall('/api/accommodation/rooms');
-            if (!response || !response.ok) {
-                container.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Unable to load room availability. Please try again later.</p>';
+            const res = await safeApiCall('/api/accommodation/rooms');
+            if (!res || !res.ok) {
+                container.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Unable to load room availability.</p>';
                 return;
             }
-
-            const data = await response.json();
+            const data = await res.json();
             const blocks = data.blocks || [];
-            const totalRooms = data.total_rooms || 0;
-            const availableRooms = data.available_rooms || 0;
-            const occupancyRate = data.occupancy_rate || 0;
-
-            // Update stats
-            document.getElementById('totalRooms').textContent = totalRooms;
-            document.getElementById('availableRooms').textContent = availableRooms;
-            document.getElementById('occupancyRate').textContent = `${occupancyRate}%`;
-            // Optionally fetch active applicants count from another endpoint (or leave as placeholder)
+            document.getElementById('totalRooms').textContent = data.total_rooms || 0;
+            document.getElementById('availableRooms').textContent = data.available_rooms || 0;
+            document.getElementById('occupancyRate').textContent = `${data.occupancy_rate || 0}%`;
             document.getElementById('applicantsCount').textContent = '--';
 
-            if (blocks.length === 0) {
-                container.innerHTML = '<p>No accommodation blocks are available at this time.</p>';
+            if (!blocks.length) {
+                container.innerHTML = '<p>No accommodation blocks available at this time.</p>';
                 return;
             }
-
-            // Common amenities (can be static since they apply to all blocks)
-            const amenities = ['Kitchen with Electric Stove', 'Washing Basin', 'Shower', 'Water Supply', '24/7 Security', 'Study Table', 'Bed', 'Chair', 'High-Speed WiFi'];
-
+            const amenities = ['Kitchen', 'Shower', 'Study Table', 'Bed', '24/7 Security', 'WiFi'];
             let html = '';
             for (const block of blocks) {
                 const bachelorRooms = block.rooms.filter(r => r.room_type === 'bachelor_pad');
                 const threeBedRooms = block.rooms.filter(r => r.room_type === 'three_bed');
-                const bachelorAvailable = bachelorRooms.filter(r => r.is_available).length;
-                const threeBedAvailable = threeBedRooms.filter(r => r.is_available).length;
-                const totalAvailable = bachelorAvailable + threeBedAvailable;
-
+                const bachelorAvail = bachelorRooms.filter(r => r.is_available).length;
+                const threeBedAvail = threeBedRooms.filter(r => r.is_available).length;
                 html += `
                     <div class="accommodation-card">
                         <div class="card-header"><i class="fas fa-building"></i><h3>Block ${escapeHtml(block.block_name)}</h3></div>
                         <div class="card-content">
                             <p>Located at Gaborone Main Campus. Modern, secure housing with all amenities.</p>
-                            <div class="amenities-list">
-                                ${amenities.slice(0, 5).map(a => `<span class="amenity-tag"><i class="fas fa-check"></i> ${escapeHtml(a)}</span>`).join('')}
-                            </div>
-                            <div class="info-item"><label>Bachelor Pads:</label><span>${bachelorAvailable} / ${bachelorRooms.length} available</span></div>
-                            <div class="info-item"><label>Three-Bed Rooms:</label><span>${threeBedAvailable} / ${threeBedRooms.length} available</span></div>
-                            <button class="btn btn-primary" onclick="openApplicationModal('Block ${escapeHtml(block.block_name)}', '${escapeHtml(block.block_name)}')" ${totalAvailable === 0 ? 'disabled' : ''}>
-                                ${totalAvailable > 0 ? '<i class="fas fa-paper-plane"></i> Apply' : '<i class="fas fa-ban"></i> Fully Booked'}
+                            <div class="amenities-list">${amenities.map(a => `<span class="amenity-tag"><i class="fas fa-check"></i> ${a}</span>`).join('')}</div>
+                            <div class="info-item"><label>Bachelor Pads:</label><span>${bachelorAvail} / ${bachelorRooms.length} available</span></div>
+                            <div class="info-item"><label>Three-Bed Rooms:</label><span>${threeBedAvail} / ${threeBedRooms.length} available</span></div>
+                            <button class="btn btn-primary" onclick="openApplicationModal('Block ${block.block_name}', '${block.block_name}')" ${(bachelorAvail + threeBedAvail) === 0 ? 'disabled' : ''}>
+                                ${(bachelorAvail + threeBedAvail) > 0 ? '<i class="fas fa-paper-plane"></i> Apply' : '<i class="fas fa-ban"></i> Fully Booked'}
                             </button>
                         </div>
                     </div>
@@ -709,18 +729,13 @@
             container.innerHTML = html;
         }
 
-        // ============================================
-        // APPLICATION SUBMISSION (Uses backend, unchanged)
-        // ============================================
+        // ========== APPLICATION SUBMISSION ==========
         let selectedBlock = null;
         window.openApplicationModal = function (blockName, block) {
-            if (!canApply) {
-                alert('You are not eligible to apply for accommodation at this time.');
-                return;
-            }
+            if (!canApply) { alert('You are not eligible to apply for accommodation at this time.'); return; }
             selectedBlock = block;
             document.getElementById('accommodationDetails').innerHTML = `<i class="fas fa-info-circle"></i> <strong>Applying for Block ${escapeHtml(blockName)}</strong><br>GIPS Student Village, Gaborone Main Campus.`;
-            document.getElementById('applicationModal').style.display = 'block';
+            document.getElementById('applicationModal').style.display = 'flex';
         };
 
         async function submitApplication() {
@@ -731,12 +746,12 @@
             successDiv.style.display = 'none';
 
             const roomType = document.getElementById('roomType').value;
-            const blockPreference = document.getElementById('blockPreference').value;
+            const blockPref = document.getElementById('blockPreference').value;
             const emergencyName = document.getElementById('emergencyName').value.trim();
             const emergencyPhone = document.getElementById('emergencyPhone').value.trim();
             const emergencyRelation = document.getElementById('emergencyRelation').value;
             const medicalConditions = document.getElementById('medicalConditions').value;
-            const dietaryRequirements = document.getElementById('dietaryRequirements').value;
+            const dietary = document.getElementById('dietaryRequirements').value;
             const acceptRules = document.getElementById('acceptRules').checked;
 
             if (!emergencyName || !emergencyPhone) {
@@ -752,23 +767,20 @@
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
-
             const payload = {
                 room_type: roomType,
-                block_preference: blockPreference || null,
+                block_preference: blockPref || null,
                 emergency_contact_name: emergencyName,
                 emergency_contact_phone: emergencyPhone,
                 emergency_contact_relationship: emergencyRelation || null,
                 medical_conditions: medicalConditions || null,
-                dietary_requirements: dietaryRequirements || null,
+                dietary_requirements: dietary || null,
                 has_accepted_rules: acceptRules
             };
-
             const response = await safeApiCall('/api/accommodation/apply', {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
-
             if (response && response.ok) {
                 const result = await response.json();
                 successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message || 'Application submitted successfully!'}`;
@@ -779,23 +791,18 @@
                     document.querySelector('[data-tab="my-application"]').click();
                 }, 2000);
             } else {
-                let errorMsg = 'Failed to submit application. Please try again.';
+                let errMsg = 'Failed to submit application. Please try again.';
                 if (response && response.status === 400) {
-                    try {
-                        const errData = await response.json();
-                        errorMsg = errData.error || errData.message || errorMsg;
-                    } catch (e) { }
+                    try { const errData = await response.json(); errMsg = errData.error || errData.message || errMsg; } catch (e) { }
                 }
-                errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMsg}`;
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errMsg}`;
                 errorDiv.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
             }
         }
 
-        // ============================================
-        // LOAD MY APPLICATION STATUS
-        // ============================================
+        // ========== LOAD MY APPLICATION ==========
         async function loadMyApplication() {
             const container = document.getElementById('myApplication');
             container.innerHTML = '<div class="loading-spinner"></div><p>Loading your application...</p>';
@@ -804,13 +811,12 @@
                 const data = await response.json();
                 if (data.has_applied) {
                     const statusClass = data.status === 'pending' ? 'badge-pending' : (data.status === 'approved' ? 'badge-approved' : (data.status === 'allocated' ? 'badge-allocated' : 'badge-rejected'));
-                    const statusText = data.status_display || data.status;
                     container.innerHTML = `
                         <div class="accommodation-card">
                             <div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Your Application Status</h3></div>
                             <div class="card-content">
                                 <div class="info-item"><label>Application ID:</label><span>#${data.application_id}</span></div>
-                                <div class="info-item"><label>Status:</label><span class="badge ${statusClass}">${statusText}</span></div>
+                                <div class="info-item"><label>Status:</label><span class="badge ${statusClass}">${data.status_display || data.status}</span></div>
                                 <div class="info-item"><label>Room Type:</label><span>${data.room_type_display || data.room_type}</span></div>
                                 <div class="info-item"><label>Block Preference:</label><span>${data.block_preference || 'Any'}</span></div>
                                 ${data.allocated_room_number ? `<div class="info-item"><label>Allocated Room:</label><span>Block ${data.allocated_block} - Room ${data.allocated_room_number}</span></div>` : ''}
@@ -827,9 +833,7 @@
             }
         }
 
-        // ============================================
-        // RULES & REGULATIONS (static, but can be enhanced with backend call)
-        // ============================================
+        // ========== RULES ==========
         function loadRules() {
             document.getElementById('rulesContent').innerHTML = `
                 <div class="rules-section">
@@ -856,22 +860,14 @@
             `;
         }
 
-        // ============================================
-        // MODAL HELPERS
-        // ============================================
+        // ========== MODAL HELPERS ==========
         window.openCancelModal = function () { document.getElementById('cancelModal').style.display = 'flex'; };
         window.closeModal = function (modalId) { document.getElementById(modalId).style.display = 'none'; };
         document.getElementById('applicationForm').addEventListener('submit', (e) => { e.preventDefault(); submitApplication(); });
         document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
             const resp = await safeApiCall('/api/accommodation/cancel', { method: 'POST' });
-            if (resp && resp.ok) {
-                alert('Application cancelled.');
-                closeModal('cancelModal');
-                loadMyApplication();
-            } else {
-                alert('Failed to cancel. Contact accommodation office.');
-                closeModal('cancelModal');
-            }
+            if (resp && resp.ok) { alert('Application cancelled.'); closeModal('cancelModal'); loadMyApplication(); }
+            else { alert('Failed to cancel. Contact accommodation office.'); closeModal('cancelModal'); }
         });
         document.querySelectorAll('.close').forEach(btn => {
             btn.addEventListener('click', function () { this.closest('.modal').style.display = 'none'; });
@@ -881,9 +877,7 @@
 
         function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
-        // ============================================
-        // TAB SWITCHING
-        // ============================================
+        // ========== TAB SWITCHING ==========
         function setupTabs() {
             const tabs = document.querySelectorAll('.tab-button');
             const contents = document.querySelectorAll('.tab-content');
@@ -901,9 +895,7 @@
             });
         }
 
-        // ============================================
-        // INITIALISE
-        // ============================================
+        // ========== INIT ==========
         async function init() {
             await checkEligibility();
             await loadRoomAvailability();

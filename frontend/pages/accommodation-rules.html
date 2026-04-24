@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accommodation Rules - GIPS College Portal | GIPS Student Village</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Accommodation Rules - GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,170 +14,155 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
             min-height: 100vh;
         }
 
         /* Navigation */
         .navbar {
             background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 0.8rem 0;
+            padding: 0.7rem 0;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
         }
 
         .navbar .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .navbar-brand img {
-            height: 50px;
+            height: 45px;
             width: auto;
-            transition: transform 0.3s;
-        }
-
-        .navbar-brand img:hover {
-            transform: scale(1.05);
         }
 
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 2rem;
-            align-items: center;
+            gap: 0.7rem;
+            flex-wrap: wrap;
         }
 
         .nav-link {
             text-decoration: none;
-            color: #333;
+            color: #4a5568;
             font-weight: 500;
-            transition: all 0.3s;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            position: relative;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
         }
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s;
-            transform: translateX(-50%);
+        .nav-link i {
+            font-size: 0.9rem;
         }
 
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 70%;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: #667eea;
+        .nav-link:hover,
+        .nav-link.active {
+            background: #667eea;
+            color: white;
         }
 
         /* Page Header */
-        .rules-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
+        .page-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
             color: white;
             position: relative;
             overflow: hidden;
         }
 
-        .rules-header::before {
-            content: '📜';
-            position: absolute;
-            bottom: 20px;
-            right: 30px;
-            font-size: 80px;
-            opacity: 0.2;
+        .page-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .rules-header h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .rules-header p {
+        .page-header p {
             opacity: 0.9;
+            font-size: 0.9rem;
         }
 
-        /* Main Content Layout */
+        /* Rules Layout */
         .rules-layout {
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 30px;
+            grid-template-columns: 280px 1fr;
+            gap: 28px;
             margin-bottom: 40px;
         }
 
         /* Sidebar */
         .rules-sidebar {
             background: white;
-            border-radius: 16px;
+            border-radius: 24px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            height: fit-content;
             position: sticky;
             top: 100px;
-            height: fit-content;
         }
 
         .sidebar-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 20px;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #667eea;
-            color: #333;
+            display: inline-block;
         }
 
         .rule-categories {
             list-style: none;
-        }
-
-        .rule-categories li {
-            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .rule-category-link {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 15px;
+            padding: 10px 14px;
+            border-radius: 40px;
             text-decoration: none;
-            color: #555;
-            border-radius: 10px;
-            transition: all 0.3s;
+            color: #334155;
+            font-weight: 500;
+            transition: 0.2s;
             cursor: pointer;
         }
 
         .rule-category-link i {
-            width: 24px;
+            width: 22px;
             color: #667eea;
         }
 
         .rule-category-link:hover {
-            background: #f0f0f0;
+            background: #f1f5f9;
             color: #667eea;
         }
 
         .rule-category-link.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
         }
 
@@ -183,17 +170,46 @@
             color: white;
         }
 
+        /* Room Info Card */
+        .room-info {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .room-info h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+
+        .room-stats {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .room-stat {
+            text-align: center;
+        }
+
+        .room-stat .number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
         /* Main Content */
         .rules-content {
             background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
         }
 
         .category-section {
             display: none;
-            animation: fadeIn 0.4s ease;
+            animation: fadeIn 0.3s ease;
         }
 
         .category-section.active {
@@ -201,394 +217,333 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .category-header {
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .category-header h2 {
-            font-size: 1.6rem;
-            color: #333;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .category-header h2 i {
-            color: #667eea;
+            color: #0f172a;
         }
 
         .category-description {
-            color: #666;
-            margin-top: 8px;
+            color: #475569;
+            font-size: 0.85rem;
+            margin-top: 6px;
         }
 
-        /* Rules List */
         .rules-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 16px;
         }
 
         .rule-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 18px 20px;
-            transition: all 0.3s;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 18px;
             border-left: 4px solid #667eea;
+            transition: 0.2s;
         }
 
         .rule-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transform: translateX(4px);
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .rule-title {
-            font-size: 1.1rem;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .rule-title .rule-number {
+        .rule-number {
             background: #667eea;
             color: white;
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .rule-description {
-            color: #555;
-            line-height: 1.5;
-            margin-left: 38px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
 
         .rule-badge {
             display: inline-block;
-            background: #ffc107;
-            color: #856404;
-            font-size: 0.7rem;
             padding: 2px 8px;
-            border-radius: 20px;
-            margin-left: 10px;
-            font-weight: normal;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            font-weight: 600;
         }
 
         .rule-badge.mandatory {
-            background: #dc3545;
-            color: white;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
-        /* Information Cards */
+        .rule-badge.recommended {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .rule-description {
+            color: #334155;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-top: 8px;
+            margin-left: 36px;
+        }
+
+        /* Info Cards */
         .info-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
+            margin: 32px 0;
         }
 
         .info-card {
-            background: #f8f9fa;
-            border-radius: 12px;
+            background: white;
+            border-radius: 20px;
             padding: 20px;
             text-align: center;
+            border: 1px solid #e2e8f0;
         }
 
         .info-card i {
             font-size: 2rem;
             color: #667eea;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .info-card h4 {
-            margin-bottom: 8px;
-            color: #333;
+            font-size: 1rem;
+            margin-bottom: 6px;
         }
 
         .info-card p {
-            color: #666;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
+            color: #475569;
         }
 
-        /* Room Info Section */
-        .room-info {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            padding: 20px;
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
             margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .room-info h3 {
-            margin-bottom: 15px;
-            color: #333;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
         }
 
-        .room-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .room-stat {
-            text-align: center;
-            padding: 10px;
-            background: white;
-            border-radius: 10px;
-        }
-
-        .room-stat .number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        /* Agreement Modal */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
-            z-index: 2000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 20px;
+            background: white;
+            border-radius: 28px;
             width: 90%;
             max-width: 550px;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
+            padding: 28px;
+            position: relative;
         }
 
         .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 1.5rem;
             cursor: pointer;
+            color: #94a3b8;
         }
 
         .close:hover {
-            color: #000;
-        }
-
-        .modal-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .modal-header h2 {
-            color: #333;
+            color: #1e293b;
         }
 
         .agreement-text {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 20px;
+            margin: 16px 0;
             max-height: 300px;
             overflow-y: auto;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             line-height: 1.5;
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             margin: 20px 0;
-            cursor: pointer;
         }
 
-        .checkbox-group input {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #667eea;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            width: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
+        .success-message,
+        .error-message {
+            padding: 12px;
+            border-radius: 16px;
+            margin: 12px 0;
+            font-size: 0.8rem;
+            display: none;
         }
 
         .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #28a745;
-            display: none;
+            background: #dcfce7;
+            color: #15803d;
+            border-left: 4px solid #10b981;
         }
 
         .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #dc3545;
-            display: none;
-        }
-
-        .info-message {
-            background: #d1ecf1;
-            color: #0c5460;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #17a2b8;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(102,126,234,0.3);
-            border-radius: 50%;
-            border-top-color: #667eea;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
         }
 
         .footer {
-            background: #2c3e50;
-            color: white;
+            background: #1e293b;
+            color: #cbd5e1;
             text-align: center;
-            padding: 30px 0;
+            padding: 24px;
             margin-top: 40px;
+            font-size: 0.75rem;
         }
 
         @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
             .navbar .container {
                 flex-direction: column;
-                gap: 15px;
+                gap: 8px;
             }
-            .nav-menu {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 1rem;
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
             }
+
             .rules-layout {
                 grid-template-columns: 1fr;
             }
+
             .rules-sidebar {
                 position: static;
             }
+
             .rule-categories {
-                display: flex;
+                flex-direction: row;
                 flex-wrap: wrap;
                 gap: 8px;
             }
-            .rule-categories li {
-                margin-bottom: 0;
-            }
+
             .rule-category-link {
-                padding: 8px 15px;
-                font-size: 0.85rem;
+                padding: 6px 14px;
             }
+
+            .page-header h1 {
+                font-size: 1.2rem;
+            }
+
             .rule-description {
                 margin-left: 0;
             }
         }
     </style>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
-            </div>
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
             <ul class="nav-menu">
-                <li><a href="student-dashboard.html" class="nav-link">Dashboard</a></li>
-                <li><a href="assignments.html" class="nav-link">Assignments</a></li>
-                <li><a href="exam-registration.html" class="nav-link">Exams</a></li>
-                <li><a href="accomodation.html" class="nav-link">Accommodation</a></li>
-                <li><a href="campus-selection.html" class="nav-link">Campus</a></li>
-                <li><a href="accommodation-rules.html" class="nav-link active">Rules</a></li>
-                <li><a href="alumni-profile.html" class="nav-link">Alumni</a></li>
-                <li><a href="chatbot.html" class="nav-link">💬 Support</a></li>
-                <li><a href="#" id="logoutLink" class="nav-link">Logout</a></li>
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i>
+                        Exams</a></li>
+                <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
+                <li><a href="campus-selection.html" class="nav-link"><i class="fas fa-map-marker-alt"></i> Campus</a>
+                </li>
+                <li><a href="accommodation-rules.html" class="nav-link active"><i class="fas fa-gavel"></i> Rules</a>
+                </li>
+                <li><a href="alumni-profile.html" class="nav-link"><i class="fas fa-users"></i> Alumni</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="container">
-        <!-- Header -->
-        <div class="rules-header">
-            <h1><i class="fas fa-gavel"></i> GIPS Student Village Rules & Regulations</h1>
-            <p>All residents are required to read, understand, and adhere to these rules to maintain a safe, respectful, and conducive living environment.</p>
+        <div class="page-header">
+            <h1><i class="fas fa-gavel"></i> Accommodation Rules & Regulations</h1>
+            <p>All residents are required to read, understand, and adhere to these rules to maintain a safe, respectful,
+                and conducive living environment.</p>
         </div>
 
-        <!-- Main Content -->
         <div class="rules-layout">
-            <!-- Sidebar Navigation -->
+            <!-- Sidebar -->
             <div class="rules-sidebar">
-                <div class="sidebar-title">
-                    <i class="fas fa-list"></i> Rule Categories
-                </div>
-                <ul class="rule-categories" id="ruleCategories">
-                    <li><a class="rule-category-link active" data-category="general"><i class="fas fa-home"></i> General Rules</a></li>
-                    <li><a class="rule-category-link" data-category="conduct"><i class="fas fa-users"></i> Conduct & Behavior</a></li>
-                    <li><a class="rule-category-link" data-category="visitors"><i class="fas fa-user-friends"></i> Visitors Policy</a></li>
-                    <li><a class="rule-category-link" data-category="maintenance"><i class="fas fa-tools"></i> Room Maintenance</a></li>
-                    <li><a class="rule-category-link" data-category="security"><i class="fas fa-shield-alt"></i> Security & Safety</a></li>
-                    <li><a class="rule-category-link" data-category="facilities"><i class="fas fa-utensils"></i> Facilities Usage</a></li>
-                    <li><a class="rule-category-link" data-category="fines"><i class="fas fa-money-bill-wave"></i> Fines & Penalties</a></li>
-                </ul>
-                
-                <div class="room-info" style="margin-top: 20px;">
+                <div class="sidebar-title"><i class="fas fa-list"></i> Categories</div>
+                <ul class="rule-categories" id="ruleCategories"></ul>
+
+                <div class="room-info">
                     <h3><i class="fas fa-building"></i> GIPS Student Village</h3>
                     <div class="room-stats">
                         <div class="room-stat">
@@ -597,333 +552,249 @@
                         </div>
                         <div class="room-stat">
                             <div class="number">160</div>
-                            <div>Total Rooms</div>
+                            <div>Rooms</div>
                         </div>
                         <div class="room-stat">
                             <div class="number">2-6</div>
-                            <div>Students/Room</div>
+                            <div>Per Room</div>
                         </div>
                     </div>
                 </div>
 
-                <button class="btn btn-primary" style="margin-top: 20px;" onclick="openAgreementModal()">
-                    <i class="fas fa-check-circle"></i> Acknowledge Rules
-                </button>
+                <button class="btn-primary" id="acknowledgeBtn"><i class="fas fa-check-circle"></i> Acknowledge
+                    Rules</button>
             </div>
 
-            <!-- Main Content Area -->
-            <div class="rules-content" id="rulesContent">
-                <!-- General Rules -->
-                <div class="category-section active" id="general-category">
-                    <div class="category-header">
-                        <h2><i class="fas fa-home"></i> General Rules & Regulations</h2>
-                        <p class="category-description">Fundamental rules that apply to all residents of GIPS Student Village</p>
-                    </div>
-                    <div class="rules-list" id="generalRules"></div>
-                </div>
-
-                <!-- Conduct Rules -->
-                <div class="category-section" id="conduct-category">
-                    <div class="category-header">
-                        <h2><i class="fas fa-users"></i> Conduct & Behavior</h2>
-                        <p class="category-description">Expected behavior and community standards</p>
-                    </div>
-                    <div class="rules-list" id="conductRules"></div>
-                </div>
-
-                <!-- Visitors Policy -->
-                <div class="category-section" id="visitors-category">
-                    <div class="category-header">
-                        <h2><i class="fas fa-user-friends"></i> Visitors Policy</h2>
-                        <p class="category-description">Rules regarding visitors and guests</p>
-                    </div>
-                    <div class="rules-list" id="visitorsRules"></div>
-                </div>
-
-                <!-- Maintenance Rules -->
-                <div class="category-section" id="maintenance-category">
-                    <div class="category-header">
-                        <h2><i class="fas fa-tools"></i> Room Maintenance</h2>
-                        <p class="category-description">Responsibilities for maintaining your living space</p>
-                    </div>
-                    <div class="rules-list" id="maintenanceRules"></div>
-                </div>
-
-                <!-- Security Rules -->
-                <div class="category-section" id="security-category">
-                    <div class="category-header">
-                        <h2><i class="fas fa-shield-alt"></i> Security & Safety</h2>
-                        <p class="category-description">Safety protocols and security measures</p>
-                    </div>
-                    <div class="rules-list" id="securityRules"></div>
-                </div>
-
-                <!-- Facilities Rules -->
-                <div class="category-section" id="facilities-category">
-                    <div class="category-header">
-                        <h2><i class="fas fa-utensils"></i> Facilities Usage</h2>
-                        <p class="category-description">Guidelines for shared facilities</p>
-                    </div>
-                    <div class="rules-list" id="facilitiesRules"></div>
-                </div>
-
-                <!-- Fines Rules -->
-                <div class="category-section" id="fines-category">
-                    <div class="category-header">
-                        <h2><i class="fas fa-money-bill-wave"></i> Fines & Penalties</h2>
-                        <p class="category-description">Consequences for rule violations</p>
-                    </div>
-                    <div class="rules-list" id="finesRules"></div>
-                </div>
-            </div>
+            <!-- Main Content -->
+            <div class="rules-content" id="rulesContent"></div>
         </div>
 
-        <!-- Information Cards -->
+        <!-- Info Cards -->
         <div class="info-cards">
-            <div class="info-card">
-                <i class="fas fa-clock"></i>
+            <div class="info-card"><i class="fas fa-clock"></i>
                 <h4>Quiet Hours</h4>
-                <p>10:00 PM - 7:00 AM daily</p>
-                <p>No loud music or disruptive noise</p>
+                <p>10:00 PM – 7:00 AM</p>
             </div>
-            <div class="info-card">
-                <i class="fas fa-phone-alt"></i>
-                <h4>Emergency Contacts</h4>
+            <div class="info-card"><i class="fas fa-phone-alt"></i>
+                <h4>Emergency</h4>
                 <p>Security: +267 71234567</p>
-                <p>Residence Manager: +267 71234568</p>
             </div>
-            <div class="info-card">
-                <i class="fas fa-calendar-alt"></i>
-                <h4>Check-in/Check-out</h4>
-                <p>Check-in: Within 48hrs of arrival</p>
-                <p>Check-out: 10:00 AM on last day</p>
+            <div class="info-card"><i class="fas fa-calendar-alt"></i>
+                <h4>Check‑in/‑out</h4>
+                <p>Within 48hrs / 10:00 AM</p>
             </div>
         </div>
     </div>
 
-    <!-- Agreement Modal -->
+    <!-- Modal -->
     <div id="agreementModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <div class="modal-header">
-                <h2><i class="fas fa-file-signature"></i> Acknowledge Accommodation Rules</h2>
-            </div>
-            <p>Please read and acknowledge that you have understood and agree to abide by the GIPS Student Village rules and regulations.</p>
-            <div class="agreement-text" id="agreementText"></div>
+            <h2 style="margin-bottom: 16px;"><i class="fas fa-file-signature"></i> Acknowledge Rules</h2>
+            <p>Please read and confirm that you agree to abide by the GIPS Student Village rules.</p>
+            <div id="agreementText" class="agreement-text"></div>
             <div class="checkbox-group">
                 <input type="checkbox" id="agreeRules">
-                <label>I have read, understood, and agree to abide by all the rules and regulations of GIPS Student Village.</label>
+                <label>I have read, understood, and agree to all the rules and regulations.</label>
             </div>
             <div id="acknowledgeError" class="error-message"></div>
             <div id="acknowledgeSuccess" class="success-message"></div>
-            <button class="btn btn-primary" onclick="submitAcknowledgment()">Confirm Acknowledgment</button>
+            <button class="btn-primary" onclick="submitAcknowledgment()">Confirm</button>
         </div>
     </div>
 
     <footer class="footer">
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
-            <p>📜 GIPS Student Village | Excellence in Student Living | Rules effective from January 2026</p>
+            <p><i class="fas fa-gavel"></i> GIPS Student Village | Excellence in Student Living</p>
         </div>
     </footer>
 
     <script>
-        // ============================================
-        // RULES DATA FROM DATABASE SCHEMA
-        // ============================================
-        const accommodationRules = [
-            // General Rules
-            { id: 1, title: "Check-in and Check-out", description: "Students must check-in within 48 hours of arrival and check-out by 10:00 AM on the last day of the semester.", category: "general", mandatory: true, display_order: 1 },
-            { id: 2, title: "Room Allocation", description: "Rooms are allocated on a first-come, first-served basis. Room changes require written approval from the Residence Manager.", category: "general", mandatory: true, display_order: 2 },
-            { id: 3, title: "Registration Requirement", description: "Accommodation is only available to registered students with valid student ID. Proof of registration must be presented upon request.", category: "general", mandatory: true, display_order: 3 },
-            { id: 4, title: "Lease Period", description: "Accommodation is for the full academic semester. Early departure requires notice and may forfeit deposit.", category: "general", mandatory: true, display_order: 4 },
-            
-            // Conduct Rules
-            { id: 5, title: "Noise and Conduct", description: "Quiet hours are from 10:00 PM to 7:00 AM. No loud music, parties, or disruptive behavior during these hours.", category: "conduct", mandatory: true, display_order: 5 },
-            { id: 6, title: "Respect for Others", description: "All residents must show respect for fellow residents, staff, and visitors. Harassment, bullying, or discrimination will result in immediate eviction.", category: "conduct", mandatory: true, display_order: 6 },
-            { id: 7, title: "Smoking and Alcohol", description: "Smoking and alcohol consumption are strictly prohibited within the residence premises, including rooms, common areas, and balconies.", category: "conduct", mandatory: true, display_order: 7 },
-            { id: 8, title: "Drugs Policy", description: "Possession or use of illegal substances is strictly forbidden and will result in immediate expulsion from the college.", category: "conduct", mandatory: true, display_order: 8 },
-            
-            // Visitors Policy
-            { id: 9, title: "Visitor Hours", description: "Visitors are allowed only between 8:00 AM and 8:00 PM. Overnight guests require prior approval from the residence manager.", category: "visitors", mandatory: true, display_order: 9 },
-            { id: 10, title: "Guest Registration", description: "All visitors must register at the security desk and present valid ID. Residents are responsible for their guests' behavior.", category: "visitors", mandatory: true, display_order: 10 },
-            { id: 11, title: "Overnight Guest Limit", description: "Overnight guests are limited to 3 nights per month and require a completed guest permission form.", category: "visitors", mandatory: true, display_order: 11 },
-            { id: 12, title: "Guest Accommodation", description: "Visitors may stay for up to 3 nights with prior approval. Extended stays require special permission from the Residence Manager.", category: "visitors", mandatory: false, display_order: 12 },
-            
-            // Maintenance Rules
-            { id: 13, title: "Room Cleanliness", description: "Students are responsible for keeping their rooms and assigned common areas clean and tidy at all times.", category: "maintenance", mandatory: true, display_order: 13 },
-            { id: 14, title: "Report Issues Promptly", description: "Report any maintenance issues (leaks, electrical faults, broken fixtures) immediately to the residence office.", category: "maintenance", mandatory: true, display_order: 14 },
-            { id: 15, title: "No Unauthorized Alterations", description: "No painting, drilling, or structural alterations to rooms without written permission from maintenance.", category: "maintenance", mandatory: true, display_order: 15 },
-            { id: 16, title: "Personal Belongings", description: "Students are responsible for their personal belongings. The college is not liable for lost or stolen items.", category: "maintenance", mandatory: true, display_order: 16 },
-            
-            // Security Rules
-            { id: 17, title: "Lock Your Room", description: "Always lock your room when leaving, even for short periods. Do not share keys or access cards.", category: "security", mandatory: true, display_order: 17 },
-            { id: 18, title: "Report Suspicious Activity", description: "Report any suspicious persons or activities immediately to security or residence management.", category: "security", mandatory: true, display_order: 18 },
-            { id: 19, title: "Fire Safety", description: "Fire extinguishers and alarms are located on each floor. Know emergency exits and evacuation procedures.", category: "security", mandatory: true, display_order: 19 },
-            { id: 20, title: "No Propping Doors", description: "Do not prop open main entrance doors or fire doors. This compromises security and fire safety.", category: "security", mandatory: true, display_order: 20 },
-            
-            // Facilities Rules
-            { id: 21, title: "Kitchen Use", description: "Kitchen facilities are shared. Clean up after use immediately. Label all food items. Do not leave dirty dishes overnight.", category: "facilities", mandatory: true, display_order: 21 },
-            { id: 22, title: "Laundry Facilities", description: "Laundry rooms are available. Do not leave laundry unattended. Report any machine malfunctions promptly.", category: "facilities", mandatory: true, display_order: 22 },
-            { id: 23, title: "Electricity and Water Conservation", description: "Turn off lights, fans, and appliances when not in use. Report any leaks or electrical issues promptly.", category: "facilities", mandatory: true, display_order: 23 },
-            { id: 24, title: "Common Area Usage", description: "Common areas are for all residents. Keep them clean and respect others' use of these spaces.", category: "facilities", mandatory: true, display_order: 24 },
-            
-            // Fines & Penalties
-            { id: 25, title: "Damages and Fines", description: "Any damage to property will be charged to the responsible student. Repeat offenses may result in eviction.", category: "fines", mandatory: true, display_order: 25 },
-            { id: 26, title: "Noise Violations", description: "First noise violation: Written warning. Second violation: P500 fine. Third violation: Eviction.", category: "fines", mandatory: true, display_order: 26 },
-            { id: 27, title: "Smoking Violation", description: "Smoking in rooms or common areas: P1000 fine per incident and mandatory meeting with Residence Manager.", category: "fines", mandatory: true, display_order: 27 },
-            { id: 28, title: "Unauthorized Guest", description: "Unauthorized overnight guest: P500 fine per night and guest removal from premises.", category: "fines", mandatory: true, display_order: 28 }
+        // ========== RULES DATA (static from college policies) ==========
+        const ruleCategories = [
+            { id: 'general', name: 'General Rules', icon: 'fa-home', description: 'Fundamental rules for all residents' },
+            { id: 'conduct', name: 'Conduct & Behavior', icon: 'fa-users', description: 'Expected behavior and community standards' },
+            { id: 'visitors', name: 'Visitors Policy', icon: 'fa-user-friends', description: 'Rules for guests and visitors' },
+            { id: 'maintenance', name: 'Room Maintenance', icon: 'fa-tools', description: 'Responsibilities for your living space' },
+            { id: 'security', name: 'Security & Safety', icon: 'fa-shield-alt', description: 'Safety protocols' },
+            { id: 'facilities', name: 'Facilities Usage', icon: 'fa-utensils', description: 'Guidelines for shared facilities' },
+            { id: 'fines', name: 'Fines & Penalties', icon: 'fa-money-bill-wave', description: 'Consequences for violations' }
         ];
 
-        // Group rules by category
-        function getRulesByCategory(category) {
-            return accommodationRules.filter(rule => rule.category === category);
+        const rulesData = [
+            // General
+            { id: 1, title: "Check-in and Check-out", desc: "Check-in within 48 hours of arrival; check-out by 10:00 AM on the last day of the semester.", category: "general", mandatory: true },
+            { id: 2, title: "Room Allocation", desc: "Rooms are allocated on first-come, first-served basis. Changes require written approval.", category: "general", mandatory: true },
+            { id: 3, title: "Registration Requirement", desc: "Only registered students with valid ID may reside. Proof required on request.", category: "general", mandatory: true },
+            // Conduct
+            { id: 4, title: "Noise and Conduct", desc: "Quiet hours 10 PM – 7 AM. No loud music or disruptive behavior.", category: "conduct", mandatory: true },
+            { id: 5, title: "Respect for Others", desc: "Harassment, bullying, or discrimination will result in eviction.", category: "conduct", mandatory: true },
+            { id: 6, title: "Smoking and Alcohol", desc: "Strictly prohibited within residence premises.", category: "conduct", mandatory: true },
+            // Visitors
+            { id: 7, title: "Visitor Hours", desc: "Visitors allowed 8 AM – 8 PM. Overnight guests require prior approval.", category: "visitors", mandatory: true },
+            { id: 8, title: "Guest Registration", desc: "All visitors must register at security with valid ID.", category: "visitors", mandatory: true },
+            { id: 9, title: "Overnight Guest Limit", desc: "Maximum 3 nights per month with written permission.", category: "visitors", mandatory: true },
+            // Maintenance
+            { id: 10, title: "Room Cleanliness", desc: "Keep rooms and common areas clean. Report issues promptly.", category: "maintenance", mandatory: true },
+            { id: 11, title: "No Unauthorized Alterations", desc: "No painting, drilling, or structural changes without permission.", category: "maintenance", mandatory: true },
+            // Security
+            { id: 12, title: "Lock Your Room", desc: "Always lock room doors. Do not share keys or access cards.", category: "security", mandatory: true },
+            { id: 13, title: "Report Suspicious Activity", desc: "Report any suspicious persons or activities to security immediately.", category: "security", mandatory: true },
+            { id: 14, title: "Fire Safety", desc: "Know emergency exits. Do not prop fire doors.", category: "security", mandatory: true },
+            // Facilities
+            { id: 15, title: "Kitchen Use", desc: "Clean up after use. Label food. No dirty dishes overnight.", category: "facilities", mandatory: true },
+            { id: 16, title: "Electricity and Water", desc: "Conserve resources. Turn off appliances when not in use.", category: "facilities", mandatory: true },
+            // Fines
+            { id: 17, title: "Damages", desc: "Cost of repairs charged to responsible student. Repeated offenses may lead to eviction.", category: "fines", mandatory: true },
+            { id: 18, title: "Noise Violations", desc: "First: warning; Second: P500 fine; Third: eviction.", category: "fines", mandatory: true },
+            { id: 19, title: "Smoking Violation", desc: "P1000 fine per incident and mandatory meeting with manager.", category: "fines", mandatory: true }
+        ];
+
+        // ========== RENDER SIDEBAR AND CONTENT ==========
+        function renderSidebar() {
+            const container = document.getElementById('ruleCategories');
+            container.innerHTML = ruleCategories.map(cat => `
+                <li><a class="rule-category-link" data-category="${cat.id}">
+                    <i class="fas ${cat.icon}"></i> ${cat.name}
+                </a></li>
+            `).join('');
         }
 
-        // Render rules
-        function renderRules() {
-            const categories = ['general', 'conduct', 'visitors', 'maintenance', 'security', 'facilities', 'fines'];
-            
-            categories.forEach(category => {
-                const rules = getRulesByCategory(category);
-                const container = document.getElementById(`${category}Rules`);
-                if (container) {
-                    container.innerHTML = rules.map((rule, index) => `
-                        <div class="rule-card">
-                            <div class="rule-title">
-                                <span class="rule-number">${index + 1}</span>
-                                ${escapeHtml(rule.title)}
-                                ${rule.mandatory ? '<span class="rule-badge mandatory">Mandatory</span>' : '<span class="rule-badge">Recommended</span>'}
-                            </div>
-                            <div class="rule-description">${escapeHtml(rule.description)}</div>
+        function renderContent() {
+            const mainContainer = document.getElementById('rulesContent');
+            mainContainer.innerHTML = ruleCategories.map(cat => {
+                const rules = rulesData.filter(r => r.category === cat.id);
+                const rulesHtml = rules.map((rule, idx) => `
+                    <div class="rule-card">
+                        <div class="rule-title">
+                            <span class="rule-number">${idx + 1}</span>
+                            ${escapeHtml(rule.title)}
+                            <span class="rule-badge ${rule.mandatory ? 'mandatory' : 'recommended'}">${rule.mandatory ? 'Mandatory' : 'Recommended'}</span>
                         </div>
-                    `).join('');
+                        <div class="rule-description">${escapeHtml(rule.desc)}</div>
+                    </div>
+                `).join('');
+                return `
+                    <div class="category-section" id="category-${cat.id}" data-category="${cat.id}">
+                        <div class="category-header">
+                            <h2><i class="fas ${cat.icon}"></i> ${cat.name}</h2>
+                            <div class="category-description">${cat.description}</div>
+                        </div>
+                        <div class="rules-list">${rulesHtml || '<p>No rules in this category.</p>'}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setupCategorySwitching() {
+            const links = document.querySelectorAll('.rule-category-link');
+            const sections = document.querySelectorAll('.category-section');
+            const activeCategory = localStorage.getItem('activeRuleCategory') || 'general';
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const cat = link.dataset.category;
+                    links.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    sections.forEach(s => s.classList.remove('active'));
+                    document.getElementById(`category-${cat}`).classList.add('active');
+                    localStorage.setItem('activeRuleCategory', cat);
+                });
+                if (link.dataset.category === activeCategory) {
+                    link.classList.add('active');
+                    document.getElementById(`category-${activeCategory}`).classList.add('active');
+                } else {
+                    link.classList.remove('active');
                 }
             });
+            // Fallback: if none active, activate first
+            if (!document.querySelector('.category-section.active')) {
+                const firstLink = links[0];
+                if (firstLink) firstLink.click();
+            }
         }
 
-        // Category switching
-        function setupCategorySwitching() {
-            const categoryLinks = document.querySelectorAll('.rule-category-link');
-            const categorySections = document.querySelectorAll('.category-section');
-            
-            categoryLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const category = this.dataset.category;
-                    
-                    // Update active link
-                    categoryLinks.forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Update active section
-                    categorySections.forEach(section => section.classList.remove('active'));
-                    document.getElementById(`${category}-category`).classList.add('active');
-                });
-            });
-        }
-
-        // ============================================
-        // AUTHENTICATION CHECK
-        // ============================================
+        // ========== AUTH ==========
         const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        // ========== ACKNOWLEDGMENT ==========
         let hasAcknowledged = localStorage.getItem('accommodation_rules_acknowledged') === 'true';
 
-        if (!token) {
-            window.location.href = 'login.html';
+        function updateAcknowledgeButton() {
+            const btn = document.getElementById('acknowledgeBtn');
+            if (hasAcknowledged) {
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Rules Acknowledged ✓';
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'default';
+            } else {
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Acknowledge Rules';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            }
         }
 
-        const logoImage = document.getElementById('logoImage');
-        if (logoImage) {
-            logoImage.onerror = function() { this.style.display = 'none'; };
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ============================================
-        // MODAL FUNCTIONS
-        // ============================================
-        function openAgreementModal() {
+        async function openAgreementModal() {
+            if (hasAcknowledged) {
+                alert('You have already acknowledged the rules.');
+                return;
+            }
             const modal = document.getElementById('agreementModal');
-            const agreementText = document.getElementById('agreementText');
-            
-            // Populate agreement text with all rules summary
-            const allRules = accommodationRules.map((rule, idx) => 
-                `${idx + 1}. ${rule.title} - ${rule.description}`
-            ).join('\n\n');
-            
-            agreementText.innerHTML = `<strong>GIPS STUDENT VILLAGE RULES SUMMARY</strong><br><br>${escapeHtml(allRules).replace(/\n/g, '<br>')}`;
-            
+            const agreementDiv = document.getElementById('agreementText');
+            // Build summary text
+            const allRules = rulesData.map(r => `• ${r.title}: ${r.desc}`).join('\n\n');
+            agreementDiv.innerHTML = `<strong>GIPS STUDENT VILLAGE RULES</strong><br><br>${escapeHtml(allRules).replace(/\n/g, '<br>')}`;
             document.getElementById('agreeRules').checked = false;
             document.getElementById('acknowledgeError').style.display = 'none';
             document.getElementById('acknowledgeSuccess').style.display = 'none';
-            modal.style.display = 'block';
+            modal.style.display = 'flex';
         }
 
         async function submitAcknowledgment() {
-            const agreeChecked = document.getElementById('agreeRules').checked;
-            const errorDiv = document.getElementById('acknowledgeError');
-            const successDiv = document.getElementById('acknowledgeSuccess');
-            
-            if (!agreeChecked) {
-                errorDiv.textContent = 'Please confirm that you agree to abide by the rules and regulations.';
-                errorDiv.style.display = 'block';
+            if (!document.getElementById('agreeRules').checked) {
+                const errDiv = document.getElementById('acknowledgeError');
+                errDiv.textContent = 'Please confirm that you agree to the rules.';
+                errDiv.style.display = 'block';
                 return;
             }
-            
-            errorDiv.style.display = 'none';
-            
-            // Try to save to API
-            const response = await safeApiCall('/api/accommodation/acknowledge-rules', {
+            const res = await safeApiCall('/api/accommodation/acknowledge-rules', {
                 method: 'POST',
-                body: JSON.stringify({ acknowledged: true, timestamp: new Date().toISOString() })
+                body: JSON.stringify({ acknowledged: true })
             });
-            
-            if (response && response.ok) {
+            if (res && res.ok) {
+                hasAcknowledged = true;
                 localStorage.setItem('accommodation_rules_acknowledged', 'true');
-                successDiv.textContent = '✓ Thank you for acknowledging the accommodation rules. You may now proceed with your application.';
-                successDiv.style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('agreementModal').style.display = 'none';
-                }, 2000);
-            } else {
-                // Local acknowledgment for demo
-                localStorage.setItem('accommodation_rules_acknowledged', 'true');
-                successDiv.textContent = '✓ Thank you for acknowledging the accommodation rules.';
-                successDiv.style.display = 'block';
+                document.getElementById('acknowledgeSuccess').textContent = '✓ Rules acknowledged successfully!';
+                document.getElementById('acknowledgeSuccess').style.display = 'block';
+                updateAcknowledgeButton();
                 setTimeout(() => {
                     document.getElementById('agreementModal').style.display = 'none';
                 }, 1500);
-            }
-        }
-
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
-            if (!token) return null;
-            
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error('API call error:', error);
-                return null;
+            } else {
+                // Fallback: still allow local acknowledgment
+                hasAcknowledged = true;
+                localStorage.setItem('accommodation_rules_acknowledged', 'true');
+                document.getElementById('acknowledgeSuccess').textContent = '✓ Rules acknowledged (demo mode).';
+                document.getElementById('acknowledgeSuccess').style.display = 'block';
+                updateAcknowledgeButton();
+                setTimeout(() => {
+                    document.getElementById('agreementModal').style.display = 'none';
+                }, 1500);
             }
         }
 
@@ -931,44 +802,39 @@
             document.getElementById('agreementModal').style.display = 'none';
         }
 
-        // Logout
-        document.getElementById('logoutLink')?.addEventListener('click', (e) => {
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.clear();
             window.location.href = 'login.html';
         });
 
-        // Close modal on X click
-        document.querySelectorAll('.close').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.closest('.modal').style.display = 'none';
-            });
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                e.target.style.display = 'none';
-            }
-        });
-
-        // Initialize
-        renderRules();
-        setupCategorySwitching();
-        
-        // Show acknowledgment status if already acknowledged
-        if (hasAcknowledged) {
-            const acknowledgeBtn = document.querySelector('.rules-sidebar .btn-primary');
-            if (acknowledgeBtn) {
-                acknowledgeBtn.innerHTML = '<i class="fas fa-check-circle"></i> Rules Acknowledged ✓';
-                acknowledgeBtn.disabled = true;
-                acknowledgeBtn.style.opacity = '0.7';
-                acknowledgeBtn.style.cursor = 'default';
-            }
+        // ========== HELPER ==========
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
-        window.openAgreementModal = openAgreementModal;
+        // ========== INIT ==========
+        renderSidebar();
+        renderContent();
+        setupCategorySwitching();
+        updateAcknowledgeButton();
+
+        document.getElementById('acknowledgeBtn').addEventListener('click', openAgreementModal);
+        document.querySelectorAll('.close').forEach(btn => {
+            btn.addEventListener('click', closeModal);
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) closeModal();
+        });
+
         window.submitAcknowledgment = submitAcknowledgment;
+        window.openAgreementModal = openAgreementModal;
         window.closeModal = closeModal;
     </script>
 </body>
+
 </html>

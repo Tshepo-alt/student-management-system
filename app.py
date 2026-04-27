@@ -502,6 +502,27 @@ def create_app(config_name=None):
             logger.error(f"Error serving page {filename}: {e}")
             return jsonify({'error': 'Page not found', 'path': filename}), 404
 
+    # ============================================
+    # ADDED: PRIVACY AND CONTACTS PAGES
+    # ============================================
+    @app.route('/privacy')
+    def privacy_page():
+        """Serve the privacy notice page."""
+        try:
+            return send_from_directory('frontend/pages', 'privacy.html')
+        except Exception as e:
+            logger.error(f"Error serving privacy page: {e}")
+            return jsonify({'error': 'Privacy page not found'}), 404
+
+    @app.route('/contacts')
+    def contacts_page():
+        """Serve the contacts page."""
+        try:
+            return send_from_directory('frontend/pages', 'contacts.html')
+        except Exception as e:
+            logger.error(f"Error serving contacts page: {e}")
+            return jsonify({'error': 'Contacts page not found'}), 404
+
     @app.route('/css/<path:filename>')
     def serve_css(filename):
         try:
@@ -714,6 +735,8 @@ if __name__ == '__main__':
     print("   📊 http://localhost:5000/pages/student-dashboard.html - Dashboard")
     print("   💬 http://localhost:5000/pages/chatbot.html - Chatbot Support")
     print("   👑 http://localhost:5000/pages/admin.html - Admin Dashboard")
+    print("   📜 http://localhost:5000/privacy           - Privacy Notice")   # <-- Added
+    print("   📞 http://localhost:5000/contacts          - Contacts Page")     # <-- Added
     print("\n📌 Core API Endpoints:")
     print("   💚 GET  /api/health        - Health Check")
     print("   💚 GET  /api              - API Root")
@@ -789,7 +812,6 @@ if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '0.0.0.0')
     port = int(os.getenv('FLASK_PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'development') == 'development'
-
     try:
         app.run(debug=debug, host=host, port=port)
     except Exception as e:

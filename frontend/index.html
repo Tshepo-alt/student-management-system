@@ -584,7 +584,7 @@
                 <img src="../images/gipslogo.jpg" alt="GIPS College" id="logoImage" onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="pages/login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
                 <li><a href="pages/register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></li>
                 <li><a href="pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
@@ -797,7 +797,7 @@
                 const userName = user.first_name || user.username || user.email?.split('@')[0] || 'Student';
                 const userInitial = userName.charAt(0).toUpperCase();
                 navMenu.innerHTML = `
-                    <li><a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="pages/student-dashboard.html" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
                     <li><a href="pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                     <li>
@@ -814,7 +814,7 @@
                 `;
             } else {
                 navMenu.innerHTML = `
-                    <li><a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
                     <li><a href="pages/login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
                     <li><a href="pages/register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></li>
                     <li><a href="pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>

@@ -21,7 +21,7 @@ import base64
 import traceback
 import logging
 
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, send_from_directory, request, redirect
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
@@ -452,11 +452,13 @@ def create_app(config_name=None):
 
     @app.route('/')
     def index():
+        """Serve the main index.html or fallback to API info."""
         try:
             if os.path.exists(os.path.join('frontend', 'index.html')):
                 return send_from_directory('frontend', 'index.html')
         except Exception:
             pass
+        # Fallback API info
         return jsonify({
             'message': 'GIPS College Student Management System API',
             'version': '2.0.0',
@@ -482,6 +484,11 @@ def create_app(config_name=None):
             'blueprints_registered': blueprints_registered,
             'blueprints_failed_count': len(blueprints_failed)
         }), 200
+
+    @app.route('/index.html')
+    def redirect_index():
+        """Redirect old /index.html to root."""
+        return redirect('/')
 
     @app.route('/pages/<path:filename>')
     def serve_pages(filename):
@@ -512,11 +519,20 @@ def create_app(config_name=None):
         except Exception:
             return jsonify({'error': 'Image not found'}), 404
 
+    @app.route('/favicon/<path:filename>')
+    def serve_favicon(filename):
+        try:
+            return send_from_directory('frontend/favicon', filename)
+        except Exception:
+            return jsonify({'error': 'Favicon not found'}), 404
+
     @app.route('/<path:filename>')
     def serve_static(filename):
+        # Prevent serving API or upload routes through this catch-all
         if filename.startswith('api/') or filename.startswith('uploads/'):
             return jsonify({'error': 'Not found'}), 404
         try:
+            # Serve any other static file from frontend/ (e.g., favicon.ico, robots.txt)
             if os.path.exists(os.path.join('frontend', filename)):
                 return send_from_directory('frontend', filename)
         except Exception:

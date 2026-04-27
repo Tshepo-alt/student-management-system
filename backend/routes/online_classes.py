@@ -1,11 +1,12 @@
 # backend/routes/online_classes.py
-from flask import Blueprint, request, jsonify, render_template_string
+import traceback
+from flask import Blueprint, request, jsonify, render_template_string, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 import logging
 
 from models import db, Course, User
-from utils.meeting_helper import create_google_meet_link
+from backend.utils.meeting_helper import create_google_meet_link
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,6 @@ online_classes_bp = Blueprint('online_classes', __name__, url_prefix='/api/class
 # HTML TEMPLATES
 # ============================================
 
-# Template for students (embedded meeting)
 EMBEDDED_MEETING_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -90,7 +90,6 @@ EMBEDDED_MEETING_TEMPLATE = '''
 </html>
 '''
 
-# Template for lecturers (manage page)
 LECTURER_MEETING_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -235,184 +234,211 @@ LECTURER_MEETING_TEMPLATE = '''
 @online_classes_bp.route('/course/<int:course_id>/start', methods=['POST'])
 @jwt_required()
 def start_online_class(course_id):
-    """Lecturer starts an online class meeting (Google Meet only)"""
-    current_user_id = get_jwt_identity()
-    user = User.query.get(int(current_user_id))
-    
-    if user.role not in ['lecturer', 'admin']:
-        return jsonify({'error': 'Only lecturers can start online classes'}), 403
-    
-    course = Course.query.get(course_id)
-    if not course:
-        return jsonify({'error': 'Course not found'}), 404
-    
-    if user.role == 'lecturer' and course.lecturer_id != user.id:
-        return jsonify({'error': 'You are not assigned to this course'}), 403
-    
-    # Only Google Meet is supported
-    meeting_url = create_google_meet_link(course.name, user.email)
-    if not meeting_url:
-        return jsonify({'error': 'Failed to create Google Meet link. Please check your calendar permissions.'}), 500
-    
-    course.meeting_link = meeting_url
-    course.meeting_platform = 'google_meet'
-    db.session.commit()
-    
-    logger.info(f"Online class started for course {course.code} by {user.email}")
-    
-    return jsonify({
-        'success': True,
-        'meeting_link': meeting_url,
-        'platform': 'google_meet',
-        'message': 'Meeting started successfully'
-    }), 200
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(int(current_user_id))
+
+        if user.role not in ['lecturer', 'admin']:
+            return jsonify({'error': 'Only lecturers can start online classes'}), 403
+
+        course = Course.query.get(course_id)
+        if not course:
+            return jsonify({'error': 'Course not found'}), 404
+
+        if user.role == 'lecturer' and course.lecturer_id != user.id:
+            return jsonify({'error': 'You are not assigned to this course'}), 403
+
+        meeting_url = create_google_meet_link(course.name, user.email)
+        if not meeting_url:
+            return jsonify({'error': 'Failed to create Google Meet link. Check calendar permissions.'}), 500
+
+        course.meeting_link = meeting_url
+        course.meeting_platform = 'google_meet'
+        db.session.commit()
+
+        # Determine course code for logging (fallback)
+        course_code = getattr(course, 'code', None)
+        if not course_code:
+            course_code = getattr(course, 'course_code', f'CRS{course.id}')
+        logger.info(f"Online class started for course {course_code} by {user.email}")
+
+        return jsonify({
+            'success': True,
+            'meeting_link': meeting_url,
+            'platform': 'google_meet',
+            'message': 'Meeting started successfully'
+        }), 200
+
+    except Exception as e:
+        current_app.logger.error(f"ERROR in start_online_class: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({'error': f'Internal error: {str(e)}'}), 500
 
 
 @online_classes_bp.route('/course/<int:course_id>/meeting', methods=['GET'])
 @jwt_required()
 def get_meeting_info(course_id):
-    """Get meeting information for a course (for both lecturers and students)"""
-    course = Course.query.get(course_id)
-    if not course:
-        return jsonify({'error': 'Course not found'}), 404
-    
-    # No need to check enrollment here – frontend will handle visibility
-    return jsonify({
-        'is_active': course.meeting_link is not None,
-        'meeting_link': course.meeting_link,
-        'platform': getattr(course, 'meeting_platform', None),
-        'meeting_id': getattr(course, 'meeting_id', None),
-        'meeting_password': getattr(course, 'meeting_password', None),
-        'started_at': course.updated_at.isoformat() if course.updated_at else None
-    }), 200
+    try:
+        course = Course.query.get(course_id)
+        if not course:
+            return jsonify({'error': 'Course not found'}), 404
+
+        return jsonify({
+            'is_active': course.meeting_link is not None,
+            'meeting_link': course.meeting_link,
+            'platform': getattr(course, 'meeting_platform', None),
+            'meeting_id': getattr(course, 'meeting_id', None),
+            'meeting_password': getattr(course, 'meeting_password', None),
+            'started_at': course.updated_at.isoformat() if course.updated_at else None
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"ERROR in get_meeting_info: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 @online_classes_bp.route('/course/<int:course_id>/join', methods=['GET'])
 def join_class_embedded(course_id):
-    """Embedded meeting page for students (keeps them within the portal)"""
-    course = Course.query.get(course_id)
-    if not course:
-        return "Course not found", 404
-    
-    instructor = User.query.get(course.lecturer_id) if course.lecturer_id else None
-    instructor_name = f"{instructor.first_name} {instructor.last_name}" if instructor else "Staff"
-    
-    return render_template_string(
-        EMBEDDED_MEETING_TEMPLATE,
-        course_name=course.name,
-        instructor_name=instructor_name,
-        meeting_url=course.meeting_link,
-        date=datetime.now().strftime("%B %d, %Y at %I:%M %p")
-    )
+    try:
+        course = Course.query.get(course_id)
+        if not course:
+            return "Course not found", 404
+
+        instructor = User.query.get(course.lecturer_id) if course.lecturer_id else None
+        instructor_name = f"{instructor.first_name} {instructor.last_name}" if instructor else "Staff"
+
+        return render_template_string(
+            EMBEDDED_MEETING_TEMPLATE,
+            course_name=course.name,
+            instructor_name=instructor_name,
+            meeting_url=course.meeting_link,
+            date=datetime.now().strftime("%B %d, %Y at %I:%M %p")
+        )
+    except Exception as e:
+        current_app.logger.error(f"ERROR in join_class_embedded: {str(e)}")
+        return "An error occurred. Please contact support.", 500
 
 
 @online_classes_bp.route('/course/<int:course_id>/manage', methods=['GET'])
 @jwt_required()
 def manage_class_page(course_id):
-    """Lecturer management page for online class"""
-    current_user_id = get_jwt_identity()
-    user = User.query.get(int(current_user_id))
-    
-    if user.role not in ['lecturer', 'admin']:
-        return "Unauthorized", 403
-    
-    course = Course.query.get(course_id)
-    if not course:
-        return "Course not found", 404
-    
-    return render_template_string(
-        LECTURER_MEETING_TEMPLATE,
-        course_name=course.name,
-        course_id=course.id,
-        meeting_active=course.meeting_link is not None,
-        meeting_link=course.meeting_link or ''
-    )
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(int(current_user_id))
+
+        if user.role not in ['lecturer', 'admin']:
+            return "Unauthorized", 403
+
+        course = Course.query.get(course_id)
+        if not course:
+            return "Course not found", 404
+
+        return render_template_string(
+            LECTURER_MEETING_TEMPLATE,
+            course_name=course.name,
+            course_id=course.id,
+            meeting_active=course.meeting_link is not None,
+            meeting_link=course.meeting_link or ''
+        )
+    except Exception as e:
+        current_app.logger.error(f"ERROR in manage_class_page: {str(e)}")
+        return "An error occurred. Please try again.", 500
 
 
 @online_classes_bp.route('/course/<int:course_id>/end', methods=['POST'])
 @jwt_required()
 def end_online_class(course_id):
-    """End online class – clear meeting link"""
-    current_user_id = get_jwt_identity()
-    user = User.query.get(int(current_user_id))
-    
-    if user.role not in ['lecturer', 'admin']:
-        return jsonify({'error': 'Only lecturers can end online classes'}), 403
-    
-    course = Course.query.get(course_id)
-    if not course:
-        return jsonify({'error': 'Course not found'}), 404
-    
-    if user.role == 'lecturer' and course.lecturer_id != user.id:
-        return jsonify({'error': 'You are not assigned to this course'}), 403
-    
-    meeting_link = course.meeting_link
-    course.meeting_link = None
-    if hasattr(course, 'meeting_id'):
-        course.meeting_id = None
-    if hasattr(course, 'meeting_password'):
-        course.meeting_password = None
-    db.session.commit()
-    
-    logger.info(f"Online class ended for course {course.code} by {user.email}")
-    
-    return jsonify({
-        'success': True,
-        'message': 'Meeting ended successfully',
-        'meeting_link': meeting_link
-    }), 200
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(int(current_user_id))
+
+        if user.role not in ['lecturer', 'admin']:
+            return jsonify({'error': 'Only lecturers can end online classes'}), 403
+
+        course = Course.query.get(course_id)
+        if not course:
+            return jsonify({'error': 'Course not found'}), 404
+
+        if user.role == 'lecturer' and course.lecturer_id != user.id:
+            return jsonify({'error': 'You are not assigned to this course'}), 403
+
+        meeting_link = course.meeting_link
+        course.meeting_link = None
+        if hasattr(course, 'meeting_id'):
+            course.meeting_id = None
+        if hasattr(course, 'meeting_password'):
+            course.meeting_password = None
+        db.session.commit()
+
+        course_code = getattr(course, 'code', None)
+        if not course_code:
+            course_code = getattr(course, 'course_code', f'CRS{course.id}')
+        logger.info(f"Online class ended for course {course_code} by {user.email}")
+
+        return jsonify({
+            'success': True,
+            'message': 'Meeting ended successfully',
+            'meeting_link': meeting_link
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"ERROR in end_online_class: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 @online_classes_bp.route('/course/<int:course_id>/status', methods=['GET'])
 def get_meeting_status(course_id):
-    """Public endpoint to check if a meeting is active (no auth required)"""
-    course = Course.query.get(course_id)
-    if not course:
-        return jsonify({'error': 'Course not found'}), 404
-    
-    return jsonify({
-        'is_active': course.meeting_link is not None,
-        'course_name': course.name,
-        'course_code': getattr(course, 'code', None)
-    }), 200
+    try:
+        course = Course.query.get(course_id)
+        if not course:
+            return jsonify({'error': 'Course not found'}), 404
+
+        return jsonify({
+            'is_active': course.meeting_link is not None,
+            'course_name': course.name,
+            'course_code': getattr(course, 'code', None) or getattr(course, 'course_code', None)
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"ERROR in get_meeting_status: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 @online_classes_bp.route('/lecturer/courses', methods=['GET'])
 @jwt_required()
 def get_lecturer_courses():
-    """Get all courses for a lecturer with meeting status (used by lecturer dashboard)"""
-    current_user_id = get_jwt_identity()
-    user = User.query.get(int(current_user_id))
-    
-    if user.role not in ['lecturer', 'admin']:
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    if user.role == 'lecturer':
-        courses = Course.query.filter_by(lecturer_id=user.id).all()
-    else:
-        courses = Course.query.all()
-    
-    result = []
-    for course in courses:
-        result.append({
-            'id': course.id,
-            'code': getattr(course, 'code', f"CRS{course.id:03d}"),
-            'name': course.name,
-            'students': 0,  # You can populate this from an enrollment table
-            'semester': 'Semester 1',  # Placeholder, can be dynamic
-            'meeting_active': course.meeting_link is not None,
-            'meeting_link': course.meeting_link
-        })
-    
-    return jsonify({
-        'courses': result,
-        'total': len(result)
-    }), 200
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(int(current_user_id))
+
+        if user.role not in ['lecturer', 'admin']:
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        if user.role == 'lecturer':
+            courses = Course.query.filter_by(lecturer_id=user.id).all()
+        else:
+            courses = Course.query.all()
+
+        result = []
+        for course in courses:
+            result.append({
+                'id': course.id,
+                'code': getattr(course, 'code', None) or getattr(course, 'course_code', f"CRS{course.id:03d}"),
+                'name': course.name,
+                'students': 0,  # You can populate this from an enrollment table
+                'semester': 'Semester 1',
+                'meeting_active': course.meeting_link is not None,
+                'meeting_link': course.meeting_link
+            })
+
+        return jsonify({
+            'courses': result,
+            'total': len(result)
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"ERROR in get_lecturer_courses: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 @online_classes_bp.route('/health', methods=['GET'])
 def health_check():
-    """Health check for online classes module"""
     return jsonify({
         'status': 'healthy',
         'module': 'online_classes',

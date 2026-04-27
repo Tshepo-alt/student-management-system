@@ -770,7 +770,21 @@
         function exportReportHTML() {
             const content = document.getElementById('reportContent').innerHTML;
             const titleText = document.getElementById('reportTitle').innerText;
-            const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titleText}</title><style>body{font-family:Inter,sans-serif;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}th{background:#f1f5f9}</style></head><body><h2>GIPS College - ${titleText}</h2><p>Period: ${startDate} to ${endDate}</p>${content}</body></html>`;
+            const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titleText}</title><style>body{font-family:Inter,sans-serif;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}th{background:#f1f5f9}</style></head><body><h2>GIPS College - ${titleText}</h2><p>Period: ${startDate} to ${endDate}</p>${content}
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
+    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
+    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
+</div>
+<script>
+    if (!localStorage.getItem('cookieConsent')) {
+        document.getElementById('cookieBanner').style.display = 'block';
+    }
+    function acceptCookies() {
+        localStorage.setItem('cookieConsent', 'true');
+        document.getElementById('cookieBanner').style.display = 'none';
+    }
+</script>
+</body></html>`;
             const blob = new Blob([fullHtml], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -785,7 +799,21 @@
             const content = document.getElementById('reportContent').innerHTML;
             const title = document.getElementById('reportTitle').innerText;
             const printWindow = window.open('', '_blank');
-            printWindow.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>body{font-family:Inter,sans-serif;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}</style></head><body><h2>GIPS College - ${title}</h2><p>Period: ${startDate} to ${endDate}</p>${content}</body></html>`);
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>body{font-family:Inter,sans-serif;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}</style></head><body><h2>GIPS College - ${title}</h2><p>Period: ${startDate} to ${endDate}</p>${content}
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
+    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
+    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
+</div>
+<script>
+    if (!localStorage.getItem('cookieConsent')) {
+        document.getElementById('cookieBanner').style.display = 'block';
+    }
+    function acceptCookies() {
+        localStorage.setItem('cookieConsent', 'true');
+        document.getElementById('cookieBanner').style.display = 'none';
+    }
+</script>
+</body></html>`);
             printWindow.document.close();
             printWindow.print();
         }
@@ -804,6 +832,20 @@
         window.exportReportHTML = exportReportHTML;
         window.printReport = printReport;
     </script>
+
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
+    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
+    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
+</div>
+<script>
+    if (!localStorage.getItem('cookieConsent')) {
+        document.getElementById('cookieBanner').style.display = 'block';
+    }
+    function acceptCookies() {
+        localStorage.setItem('cookieConsent', 'true');
+        document.getElementById('cookieBanner').style.display = 'none';
+    }
+</script>
 </body>
 
 </html>

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - GIPS College Portal</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Admin Header */
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header::before {
+            content: '\f0f2';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 80px;
+            opacity: 0.2;
+        }
+
+        .admin-header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-header p {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .admin-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        /* Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(102,126,234,0.1);
+            flex-wrap: wrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #718096;
+            transition: all 0.3s;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #f0f0f0;
+            color: #667eea;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .admin-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .admin-card h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Forms */
+        .admin-form {
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #2d3748;
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #a0aec0;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        /* Loading */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102,126,234,0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        .footer p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1024px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-menu {
+                justify-content: center;
+            }
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .data-table {
+                font-size: 12px;
+            }
+            .data-table th,
+            .data-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="admin.html" class="nav-link active"><i class="fas fa-chart-line"></i> Admin Dashboard</a></li>
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-user-graduate"></i> Student Portal</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div>
+                <h1><i class="fas fa-crown"></i> Admin Dashboard</h1>
+                <p>Welcome back, <span id="adminName">Admin</span>! Manage the entire college system</p>
+            </div>
+            <div class="admin-badge">
+                <i class="fas fa-shield-alt"></i> Administrator Access | Full System Control
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalStudents">-</div>
+                <div class="stat-label"><i class="fas fa-users"></i> Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalStaff">-</div>
+                <div class="stat-label"><i class="fas fa-user-tie"></i> Staff Members</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalPrograms">-</div>
+                <div class="stat-label"><i class="fas fa-graduation-cap"></i> Active Programs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingApplications">-</div>
+                <div class="stat-label"><i class="fas fa-clock"></i> Pending Applications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingPayments">-</div>
+                <div class="stat-label"><i class="fas fa-credit-card"></i> Pending Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="openTickets">-</div>
+                <div class="stat-label"><i class="fas fa-ticket-alt"></i> Open Support Tickets</div>
+            </div>
+        </div>
+
+        <!-- Admin Tabs -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" data-tab="students"><i class="fas fa-users"></i> Student Management</button>
+            <button class="tab-btn" data-tab="staff"><i class="fas fa-user-tie"></i> Staff Management</button>
+            <button class="tab-btn" data-tab="programs"><i class="fas fa-graduation-cap"></i> Program Management</button>
+            <button class="tab-btn" data-tab="modules"><i class="fas fa-book"></i> Module Management</button>
+            <button class="tab-btn" data-tab="accommodation"><i class="fas fa-bed"></i> Accommodation</button>
+            <button class="tab-btn" data-tab="payments"><i class="fas fa-credit-card"></i> Payments</button>
+            <button class="tab-btn" data-tab="tickets"><i class="fas fa-ticket-alt"></i> Support Tickets</button>
+            <button class="tab-btn" data-tab="reports"><i class="fas fa-chart-bar"></i> Reports</button>
+        </div>
+
+        <!-- Students Tab -->
+        <div id="students" class="tab-content active">
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h3><i class="fas fa-users"></i> Student Records</h3>
+                    <button class="btn btn-primary" onclick="openAddStudentModal()"><i class="fas fa-plus"></i> Add New Student</button>
+                </div>
+                <div class="search-bar">
+                    <input type="text" id="studentSearch" placeholder="Search by name, student number, or email..." onkeyup="filterStudents()">
+                    <button class="btn btn-primary" onclick="filterStudents()"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-primary" onclick="exportStudents()"><i class="fas fa-download"></i> Export CSV</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Student Number</th><th>Name</th><th>Email</th><th>Program</th><th>Status</th><th>Actions</th>
+                            </thead>
+                        <tbody id="studentsList">
+                            72<td colspan="7"><div class="loading-spinner"></div> Loading students...72</td>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Tab -->
+        <div id="staff" class="tab-content">
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3><i class="fas fa-user-tie"></i> Staff Members</h3>
+                    <button class="btn btn-primary" onclick="openAddStaffModal()"><i class="fas fa-plus"></i> Add Staff</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="staffTable">
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="staffList">
+                            <tr><td colspan="7"><div class="loading-spinner"></div> Loading staff...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Programs Tab -->
+        <div id="programs" class="tab-content">
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3><i class="fas fa-graduation-cap"></i> Academic Programs</h3>
+                    <button class="btn btn-primary" onclick="openAddProgramModal()"><i class="fas fa-plus"></i> Add Program</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="programsTable">
+                        <thead>
+                            <tr><th>ID</th><th>Code</th><th>Program Name</th><th>Duration</th><th>Credits</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="programsList">
+                            <tr><td colspan="7"><div class="loading-spinner"></div> Loading programs...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modules Tab -->
+        <div id="modules" class="tab-content">
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3><i class="fas fa-book"></i> Course Modules</h3>
+                    <button class="btn btn-primary" onclick="openAddModuleModal()"><i class="fas fa-plus"></i> Add Module</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="modulesTable">
+                        <thead>
+                            <tr><th>ID</th><th>Code</th><th>Module Name</th><th>Credits</th><th>Year</th><th>Semester</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="modulesList">
+                            <tr><td colspan="7"><div class="loading-spinner"></div> Loading modules...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accommodation Tab -->
+        <div id="accommodation" class="tab-content">
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3><i class="fas fa-bed"></i> Accommodation Management</h3>
+                    <button class="btn btn-primary" onclick="openAddAccommodationModal()"><i class="fas fa-plus"></i> Add Residence</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="accommodationTable">
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Location</th><th>Price/Sem</th><th>Total Rooms</th><th>Available</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="accommodationList">
+                            <tr><td colspan="8"><div class="loading-spinner"></div> Loading accommodations...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Tab -->
+        <div id="payments" class="tab-content">
+            <div class="admin-card">
+                <h3><i class="fas fa-credit-card"></i> Payment Transactions</h3>
+                <div class="search-bar">
+                    <input type="text" id="paymentSearch" placeholder="Search by student name or receipt number..." onkeyup="filterPayments()">
+                    <button class="btn btn-primary" onclick="filterPayments()"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-primary" onclick="exportPayments()"><i class="fas fa-download"></i> Export</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="paymentsTable">
+                        <thead>
+                            <tr><th>ID</th><th>Student</th><th>Amount</th><th>Date</th><th>Method</th><th>Status</th><th>Receipt</th></tr>
+                        </thead>
+                        <tbody id="paymentsList">
+                            <tr><td colspan="7"><div class="loading-spinner"></div> Loading payments...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tickets Tab -->
+        <div id="tickets" class="tab-content">
+            <div class="admin-card">
+                <h3><i class="fas fa-ticket-alt"></i> Support Tickets</h3>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="ticketsTable">
+                        <thead>
+                            <tr><th>ID</th><th>Student</th><th>Issue</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="ticketsList">
+                            <tr><td colspan="6"><div class="loading-spinner"></div> Loading tickets...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="admin-card">
+                <h3><i class="fas fa-chart-bar"></i> Generate Reports</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div class="stat-card" onclick="generateReport('students')" style="cursor: pointer;">
+                        <div class="stat-number"><i class="fas fa-users"></i></div>
+                        <div class="stat-label">Student Enrollment Report</div>
+                    </div>
+                    <div class="stat-card" onclick="generateReport('payments')" style="cursor: pointer;">
+                        <div class="stat-number"><i class="fas fa-credit-card"></i></div>
+                        <div class="stat-label">Financial Summary</div>
+                    </div>
+                    <div class="stat-card" onclick="generateReport('accommodation')" style="cursor: pointer;">
+                        <div class="stat-number"><i class="fas fa-bed"></i></div>
+                        <div class="stat-label">Accommodation Occupancy</div>
+                    </div>
+                    <div class="stat-card" onclick="generateReport('academic')" style="cursor: pointer;">
+                        <div class="stat-number"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="stat-label">Academic Performance</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close"><i class="fas fa-times"></i></span>
+            <h2><i class="fas fa-user-plus"></i> Add New Student</h2>
+            <form id="addStudentForm">
+                <div class="form-group"><label><i class="fas fa-user"></i> First Name</label><input type="text" id="firstName" required></div>
+                <div class="form-group"><label><i class="fas fa-user"></i> Last Name</label><input type="text" id="lastName" required></div>
+                <div class="form-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="studentEmail" required></div>
+                <div class="form-group"><label><i class="fas fa-phone"></i> Phone</label><input type="tel" id="studentPhone"></div>
+                <div class="form-group"><label><i class="fas fa-graduation-cap"></i> Program</label><select id="studentProgram" required></select></div>
+                <div class="form-group"><label><i class="fas fa-lock"></i> Password</label><input type="password" id="studentPassword" required></div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Student</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Program Modal -->
+    <div id="addProgramModal" class="modal">
+        <div class="modal-content">
+            <span class="close"><i class="fas fa-times"></i></span>
+            <h2><i class="fas fa-plus-circle"></i> Add Program</h2>
+            <form id="addProgramForm">
+                <div class="form-group"><label><i class="fas fa-code"></i> Program Code</label><input type="text" id="programCode" required></div>
+                <div class="form-group"><label><i class="fas fa-tag"></i> Program Name</label><input type="text" id="programName" required></div>
+                <div class="form-group"><label><i class="fas fa-clock"></i> Duration (Years)</label><input type="number" id="programDuration" required></div>
+                <div class="form-group"><label><i class="fas fa-star"></i> Total Credits</label><input type="number" id="programCredits" required></div>
+                <div class="form-group"><label><i class="fas fa-align-left"></i> Description</label><textarea id="programDescription" rows="3"></textarea></div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Program</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-crown"></i> Admin Dashboard - Full System Control</p>
+        </div>
+    </footer>
+
+    <script>
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        // Check if user is admin
+        if (user.role !== 'admin') {
+            window.location.href = 'student-dashboard.html';
+        }
+        
+        // Display admin name
+        document.getElementById('adminName').textContent = user.first_name || 'Admin';
+        
+        // Handle logo error
+        const logoImage = document.getElementById('logoImage');
+        if (logoImage) logoImage.onerror = function() { this.style.display = 'none'; };
+        
+        // API call function
+        async function apiCall(endpoint, options = {}) {
+            const response = await fetch(endpoint, {
+                ...options,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+            return response;
+        }
+        
+        // Load all data
+        async function loadStats() {
+            try {
+                const response = await apiCall('/api/admin/stats');
+                const stats = await response.json();
+                document.getElementById('totalStudents').textContent = stats.total_students || 0;
+                document.getElementById('totalStaff').textContent = (stats.staff || 0) + (stats.lecturers || 0);
+                document.getElementById('totalPrograms').textContent = stats.total_programs || 0;
+                document.getElementById('pendingApplications').textContent = stats.pending_applications || 0;
+                document.getElementById('pendingPayments').textContent = stats.pending_payments || 0;
+                document.getElementById('openTickets').textContent = stats.open_tickets || 0;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        async function loadStudents() {
+            try {
+                const response = await apiCall('/api/admin/students');
+                const students = await response.json();
+                const tbody = document.getElementById('studentsList');
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">No students found</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = students.map(s => `
+                    <tr>
+                        <td>${s.id}</td>
+                        <td>${s.student_number || 'N/A'}</td>
+                        <td>${s.first_name} ${s.last_name}</td>
+                        <td>${s.email}</td>
+                        <td>${s.program_name || 'N/A'}</td>
+                        <td><span class="badge" style="background:${s.admission_status === 'accepted' ? '#d4edda' : '#fff3cd'}; color:${s.admission_status === 'accepted' ? '#155724' : '#856404'}">${s.admission_status || 'pending'}</span></td>
+                        <td><button class="btn btn-sm btn-warning" onclick="editStudent(${s.id})"><i class="fas fa-edit"></i> Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteStudent(${s.id})"><i class="fas fa-trash"></i> Delete</button></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+        
+        async function loadStaff() {
+            const tbody = document.getElementById('staffList');
+            tbody.innerHTML = '<tr><td colspan="7"><div class="loading-spinner"></div> Loading staff...</td></tr>';
+            // Demo staff data
+            tbody.innerHTML = `
+                <tr><td>1</td><td>Admin User</td><td>admin@example.com</td><td>Admin</td><td>Administration</td><td>Active</td><td><button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</button></td></tr>
+                <tr><td>2</td><td>John Lecturer</td><td>john@gipscollege.edu</td><td>Lecturer</td><td>Computer Science</td><td>Active</td><td><button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</button></td></tr>
+            `;
+        }
+        
+        async function loadPrograms() {
+            try {
+                const response = await apiCall('/api/admin/programs');
+                const programs = await response.json();
+                const tbody = document.getElementById('programsList');
+                if (programs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">No programs found</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = programs.map(p => `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.program_code || 'N/A'}</td>
+                        <td>${p.program_name}</td>
+                        <td>${p.duration_years} years</td>
+                        <td>${p.total_credits || 'N/A'}</td>
+                        <td><span style="color:${p.is_active ? '#28a745' : '#dc3545'}">${p.is_active ? 'Active' : 'Inactive'}</span></td>
+                        <td><button class="btn btn-sm btn-warning" onclick="editProgram(${p.id})"><i class="fas fa-edit"></i> Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteProgram(${p.id})"><i class="fas fa-trash"></i> Delete</button></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading programs:', error);
+            }
+        }
+        
+        async function loadModules() {
+            try {
+                const response = await apiCall('/api/admin/modules');
+                const modules = await response.json();
+                const tbody = document.getElementById('modulesList');
+                if (modules.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">No modules found</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = modules.map(m => `
+                    <tr>
+                        <td>${m.id}</td>
+                        <td>${m.module_code}</td>
+                        <td>${m.module_name}</td>
+                        <td>${m.credits}</td>
+                        <td>Year ${m.year_level}</td>
+                        <td>Semester ${m.semester}</td>
+                        <td><button class="btn btn-sm btn-warning" onclick="editModule(${m.id})"><i class="fas fa-edit"></i> Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteModule(${m.id})"><i class="fas fa-trash"></i> Delete</button></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        }
+        
+        async function loadAccommodations() {
+            try {
+                const response = await apiCall('/api/admin/accommodations');
+                const accommodations = await response.json();
+                const tbody = document.getElementById('accommodationList');
+                if (accommodations.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8">No accommodations found</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = accommodations.map(a => `
+                    <tr>
+                        <td>${a.id}</td>
+                        <td>${a.name}</td>
+                        <td>${a.location || 'Main Campus'}</td>
+                        <td>P ${a.price_per_semester}</td>
+                        <td>${a.total_rooms}</td>
+                        <td>${a.available_rooms}</td>
+                        <td><span style="color:${a.is_active ? '#28a745' : '#dc3545'}">${a.is_active ? 'Active' : 'Inactive'}</span></td>
+                        <td><button class="btn btn-sm btn-warning" onclick="editAccommodation(${a.id})"><i class="fas fa-edit"></i> Edit</button></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading accommodations:', error);
+            }
+        }
+        
+        function loadPayments() {
+            const tbody = document.getElementById('paymentsList');
+            tbody.innerHTML = `
+                <tr><td>1</td><td>John Doe</td><td>P 8,500</td><td>2026-03-15</td><td>Card</td><td><span class="badge" style="background:#d4edda;color:#155724">Completed</span></td><td>#REC-001</td></tr>
+                <tr><td>2</td><td>Jane Smith</td><td>P 5,000</td><td>2026-03-14</td><td>Mobile Money</td><td><span class="badge" style="background:#fff3cd;color:#856404">Pending</span></td><td>#REC-002</td></tr>
+            `;
+        }
+        
+        function loadTickets() {
+            const tbody = document.getElementById('ticketsList');
+            tbody.innerHTML = `
+                <tr><td>1</td><td>John Doe</td><td>Cannot login to portal</td><td><span class="badge" style="background:#fff3cd;color:#856404">Open</span></td><td>2026-03-20</td><td><button class="btn btn-sm btn-success"><i class="fas fa-check"></i> Resolve</button></td></tr>
+            `;
+        }
+        
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tab = this.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(tab).classList.add('active');
+                
+                // Load data for tab
+                if (tab === 'students') loadStudents();
+                else if (tab === 'staff') loadStaff();
+                else if (tab === 'programs') loadPrograms();
+                else if (tab === 'modules') loadModules();
+                else if (tab === 'accommodation') loadAccommodations();
+                else if (tab === 'payments') loadPayments();
+                else if (tab === 'tickets') loadTickets();
+            });
+        });
+        
+        // Modal functions
+        function openAddStudentModal() {
+            document.getElementById('addStudentModal').style.display = 'flex';
+        }
+        
+        function openAddProgramModal() {
+            document.getElementById('addProgramModal').style.display = 'flex';
+        }
+        
+        function openAddStaffModal() { alert('Add staff feature coming soon'); }
+        function openAddModuleModal() { alert('Add module feature coming soon'); }
+        function openAddAccommodationModal() { alert('Add accommodation feature coming soon'); }
+        
+        function filterStudents() { loadStudents(); }
+        function filterPayments() { loadPayments(); }
+        function exportStudents() { alert('Exporting student data...'); }
+        function exportPayments() { alert('Exporting payment data...'); }
+        function generateReport(type) { alert(`Generating ${type} report...`); }
+        function editStudent(id) { alert(`Edit student ${id}`); }
+        function deleteStudent(id) { if(confirm('Delete student?')) alert(`Student ${id} deleted`); }
+        function editProgram(id) { alert(`Edit program ${id}`); }
+        function deleteProgram(id) { if(confirm('Delete program?')) alert(`Program ${id} deleted`); }
+        function editModule(id) { alert(`Edit module ${id}`); }
+        function deleteModule(id) { if(confirm('Delete module?')) alert(`Module ${id} deleted`); }
+        function editAccommodation(id) { alert(`Edit accommodation ${id}`); }
+        
+        // Close modals
+        document.querySelectorAll('.close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+        });
+        
+        // Add student form
+        document.getElementById('addStudentForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alert('Student creation feature - implement with API');
+            document.getElementById('addStudentModal').style.display = 'none';
+        });
+        
+        // Add program form
+        document.getElementById('addProgramForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alert('Program creation feature - implement with API');
+            document.getElementById('addProgramModal').style.display = 'none';
+        });
+        
+        // Logout
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+        
+        // Load initial data
+        loadStats();
+        loadStudents();
+    </script>
+</body>
+</html>

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Register - GIPS College | New Applicant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #334155;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+        }
+
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .animated-slogan {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            padding: 8px 0;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .slogan-wrapper {
+            display: inline-block;
+            animation: slideText 20s linear infinite;
+        }
+
+        .slogan-text {
+            display: inline-block;
+            padding: 0 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        @keyframes slideText {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .register-section {
+            padding: 48px 0;
+        }
+
+        .register-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 40px 36px;
+            max-width: 1000px;
+            margin: 0 auto;
+            transition: transform 0.2s;
+        }
+
+        .register-card h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .text-muted {
+            text-align: center;
+            color: #475569;
+            margin-bottom: 28px;
+            font-size: 0.9rem;
+        }
+
+        .form-section {
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #334155;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: inherit;
+            background: white;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-group {
+            margin-top: 8px;
+        }
+
+        .file-label {
+            display: inline-block;
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #334155;
+            transition: 0.2s;
+        }
+
+        .file-label i {
+            margin-right: 6px;
+            color: #667eea;
+        }
+
+        .file-label:hover {
+            background: #e2e8f0;
+        }
+
+        .file-name {
+            margin-left: 12px;
+            font-size: 0.75rem;
+            color: #475569;
+        }
+
+        .file-preview {
+            margin-top: 8px;
+            max-width: 100px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .info-box,
+        .points-info {
+            background: #eef2ff;
+            padding: 12px;
+            border-radius: 16px;
+            margin: 12px 0;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            width: 100%;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin: 20px 0;
+            display: none;
+            font-size: 0.85rem;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #15803d;
+            border-left: 4px solid #10b981;
+        }
+
+        .footer {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            color: #94a3b8;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .register-card {
+                padding: 24px 20px;
+                margin: 0 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                <li><a href="register.html" class="nav-link active"><i class="fas fa-user-plus"></i> Register</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="animated-slogan">
+        <div class="slogan-wrapper">
+            <span class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to Higher Education | 35
+                Years of Excellence | Your Success Starts Here</span>
+        </div>
+    </div>
+
+    <section class="register-section">
+        <div class="container">
+            <div class="register-card">
+                <h2><i class="fas fa-graduation-cap"></i> Apply for Admission</h2>
+                <p class="text-muted">Complete all sections. Required documents: BGCSE Certificate, ID/Passport,
+                    Passport Photo.</p>
+                <form id="registerForm" enctype="multipart/form-data">
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <div class="section-title"><i class="fas fa-user"></i> Personal Information</div>
+                        <div class="form-row">
+                            <div class="form-group"><label>First Name *</label><input type="text" id="firstName"
+                                    name="first_name" required></div>
+                            <div class="form-group"><label>Last Name *</label><input type="text" id="lastName"
+                                    name="last_name" required></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Email *</label><input type="email" id="email" name="email"
+                                    required></div>
+                            <div class="form-group"><label>Phone *</label><input type="tel" id="phone" name="phone"
+                                    required></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Date of Birth *</label><input type="date" id="dob"
+                                    name="date_of_birth" required></div>
+                            <div class="form-group"><label>Nationality *</label><select id="nationality"
+                                    name="nationality" required>
+                                    <option value="">Select</option>
+                                    <option>Botswana</option>
+                                    <option>South Africa</option>
+                                    <option>Zimbabwe</option>
+                                    <option>Namibia</option>
+                                    <option>Zambia</option>
+                                    <option>Other</option>
+                                </select></div>
+                        </div>
+                    </div>
+
+                    <!-- Campus & Program -->
+                    <div class="form-section">
+                        <div class="section-title"><i class="fas fa-map-marker-alt"></i> Campus & Program</div>
+                        <div class="form-group"><label>Select Campus *</label><select id="campusId" name="campus_id"
+                                required>
+                                <option value="">-- Load campuses... --</option>
+                            </select></div>
+                        <div class="form-group"><label>Select Program *</label><select id="programId" name="program_id"
+                                required disabled>
+                                <option value="">First select a campus</option>
+                            </select></div>
+                        <div id="programDetails" class="info-box" style="display:none;"></div>
+                    </div>
+
+                    <!-- Academic Information -->
+                    <div class="form-section">
+                        <div class="section-title"><i class="fas fa-chart-line"></i> Academic Information</div>
+                        <div class="form-row">
+                            <div class="form-group"><label>BGCSE Points *</label><input type="number" id="bgcsePoints"
+                                    name="bgcse_points" required min="0" max="50"></div>
+                            <div class="form-group"><label>BGCSE Year</label><input type="number" id="bgcseYear"
+                                    name="bgcse_year" min="2000" max="2026"></div>
+                        </div>
+                        <div class="form-group"><label>BGCSE School</label><input type="text" id="bgcseSchool"
+                                name="bgcse_school"></div>
+                        <div id="pointsInfo" class="info-box"></div>
+                    </div>
+
+                    <!-- Document Uploads (mandatory) -->
+                    <div class="form-section">
+                        <div class="section-title"><i class="fas fa-file-upload"></i> Required Documents</div>
+                        <div class="form-group">
+                            <label>BGCSE Certificate *</label>
+                            <div><input type="file" id="bgcseFile" name="bgcse_certificate" accept=".pdf,.jpg,.png"
+                                    required></div>
+                            <div class="file-name" id="bgcseFileName"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>ID / Passport Copy *</label>
+                            <div><input type="file" id="idFile" name="id_document" accept=".pdf,.jpg,.png" required>
+                            </div>
+                            <div class="file-name" id="idFileName"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Passport Photo *</label>
+                            <div><input type="file" id="photoFile" name="passport_photo" accept="image/*" required>
+                            </div>
+                            <div class="file-name" id="photoFileName"></div>
+                        </div>
+                        <div class="info-box"><i class="fas fa-info-circle"></i> Accepted formats: PDF, JPG, PNG. Max
+                            5MB each.</div>
+                    </div>
+
+                    <!-- OVC Section -->
+                    <div class="form-section">
+                        <div class="section-title"><i class="fas fa-hand-holding-heart"></i> Special Consideration</div>
+                        <div class="checkbox-group"><input type="checkbox" id="ovcCheck" name="is_ovc"><label>I am an
+                                Orphaned or Vulnerable Child (OVC)</label></div>
+                        <div id="ovcSection" style="display:none;">
+                            <div class="form-group"><label>Social Worker Name</label><input type="text"
+                                    id="socialWorkerName" name="social_worker_name"></div>
+                            <div class="form-group"><label>Social Worker Contact</label><input type="text"
+                                    id="socialWorkerContact" name="social_worker_contact"></div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="form-section">
+                        <div class="section-title"><i class="fas fa-phone-alt"></i> Emergency Contact</div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Full Name *</label><input type="text" id="emergencyName"
+                                    name="emergency_contact_name" required></div>
+                            <div class="form-group"><label>Phone *</label><input type="tel" id="emergencyPhone"
+                                    name="emergency_contact_phone" required></div>
+                        </div>
+                        <div class="form-group"><label>Relationship</label><input type="text" id="emergencyRelation"
+                                name="emergency_contact_relationship"></div>
+                    </div>
+
+                    <!-- Account Security -->
+                    <div class="form-section">
+                        <div class="section-title"><i class="fas fa-lock"></i> Account Security</div>
+                        <div class="form-group"><label>Username *</label><input type="text" id="username"
+                                name="username" required></div>
+                        <div class="form-group"><label>Password *</label><input type="password" id="password"
+                                name="password" required></div>
+                        <div class="form-group"><label>Confirm Password *</label><input type="password"
+                                id="confirmPassword" required></div>
+                        <div class="info-box">Password must be ≥8 characters with uppercase, lowercase, and digit.</div>
+                    </div>
+
+                    <div class="checkbox-group"><input type="checkbox" id="terms" required><label>I confirm that the
+                            information provided is accurate and agree to GIPS College policies.</label></div>
+                    <button type="submit" id="registerBtn" class="btn-primary"><i class="fas fa-paper-plane"></i> Submit
+                        Application</button>
+                </form>
+                <div id="errorMsg" class="message error-message"></div>
+                <div id="successMsg" class="message success-message"></div>
+                <p class="text-muted" style="margin-top:20px;">Already have an account? <a href="login.html">Login
+                        here</a></p>
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-graduation-cap"></i> Excellence in Higher Learning</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Campus & program loading ---
+        async function loadCampuses() {
+            const select = document.getElementById('campusId');
+            select.innerHTML = '<option value="">-- Loading campuses... --</option>';
+            try {
+                const res = await fetch('/api/auth/campuses');
+                if (!res.ok) throw new Error();
+                const campuses = await res.json();
+                select.innerHTML = '<option value="">-- Select Campus --</option>';
+                campuses.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.campus_name;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                console.warn('Using fallback campuses');
+                select.innerHTML = '<option value="">-- Select Campus (Fallback) --</option><option value="1">Gaborone Main Campus</option><option value="2">Gaborone Main Mall</option>';
+            }
+            select.disabled = false;
+        }
+
+        async function loadPrograms(campusId) {
+            const progSelect = document.getElementById('programId');
+            progSelect.innerHTML = '<option value="">Loading programs...</option>';
+            progSelect.disabled = true;
+            try {
+                const res = await fetch(`/api/auth/campuses/${campusId}/programs`);
+                if (!res.ok) throw new Error();
+                const progs = await res.json();
+                progSelect.innerHTML = '<option value="">-- Select Program --</option>';
+                progs.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = `${p.program_code} - ${p.program_name} (${p.duration_years} yrs, min ${p.min_bgcse_points} pts)`;
+                    opt.dataset.minPoints = p.min_bgcse_points;
+                    progSelect.appendChild(opt);
+                });
+                progSelect.disabled = false;
+            } catch (e) {
+                console.warn('Fallback programs');
+                progSelect.innerHTML = '<option value="">-- Select Program (Fallback) --</option><option value="1" data-min-points="32">BSc Computer Science</option><option value="2" data-min-points="28">Diploma in IT</option>';
+                progSelect.disabled = false;
+            }
+        }
+
+        document.getElementById('campusId').addEventListener('change', (e) => {
+            if (e.target.value) loadPrograms(e.target.value);
+            else { document.getElementById('programId').innerHTML = '<option value="">First select a campus</option>'; document.getElementById('programId').disabled = true; }
+        });
+        document.getElementById('programId').addEventListener('change', () => {
+            const selected = document.getElementById('programId').options[document.getElementById('programId').selectedIndex];
+            if (selected.value) {
+                const minPoints = selected.dataset.minPoints;
+                document.getElementById('programDetails').innerHTML = `<strong>Program Requirements:</strong> Minimum ${minPoints} BGCSE points.`;
+                document.getElementById('programDetails').style.display = 'block';
+            } else document.getElementById('programDetails').style.display = 'none';
+        });
+
+        // BGCSE points validation
+        const bgcseInput = document.getElementById('bgcsePoints');
+        bgcseInput.addEventListener('input', () => {
+            const points = parseInt(bgcseInput.value) || 0;
+            const selected = document.getElementById('programId').options[document.getElementById('programId').selectedIndex];
+            const min = selected ? parseInt(selected.dataset.minPoints) : 32;
+            const info = document.getElementById('pointsInfo');
+            if (points >= min) info.innerHTML = '<span style="color:#15803d;">✓ You meet the minimum requirement.</span>';
+            else if (points > 0) info.innerHTML = '<span style="color:#b91c1c;">⚠️ You do not meet the minimum requirement. OVC status may help.</span>';
+            else info.innerHTML = '';
+        });
+
+        // OVC toggle
+        document.getElementById('ovcCheck').addEventListener('change', (e) => {
+            document.getElementById('ovcSection').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        // File name display & preview (optional)
+        const fileInputs = ['bgcseFile', 'idFile', 'photoFile'];
+        fileInputs.forEach(id => {
+            const input = document.getElementById(id);
+            input.addEventListener('change', (e) => {
+                const fileNameSpan = document.getElementById(id + 'Name');
+                if (e.target.files.length) fileNameSpan.textContent = e.target.files[0].name;
+                else fileNameSpan.textContent = '';
+            });
+        });
+
+        // Password validation
+        function validatePassword(pwd) { return pwd.length >= 8 && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /\d/.test(pwd); }
+
+        // Form submission with files
+        const form = document.getElementById('registerForm');
+        const registerBtn = document.getElementById('registerBtn');
+        const errorDiv = document.getElementById('errorMsg');
+        const successDiv = document.getElementById('successMsg');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            // Validate selections
+            if (!document.getElementById('campusId').value || !document.getElementById('programId').value) {
+                errorDiv.textContent = 'Please select a campus and program.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            const pwd = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            if (pwd !== confirm) { errorDiv.textContent = 'Passwords do not match.'; errorDiv.style.display = 'block'; return; }
+            if (!validatePassword(pwd)) { errorDiv.textContent = 'Password must be at least 8 characters with uppercase, lowercase, and a digit.'; errorDiv.style.display = 'block'; return; }
+
+            // Check BGCSE points vs program
+            const points = parseInt(bgcseInput.value) || 0;
+            const selectedOption = document.getElementById('programId').options[document.getElementById('programId').selectedIndex];
+            const minPoints = selectedOption ? parseInt(selectedOption.dataset.minPoints) : 32;
+            const isOvc = document.getElementById('ovcCheck').checked;
+            if (points < minPoints && !isOvc) {
+                errorDiv.textContent = `You need at least ${minPoints} BGCSE points or OVC status.`;
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Validate files (non-empty)
+            const bgcseFile = document.getElementById('bgcseFile').files[0];
+            const idFile = document.getElementById('idFile').files[0];
+            const photoFile = document.getElementById('photoFile').files[0];
+            if (!bgcseFile || !idFile || !photoFile) {
+                errorDiv.textContent = 'Please upload all required documents: BGCSE Certificate, ID/Passport copy, and Passport photo.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const formData = new FormData(form);
+            // Append all fields manually (form already includes file inputs)
+            // Add extra hidden fields that backend expects
+            formData.append('initials', '');
+            formData.append('alternative_phone', '');
+            formData.append('physical_address', '');
+            formData.append('postal_address', '');
+            formData.append('place_of_birth', '');
+            formData.append('id_number', '');
+            formData.append('passport_number', '');
+            formData.append('tr_number', '');
+            formData.append('wants_accommodation', 'false');
+            formData.append('is_government_sponsored', 'false');
+
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<span class="loading-spinner"></span> Submitting Application...';
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    successDiv.innerHTML = `<strong>✓ Application Submitted!</strong><br>Student Number: ${data.student_number}<br>Program: ${data.program}<br>Your application is pending review. You will receive an email once approved.<br>Redirecting to login...`;
+                    successDiv.style.display = 'block';
+                    setTimeout(() => window.location.href = 'login.html', 4000);
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed. Please try again.';
+                    errorDiv.style.display = 'block';
+                    registerBtn.disabled = false;
+                    registerBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+                }
+            } catch (err) {
+                console.error(err);
+                errorDiv.textContent = 'Network error. Please try again later.';
+                errorDiv.style.display = 'block';
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+            }
+        });
+
+        loadCampuses();
+    </script>
+</body>
+
+</html>

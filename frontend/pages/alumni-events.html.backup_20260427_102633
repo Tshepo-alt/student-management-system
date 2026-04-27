@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Alumni Events - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 35px 40px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .page-header::before {
+            content: "\f073";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 100px;
+            opacity: 0.15;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* Section Tabs */
+        .section-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .tab-btn {
+            padding: 12px 28px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #718096;
+            border-radius: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn i {
+            font-size: 1rem;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Events Grid */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: all 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .event-image {
+            height: 160px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .event-details {
+            padding: 20px;
+        }
+
+        .event-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .event-date, .event-location {
+            font-size: 0.85rem;
+            color: #718096;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .event-date i, .event-location i {
+            width: 20px;
+            color: #667eea;
+        }
+
+        .event-description {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin: 12px 0;
+            line-height: 1.5;
+        }
+
+        .event-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-upcoming {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .badge-past {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+        }
+
+        .btn-secondary {
+            background: #cbd5e0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #a0aec0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #a0aec0;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #276749;
+            border-left: 4px solid #38a169;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+            .nav-link {
+                padding: 0.4rem 0.8rem;
+            }
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .tab-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <span>GIPS Alumni Events</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="alumni-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="alumni-network.html" class="nav-link"><i class="fas fa-users"></i> Network</a></li>
+                <li><a href="alumni-jobs.html" class="nav-link"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li><a href="alumni-events.html" class="nav-link active"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="alumni-profile.html" class="nav-link"><i class="fas fa-id-card"></i> Profile</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-calendar-alt"></i> Alumni Events</h1>
+            <p>Stay connected through reunions, networking sessions, and professional development events.</p>
+        </div>
+
+        <div class="section-tabs">
+            <button class="tab-btn active" data-tab="upcoming"><i class="fas fa-calendar-day"></i> Upcoming Events</button>
+            <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> Past Events</button>
+            <button class="tab-btn" data-tab="my"><i class="fas fa-ticket-alt"></i> My Registrations</button>
+        </div>
+
+        <div id="upcoming" class="tab-content active">
+            <div id="upcomingEvents" class="events-grid"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading events...</div></div>
+        </div>
+        <div id="past" class="tab-content">
+            <div id="pastEvents" class="events-grid"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading past events...</div></div>
+        </div>
+        <div id="my" class="tab-content">
+            <div id="myRegistrations" class="events-grid"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading your registrations...</div></div>
+        </div>
+    </div>
+
+    <!-- Event Details Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle"><i class="fas fa-info-circle"></i> Event Details</h2>
+            <div id="modalBody"></div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-secondary" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-calendar-alt"></i> Alumni Events | Reconnect & Celebrate</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        let currentUser = {
+            id: user.id,
+            name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'Alumni',
+            email: user.email
+        };
+
+        // ============================================
+        // DEMO DATA (will be replaced by API)
+        // ============================================
+        let events = [
+            {
+                id: 1,
+                title: "Annual Alumni Reunion 2026",
+                date: "2026-06-15",
+                time: "18:00",
+                location: "Gaborone International Convention Centre",
+                description: "Join fellow alumni for an evening of networking, reminiscing, and celebration. Dress code: Formal.",
+                image_icon: "🎉",
+                status: "upcoming",
+                registration_open: true
+            },
+            {
+                id: 2,
+                title: "Career Networking Mixer",
+                date: "2026-05-10",
+                time: "17:30",
+                location: "GIPS College Main Hall",
+                description: "Connect with industry professionals and fellow alumni. Light refreshments provided.",
+                image_icon: "🤝",
+                status: "upcoming",
+                registration_open: true
+            },
+            {
+                id: 3,
+                title: "Tech Talk: AI in Africa",
+                date: "2026-04-20",
+                time: "15:00",
+                location: "Virtual (Zoom)",
+                description: "Join us for an online discussion on the future of AI in Africa. Speaker: Dr. Thabo Motsamai.",
+                image_icon: "💻",
+                status: "past",
+                registration_open: false
+            },
+            {
+                id: 4,
+                title: "Women in Leadership Summit",
+                date: "2026-03-05",
+                time: "09:00",
+                location: "Gaborone Sun Hotel",
+                description: "A day of empowerment and networking for women leaders.",
+                image_icon: "👩‍💼",
+                status: "past",
+                registration_open: false
+            }
+        ];
+
+        let myRegistrations = [1]; // user registered for event id 1
+
+        // ============================================
+        // SAFE API CALL
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // LOAD EVENTS (Real API or demo)
+        // ============================================
+        async function loadUpcomingEvents() {
+            const container = document.getElementById('upcomingEvents');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading events...</div>';
+            const response = await safeApiCall('/api/alumni/events?status=upcoming');
+            let upcomingEvents = [];
+            if (response && response.ok) {
+                upcomingEvents = await response.json();
+            } else {
+                upcomingEvents = events.filter(e => e.status === 'upcoming');
+            }
+            renderEvents(upcomingEvents, container, 'upcoming');
+        }
+
+        async function loadPastEvents() {
+            const container = document.getElementById('pastEvents');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading past events...</div>';
+            const response = await safeApiCall('/api/alumni/events?status=past');
+            let pastEvents = [];
+            if (response && response.ok) {
+                pastEvents = await response.json();
+            } else {
+                pastEvents = events.filter(e => e.status === 'past');
+            }
+            renderEvents(pastEvents, container, 'past');
+        }
+
+        async function loadMyRegistrations() {
+            const container = document.getElementById('myRegistrations');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading your registrations...</div>';
+            const response = await safeApiCall('/api/alumni/registrations');
+            let registeredEvents = [];
+            if (response && response.ok) {
+                registeredEvents = await response.json();
+            } else {
+                registeredEvents = events.filter(e => myRegistrations.includes(e.id));
+            }
+            renderEvents(registeredEvents, container, 'registered');
+        }
+
+        function renderEvents(eventsList, container, type) {
+            if (!eventsList.length) {
+                container.innerHTML = '<div class="loading">No events found.</div>';
+                return;
+            }
+
+            container.innerHTML = eventsList.map(event => {
+                // Replace emoji in image_icon with a suitable Font Awesome icon if possible
+                let iconHtml = '<i class="fas fa-calendar-alt"></i>';
+                if (event.image_icon === '🎉') iconHtml = '<i class="fas fa-glass-cheers"></i>';
+                else if (event.image_icon === '🤝') iconHtml = '<i class="fas fa-handshake"></i>';
+                else if (event.image_icon === '💻') iconHtml = '<i class="fas fa-laptop-code"></i>';
+                else if (event.image_icon === '👩‍💼') iconHtml = '<i class="fas fa-user-tie"></i>';
+                else iconHtml = event.image_icon ? `<span style="font-size:2rem;">${event.image_icon}</span>` : '<i class="fas fa-calendar-alt"></i>';
+                return `
+                <div class="event-card">
+                    <div class="event-image">${iconHtml}</div>
+                    <div class="event-details">
+                        <div class="event-title">${escapeHtml(event.title)}</div>
+                        <div class="event-date"><i class="fas fa-calendar-day"></i> ${formatDate(event.date)} at ${event.time || 'TBA'}</div>
+                        <div class="event-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(event.location)}</div>
+                        <div class="event-description">${escapeHtml(event.description.substring(0, 120))}${event.description.length > 120 ? '...' : ''}</div>
+                        <div class="event-footer">
+                            <span class="badge ${type === 'upcoming' ? 'badge-upcoming' : 'badge-past'}">${type === 'upcoming' ? 'Upcoming' : 'Past'}</span>
+                            ${type === 'upcoming' ? 
+                                (event.registration_open !== false ? 
+                                    `<button class="btn btn-primary" onclick="registerForEvent(${event.id})"><i class="fas fa-ticket-alt"></i> Register</button>` : 
+                                    '<span>Registration closed</span>') : 
+                                `<button class="btn btn-secondary" onclick="viewEventDetails(${event.id})"><i class="fas fa-eye"></i> Details</button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // ============================================
+        // EVENT REGISTRATION
+        // ============================================
+        async function registerForEvent(eventId) {
+            const response = await safeApiCall(`/api/alumni/events/${eventId}/register`, { method: 'POST' });
+            if (response && response.ok) {
+                const data = await response.json();
+                showMessage('Registration successful!', 'success');
+                if (document.querySelector('.tab-btn.active').getAttribute('data-tab') === 'my') {
+                    loadMyRegistrations();
+                }
+            } else {
+                // Demo mode
+                if (!myRegistrations.includes(eventId)) {
+                    myRegistrations.push(eventId);
+                    showMessage('Registration successful (demo)!', 'success');
+                    if (document.querySelector('.tab-btn.active').getAttribute('data-tab') === 'my') {
+                        loadMyRegistrations();
+                    }
+                } else {
+                    showMessage('You are already registered.', 'error');
+                }
+            }
+        }
+
+        // ============================================
+        // VIEW EVENT DETAILS
+        // ============================================
+        async function viewEventDetails(eventId) {
+            const response = await safeApiCall(`/api/alumni/events/${eventId}`);
+            let event = null;
+            if (response && response.ok) {
+                event = await response.json();
+            } else {
+                event = events.find(e => e.id === eventId);
+            }
+            if (!event) return;
+
+            const modal = document.getElementById('eventModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.innerHTML = `<i class="fas fa-info-circle"></i> ${escapeHtml(event.title)}`;
+            modalBody.innerHTML = `
+                <div style="margin: 15px 0;">
+                    <p><i class="fas fa-calendar-day"></i> <strong>Date:</strong> ${formatDate(event.date)} at ${event.time || 'TBA'}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> ${escapeHtml(event.location)}</p>
+                    <p><strong>Description:</strong><br>${escapeHtml(event.description)}</p>
+                </div>
+                ${event.registration_open !== false && event.status === 'upcoming' ?
+                    `<button class="btn btn-primary" onclick="registerForEvent(${event.id}); closeModal();"><i class="fas fa-ticket-alt"></i> Register Now</button>` :
+                    '<p><em>Registration is closed for this event.</em></p>'
+                }
+            `;
+            modal.style.display = 'flex';
+        }
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function formatDate(dateStr) {
+            if (!dateStr) return 'TBA';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            msgDiv.style.display = 'block';
+            document.querySelector('.container').prepend(msgDiv);
+            setTimeout(() => msgDiv.remove(), 3000);
+        }
+
+        function closeModal() {
+            document.getElementById('eventModal').style.display = 'none';
+        }
+
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                if (tabId === 'upcoming') loadUpcomingEvents();
+                else if (tabId === 'past') loadPastEvents();
+                else if (tabId === 'my') loadMyRegistrations();
+            });
+        });
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        loadUpcomingEvents();
+        loadPastEvents();
+        loadMyRegistrations();
+
+        // Make functions global for onclick
+        window.registerForEvent = registerForEvent;
+        window.viewEventDetails = viewEventDetails;
+        window.closeModal = closeModal;
+    </script>
+</body>
+</html>

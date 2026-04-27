@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Registration Pending - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Main Content */
+        .waiting-container {
+            max-width: 700px;
+            margin: 60px auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .waiting-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .waiting-header i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .waiting-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .waiting-body {
+            padding: 40px 30px;
+        }
+
+        .status-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: #f59e0b;
+        }
+
+        .status-message {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .info-text {
+            color: #718096;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .navbar .container {
+                flex-direction: column;
+            }
+
+            .nav-menu {
+                justify-content: center;
+            }
+
+            .waiting-container {
+                margin: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="registration-waiting.html" class="nav-link active"><i class="fas fa-clock"></i>
+                        Registration Status</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="statusContainer" class="waiting-container">
+            <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading registration status...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-clock"></i> Registration Processing | Academic Affairs</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // SAFE API CALL
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // CHECK REGISTRATION STATUS
+        // ============================================
+        async function checkRegistrationStatus() {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Checking registration status...</div>';
+
+            try {
+                const response = await safeApiCall('/api/students/current-registration');
+                if (response && response.ok) {
+                    const data = await response.json();
+
+                    if (data.has_registration) {
+                        if (data.status === 'approved') {
+                            // Registration approved, redirect to dashboard
+                            window.location.href = 'student-dashboard.html';
+                        } else if (data.status === 'rejected') {
+                            showRejectedPage(data);
+                        } else {
+                            // Pending or other status
+                            showWaitingPage(data);
+                        }
+                    } else {
+                        // No registration found - should not happen if user came here correctly
+                        showNoRegistrationPage();
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div class="waiting-body">
+                            <div class="status-icon"><i class="fas fa-exclamation-triangle" style="color: #e53e3e;"></i></div>
+                            <div class="status-message">Unable to load registration status</div>
+                            <p>Please try again later or contact the admissions office.</p>
+                            <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `
+                    <div class="waiting-body">
+                        <div class="status-icon"><i class="fas fa-exclamation-triangle" style="color: #e53e3e;"></i></div>
+                        <div class="status-message">Network error</div>
+                        <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function showWaitingPage(data) {
+            const container = document.getElementById('statusContainer');
+            const registrationDate = data.created_at ? new Date(data.created_at).toLocaleDateString() : 'recently';
+
+            container.innerHTML = `
+                <div class="waiting-header">
+                    <i class="fas fa-clock"></i>
+                    <h1>Registration Pending</h1>
+                </div>
+                <div class="waiting-body">
+                    <div class="status-icon"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="status-message">Your semester registration is being processed</div>
+                    <div class="info-text">
+                        <p>Your registration request was submitted on <strong>${registrationDate}</strong>.</p>
+                        <p>It is currently under review by the finance and academic offices.</p>
+                        <p>You will be notified once approved. This page will automatically redirect you when your registration is confirmed.</p>
+                    </div>
+                    <div class="info-text" style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 20px;">
+                        <i class="fas fa-info-circle"></i> Need assistance? Contact the Admissions Office.
+                    </div>
+                    <div style="margin-top: 30px;">
+                        <a href="mailto:admissions@gipscollege.edu.bw" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact Support</a>
+                        <button class="btn btn-primary" onclick="checkRegistrationStatus()"><i class="fas fa-sync-alt"></i> Refresh Status</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showRejectedPage(data) {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = `
+                <div class="waiting-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                    <i class="fas fa-times-circle"></i>
+                    <h1>Registration Not Approved</h1>
+                </div>
+                <div class="waiting-body">
+                    <div class="status-icon"><i class="fas fa-times-circle" style="color: #dc3545;"></i></div>
+                    <div class="status-message">Your registration request was not approved</div>
+                    <div class="info-text">
+                        <p>Please contact the admissions or finance office for more information.</p>
+                    </div>
+                    <div style="margin-top: 30px;">
+                        <a href="mailto:admissions@gipscollege.edu.bw" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact Admissions</a>
+                        <a href="semester-registration.html" class="btn btn-primary"><i class="fas fa-edit"></i> Try Again</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showNoRegistrationPage() {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = `
+                <div class="waiting-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h1>No Active Registration</h1>
+                </div>
+                <div class="waiting-body">
+                    <div class="status-icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="status-message">You have not submitted a semester registration</div>
+                    <div class="info-text">
+                        <p>Please complete your semester registration to access the student portal.</p>
+                    </div>
+                    <div style="margin-top: 30px;">
+                        <a href="semester-registration.html" class="btn btn-primary"><i class="fas fa-edit"></i> Start Registration</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Auto-refresh every 30 seconds to check if registration has been approved
+        let interval = setInterval(() => {
+            checkRegistrationStatus();
+        }, 30000);
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        checkRegistrationStatus();
+    </script>
+</body>
+
+</html>

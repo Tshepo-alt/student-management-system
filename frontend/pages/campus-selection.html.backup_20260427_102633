@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Selection - GIPS College Portal</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Page Header */
+        .campus-section {
+            padding: 40px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .campus-section h2 {
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        /* Campus Cards Grid */
+        .campus-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .campus-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .campus-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .campus-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .campus-card.selected::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        .campus-image {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .campus-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .campus-info {
+            padding: 20px;
+        }
+
+        .campus-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .campus-location {
+            color: #667eea;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .campus-description {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .campus-features {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .feature {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #555;
+        }
+
+        .feature i {
+            color: #667eea;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 350px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .search-box button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-box button:hover {
+            transform: scale(1.02);
+        }
+
+        .faculty-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 18px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        /* Programs Grid */
+        .programs-section h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .programs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .program-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .program-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .program-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .program-card.selected::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .program-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .program-code {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .program-duration {
+            color: #888;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .program-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3748;
+            line-height: 1.4;
+        }
+
+        .program-faculty {
+            color: #667eea;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .program-description {
+            color: #718096;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .program-details {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            color: #777;
+        }
+
+        .detail-item i {
+            color: #667eea;
+            width: 14px;
+        }
+
+        /* Selection Panel */
+        .selection-panel {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 320px;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .selection-panel.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .selection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .selection-header h4 {
+            font-size: 1.1rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .close-panel {
+            cursor: pointer;
+            color: #a0aec0;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .close-panel:hover {
+            color: #2d3748;
+        }
+
+        .selected-items {
+            margin: 15px 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .selected-item {
+            background: #f8fafc;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            border-left: 3px solid #667eea;
+        }
+
+        .selected-item strong {
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 3px;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close:hover { color: #000; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        /* Messages */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102,126,234,0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #dc3545;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        .footer p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1024px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-menu {
+                justify-content: center;
+            }
+            .campus-grid,
+            .programs-grid {
+                grid-template-columns: 1fr;
+            }
+            .selection-panel {
+                left: 20px;
+                right: 20px;
+                bottom: 20px;
+                width: auto;
+            }
+            .filter-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="exam-registration.html" class="nav-link"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="accomodation.html" class="nav-link"><i class="fas fa-bed"></i> Accommodation</a></li>
+                <li><a href="campus-selection.html" class="nav-link active"><i class="fas fa-university"></i> Campus</a></li>
+                <li><a href="alumni-profile.html" class="nav-link"><i class="fas fa-id-card"></i> Alumni</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="campus-section">
+        <div class="container">
+            <h2><i class="fas fa-university"></i> Campus Selection</h2>
+            <p class="section-subtitle">Choose your preferred campus and program to begin your academic journey at GIPS College</p>
+
+            <!-- Campus Cards Grid -->
+            <div id="campusGrid" class="campus-grid">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading campuses...</div>
+            </div>
+
+            <!-- Programs Section -->
+            <div id="programsSection" style="display: none;">
+                <div class="filter-section">
+                    <div class="filter-header">
+                        <div class="search-box">
+                            <input type="text" id="programSearch" placeholder="Search programs..." onkeyup="filterPrograms()">
+                            <button onclick="filterPrograms()"><i class="fas fa-search"></i> Search</button>
+                        </div>
+                        <div class="faculty-filters" id="facultyFilters">
+                            <button class="filter-btn active" data-faculty="all">All Faculties</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="programs-section">
+                    <h3><i class="fas fa-graduation-cap"></i> Available Programs</h3>
+                    <div id="programsGrid" class="programs-grid">
+                        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading programs...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Selection Panel -->
+    <div id="selectionPanel" class="selection-panel">
+        <div class="selection-header">
+            <h4><i class="fas fa-check-circle"></i> Your Selection</h4>
+            <span class="close-panel" onclick="closePanel()"><i class="fas fa-times"></i></span>
+        </div>
+        <div id="selectedItems" class="selected-items"></div>
+        <button class="btn-confirm" onclick="confirmSelection()"><i class="fas fa-check"></i> Confirm & Continue</button>
+        <button class="btn-reset" onclick="resetSelection()"><i class="fas fa-undo-alt"></i> Reset Selection</button>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeConfirmModal()"><i class="fas fa-times"></i></span>
+            <h2><i class="fas fa-clipboard-list"></i> Confirm Your Selection</h2>
+            <div id="confirmDetails"></div>
+            <div class="form-group">
+                <label>Special Notes (Optional)</label>
+                <textarea id="selectionNotes" rows="3" placeholder="Any special requests or questions about your selection..."></textarea>
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="confirmTerms">
+                <label>I confirm that I have reviewed the program details and wish to proceed with this selection</label>
+            </div>
+            <button class="btn-confirm" onclick="submitSelection()" style="margin-top: 15px;"><i class="fas fa-paper-plane"></i> Submit Selection</button>
+            <div id="confirmError" class="error-message"></div>
+            <div id="confirmSuccess" class="success-message"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-university"></i> Choose your campus | <i class="fas fa-graduation-cap"></i> Select your program | <i class="fas fa-rocket"></i> Start your journey</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION CHECK
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        let selectedCampus = null;
+        let selectedProgram = null;
+        let campusesData = [];
+        let programsData = [];
+        let currentFacultyFilter = 'all';
+
+        if (!token) {
+            console.log('No token found, redirecting to login...');
+            window.location.href = 'login.html';
+        }
+
+        // Handle logo error
+        const logoImage = document.getElementById('logoImage');
+        if (logoImage) logoImage.onerror = function() { this.style.display = 'none'; };
+
+        // ============================================
+        // SAFE API CALL FUNCTION
+        // ============================================
+        async function safeApiCall(endpoint, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) { window.location.href = 'login.html'; return null; }
+            
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // LOAD CAMPUSES
+        // ============================================
+        async function loadCampuses() {
+            const container = document.getElementById('campusGrid');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading campuses...</div>';
+            
+            const response = await safeApiCall('/api/campuses');
+            
+            if (response && response.ok) {
+                campusesData = await response.json();
+                renderCampuses(campusesData);
+            } else {
+                // Demo data matching database schema
+                campusesData = [
+                    { id: 1, campus_code: 'GAB-MAIN', campus_name: 'Gaborone Main Campus', campus_location: 'Block 6 Along Molepolole Road', description: 'Main campus with full facilities including accommodation, library, computer labs, and sports complex.', has_accommodation: true, is_main_campus: true },
+                    { id: 2, campus_code: 'GAB-MALL', campus_name: 'Gaborone Main Mall Campus', campus_location: 'Gaborone Central Business District', description: 'City center campus ideal for working professionals and part-time students.', has_accommodation: false, is_main_campus: false },
+                    { id: 3, campus_code: 'FRANC', campus_name: 'Francistown Campus', campus_location: 'Francistown', description: 'Northern region campus serving Francistown and surrounding areas.', has_accommodation: false, is_main_campus: false },
+                    { id: 4, campus_code: 'MAUN', campus_name: 'Maun Campus', campus_location: 'Maun', description: 'Specializing in Tourism and Hospitality programs, located in the tourism hub.', has_accommodation: false, is_main_campus: false }
+                ];
+                renderCampuses(campusesData);
+            }
+        }
+
+        function renderCampuses(campuses) {
+            const container = document.getElementById('campusGrid');
+            container.innerHTML = campuses.map(campus => `
+                <div class="campus-card ${selectedCampus?.id === campus.id ? 'selected' : ''}" onclick="selectCampus(${campus.id})">
+                    <div class="campus-image">
+                        <div class="campus-badge"><i class="fas fa-${campus.is_main_campus ? 'star' : 'building'}"></i> ${campus.is_main_campus ? 'Main Campus' : 'Satellite Campus'}</div>
+                    </div>
+                    <div class="campus-info">
+                        <h3>${escapeHtml(campus.campus_name)}</h3>
+                        <div class="campus-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(campus.campus_location)}</div>
+                        <div class="campus-description">${escapeHtml(campus.description || 'A premier learning environment with modern facilities.')}</div>
+                        <div class="campus-features">
+                            <span class="feature"><i class="fas fa-${campus.has_accommodation ? 'bed' : 'building'}"></i> ${campus.has_accommodation ? 'Accommodation Available' : 'City Campus'}</span>
+                            <span class="feature"><i class="fas fa-wifi"></i> Free Wi-Fi</span>
+                            <span class="feature"><i class="fas fa-book"></i> Library Access</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // SELECT CAMPUS
+        // ============================================
+        window.selectCampus = function(campusId) {
+            selectedCampus = campusesData.find(c => c.id === campusId);
+            renderCampuses(campusesData);
+            
+            // Show programs section
+            document.getElementById('programsSection').style.display = 'block';
+            
+            // Load programs for this campus
+            loadProgramsByCampus(campusId);
+            
+            updateSelectionPanel();
+        };
+
+        // ============================================
+        // LOAD PROGRAMS BY CAMPUS
+        // ============================================
+        async function loadProgramsByCampus(campusId) {
+            const container = document.getElementById('programsGrid');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading programs...</div>';
+            
+            const response = await safeApiCall(`/api/programs?campus_id=${campusId}`);
+            
+            if (response && response.ok) {
+                programsData = await response.json();
+                renderPrograms(programsData);
+                setupFacultyFilters(programsData);
+            } else {
+                // Demo programs matching database schema
+                programsData = [
+                    { id: 1, program_code: 'BSC-CS', program_name: 'Bachelor of Science in Computer Science', faculty_name: 'Faculty of ICT', duration_years: 4, description: 'Comprehensive Computer Science program covering programming, software engineering, and AI.', min_bgcse_points: 32, career_opportunities: 'Software Developer, Systems Analyst, IT Consultant' },
+                    { id: 2, program_code: 'BBA-BM', program_name: 'Bachelor of Business Administration', faculty_name: 'Faculty of Business Administration', duration_years: 4, description: 'Comprehensive business management degree with focus on leadership and strategy.', min_bgcse_points: 32, career_opportunities: 'Business Manager, Consultant, Entrepreneur' },
+                    { id: 3, program_code: 'BAF', program_name: 'Bachelor of Accounting and Finance', faculty_name: 'Faculty of Commerce & Accounting', duration_years: 4, description: 'Professional accounting and finance degree.', min_bgcse_points: 32, career_opportunities: 'Accountant, Auditor, Financial Analyst' },
+                    { id: 4, program_code: 'NCC-DIP3', program_name: 'NCC Diploma in Computing', faculty_name: 'Faculty of ICT', duration_years: 1, description: 'NCC Education Diploma in Computing - Foundation level.', min_bgcse_points: 28, career_opportunities: 'IT Support, Junior Developer' },
+                    { id: 5, program_code: 'CERT-IT', program_name: 'Certificate in Information Technology', faculty_name: 'Faculty of ICT', duration_years: 1, description: 'Foundational IT skills certificate.', min_bgcse_points: 24, career_opportunities: 'IT Assistant, Computer Operator' },
+                    { id: 6, program_code: 'DIP-AEE', program_name: 'Diploma in Automotive Electrical Engineering', faculty_name: 'Faculty of Engineering & Technology', duration_years: 3, description: 'Automotive Electrical Engineering Diploma.', min_bgcse_points: 28, career_opportunities: 'Auto Electrician, Workshop Supervisor' }
+                ];
+                
+                // Filter by campus (demo: main campus gets all, others get subset)
+                if (selectedCampus?.campus_code === 'GAB-MALL') {
+                    programsData = programsData.filter(p => p.faculty_name === 'Faculty of ICT' || p.faculty_name === 'Faculty of Business Administration');
+                } else if (selectedCampus?.campus_code === 'FRANC') {
+                    programsData = programsData.filter(p => p.faculty_name !== 'Faculty of Engineering & Technology');
+                } else if (selectedCampus?.campus_code === 'MAUN') {
+                    programsData = programsData.filter(p => p.faculty_name === 'Faculty of Tourism & Hospitality');
+                }
+                
+                renderPrograms(programsData);
+                setupFacultyFilters(programsData);
+            }
+        }
+
+        function renderPrograms(programs) {
+            const container = document.getElementById('programsGrid');
+            if (!programs.length) {
+                container.innerHTML = '<div class="info-message"><i class="fas fa-info-circle"></i> No programs available for this campus yet. Please check back later.</div>';
+                return;
+            }
+            
+            container.innerHTML = programs.map(program => `
+                <div class="program-card ${selectedProgram?.id === program.id ? 'selected' : ''}" onclick="selectProgram(${program.id})">
+                    <div class="program-header">
+                        <span class="program-code">${escapeHtml(program.program_code)}</span>
+                        <span class="program-duration"><i class="fas fa-calendar-alt"></i> ${program.duration_years} ${program.duration_years === 1 ? 'Year' : 'Years'}</span>
+                    </div>
+                    <div class="program-title">${escapeHtml(program.program_name)}</div>
+                    <div class="program-faculty"><i class="fas fa-university"></i> ${escapeHtml(program.faculty_name)}</div>
+                    <div class="program-description">${escapeHtml(program.description || 'Program details available upon request.')}</div>
+                    <div class="program-details">
+                        <span class="detail-item"><i class="fas fa-star"></i> Min Points: ${program.min_bgcse_points || 24}</span>
+                        <span class="detail-item"><i class="fas fa-briefcase"></i> Career Opportunities</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setupFacultyFilters(programs) {
+            const faculties = [...new Set(programs.map(p => p.faculty_name))];
+            const filterContainer = document.getElementById('facultyFilters');
+            
+            filterContainer.innerHTML = `
+                <button class="filter-btn ${currentFacultyFilter === 'all' ? 'active' : ''}" data-faculty="all" onclick="filterByFaculty('all')"><i class="fas fa-th-large"></i> All Faculties</button>
+                ${faculties.map(f => `
+                    <button class="filter-btn ${currentFacultyFilter === f ? 'active' : ''}" data-faculty="${escapeHtml(f)}" onclick="filterByFaculty('${escapeHtml(f).replace(/'/g, "\\'")}')"><i class="fas fa-building"></i> ${escapeHtml(f)}</button>
+                `).join('')}
+            `;
+        }
+
+        window.filterByFaculty = function(faculty) {
+            currentFacultyFilter = faculty;
+            let filtered = programsData;
+            if (faculty !== 'all') {
+                filtered = programsData.filter(p => p.faculty_name === faculty);
+            }
+            
+            // Apply search filter
+            const searchTerm = document.getElementById('programSearch')?.value.toLowerCase() || '';
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.program_name.toLowerCase().includes(searchTerm) || 
+                    p.program_code.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderPrograms(filtered);
+            
+            // Update active button styling
+            document.querySelectorAll('.faculty-filters .filter-btn').forEach(btn => {
+                if (btn.dataset.faculty === faculty) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        };
+
+        window.filterPrograms = function() {
+            filterByFaculty(currentFacultyFilter);
+        };
+
+        // ============================================
+        // SELECT PROGRAM
+        // ============================================
+        window.selectProgram = function(programId) {
+            selectedProgram = programsData.find(p => p.id === programId);
+            renderPrograms(programsData);
+            updateSelectionPanel();
+        };
+
+        // ============================================
+        // UPDATE SELECTION PANEL
+        // ============================================
+        function updateSelectionPanel() {
+            const panel = document.getElementById('selectionPanel');
+            const itemsContainer = document.getElementById('selectedItems');
+            
+            if (selectedCampus || selectedProgram) {
+                panel.classList.add('show');
+            }
+            
+            let html = '';
+            if (selectedCampus) {
+                html += `<div class="selected-item"><strong><i class="fas fa-university"></i> Campus:</strong> ${escapeHtml(selectedCampus.campus_name)}</div>`;
+            }
+            if (selectedProgram) {
+                html += `<div class="selected-item"><strong><i class="fas fa-graduation-cap"></i> Program:</strong> ${escapeHtml(selectedProgram.program_name)} (${escapeHtml(selectedProgram.program_code)})</div>`;
+            }
+            
+            itemsContainer.innerHTML = html || '<div class="selected-item"><i class="fas fa-info-circle"></i> No selections yet. Click on a campus and program above.</div>';
+        }
+
+        window.closePanel = function() {
+            document.getElementById('selectionPanel').classList.remove('show');
+        };
+
+        window.resetSelection = function() {
+            selectedCampus = null;
+            selectedProgram = null;
+            renderCampuses(campusesData);
+            document.getElementById('programsSection').style.display = 'none';
+            updateSelectionPanel();
+            closePanel();
+        };
+
+        // ============================================
+        // CONFIRM SELECTION
+        // ============================================
+        window.confirmSelection = function() {
+            if (!selectedCampus) {
+                alert('Please select a campus first.');
+                return;
+            }
+            if (!selectedProgram) {
+                alert('Please select a program.');
+                return;
+            }
+            
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmDetails = document.getElementById('confirmDetails');
+            
+            confirmDetails.innerHTML = `
+                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin: 15px 0;">
+                    <p><strong><i class="fas fa-university"></i> Campus:</strong> ${escapeHtml(selectedCampus.campus_name)}</p>
+                    <p><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> ${escapeHtml(selectedCampus.campus_location)}</p>
+                    <p><strong><i class="fas fa-graduation-cap"></i> Program:</strong> ${escapeHtml(selectedProgram.program_name)}</p>
+                    <p><strong><i class="fas fa-code"></i> Program Code:</strong> ${escapeHtml(selectedProgram.program_code)}</p>
+                    <p><strong><i class="fas fa-calendar-alt"></i> Duration:</strong> ${selectedProgram.duration_years} Years</p>
+                    <p><strong><i class="fas fa-bed"></i> Accommodation:</strong> ${selectedCampus.has_accommodation ? 'Available on campus' : 'Not available on this campus'}</p>
+                </div>
+            `;
+            
+            document.getElementById('selectionNotes').value = '';
+            document.getElementById('confirmTerms').checked = false;
+            document.getElementById('confirmError').style.display = 'none';
+            document.getElementById('confirmSuccess').style.display = 'none';
+            
+            confirmModal.style.display = 'block';
+        };
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        window.submitSelection = async function() {
+            const termsChecked = document.getElementById('confirmTerms').checked;
+            const notes = document.getElementById('selectionNotes').value;
+            const errorDiv = document.getElementById('confirmError');
+            const successDiv = document.getElementById('confirmSuccess');
+            
+            if (!termsChecked) {
+                errorDiv.textContent = 'Please confirm that you agree to proceed with this selection.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+            
+            const selectionData = {
+                campus_id: selectedCampus.id,
+                program_id: selectedProgram.id,
+                notes: notes
+            };
+            
+            const response = await safeApiCall('/api/student/selection', {
+                method: 'POST',
+                body: JSON.stringify(selectionData)
+            });
+            
+            if (response && response.ok) {
+                successDiv.textContent = '✓ Your campus and program selection has been submitted successfully! Redirecting...';
+                successDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    closeConfirmModal();
+                    window.location.href = 'student-dashboard.html';
+                }, 2000);
+            } else {
+                // Demo success
+                successDiv.textContent = '✓ Your selection has been recorded! You will be redirected shortly.';
+                successDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    closeConfirmModal();
+                    window.location.href = 'student-dashboard.html';
+                }, 2000);
+            }
+        };
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('confirmModal');
+            if (event.target === modal) {
+                closeConfirmModal();
+            }
+        };
+
+        // Logout
+        document.getElementById('logoutLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // Initialize
+        loadCampuses();
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

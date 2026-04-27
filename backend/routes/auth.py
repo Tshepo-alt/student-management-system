@@ -553,7 +553,8 @@ def logout():
         if user:
             logger.info(f"User logged out: {user.email}")
             session.pop('user_id', None)
-        return jsonify({'message': 'Logged out successfully'}), 200
+            session.clear()
+    return jsonify({'message': 'Logged out successfully'}), 200
     except Exception as e:
         logger.error(f"Logout error: {e}")
         return jsonify({'error': str(e)}), 500

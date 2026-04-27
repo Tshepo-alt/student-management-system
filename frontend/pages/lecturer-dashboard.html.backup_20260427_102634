@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Lecturer Dashboard - GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+        }
+
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-icon {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .stat-label {
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            border-radius: 24px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-actions h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 16px;
+            border-radius: 40px;
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .action-btn i {
+            color: #667eea;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:hover i {
+            color: white;
+        }
+
+        /* Courses & Assignments Grids */
+        .section-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .course-grid,
+        .assignment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card,
+        .assignment-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 18px;
+            border-left: 4px solid #667eea;
+            transition: 0.2s;
+        }
+
+        .course-card:hover,
+        .assignment-card:hover {
+            transform: translateX(4px);
+            background: white;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .course-code,
+        .assignment-course {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .course-name,
+        .assignment-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 8px 0;
+            color: #0f172a;
+        }
+
+        .course-details,
+        .assignment-details {
+            font-size: 0.8rem;
+            color: #475569;
+            margin: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .course-details i,
+        .assignment-details i {
+            width: 18px;
+            color: #667eea;
+        }
+
+        .meeting-actions {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-meeting {
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-start {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-join {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-join:hover {
+            background: #2563eb;
+        }
+
+        .btn-end {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-end:hover {
+            background: #dc2626;
+        }
+
+        .meeting-badge-active {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .meeting-badge-inactive {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .assignment-stats {
+            display: flex;
+            gap: 12px;
+            margin: 8px 0;
+            font-size: 0.75rem;
+            color: #475569;
+        }
+
+        .btn-sm {
+            background: #f1f5f9;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-sm:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 24px;
+            color: #64748b;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 12px;
+            color: #991b1b;
+            font-size: 0.8rem;
+            margin: 12px 0;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.4rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
+            }
+
+            .course-grid,
+            .assignment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
+            <ul class="nav-menu">
+                <li><a href="lecturer-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i>
+                        Dashboard</a></li>
+                <li><a href="lecturer-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+                </li>
+                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+                </li>
+                <li><a href="lecturer-grades.html" class="nav-link"><i class="fas fa-graduation-cap"></i> Grading</a>
+                </li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-chalkboard-user"></i> Welcome, <span id="lecturerName">Lecturer</span>!</h1>
+            <p><i class="fas fa-chart-line"></i> Manage your courses, assignments, and online classes.</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-book"></i></div>
+                <div class="stat-number" id="courseCount">--</div>
+                <div class="stat-label">Active Courses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="stat-number" id="assignmentCount">--</div>
+                <div class="stat-label">Open Assignments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-number" id="pendingSubmissions">--</div>
+                <div class="stat-label">Pending Submissions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-number" id="studentCount">--</div>
+                <div class="stat-label">Enrolled Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-video"></i></div>
+                <div class="stat-number" id="activeClasses">--</div>
+                <div class="stat-label">Active Live Classes</div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="lecturer-assignments.html?action=create" class="action-btn"><i class="fas fa-plus-circle"></i>
+                    Create Assignment</a>
+                <a href="lecturer-grades.html" class="action-btn"><i class="fas fa-edit"></i> Grade Submissions</a>
+                <a href="lecturer-students.html" class="action-btn"><i class="fas fa-users-viewfinder"></i> View
+                    Students</a>
+                <a href="lecturer-courses.html" class="action-btn"><i class="fas fa-folder-open"></i> Course
+                    Materials</a>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="fas fa-chalkboard"></i> My Courses</h3>
+            <div id="coursesList" class="course-grid">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading courses...</div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="fas fa-list-ul"></i> Recent Assignments</h3>
+            <div id="assignmentsList" class="assignment-grid">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading assignments...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-graduation-cap"></i> Lecturer Portal | Empowering Education</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'lecturer') {
+            const roleMap = { 'admin': 'admin-dashboard.html', 'student': 'student-dashboard.html', 'finance': 'finance-dashboard.html', 'registrar': 'registrar-dashboard.html' };
+            window.location.href = roleMap[user.role] || 'login.html';
+        }
+
+        document.getElementById('lecturerName').textContent = user.first_name || user.username || 'Lecturer';
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        function showError(containerId, message) {
+            const container = document.getElementById(containerId);
+            if (container) container.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
+        }
+
+        // ========== LOAD COURSES ==========
+        let coursesData = [];
+        let meetingStatusCache = {};
+
+        async function loadCourses() {
+            const res = await safeApiCall('/api/lecturer/courses');
+            if (res && res.ok) {
+                coursesData = await res.json();
+                document.getElementById('courseCount').textContent = coursesData.length;
+                // Load meeting status for each course
+                for (const course of coursesData) {
+                    const meetingRes = await safeApiCall(`/api/classes/course/${course.id}/meeting`);
+                    if (meetingRes && meetingRes.ok) {
+                        const meeting = await meetingRes.json();
+                        meetingStatusCache[course.id] = { isActive: meeting.is_active, meetingLink: meeting.meeting_link };
+                    } else {
+                        meetingStatusCache[course.id] = { isActive: false, meetingLink: null };
+                    }
+                }
+                renderCourses();
+                updateActiveLiveClasses();
+                // Also compute total enrolled students
+                let totalStudents = coursesData.reduce((sum, c) => sum + (c.enrolled_students || 0), 0);
+                document.getElementById('studentCount').textContent = totalStudents;
+            } else {
+                showError('coursesList', 'Unable to load courses.');
+                document.getElementById('courseCount').textContent = '0';
+                document.getElementById('studentCount').textContent = '0';
+            }
+        }
+
+        function renderCourses() {
+            const container = document.getElementById('coursesList');
+            if (!coursesData.length) {
+                container.innerHTML = '<div class="course-card">No courses assigned.</div>';
+                return;
+            }
+            container.innerHTML = coursesData.map(course => {
+                const meeting = meetingStatusCache[course.id] || { isActive: false, meetingLink: null };
+                const isActive = meeting.isActive;
+                const meetingLink = meeting.meetingLink;
+                return `
+                    <div class="course-card">
+                        <div class="course-code">${escapeHtml(course.course_code)}</div>
+                        <div class="course-name">${escapeHtml(course.course_name)}</div>
+                        <div class="course-details">
+                            <span><i class="fas fa-user-graduate"></i> ${course.enrolled_students || 0} students</span>
+                            <span><i class="fas fa-calendar-alt"></i> Semester ${course.semester || '1'}</span>
+                        </div>
+                        <div class="meeting-actions">
+                            ${isActive ? `
+                                <span class="meeting-badge-active"><i class="fas fa-video"></i> Live Now</span>
+                                <button class="btn-meeting btn-join" onclick="joinMeeting(${course.id}, '${meetingLink}')"><i class="fas fa-door-open"></i> Join</button>
+                                <button class="btn-meeting btn-end" onclick="endMeeting(${course.id})"><i class="fas fa-stop"></i> End</button>
+                            ` : `
+                                <span class="meeting-badge-inactive"><i class="fas fa-video-slash"></i> Not Started</span>
+                                <button class="btn-meeting btn-start" onclick="startMeeting(${course.id})"><i class="fas fa-play"></i> Start Live Class</button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function updateActiveLiveClasses() {
+            const active = Object.values(meetingStatusCache).filter(m => m.isActive).length;
+            document.getElementById('activeClasses').textContent = active;
+        }
+
+        // ========== MEETING ACTIONS ==========
+        async function startMeeting(courseId) {
+            const res = await safeApiCall(`/api/classes/course/${courseId}/start`, {
+                method: 'POST',
+                body: JSON.stringify({ platform: 'google_meet' })
+            });
+            if (res && res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    meetingStatusCache[courseId] = { isActive: true, meetingLink: data.meeting_link };
+                    renderCourses();
+                    updateActiveLiveClasses();
+                    alert(`✅ Meeting started!\n\nLink: ${data.meeting_link}\n\nShare this link with your students.`);
+                    window.open(data.meeting_link, '_blank');
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } else {
+                alert('Failed to start meeting. Please check your Google credentials.');
+            }
+        }
+
+        async function endMeeting(courseId) {
+            if (!confirm('End the live class?')) return;
+            const res = await safeApiCall(`/api/classes/course/${courseId}/end`, { method: 'POST' });
+            if (res && res.ok) {
+                meetingStatusCache[courseId] = { isActive: false, meetingLink: null };
+                renderCourses();
+                updateActiveLiveClasses();
+                alert('Live class ended.');
+            } else {
+                alert('Failed to end meeting.');
+            }
+        }
+
+        function joinMeeting(courseId, link) {
+            if (link) window.open(link, '_blank');
+            else alert('Meeting link not available.');
+        }
+
+        // ========== LOAD ASSIGNMENTS (uses real endpoint) ==========
+        async function loadAssignments() {
+            const container = document.getElementById('assignmentsList');
+            const res = await safeApiCall('/api/lecturer/assignments');
+            if (res && res.ok) {
+                const assignments = await res.json();
+                document.getElementById('assignmentCount').textContent = assignments.length;
+                let pendingTotal = assignments.reduce((sum, a) => sum + (a.submissions_pending || 0), 0);
+                document.getElementById('pendingSubmissions').textContent = pendingTotal;
+                if (!assignments.length) {
+                    container.innerHTML = '<div class="assignment-card">No assignments created yet.</div>';
+                    return;
+                }
+                container.innerHTML = assignments.map(a => `
+                    <div class="assignment-card">
+                        <div class="assignment-course">${escapeHtml(a.course_code || 'Course')}</div>
+                        <div class="assignment-title">${escapeHtml(a.title)}</div>
+                        <div class="assignment-details">
+                            <div><i class="fas fa-calendar-day"></i> Due: ${a.due_date ? new Date(a.due_date).toLocaleDateString() : 'Not set'}</div>
+                            <div><i class="fas fa-upload"></i> Submissions: ${a.submissions_received || 0} / ${a.total_students || 0}</div>
+                        </div>
+                        <button class="btn-sm" onclick="viewAssignment(${a.id})"><i class="fas fa-eye"></i> View Details</button>
+                    </div>
+                `).join('');
+            } else {
+                // Endpoint may be empty; show placeholder without fake data
+                container.innerHTML = '<div class="assignment-card">No assignments data available.</div>';
+                document.getElementById('assignmentCount').textContent = '0';
+                document.getElementById('pendingSubmissions').textContent = '0';
+            }
+        }
+
+        function viewAssignment(id) {
+            window.location.href = `lecturer-assignments.html?view=${id}`;
+        }
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== HELPER ==========
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== INIT ==========
+        loadCourses();
+        loadAssignments();
+
+        // Expose meeting functions globally for inline buttons
+        window.startMeeting = startMeeting;
+        window.endMeeting = endMeeting;
+        window.joinMeeting = joinMeeting;
+        window.viewAssignment = viewAssignment;
+    </script>
+</body>
+
+</html>

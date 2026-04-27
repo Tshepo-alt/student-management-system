@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Finance Dashboard - GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+        }
+
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .stat-number small {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .stat-label {
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            border-radius: 24px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-actions h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 16px;
+            border-radius: 40px;
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .action-btn i {
+            color: #10b981;
+        }
+
+        .action-btn:hover {
+            background: #10b981;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:hover i {
+            color: white;
+        }
+
+        /* Transactions */
+        .recent-transactions {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .recent-transactions h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info strong {
+            font-size: 0.9rem;
+            color: #0f172a;
+        }
+
+        .transaction-info small {
+            font-size: 0.7rem;
+            color: #64748b;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #10b981;
+        }
+
+        .transaction-status {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 24px;
+            color: #64748b;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 12px;
+            color: #991b1b;
+            font-size: 0.8rem;
+            margin: 12px 0;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.4rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
+            }
+
+            .transaction-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
+            <ul class="nav-menu">
+                <li><a href="finance-dashboard.html" class="nav-link active"><i class="fas fa-chart-line"></i>
+                        Dashboard</a></li>
+                <li><a href="finance-records.html" class="nav-link"><i class="fas fa-credit-card"></i> Payment
+                        Records</a></li>
+                <li><a href="admin-reports.html" class="nav-link"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-user-circle"></i> Welcome, <span id="financeName">Finance Officer</span>!</h1>
+            <p>Manage payments, invoices, and financial reports.</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalRevenue">--</div>
+                <div class="stat-label"><i class="fas fa-chart-line"></i> Total Revenue (Month)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingCount">--</div>
+                <div class="stat-label"><i class="fas fa-clock"></i> Pending Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedCount">--</div>
+                <div class="stat-label"><i class="fas fa-check-circle"></i> Completed Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="outstandingAmount">--</div>
+                <div class="stat-label"><i class="fas fa-exclamation-triangle"></i> Outstanding Balance</div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="finance-records.html" class="action-btn"><i class="fas fa-credit-card"></i> View All
+                    Payments</a>
+                <a href="admin-reports.html?type=payments" class="action-btn"><i class="fas fa-chart-bar"></i> Generate
+                    Report</a>
+                <a href="finance-records.html?action=record" class="action-btn"><i class="fas fa-pen"></i> Record
+                    Payment</a>
+                <a href="admin-settings.html" class="action-btn"><i class="fas fa-sliders-h"></i> Fee Settings</a>
+            </div>
+        </div>
+
+        <div class="recent-transactions">
+            <h3><i class="fas fa-history"></i> Recent Transactions</h3>
+            <div id="transactionsList">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading transactions...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-chart-line"></i> Finance Portal | Financial Management</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'finance') window.location.href = 'student-dashboard.html';
+
+        document.getElementById('financeName').textContent = user.first_name || user.username || 'Finance Officer';
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        function showError(containerId, message) {
+            const container = document.getElementById(containerId);
+            if (container) container.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
+        }
+
+        // ========== LOAD STATISTICS ==========
+        async function loadStats() {
+            const container = document.getElementById('statsGrid');
+            const res = await safeApiCall('/api/admin/payments/stats');
+            if (res && res.ok) {
+                const data = await res.json();
+                document.getElementById('totalRevenue').innerHTML = `P ${(data.total_revenue || 0).toLocaleString()}`;
+                document.getElementById('pendingCount').innerText = data.pending_count || 0;
+                document.getElementById('completedCount').innerText = data.completed_count || 0;
+                document.getElementById('outstandingAmount').innerHTML = `P ${(data.outstanding_amount || 0).toLocaleString()}`;
+            } else {
+                // No demo fallback – show placeholder "—"
+                document.getElementById('totalRevenue').innerHTML = 'P —';
+                document.getElementById('pendingCount').innerText = '—';
+                document.getElementById('completedCount').innerText = '—';
+                document.getElementById('outstandingAmount').innerHTML = 'P —';
+                // Optionally, show an error banner
+                showError('statsGrid', 'Could not load statistics. Please try again later.');
+            }
+        }
+
+        // ========== LOAD RECENT TRANSACTIONS ==========
+        async function loadTransactions() {
+            const container = document.getElementById('transactionsList');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading transactions...</div>';
+            const res = await safeApiCall('/api/admin/payments?limit=5');
+            if (res && res.ok) {
+                const transactions = await res.json();
+                if (!transactions.length) {
+                    container.innerHTML = '<div class="transaction-item">No recent transactions.</div>';
+                    return;
+                }
+                container.innerHTML = transactions.map(t => `
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <strong>${escapeHtml(t.student_name)}</strong>
+                            <small>${t.payment_date || 'Date not recorded'}</small>
+                        </div>
+                        <div class="transaction-amount">P ${(t.amount || 0).toLocaleString()}</div>
+                        <div><span class="transaction-status ${t.status === 'completed' ? 'status-completed' : 'status-pending'}">${t.status || 'pending'}</span></div>
+                        <div><button class="action-btn" style="padding:4px 12px; background:#10b981; color:white;" onclick="window.location.href='finance-records.html?view=${t.id}'"><i class="fas fa-eye"></i> View</button></div>
+                    </div>
+                `).join('');
+            } else {
+                showError('transactionsList', 'Unable to load recent transactions.');
+            }
+        }
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== HELPER ==========
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== INIT ==========
+        loadStats();
+        loadTransactions();
+    </script>
+</body>
+
+</html>

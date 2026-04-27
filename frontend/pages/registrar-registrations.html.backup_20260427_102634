@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Registrar - Semester Registrations | GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 30px 35px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .page-header::before {
+            content: "\f2f5";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 80px;
+            opacity: 0.15;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 6px;
+            border-radius: 20px;
+            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .tab-btn {
+            padding: 10px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #718096;
+            border-radius: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn i {
+            font-size: 1rem;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            background: #f9fafb;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 1rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: #f0f4f8;
+        }
+
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow-x: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .modules-list {
+            font-size: 0.8rem;
+            max-width: 250px;
+        }
+
+        .results-list {
+            font-size: 0.75rem;
+            color: #2d3748;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-government {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .badge-private {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .badge-pending {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .btn-approve {
+            background: #38a169;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .btn-reject {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-approve:hover, .btn-reject:hover {
+            transform: translateY(-1px);
+            filter: brightness(0.9);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #276749;
+            border-left: 4px solid #38a169;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            .navbar .container {
+                flex-direction: column;
+            }
+            .nav-menu {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+            .tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .export-btn {
+                margin-left: 0;
+                width: 100%;
+                justify-content: center;
+            }
+            th, td {
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <span>Registrar Portal</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="registrar-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="registrar-registrations.html" class="nav-link active"><i class="fas fa-clipboard-list"></i> Registrations</a></li>
+                <li><a href="admin-students.html" class="nav-link"><i class="fas fa-user-graduate"></i> Students</a></li>
+                <li><a href="admin-programs.html" class="nav-link"><i class="fas fa-book-open"></i> Programs</a></li>
+                <li><a href="registrar-reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
+                <li><button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-clipboard-list"></i> Semester Registrations</h1>
+            <p>Review and approve student registrations. Export government-sponsored data for DTEF.</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="pending"><i class="fas fa-clock"></i> Pending</button>
+            <button class="tab-btn" data-tab="approved"><i class="fas fa-check-circle"></i> Approved</button>
+            <button class="tab-btn" data-tab="rejected"><i class="fas fa-times-circle"></i> Rejected</button>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label><i class="fas fa-filter"></i> Sponsorship:</label>
+                <select id="sponsorFilter">
+                    <option value="all">All</option>
+                    <option value="government">Government Sponsored</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-search"></i> Search:</label>
+                <input type="text" id="searchInput" placeholder="Student name or number">
+            </div>
+            <button id="exportGovBtn" class="export-btn"><i class="fas fa-download"></i> Export Government Data (DTEF)</button>
+        </div>
+
+        <div id="pending" class="tab-content active">
+            <div id="pendingTableContainer" class="table-container"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading registrations...</div></div>
+        </div>
+        <div id="approved" class="tab-content">
+            <div id="approvedTableContainer" class="table-container"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading approved...</div></div>
+        </div>
+        <div id="rejected" class="tab-content">
+            <div id="rejectedTableContainer" class="table-container"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading rejected...</div></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-clipboard-list"></i> Registrar | Student Registrations</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION & ROLE CHECK
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // Allow only registrar (and optionally admin, but keep strict)
+        if (user.role !== 'registrar') {
+            window.location.href = 'student-dashboard.html';
+        }
+
+        // ============================================
+        // DEMO DATA (would come from API)
+        // ============================================
+        let registrations = [
+            {
+                id: 1,
+                student_number: 'GIPS/2024/00123',
+                first_name: 'John',
+                last_name: 'Doe',
+                program: 'Bachelor of Science in Computer Science',
+                semester: 'Semester 1 (2025/2026)',
+                year_of_study: 1,
+                sponsorship: 'government',
+                modules: ['CS101 - Introduction to Programming', 'CS102 - Computer Architecture', 'MA101 - Mathematics for Computing'],
+                previous_results: [], // first year, no previous results
+                status: 'pending'
+            },
+            {
+                id: 2,
+                student_number: 'GIPS/2023/00456',
+                first_name: 'Jane',
+                last_name: 'Smith',
+                program: 'Bachelor of Business Administration',
+                semester: 'Semester 2 (2025/2026)',
+                year_of_study: 2,
+                sponsorship: 'government',
+                modules: ['BA201 - Organizational Behavior', 'BA202 - Marketing Principles', 'BA203 - Business Ethics'],
+                previous_results: [
+                    { module: 'BA101 - Principles of Management', grade: 'B', credits: 12 },
+                    { module: 'BA102 - Business Communication', grade: 'A', credits: 12 },
+                    { module: 'BA103 - Financial Accounting', grade: 'B+', credits: 12 }
+                ],
+                gpa: 3.2,
+                status: 'pending'
+            },
+            {
+                id: 3,
+                student_number: 'GIPS/2024/00789',
+                first_name: 'Michael',
+                last_name: 'Brown',
+                program: 'Diploma in Information Technology',
+                semester: 'Semester 1 (2025/2026)',
+                year_of_study: 1,
+                sponsorship: 'private',
+                modules: ['IT101 - Web Development', 'IT102 - Database Systems', 'IT103 - Networking Basics'],
+                previous_results: [],
+                status: 'pending'
+            },
+            {
+                id: 4,
+                student_number: 'GIPS/2022/00987',
+                first_name: 'Kelebogile',
+                last_name: 'Modise',
+                program: 'Bachelor of Commerce in Accounting',
+                semester: 'Semester 2 (2025/2026)',
+                year_of_study: 3,
+                sponsorship: 'government',
+                modules: ['ACC301 - Advanced Accounting', 'ACC302 - Auditing', 'FIN301 - Corporate Finance'],
+                previous_results: [
+                    { module: 'ACC201 - Intermediate Accounting', grade: 'A', credits: 12 },
+                    { module: 'ACC202 - Cost Accounting', grade: 'A-', credits: 12 },
+                    { module: 'FIN201 - Financial Management', grade: 'B+', credits: 12 }
+                ],
+                gpa: 3.4,
+                status: 'approved'
+            }
+        ];
+
+        // ============================================
+        // GLOBAL FUNCTIONS
+        // ============================================
+        let currentTab = 'pending';
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        function filterRegistrations(regs) {
+            let filtered = regs.filter(r => r.status === currentTab);
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(r => r.sponsorship === currentFilter);
+            }
+            if (currentSearch) {
+                const search = currentSearch.toLowerCase();
+                filtered = filtered.filter(r =>
+                    `${r.first_name} ${r.last_name}`.toLowerCase().includes(search) ||
+                    r.student_number.toLowerCase().includes(search)
+                );
+            }
+            return filtered;
+        }
+
+        function renderTable(containerId, registrationsList, actions = true) {
+            const container = document.getElementById(containerId);
+            if (!registrationsList.length) {
+                container.innerHTML = '<div class="loading">No registrations found.</div>';
+                return;
+            }
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student #</th><th>Name</th><th>Program</th><th>Year/Semester</th><th>Sponsorship</th><th>Modules (Registered)</th><th>Previous Results</th>${actions ? '<th>Actions</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${registrationsList.map(r => `
+                            <tr>
+                                <td>${escapeHtml(r.student_number)}</td>
+                                <td>${escapeHtml(r.first_name)} ${escapeHtml(r.last_name)}</td>
+                                <td>${escapeHtml(r.program)}</td>
+                                <td>${escapeHtml(r.semester)} (Year ${r.year_of_study})</td>
+                                <td><span class="badge ${r.sponsorship === 'government' ? 'badge-government' : 'badge-private'}">${r.sponsorship === 'government' ? 'Government' : 'Private'}</span></td>
+                                <td class="modules-list">
+                                    <ul style="margin:0; padding-left:1rem;">
+                                        ${r.modules.map(m => `<li>${escapeHtml(m)}</li>`).join('')}
+                                    </ul>
+                                </td>
+                                <td class="results-list">
+                                    ${r.previous_results.length > 0 ? 
+                                        `<strong>GPA: ${r.gpa || 'N/A'}</strong><br>Grades: ${r.previous_results.map(g => `${g.module.split(' - ')[0]} (${g.grade})`).join(', ')}` :
+                                        'No previous results (first year)'
+                                    }
+                                </td>
+                                ${actions ? `
+                                    <td>
+                                        <button class="btn-approve" onclick="approveRegistration(${r.id})"><i class="fas fa-check"></i> Approve</button>
+                                        <button class="btn-reject" onclick="rejectRegistration(${r.id})"><i class="fas fa-times"></i> Reject</button>
+                                    </td>
+                                ` : ''}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            container.innerHTML = html;
+        }
+
+        function refreshView() {
+            const filtered = filterRegistrations(registrations);
+            if (currentTab === 'pending') {
+                renderTable('pendingTableContainer', filtered, true);
+            } else if (currentTab === 'approved') {
+                renderTable('approvedTableContainer', filtered, false);
+            } else if (currentTab === 'rejected') {
+                renderTable('rejectedTableContainer', filtered, false);
+            }
+        }
+
+        async function approveRegistration(id) {
+            const reg = registrations.find(r => r.id === id);
+            if (!reg) return;
+            if (reg.status !== 'pending') {
+                alert('Registration already processed.');
+                return;
+            }
+            // Simulate API call
+            reg.status = 'approved';
+            // In real scenario, you'd POST to /api/registrations/{id}/approve
+            showMessage(`Registration for ${reg.first_name} ${reg.last_name} approved.`, 'success');
+            refreshView();
+        }
+
+        async function rejectRegistration(id) {
+            const reg = registrations.find(r => r.id === id);
+            if (!reg) return;
+            if (reg.status !== 'pending') {
+                alert('Registration already processed.');
+                return;
+            }
+            reg.status = 'rejected';
+            showMessage(`Registration for ${reg.first_name} ${reg.last_name} rejected.`, 'error');
+            refreshView();
+        }
+
+        // Export Government-Sponsored Data for DTEF
+        function exportGovernmentData() {
+            const governmentRegs = registrations.filter(r => 
+                r.sponsorship === 'government' && (r.status === 'approved' || r.status === 'pending')
+            );
+            if (governmentRegs.length === 0) {
+                alert('No government-sponsored students found.');
+                return;
+            }
+
+            // Prepare CSV rows
+            const headers = ['Student Number', 'Full Name', 'Program', 'Semester', 'Year of Study', 'Modules (Code/Name)', 'Previous Results (Module,Grade,Credits)', 'GPA (if applicable)'];
+            const rows = governmentRegs.map(r => {
+                const modulesStr = r.modules.map(m => m.split(' - ').join('|')).join('; ');
+                let resultsStr = '';
+                if (r.previous_results && r.previous_results.length > 0) {
+                    resultsStr = r.previous_results.map(p => `${p.module.split(' - ')[0]}|${p.grade}|${p.credits}`).join('; ');
+                } else {
+                    resultsStr = 'First-time registration - no previous results';
+                }
+                return [
+                    r.student_number,
+                    `${r.first_name} ${r.last_name}`,
+                    r.program,
+                    r.semester,
+                    r.year_of_study,
+                    modulesStr,
+                    resultsStr,
+                    r.gpa || 'N/A'
+                ];
+            });
+
+            const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute('download', `dtef_government_students_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showMessage('Government student data exported successfully!', 'success');
+        }
+
+        // Helper Functions
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            msgDiv.style.display = 'block';
+            document.querySelector('.container').prepend(msgDiv);
+            setTimeout(() => msgDiv.remove(), 4000);
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        document.getElementById('sponsorFilter').addEventListener('change', (e) => {
+            currentFilter = e.target.value;
+            refreshView();
+        });
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            refreshView();
+        });
+        document.getElementById('exportGovBtn').addEventListener('click', exportGovernmentData);
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                if (tabId === currentTab) return;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                currentTab = tabId;
+                refreshView();
+            });
+        });
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        refreshView();
+        window.approveRegistration = approveRegistration;
+        window.rejectRegistration = rejectRegistration;
+        console.log('Registrar Registration page loaded');
+    </script>
+</body>
+</html>

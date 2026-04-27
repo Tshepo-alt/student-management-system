@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>My Profile - GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+        }
+
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 32px;
+        }
+
+        .profile-header {
+            background: #f8fafc;
+            padding: 28px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #667eea;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .avatar-upload-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 16px;
+            color: #0f172a;
+        }
+
+        .profile-role {
+            color: #475569;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        /* Form Sections */
+        .form-section {
+            padding: 24px 28px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #0f172a;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 6px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #334155;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin: 20px 0;
+            display: none;
+            font-size: 0.85rem;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #15803d;
+            border-left: 4px solid #10b981;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .navbar .container {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: span 1;
+            }
+
+            .page-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .profile-header {
+                padding: 20px;
+            }
+
+            .form-section {
+                padding: 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam
+                        Registration</a></li>
+                <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
+                <li><a href="student-timetables.html" class="nav-link"><i class="fas fa-calendar-week"></i>
+                        Timetable</a></li>
+                <li><a href="results-view.html" class="nav-link"><i class="fas fa-chart-line"></i> Results</a></li>
+                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a>
+                </li>
+                <li><a href="student-profile.html" class="nav-link active"><i class="fas fa-user-circle"></i>
+                        Profile</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-user-circle"></i> My Profile</h1>
+            <p>View and update your personal information</p>
+        </div>
+
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="avatar-wrapper">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <i class="fas fa-user-graduate"></i>
+                        <img id="avatarImage" style="display: none;">
+                    </div>
+                    <label for="avatarUpload" class="avatar-upload-btn">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                </div>
+                <div class="profile-name" id="profileName">Loading...</div>
+                <div class="profile-role" id="profileRole">Student</div>
+            </div>
+
+            <form id="profileForm">
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-id-card"></i> Personal Information</div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>First Name</label><input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group"><label>Last Name</label><input type="text" id="lastName" required></div>
+                        <div class="form-group"><label>Email Address</label><input type="email" id="email" required>
+                        </div>
+                        <div class="form-group"><label>Phone Number</label><input type="tel" id="phone"></div>
+                        <div class="form-group full-width"><label>Bio / About Me</label><textarea id="bio" rows="3"
+                                placeholder="Tell us about yourself..."></textarea></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-map-marker-alt"></i> Contact Details</div>
+                    <div class="form-grid">
+                        <div class="form-group full-width"><label>Physical Address</label><input type="text"
+                                id="address" placeholder="Street, City, Country"></div>
+                        <div class="form-group"><label>City/Town</label><input type="text" id="city"></div>
+                        <div class="form-group"><label>Postal Code</label><input type="text" id="postalCode"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-link"></i> Social Links</div>
+                    <div class="form-grid">
+                        <div class="form-group"><label><i class="fab fa-linkedin"></i> LinkedIn</label><input type="url"
+                                id="linkedin" placeholder="https://linkedin.com/in/username"></div>
+                        <div class="form-group"><label><i class="fab fa-github"></i> GitHub</label><input type="url"
+                                id="github" placeholder="https://github.com/username"></div>
+                        <div class="form-group"><label><i class="fab fa-twitter"></i> Twitter/X</label><input type="url"
+                                id="twitter" placeholder="https://twitter.com/username"></div>
+                        <div class="form-group"><label><i class="fas fa-globe"></i> Personal Website</label><input
+                                type="url" id="website" placeholder="https://yourwebsite.com"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-lock"></i> Security</div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Current Password</label><input type="password"
+                                id="currentPassword" placeholder="Enter current password to change"></div>
+                        <div class="form-group"><label>New Password</label><input type="password" id="newPassword"
+                                placeholder="Leave blank to keep current"></div>
+                        <div class="form-group"><label>Confirm New Password</label><input type="password"
+                                id="confirmPassword" placeholder="Confirm new password"></div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn-secondary" onclick="resetForm()"><i class="fas fa-undo-alt"></i>
+                        Reset</button>
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-user-circle"></i> Student Profile | Update Your Information</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
+
+        // ========== LOAD PROFILE ==========
+        async function loadProfile() {
+            const res = await safeApiCall('/api/students/profile');
+            if (res && res.ok) {
+                const data = await res.json();
+                document.getElementById('firstName').value = data.first_name || '';
+                document.getElementById('lastName').value = data.last_name || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('phone').value = data.phone || '';
+                document.getElementById('bio').value = data.bio || '';
+                document.getElementById('address').value = data.address || '';
+                document.getElementById('city').value = data.city || '';
+                document.getElementById('postalCode').value = data.postal_code || '';
+                document.getElementById('linkedin').value = data.linkedin || '';
+                document.getElementById('github').value = data.github || '';
+                document.getElementById('twitter').value = data.twitter || '';
+                document.getElementById('website').value = data.website || '';
+
+                const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Student';
+                document.getElementById('profileName').textContent = fullName;
+                document.getElementById('profileRole').textContent = data.role ? data.role.toUpperCase() : 'STUDENT';
+
+                if (data.avatar_url) {
+                    document.getElementById('avatarImage').src = data.avatar_url;
+                    document.getElementById('avatarImage').style.display = 'block';
+                    document.querySelector('.profile-avatar i').style.display = 'none';
+                }
+            } else {
+                showMessage('Could not load profile data. Please refresh.', 'error');
+            }
+        }
+
+        // ========== SAVE PROFILE ==========
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                bio: document.getElementById('bio').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                postal_code: document.getElementById('postalCode').value,
+                linkedin: document.getElementById('linkedin').value,
+                github: document.getElementById('github').value,
+                twitter: document.getElementById('twitter').value,
+                website: document.getElementById('website').value
+            };
+
+            const currentPw = document.getElementById('currentPassword').value;
+            const newPw = document.getElementById('newPassword').value;
+            const confirmPw = document.getElementById('confirmPassword').value;
+
+            if (newPw && !currentPw) {
+                showMessage('Please enter your current password to change it.', 'error');
+                return;
+            }
+            if (newPw && newPw !== confirmPw) {
+                showMessage('New passwords do not match.', 'error');
+                return;
+            }
+            if (newPw) {
+                payload.current_password = currentPw;
+                payload.new_password = newPw;
+            }
+
+            const res = await safeApiCall('/api/students/profile', {
+                method: 'PUT',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (res && res.ok) {
+                showMessage('Profile updated successfully!', 'success');
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                loadProfile(); // refresh
+            } else {
+                showMessage('Failed to update profile. Please try again.', 'error');
+            }
+        });
+
+        // ========== AVATAR UPLOAD ==========
+        document.getElementById('avatarUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            const res = await safeApiCall('/api/students/avatar', {
+                method: 'POST',
+                body: formData,
+                headers: {} // let browser set content-type
+            });
+
+            if (res && res.ok) {
+                const data = await res.json();
+                document.getElementById('avatarImage').src = data.avatar_url;
+                document.getElementById('avatarImage').style.display = 'block';
+                document.querySelector('.profile-avatar i').style.display = 'none';
+                showMessage('Avatar updated!', 'success');
+            } else {
+                // Local preview only (since backend may not be ready)
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    document.getElementById('avatarImage').src = ev.target.result;
+                    document.getElementById('avatarImage').style.display = 'block';
+                    document.querySelector('.profile-avatar i').style.display = 'none';
+                    showMessage('Avatar updated (local preview).', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ========== RESET ==========
+        function resetForm() {
+            loadProfile();
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            showMessage('Form reset.', 'success');
+        }
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
+        loadProfile();
+        window.resetForm = resetForm;
+    </script>
+</body>
+
+</html>

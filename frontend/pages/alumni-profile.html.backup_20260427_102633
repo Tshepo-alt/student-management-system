@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Profile - GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Main Layout */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        /* Sidebar Cards */
+        .sidebar-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .sidebar-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        /* Profile Summary */
+        .profile-summary {
+            text-align: center;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2.5rem;
+            color: white;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar input {
+            display: none;
+        }
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .profile-title {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #28a745;
+            color: white;
+        }
+
+        /* Connections List */
+        .connection-list {
+            list-style: none;
+        }
+        .connection-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .connection-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .connection-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #cbd5e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a5568;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        .btn-icon:hover {
+            color: #5a67d8;
+        }
+
+        /* Feed */
+        .feed-card {
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            overflow: hidden;
+        }
+
+        /* Create Post */
+        .create-post {
+            padding: 20px;
+        }
+        .post-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .post-input textarea {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            font-family: inherit;
+            resize: none;
+            height: 80px;
+        }
+        .media-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .media-preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .media-preview-item img, .media-preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .remove-media {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .media-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .media-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #718096;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .media-btn:hover {
+            color: #667eea;
+        }
+
+        /* Post */
+        .post {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .post-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .post-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #cbd5e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .post-info {
+            flex: 1;
+        }
+        .post-name {
+            font-weight: 600;
+        }
+        .post-time {
+            font-size: 0.7rem;
+            color: #a0aec0;
+        }
+        .post-content {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .post-media {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .post-media-item {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .post-media-item img, .post-media-item video {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        .post-stats {
+            display: flex;
+            gap: 15px;
+            color: #718096;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .post-actions-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 12px;
+        }
+        .post-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #718096;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .post-action:hover {
+            color: #667eea;
+        }
+        .comments-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .comment {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .comment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #cbd5e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        .comment-content {
+            flex: 1;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 12px;
+        }
+        .comment-name {
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .comment-text {
+            font-size: 0.85rem;
+        }
+        .add-comment {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .add-comment input {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+        }
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .chat-message {
+            margin-bottom: 12px;
+            display: flex;
+            gap: 8px;
+        }
+        .chat-message.sent {
+            justify-content: flex-end;
+        }
+        .message-bubble {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 18px;
+            background: #e2e8f0;
+        }
+        .chat-message.sent .message-bubble {
+            background: #667eea;
+            color: white;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="alumni-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="alumni-network.html" class="nav-link"><i class="fas fa-users"></i> Network</a></li>
+                <li><a href="alumni-jobs.html" class="nav-link"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li><a href="alumni-profile.html" class="nav-link active"><i class="fas fa-id-card"></i> Profile</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-grid">
+            <!-- Left Sidebar -->
+            <div class="left-sidebar">
+                <div class="sidebar-card profile-summary">
+                    <div class="avatar" id="avatar" onclick="document.getElementById('avatarInput').click()">
+                        <span id="avatarText">👤</span>
+                        <img id="avatarImage" style="display: none;">
+                    </div>
+                    <input type="file" id="avatarInput" style="display:none" accept="image/*">
+                    <div class="profile-name" id="profileName">Loading...</div>
+                    <div class="profile-title" id="profileTitle">Loading...</div>
+                    <div id="statusBadge" class="badge">Verified Alumni</div>
+                    <button class="btn-icon" id="editProfileBtn" style="margin-top: 15px;"><i class="fas fa-edit"></i> Edit Profile</button>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3><i class="fas fa-user-friends"></i> Connections</h3>
+                    <ul class="connection-list" id="connectionList">
+                        <!-- dynamic -->
+                    </ul>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3><i class="fas fa-paper-plane"></i> Connection Requests</h3>
+                    <ul class="connection-list" id="requestList">
+                        <!-- dynamic -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Center Feed -->
+            <div class="center-feed">
+                <div class="feed-card create-post">
+                    <div class="post-input">
+                        <div class="post-avatar" id="currentUserAvatar">👤</div>
+                        <textarea id="postContent" placeholder="Share something with the community..."></textarea>
+                    </div>
+                    <div id="mediaPreview" class="media-preview"></div>
+                    <div class="post-actions">
+                        <div class="media-buttons">
+                            <button class="media-btn" id="addImageBtn"><i class="fas fa-image"></i> Add Image</button>
+                            <button class="media-btn" id="addVideoBtn"><i class="fas fa-video"></i> Add Video</button>
+                        </div>
+                        <button class="media-btn" id="postBtn" style="background:#667eea; color:white; padding:5px 15px; border-radius:20px;"><i class="fas fa-paper-plane"></i> Post</button>
+                    </div>
+                    <input type="file" id="imageInput" multiple accept="image/*" style="display:none">
+                    <input type="file" id="videoInput" multiple accept="video/*" style="display:none">
+                </div>
+
+                <div id="postsFeed">
+                    <!-- posts will appear here -->
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="right-sidebar">
+                <div class="sidebar-card">
+                    <h3><i class="fas fa-chart-line"></i> Suggestions</h3>
+                    <ul class="connection-list" id="suggestionList">
+                        <!-- dynamic -->
+                    </ul>
+                </div>
+                <div class="sidebar-card">
+                    <h3><i class="fas fa-envelope"></i> Quick Messages</h3>
+                    <ul class="connection-list" id="messageList">
+                        <!-- dynamic -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Profile</h2>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="editFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="editLastName" required>
+                </div>
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" id="editJobTitle">
+                </div>
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" id="editCompany">
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="editBio" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-icon" style="background:#667eea; color:white; padding:8px; width:100%; border-radius:8px;">Save Changes</button>
+                <button type="button" class="btn-icon" style="margin-top:10px;" onclick="closeModal()">Cancel</button>
+            </form>
+            <div id="editMessage" class="message" style="margin-top:15px;"></div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="modal">
+        <div class="modal-content">
+            <h2 id="chatUserName">Chat</h2>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="add-comment">
+                <input type="text" id="chatInput" placeholder="Type a message...">
+                <button class="btn-icon" id="sendMsgBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <button class="btn-icon" style="margin-top:10px;" onclick="closeChatModal()">Close</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-graduation-cap"></i> Alumni Portal | Stay Connected</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        let currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'login.html';
+
+        // Global data
+        let profile = {
+            id: currentUser.id || 1,
+            first_name: currentUser.first_name || 'John',
+            last_name: currentUser.last_name || 'Doe',
+            job_title: 'Software Developer',
+            company: 'Tech Solutions',
+            bio: 'Passionate developer and proud GIPS alumni.',
+            avatar: null,
+            is_alumni: true
+        };
+        let posts = [
+            {
+                id: 1,
+                user_id: 1,
+                user_name: 'John Doe',
+                user_avatar: null,
+                content: 'Excited to announce my new role as Senior Developer! 🎉',
+                media: [],
+                created_at: '2026-03-25T10:00:00',
+                likes: 12,
+                comments: [
+                    { id: 1, user_name: 'Jane Smith', content: 'Congratulations!', avatar: null, created_at: '2026-03-25T11:00:00' }
+                ],
+                liked_by_user: false
+            },
+            {
+                id: 2,
+                user_id: 2,
+                user_name: 'Jane Smith',
+                user_avatar: null,
+                content: 'Looking for collaborators on an open source project.',
+                media: [],
+                created_at: '2026-03-24T14:30:00',
+                likes: 8,
+                comments: [],
+                liked_by_user: false
+            }
+        ];
+        let connections = [
+            { id: 2, name: 'Jane Smith', avatar: null, status: 'connected' },
+            { id: 3, name: 'Michael Brown', avatar: null, status: 'connected' }
+        ];
+        let requests = [
+            { id: 4, name: 'Sarah Johnson', avatar: null, status: 'pending' }
+        ];
+        let suggestions = [
+            { id: 5, name: 'David Lee', avatar: null, mutual: 3 },
+            { id: 6, name: 'Emily Chen', avatar: null, mutual: 5 }
+        ];
+        let messages = {
+            '2': [
+                { sender_id: 2, text: 'Hey John, how are you?', timestamp: '2026-03-26T09:00:00' },
+                { sender_id: 1, text: 'Doing great! How about you?', timestamp: '2026-03-26T09:05:00' }
+            ]
+        };
+
+        // Helper functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Render UI
+        function renderProfile() {
+            document.getElementById('profileName').textContent = `${profile.first_name} ${profile.last_name}`;
+            document.getElementById('profileTitle').textContent = profile.job_title ? `${profile.job_title} at ${profile.company || 'N/A'}` : 'Update your profile';
+            document.getElementById('currentUserAvatar').textContent = (profile.first_name ? profile.first_name.charAt(0) : 'U').toUpperCase();
+            const avatarSpan = document.getElementById('avatarText');
+            const avatarImg = document.getElementById('avatarImage');
+            if (profile.avatar) {
+                avatarImg.src = profile.avatar;
+                avatarImg.style.display = 'block';
+                avatarSpan.style.display = 'none';
+            } else {
+                avatarSpan.textContent = (profile.first_name ? profile.first_name.charAt(0) : 'U').toUpperCase();
+                avatarSpan.style.display = 'flex';
+                avatarImg.style.display = 'none';
+            }
+        }
+
+        function renderConnections() {
+            const list = document.getElementById('connectionList');
+            list.innerHTML = connections.map(conn => `
+                <li class="connection-item">
+                    <div class="connection-info">
+                        <div class="connection-avatar">${conn.name.charAt(0)}</div>
+                        <span>${conn.name}</span>
+                    </div>
+                    <button class="btn-icon" onclick="openChat(${conn.id}, '${conn.name}')"><i class="fas fa-comment"></i></button>
+                </li>
+            `).join('');
+        }
+
+        function renderRequests() {
+            const list = document.getElementById('requestList');
+            if (requests.length === 0) {
+                list.innerHTML = '<li>No pending requests</li>';
+                return;
+            }
+            list.innerHTML = requests.map(req => `
+                <li class="connection-item">
+                    <div class="connection-info">
+                        <div class="connection-avatar">${req.name.charAt(0)}</div>
+                        <span>${req.name}</span>
+                    </div>
+                    <div>
+                        <button class="btn-icon" onclick="acceptRequest(${req.id})"><i class="fas fa-check"></i></button>
+                        <button class="btn-icon" onclick="rejectRequest(${req.id})"><i class="fas fa-times"></i></button>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function renderSuggestions() {
+            const list = document.getElementById('suggestionList');
+            list.innerHTML = suggestions.map(sug => `
+                <li class="connection-item">
+                    <div class="connection-info">
+                        <div class="connection-avatar">${sug.name.charAt(0)}</div>
+                        <span>${sug.name}</span>
+                        <span style="font-size:0.7rem; color:#718096;">${sug.mutual} mutual</span>
+                    </div>
+                    <button class="btn-icon" onclick="sendRequest(${sug.id}, '${sug.name}')"><i class="fas fa-user-plus"></i></button>
+                </li>
+            `).join('');
+        }
+
+        function renderMessagesList() {
+            const list = document.getElementById('messageList');
+            const chatList = connections.map(conn => ({
+                id: conn.id,
+                name: conn.name,
+                lastMsg: messages[conn.id] ? messages[conn.id].slice(-1)[0].text : 'No messages'
+            }));
+            list.innerHTML = chatList.map(chat => `
+                <li class="connection-item" style="cursor:pointer" onclick="openChat(${chat.id}, '${chat.name}')">
+                    <div class="connection-info">
+                        <div class="connection-avatar">${chat.name.charAt(0)}</div>
+                        <div>
+                            <div>${chat.name}</div>
+                            <div style="font-size:0.7rem; color:#718096;">${chat.lastMsg}</div>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        // Posts
+        let pendingMedia = []; // { type, file, previewUrl }
+        function updateMediaPreview() {
+            const previewDiv = document.getElementById('mediaPreview');
+            previewDiv.innerHTML = pendingMedia.map((media, idx) => `
+                <div class="media-preview-item">
+                    ${media.type === 'image' ? `<img src="${media.previewUrl}" alt="preview">` : `<video src="${media.previewUrl}" controls></video>`}
+                    <div class="remove-media" onclick="removeMedia(${idx})"><i class="fas fa-times"></i></div>
+                </div>
+            `).join('');
+        }
+
+        window.removeMedia = function(idx) {
+            pendingMedia.splice(idx, 1);
+            updateMediaPreview();
+        };
+
+        document.getElementById('addImageBtn').onclick = () => document.getElementById('imageInput').click();
+        document.getElementById('addVideoBtn').onclick = () => document.getElementById('videoInput').click();
+
+        document.getElementById('imageInput').onchange = (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if (pendingMedia.length >= 4) { alert('Maximum 4 images allowed.'); return; }
+                const url = URL.createObjectURL(file);
+                pendingMedia.push({ type: 'image', file, previewUrl: url });
+            });
+            updateMediaPreview();
+            e.target.value = '';
+        };
+        document.getElementById('videoInput').onchange = (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if (pendingMedia.length >= 3) { alert('Maximum 3 videos allowed.'); return; }
+                const url = URL.createObjectURL(file);
+                pendingMedia.push({ type: 'video', file, previewUrl: url });
+            });
+            updateMediaPreview();
+            e.target.value = '';
+        };
+
+        document.getElementById('postBtn').onclick = () => {
+            const content = document.getElementById('postContent').value.trim();
+            if (!content && pendingMedia.length === 0) return;
+            const newPost = {
+                id: Date.now(),
+                user_id: profile.id,
+                user_name: `${profile.first_name} ${profile.last_name}`,
+                user_avatar: profile.avatar,
+                content: content,
+                media: pendingMedia.map(m => ({ type: m.type, url: m.previewUrl })),
+                created_at: new Date().toISOString(),
+                likes: 0,
+                comments: [],
+                liked_by_user: false
+            };
+            posts.unshift(newPost);
+            renderPosts();
+            document.getElementById('postContent').value = '';
+            pendingMedia = [];
+            updateMediaPreview();
+        };
+
+        function renderPosts() {
+            const feed = document.getElementById('postsFeed');
+            feed.innerHTML = posts.map(post => `
+                <div class="feed-card post" data-post-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-avatar-small">${(post.user_name.charAt(0) || 'U').toUpperCase()}</div>
+                        <div class="post-info">
+                            <div class="post-name">${escapeHtml(post.user_name)}</div>
+                            <div class="post-time">${formatDate(post.created_at)}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    ${post.media.length ? `<div class="post-media">${post.media.map(m => `
+                        <div class="post-media-item">
+                            ${m.type === 'image' ? `<img src="${m.url}" alt="media">` : `<video src="${m.url}" controls></video>`}
+                        </div>
+                    `).join('')}</div>` : ''}
+                    <div class="post-stats">
+                        <span><i class="fas fa-thumbs-up"></i> ${post.likes} likes</span>
+                        <span><i class="fas fa-comment"></i> ${post.comments.length} comments</span>
+                    </div>
+                    <div class="post-actions-bar">
+                        <button class="post-action" onclick="likePost(${post.id})">
+                            <i class="fas fa-${post.liked_by_user ? 'thumbs-up' : 'thumbs-up'}"></i> Like
+                        </button>
+                        <button class="post-action" onclick="toggleComments(${post.id})">
+                            <i class="fas fa-comment"></i> Comment
+                        </button>
+                    </div>
+                    <div class="comments-section" id="comments-${post.id}" style="display: none;">
+                        <div class="comments-list">
+                            ${post.comments.map(comment => `
+                                <div class="comment">
+                                    <div class="comment-avatar">${comment.user_name.charAt(0).toUpperCase()}</div>
+                                    <div class="comment-content">
+                                        <div class="comment-name">${escapeHtml(comment.user_name)}</div>
+                                        <div class="comment-text">${escapeHtml(comment.content)}</div>
+                                        <div class="post-time" style="margin-top:4px;">${formatDate(comment.created_at)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="add-comment">
+                            <input type="text" id="commentInput-${post.id}" placeholder="Write a comment...">
+                            <button class="btn-icon" onclick="addComment(${post.id})"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.likePost = (postId) => {
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.liked_by_user = !post.liked_by_user;
+                post.likes += post.liked_by_user ? 1 : -1;
+                renderPosts();
+            }
+        };
+        window.toggleComments = (postId) => {
+            const section = document.getElementById(`comments-${postId}`);
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        };
+        window.addComment = (postId) => {
+            const input = document.getElementById(`commentInput-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.comments.push({
+                    id: Date.now(),
+                    user_name: `${profile.first_name} ${profile.last_name}`,
+                    content: text,
+                    avatar: profile.avatar,
+                    created_at: new Date().toISOString()
+                });
+                renderPosts();
+                input.value = '';
+            }
+        };
+
+        // Connection actions
+        window.sendRequest = (id, name) => {
+            suggestions = suggestions.filter(s => s.id !== id);
+            requests.push({ id, name, avatar: null, status: 'pending' });
+            renderSuggestions();
+            renderRequests();
+            alert(`Connection request sent to ${name}`);
+        };
+        window.acceptRequest = (id) => {
+            const req = requests.find(r => r.id === id);
+            if (req) {
+                connections.push({ id: req.id, name: req.name, avatar: null, status: 'connected' });
+                requests = requests.filter(r => r.id !== id);
+                renderConnections();
+                renderRequests();
+                renderMessagesList();
+            }
+        };
+        window.rejectRequest = (id) => {
+            requests = requests.filter(r => r.id !== id);
+            renderRequests();
+        };
+
+        // Chat
+        let activeChatId = null;
+        let activeChatName = '';
+        function renderChatMessages() {
+            const container = document.getElementById('chatMessages');
+            const msgs = messages[activeChatId] || [];
+            container.innerHTML = msgs.map(msg => `
+                <div class="chat-message ${msg.sender_id === profile.id ? 'sent' : ''}">
+                    <div class="message-bubble">${escapeHtml(msg.text)}</div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+        window.openChat = (userId, name) => {
+            activeChatId = userId;
+            activeChatName = name;
+            document.getElementById('chatUserName').textContent = `Chat with ${name}`;
+            if (!messages[activeChatId]) messages[activeChatId] = [];
+            renderChatMessages();
+            document.getElementById('chatModal').style.display = 'flex';
+        };
+        function closeChatModal() {
+            document.getElementById('chatModal').style.display = 'none';
+        }
+        document.getElementById('sendMsgBtn').onclick = () => {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !activeChatId) return;
+            messages[activeChatId].push({
+                sender_id: profile.id,
+                text: text,
+                timestamp: new Date().toISOString()
+            });
+            renderChatMessages();
+            input.value = '';
+            renderMessagesList();
+        };
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('sendMsgBtn').click();
+        });
+
+        // Profile editing
+        document.getElementById('editProfileBtn').onclick = () => {
+            document.getElementById('editFirstName').value = profile.first_name;
+            document.getElementById('editLastName').value = profile.last_name;
+            document.getElementById('editJobTitle').value = profile.job_title || '';
+            document.getElementById('editCompany').value = profile.company || '';
+            document.getElementById('editBio').value = profile.bio || '';
+            document.getElementById('editModal').style.display = 'flex';
+        };
+        document.getElementById('editProfileForm').onsubmit = (e) => {
+            e.preventDefault();
+            profile.first_name = document.getElementById('editFirstName').value;
+            profile.last_name = document.getElementById('editLastName').value;
+            profile.job_title = document.getElementById('editJobTitle').value;
+            profile.company = document.getElementById('editCompany').value;
+            profile.bio = document.getElementById('editBio').value;
+            renderProfile();
+            closeModal();
+            alert('Profile updated (demo)');
+        };
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        window.onclick = function(e) {
+            if (e.target === document.getElementById('editModal')) closeModal();
+            if (e.target === document.getElementById('chatModal')) closeChatModal();
+        };
+
+        // Avatar upload
+        document.getElementById('avatarInput').onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                profile.avatar = url;
+                renderProfile();
+            }
+        };
+
+        // Logout
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // Init
+        renderProfile();
+        renderConnections();
+        renderRequests();
+        renderSuggestions();
+        renderMessagesList();
+        renderPosts();
+    </script>
+</body>
+</html>

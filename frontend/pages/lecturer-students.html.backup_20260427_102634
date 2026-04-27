@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List - Lecturer Portal | GIPS College</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand img:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 70%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '\f0c0';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 80px;
+            opacity: 0.2;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .filter-bar select:focus,
+        .filter-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .filter-bar input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Students Grid */
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: all 0.3s;
+        }
+
+        .student-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .student-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .student-details {
+            font-size: 0.85rem;
+            color: #718096;
+            margin: 8px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .student-details span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        .footer p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1024px) {
+            .students-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="lecturer-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="lecturer-courses.html" class="nav-link"><i class="fas fa-book"></i> My Courses</a></li>
+                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="lecturer-grades.html" class="nav-link"><i class="fas fa-chart-line"></i> Grading</a></li>
+                <li><a href="lecturer-students.html" class="nav-link active"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-user-graduate"></i> Student Management</h1>
+            <p>View and manage students enrolled in your courses.</p>
+        </div>
+
+        <div class="filter-bar">
+            <select id="courseFilter">
+                <option value="all">All Courses</option>
+            </select>
+            <input type="text" id="searchStudents" placeholder="Search by name or student number...">
+        </div>
+
+        <div id="studentsContainer" class="students-grid">
+            <div class="loading">Loading students...</div>
+        </div>
+    </div>
+
+    <!-- Student Details Modal -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalStudentName">Student Details</h3>
+            <div id="modalStudentDetails"></div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-primary" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-chalkboard-teacher"></i> Lecturer Portal | Student Management</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        if (user.role !== 'lecturer') {
+            window.location.href = 'student-dashboard.html';
+        }
+
+        // ============================================
+        // DEMO DATA (students per course)
+        // ============================================
+        const courses = [
+            { id: 1, name: 'CS101 - Introduction to Programming' },
+            { id: 2, name: 'CS201 - Database Systems' },
+            { id: 3, name: 'CS301 - Web Development' }
+        ];
+
+        const studentsData = [
+            // Course 1 students
+            { id: 1, studentNumber: 'GIPS/2026/00001', name: 'John Doe', email: 'john.doe@student.gipscollege.edu.bw', program: 'Computer Science', year: 2, enrolledCourses: [1, 2] },
+            { id: 2, studentNumber: 'GIPS/2026/00002', name: 'Jane Smith', email: 'jane.smith@student.gipscollege.edu.bw', program: 'Computer Science', year: 2, enrolledCourses: [1, 3] },
+            { id: 3, studentNumber: 'GIPS/2026/00003', name: 'Mike Johnson', email: 'mike.johnson@student.gipscollege.edu.bw', program: 'Information Technology', year: 2, enrolledCourses: [1] },
+            // Course 2 students
+            { id: 4, studentNumber: 'GIPS/2026/00004', name: 'Sarah Williams', email: 'sarah.williams@student.gipscollege.edu.bw', program: 'Database Systems', year: 2, enrolledCourses: [2] },
+            { id: 5, studentNumber: 'GIPS/2026/00005', name: 'David Brown', email: 'david.brown@student.gipscollege.edu.bw', program: 'Computer Science', year: 2, enrolledCourses: [2, 3] },
+            // Course 3 students
+            { id: 6, studentNumber: 'GIPS/2026/00006', name: 'Emily Davis', email: 'emily.davis@student.gipscollege.edu.bw', program: 'Web Development', year: 3, enrolledCourses: [3] }
+        ];
+
+        // Helper: Get students for a given course (or all)
+        function getStudentsForCourse(courseId) {
+            if (courseId === 'all') return studentsData;
+            return studentsData.filter(s => s.enrolledCourses.includes(parseInt(courseId)));
+        }
+
+        // ============================================
+        // Render Student Cards
+        // ============================================
+        function renderStudents() {
+            const container = document.getElementById('studentsContainer');
+            const courseId = document.getElementById('courseFilter').value;
+            const searchTerm = document.getElementById('searchStudents').value.toLowerCase();
+
+            let students = getStudentsForCourse(courseId);
+
+            if (searchTerm) {
+                students = students.filter(s => 
+                    s.name.toLowerCase().includes(searchTerm) || 
+                    s.studentNumber.toLowerCase().includes(searchTerm) ||
+                    s.email.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (students.length === 0) {
+                container.innerHTML = '<div class="loading">No students found.</div>';
+                return;
+            }
+
+            container.innerHTML = students.map(student => `
+                <div class="student-card">
+                    <div class="student-name">${escapeHtml(student.name)}</div>
+                    <div class="student-details">
+                        <span><i class="fas fa-id-card"></i> ${student.studentNumber}</span>
+                        <span><i class="fas fa-envelope"></i> ${student.email}</span>
+                    </div>
+                    <div class="student-details">
+                        <span><i class="fas fa-graduation-cap"></i> ${student.program}</span>
+                        <span><i class="fas fa-calendar-alt"></i> Year ${student.year}</span>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <button class="btn btn-primary" onclick="viewStudentDetails(${student.id})"><i class="fas fa-info-circle"></i> View Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // View Student Details (modal)
+        // ============================================
+        window.viewStudentDetails = function(studentId) {
+            const student = studentsData.find(s => s.id === studentId);
+            if (!student) return;
+
+            const modal = document.getElementById('studentModal');
+            const modalName = document.getElementById('modalStudentName');
+            const modalDetails = document.getElementById('modalStudentDetails');
+
+            modalName.textContent = student.name;
+
+            // Get courses the student is enrolled in
+            const enrolledCourseNames = student.enrolledCourses.map(cid => {
+                const c = courses.find(c => c.id === cid);
+                return c ? c.name : '';
+            }).filter(n => n).join(', ');
+
+            modalDetails.innerHTML = `
+                <div style="margin: 15px 0;">
+                    <p><i class="fas fa-id-card"></i> <strong>Student Number:</strong> ${student.studentNumber}</p>
+                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${student.email}</p>
+                    <p><i class="fas fa-graduation-cap"></i> <strong>Program:</strong> ${student.program}</p>
+                    <p><i class="fas fa-calendar-alt"></i> <strong>Year of Study:</strong> ${student.year}</p>
+                    <p><i class="fas fa-book"></i> <strong>Enrolled Courses:</strong> ${enrolledCourseNames}</p>
+                    <p><i class="fas fa-check-circle"></i> <strong>Status:</strong> Active</p>
+                </div>
+                <div style="margin-top: 15px;">
+                    <h4><i class="fas fa-chart-line"></i> Recent Activity</h4>
+                    <ul>
+                        <li><i class="fas fa-sign-in-alt"></i> Last login: 2026-03-24</li>
+                        <li><i class="fas fa-file-alt"></i> Last assignment submitted: ${new Date().toLocaleDateString()}</li>
+                        <li><i class="fas fa-percent"></i> Average grade in your courses: 78%</li>
+                    </ul>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        };
+
+        // ============================================
+        // Populate course filter
+        // ============================================
+        function populateCourseFilter() {
+            const filterSelect = document.getElementById('courseFilter');
+            filterSelect.innerHTML = '<option value="all">All Courses</option>' +
+                courses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        // ============================================
+        // Filter listeners
+        // ============================================
+        document.getElementById('courseFilter').addEventListener('change', renderStudents);
+        document.getElementById('searchStudents').addEventListener('input', renderStudents);
+
+        // ============================================
+        // Modal close
+        // ============================================
+        function closeModal() {
+            document.getElementById('studentModal').style.display = 'none';
+        }
+        window.closeModal = closeModal;
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        };
+
+        // ============================================
+        // Logout
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // Helper
+        // ============================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // Initialise
+        // ============================================
+        populateCourseFilter();
+        renderStudents();
+
+        console.log('✅ Lecturer Students page loaded');
+    </script>
+</body>
+</html>

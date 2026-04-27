@@ -403,6 +403,20 @@
         // ============================================
         loadApplicationStatus();
     </script>
+
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
+    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
+    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
+</div>
+<script>
+    if (!localStorage.getItem('cookieConsent')) {
+        document.getElementById('cookieBanner').style.display = 'block';
+    }
+    function acceptCookies() {
+        localStorage.setItem('cookieConsent', 'true');
+        document.getElementById('cookieBanner').style.display = 'none';
+    }
+</script>
 </body>
 </html><!DOCTYPE html>
 <html lang="en">
@@ -810,6 +824,20 @@
         // ============================================
         loadApplicationStatus();
     </script>
+
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
+    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
+    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
+</div>
+<script>
+    if (!localStorage.getItem('cookieConsent')) {
+        document.getElementById('cookieBanner').style.display = 'block';
+    }
+    function acceptCookies() {
+        localStorage.setItem('cookieConsent', 'true');
+        document.getElementById('cookieBanner').style.display = 'none';
+    }
+</script>
 </body>
 
 </html>

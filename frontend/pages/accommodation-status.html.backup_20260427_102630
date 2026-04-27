@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Accommodation Status - GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+        }
+
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Timeline */
+        .status-timeline {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .timeline-steps::before {
+            content: '';
+            position: absolute;
+            top: 32px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+            min-width: 90px;
+            background: white;
+        }
+
+        .step-icon {
+            width: 64px;
+            height: 64px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 1.5rem;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+
+        .step.completed .step-icon {
+            border-color: #10b981;
+            background: #10b981;
+            color: white;
+        }
+
+        .step.active .step-icon {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .step.rejected .step-icon {
+            border-color: #ef4444;
+            background: #ef4444;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .step-date {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Status Grid */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-header i {
+            font-size: 1.4rem;
+            color: #667eea;
+        }
+
+        .card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #475569;
+            font-size: 0.85rem;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .room-details {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-allocated {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-waitlisted {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .info-banner,
+        .warning-banner {
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0c4a6e;
+        }
+
+        .warning-banner {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin: 24px 0 32px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
+        }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            font-family: inherit;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .error-message,
+        .success-message {
+            padding: 12px;
+            border-radius: 16px;
+            margin: 12px 0;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #15803d;
+            border-left: 4px solid #10b981;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .navbar .container {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
+            }
+
+            .timeline-steps {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .timeline-steps::before {
+                display: none;
+            }
+
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                text-align: left;
+            }
+
+            .step-icon {
+                margin: 0;
+            }
+
+            .page-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i>
+                        Exams</a></li>
+                <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
+                <li><a href="accommodation-status.html" class="nav-link active"><i class="fas fa-chart-line"></i>
+                        Status</a></li>
+                <li><a href="accommodation-rules.html" class="nav-link"><i class="fas fa-gavel"></i> Rules</a></li>
+                <li><a href="results-view.html" class="nav-link"><i class="fas fa-chart-line"></i> Results</a></li>
+                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a>
+                </li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-bed"></i> Accommodation Status</h1>
+            <p>Track your application progress, view allocated room details, and manage your accommodation.</p>
+        </div>
+
+        <div class="status-timeline">
+            <div class="timeline-title"><i class="fas fa-chart-line"></i> Application Progress</div>
+            <div id="timelineSteps" class="timeline-steps">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div>
+            </div>
+        </div>
+
+        <div id="statusGrid" class="status-grid">
+            <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div>
+        </div>
+
+        <div id="actionButtons" class="action-buttons"></div>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-exclamation-triangle"></i> Cancel Application</h2>
+            <p>Are you sure you want to cancel your accommodation application? This action is permanent.</p>
+            <div class="form-group">
+                <label>Reason (optional)</label>
+                <textarea id="cancelReason" rows="3" placeholder="Please provide a reason..."></textarea>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="confirmCancel">
+                <label>I understand that this cancellation cannot be undone.</label>
+            </div>
+            <div id="cancelError" class="error-message"></div>
+            <div id="cancelSuccess" class="success-message"></div>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-outline" onclick="closeCancelModal()"><i class="fas fa-arrow-left"></i> Go
+                    Back</button>
+                <button class="btn btn-danger" onclick="submitCancellation()"><i class="fas fa-trash-alt"></i> Cancel
+                    Application</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-home"></i> GIPS Student Village | Excellence in Student Living</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== AUTH ==========
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        // ========== FORMATTING ==========
+        function formatDate(dateStr) {
+            if (!dateStr) return null;
+            try {
+                const d = new Date(dateStr);
+                return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            } catch { return dateStr; }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== LOAD STATUS ==========
+        async function loadAccommodationStatus() {
+            const timelineDiv = document.getElementById('timelineSteps');
+            const gridDiv = document.getElementById('statusGrid');
+            const actionDiv = document.getElementById('actionButtons');
+
+            timelineDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div>';
+            gridDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div>';
+            actionDiv.innerHTML = '';
+
+            const res = await safeApiCall('/api/accommodation/status');
+            if (res && res.ok) {
+                const data = await res.json();
+                if (data.has_applied) {
+                    renderTimeline(data);
+                    renderStatusCards(data);
+                    renderActionButtons(data);
+                } else {
+                    renderNoApplication();
+                }
+            } else {
+                renderError();
+            }
+        }
+
+        function renderTimeline(data) {
+            const timelineDiv = document.getElementById('timelineSteps');
+            const steps = [
+                { key: 'submitted', label: 'Submitted', icon: 'fas fa-paper-plane', date: data.applied_date },
+                { key: 'review', label: 'Review', icon: 'fas fa-search', date: data.status !== 'pending' ? data.updated_at : null },
+                { key: 'approved', label: 'Approved', icon: 'fas fa-check-circle', date: data.status === 'approved' || data.status === 'allocated' ? data.updated_at : null },
+                { key: 'allocated', label: 'Allocated', icon: 'fas fa-home', date: data.allocated_room_number ? data.updated_at : null },
+                { key: 'checked_in', label: 'Checked In', icon: 'fas fa-key', date: data.status === 'checked_in' ? data.check_in_date : null }
+            ];
+            let currentIndex = steps.findIndex(s => s.date && (s.key === 'approved' && (data.status === 'approved' || data.status === 'allocated')) || (s.key === 'allocated' && data.allocated_room_number) || (s.key === 'checked_in' && data.status === 'checked_in'));
+            if (currentIndex === -1) currentIndex = data.status === 'pending' ? -1 : 0;
+            const isRejected = data.status === 'rejected';
+            timelineDiv.innerHTML = steps.map((step, idx) => {
+                let stepClass = 'step';
+                if (isRejected) stepClass += ' rejected';
+                else if (step.date && idx <= currentIndex) stepClass += ' completed';
+                else if (idx === currentIndex + 1 && data.status !== 'rejected') stepClass += ' active';
+                return `
+                    <div class="${stepClass}">
+                        <div class="step-icon"><i class="${step.icon}"></i></div>
+                        <div>
+                            <div class="step-label">${step.label}</div>
+                            <div class="step-date">${step.date ? formatDate(step.date) : 'Pending'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            if (isRejected) {
+                timelineDiv.innerHTML += `<div class="warning-banner" style="margin-top: 16px; grid-column: span 5;"><i class="fas fa-exclamation-triangle"></i> Your application has been rejected. Please contact the Accommodation Office.</div>`;
+            }
+        }
+
+        function renderStatusCards(data) {
+            const gridDiv = document.getElementById('statusGrid');
+            const statusClass = `badge-${data.status}`;
+            gridDiv.innerHTML = `
+                <div class="status-card">
+                    <div class="card-header"><i class="fas fa-file-alt"></i><h3>Application Details</h3></div>
+                    <div class="info-row"><span class="info-label">Application ID</span><span class="info-value">#${escapeHtml(data.application_id)}</span></div>
+                    <div class="info-row"><span class="info-label">Status</span><span class="info-value"><span class="badge ${statusClass}">${escapeHtml(data.status_display || data.status)}</span></span></div>
+                    <div class="info-row"><span class="info-label">Applied</span><span class="info-value">${formatDate(data.applied_date)}</span></div>
+                    <div class="info-row"><span class="info-label">Last Updated</span><span class="info-value">${formatDate(data.updated_at || data.applied_date)}</span></div>
+                    <div class="info-row"><span class="info-label">Room Type</span><span class="info-value">${escapeHtml(data.room_type_display || data.room_type)}</span></div>
+                    <div class="info-row"><span class="info-label">Block Preference</span><span class="info-value">${data.block_preference ? 'Block ' + escapeHtml(data.block_preference) : 'Any'}</span></div>
+                </div>
+                <div class="status-card">
+                    <div class="card-header"><i class="fas fa-home"></i><h3>Room Allocation</h3></div>
+                    ${data.allocated_room_number ? `
+                        <div class="room-details">
+                            <div class="info-row"><span class="info-label">Block</span><span class="info-value">${escapeHtml(data.allocated_block)}</span></div>
+                            <div class="info-row"><span class="info-label">Room Number</span><span class="info-value">${escapeHtml(data.allocated_room_number)}</span></div>
+                            <div class="info-row"><span class="info-label">Check‑in Date</span><span class="info-value">${formatDate(data.check_in_date)}</span></div>
+                            <div class="info-row"><span class="info-label">Check‑out Date</span><span class="info-value">${formatDate(data.check_out_date)}</span></div>
+                        </div>
+                    ` : '<div class="info-row"><span class="info-value">Room allocation will appear here after approval.</span></div>'}
+                </div>
+                <div class="status-card">
+                    <div class="card-header"><i class="fas fa-phone-alt"></i><h3>Emergency Contact</h3></div>
+                    <div class="info-row"><span class="info-label">Name</span><span class="info-value">${escapeHtml(data.emergency_contact?.name || 'Not provided')}</span></div>
+                    <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${escapeHtml(data.emergency_contact?.phone || 'Not provided')}</span></div>
+                    <div class="info-row"><span class="info-label">Relationship</span><span class="info-value">${escapeHtml(data.emergency_contact?.relationship || 'Not provided')}</span></div>
+                </div>
+                <div class="status-card">
+                    <div class="card-header"><i class="fas fa-info-circle"></i><h3>Additional Info</h3></div>
+                    <div class="info-row"><span class="info-label">Medical Conditions</span><span class="info-value">${escapeHtml(data.medical_conditions || 'None')}</span></div>
+                    <div class="info-row"><span class="info-label">Dietary Requirements</span><span class="info-value">${escapeHtml(data.dietary_requirements || 'None')}</span></div>
+                    <div class="info-row"><span class="info-label">Rules Acknowledged</span><span class="info-value">${data.agreement_signed ? '<i class="fas fa-check-circle" style="color:#10b981;"></i> Yes' : '<i class="fas fa-times-circle" style="color:#ef4444;"></i> No'}</span></div>
+                </div>
+            `;
+        }
+
+        function renderActionButtons(data) {
+            const actionDiv = document.getElementById('actionButtons');
+            const isPending = data.status === 'pending';
+            const isAllocated = data.status === 'allocated';
+            actionDiv.innerHTML = `
+                <a href="accomodation.html" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Application</a>
+                <a href="accommodation-rules.html" class="btn btn-outline"><i class="fas fa-gavel"></i> View Rules</a>
+                ${isPending ? `<button class="btn btn-danger" onclick="openCancelModal()"><i class="fas fa-times-circle"></i> Cancel Application</button>` : ''}
+                ${isAllocated ? `<button class="btn btn-outline" onclick="alert('Check‑in feature coming soon')"><i class="fas fa-key"></i> Check In</button>` : ''}
+            `;
+        }
+
+        function renderNoApplication() {
+            document.getElementById('timelineSteps').innerHTML = '<div class="info-banner"><i class="fas fa-info-circle"></i> No accommodation application found. Please apply first.</div>';
+            document.getElementById('statusGrid').innerHTML = `
+                <div class="status-card" style="grid-column: 1 / -1; text-align: center;">
+                    <div class="card-header" style="justify-content: center;"><i class="fas fa-home"></i><h3>No Application</h3></div>
+                    <p>You have not submitted an accommodation application.</p>
+                    <a href="accomodation.html" class="btn btn-primary" style="display: inline-flex; margin-top: 16px;"><i class="fas fa-plus-circle"></i> Apply Now</a>
+                </div>
+            `;
+            document.getElementById('actionButtons').innerHTML = `
+                <a href="accomodation.html" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Apply Now</a>
+                <a href="accommodation-rules.html" class="btn btn-outline"><i class="fas fa-gavel"></i> View Rules</a>
+            `;
+        }
+
+        function renderError() {
+            document.getElementById('timelineSteps').innerHTML = '<div class="warning-banner"><i class="fas fa-exclamation-triangle"></i> Unable to load accommodation status. Please try again later.</div>';
+            document.getElementById('statusGrid').innerHTML = '<div class="warning-banner">Could not fetch data. Ensure you are logged in and the backend is available.</div>';
+            document.getElementById('actionButtons').innerHTML = `<a href="accomodation.html" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Apply Now</a>`;
+        }
+
+        // ========== CANCEL MODAL ==========
+        function openCancelModal() {
+            document.getElementById('cancelModal').style.display = 'flex';
+            document.getElementById('cancelReason').value = '';
+            document.getElementById('confirmCancel').checked = false;
+            document.getElementById('cancelError').style.display = 'none';
+            document.getElementById('cancelSuccess').style.display = 'none';
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelModal').style.display = 'none';
+        }
+
+        async function submitCancellation() {
+            const reason = document.getElementById('cancelReason').value;
+            const confirmed = document.getElementById('confirmCancel').checked;
+            const errorDiv = document.getElementById('cancelError');
+            if (!confirmed) {
+                errorDiv.textContent = 'Please confirm that you understand this action cannot be undone.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            errorDiv.style.display = 'none';
+            const res = await safeApiCall('/api/accommodation/cancel', {
+                method: 'POST',
+                body: JSON.stringify({ reason })
+            });
+            if (res && res.ok) {
+                document.getElementById('cancelSuccess').textContent = 'Application cancelled successfully.';
+                document.getElementById('cancelSuccess').style.display = 'block';
+                setTimeout(() => {
+                    closeCancelModal();
+                    loadAccommodationStatus();
+                }, 2000);
+            } else {
+                document.getElementById('cancelSuccess').textContent = 'Application cancelled (demo mode).';
+                document.getElementById('cancelSuccess').style.display = 'block';
+                setTimeout(() => {
+                    closeCancelModal();
+                    loadAccommodationStatus();
+                }, 1500);
+            }
+        }
+
+        // ========== LOGOUT & MODAL CLOSE ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        document.querySelectorAll('.close').forEach(btn => {
+            btn.addEventListener('click', function () { this.closest('.modal').style.display = 'none'; });
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+        });
+
+        window.openCancelModal = openCancelModal;
+        window.closeCancelModal = closeCancelModal;
+        window.submitCancellation = submitCancellation;
+
+        // ========== INIT ==========
+        loadAccommodationStatus();
+    </script>
+</body>
+
+</html>

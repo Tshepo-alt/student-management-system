@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Staff Dashboard - GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+            transition: transform 0.2s;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+        }
+
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin: 28px 0 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .stat-label {
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            border-radius: 24px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-actions h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 16px;
+            border-radius: 40px;
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .action-btn i {
+            color: #8b5cf6;
+        }
+
+        .action-btn:hover {
+            background: #8b5cf6;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:hover i {
+            color: white;
+        }
+
+        /* Recent Sections */
+        .recent-section {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .recent-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .item-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 15px;
+            border-left: 4px solid #8b5cf6;
+            transition: 0.2s;
+        }
+
+        .item-card:hover {
+            transform: translateX(4px);
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .item-details {
+            font-size: 0.8rem;
+            color: #475569;
+            margin-top: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-open {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-resolved {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .btn-sm {
+            background: #8b5cf6;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-sm:hover {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 24px;
+            color: #64748b;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 12px;
+            color: #991b1b;
+            font-size: 0.8rem;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.4rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-link {
+                padding: 0.3rem 0.7rem;
+                font-size: 0.75rem;
+            }
+
+            .item-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="staff-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i>
+                        Dashboard</a></li>
+                <li><a href="admin-accommodation.html" class="nav-link"><i class="fas fa-building"></i>
+                        Accommodation</a></li>
+                <li><a href="admin-tickets.html" class="nav-link"><i class="fas fa-ticket-alt"></i> Support Tickets</a>
+                </li>
+                <li><a href="admin-reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-user-tie"></i> Welcome, <span id="staffName">Staff Member</span>!</h1>
+            <p>Manage accommodation applications, support tickets, and other tasks.</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalAccommodation">--</div>
+                <div class="stat-label"><i class="fas fa-home"></i> Accommodation Apps</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingAccommodation">--</div>
+                <div class="stat-label"><i class="fas fa-clock"></i> Pending Apps</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="openTickets">--</div>
+                <div class="stat-label"><i class="fas fa-envelope-open-text"></i> Open Tickets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="resolvedTickets">--</div>
+                <div class="stat-label"><i class="fas fa-check-circle"></i> Resolved Tickets</div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="admin-accommodation.html" class="action-btn"><i class="fas fa-home"></i> Manage
+                    Accommodation</a>
+                <a href="admin-tickets.html" class="action-btn"><i class="fas fa-ticket-alt"></i> View Tickets</a>
+                <a href="admin-reports.html" class="action-btn"><i class="fas fa-chart-line"></i> View Reports</a>
+                <a href="admin-accommodation.html?action=add" class="action-btn"><i class="fas fa-plus-circle"></i> Add
+                    Residence</a>
+            </div>
+        </div>
+
+        <div class="recent-section">
+            <h3><i class="fas fa-home"></i> Recent Accommodation Applications</h3>
+            <div id="recentAccommodation" class="item-list">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading applications...</div>
+            </div>
+        </div>
+
+        <div class="recent-section">
+            <h3><i class="fas fa-ticket-alt"></i> Recent Support Tickets</h3>
+            <div id="recentTickets" class="item-list">
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading tickets...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-user-tie"></i> Staff Portal | Excellence in Service</p>
+        </div>
+    </footer>
+
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'staff') window.location.href = 'student-dashboard.html';
+
+        document.getElementById('staffName').textContent = user.first_name || user.username || 'Staff Member';
+
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        function showError(containerId, message) {
+            const container = document.getElementById(containerId);
+            if (container) container.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
+        }
+
+        // ========== LOAD STATISTICS ==========
+        async function loadStats() {
+            const res = await safeApiCall('/api/admin/stats');
+            if (res && res.ok) {
+                const data = await res.json();
+                document.getElementById('totalAccommodation').textContent = data.total_accommodation || 0;
+                document.getElementById('pendingAccommodation').textContent = data.pending_accommodation || 0;
+                document.getElementById('openTickets').textContent = data.open_tickets || 0;
+                document.getElementById('resolvedTickets').textContent = data.resolved_tickets || 0;
+            } else {
+                // Fallback to zeros – no hardcoded numbers
+                document.getElementById('totalAccommodation').textContent = '0';
+                document.getElementById('pendingAccommodation').textContent = '0';
+                document.getElementById('openTickets').textContent = '0';
+                document.getElementById('resolvedTickets').textContent = '0';
+            }
+        }
+
+        // ========== LOAD RECENT ACCOMMODATION APPLICATIONS ==========
+        async function loadRecentAccommodation() {
+            const container = document.getElementById('recentAccommodation');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading applications...</div>';
+            const res = await safeApiCall('/api/admin/accommodation/applications?limit=5');
+            if (res && res.ok) {
+                const apps = await res.json();
+                if (!apps.length) {
+                    container.innerHTML = '<div class="item-card">No recent accommodation applications.</div>';
+                    return;
+                }
+                container.innerHTML = apps.map(app => `
+                    <div class="item-card">
+                        <div class="item-title">
+                            <span><i class="fas fa-user"></i> ${escapeHtml(app.student_name)}</span>
+                            <span class="badge ${app.status === 'pending' ? 'badge-pending' : 'badge-approved'}">${app.status}</span>
+                        </div>
+                        <div class="item-details">
+                            <i class="fas fa-bed"></i> ${app.room_type === 'bachelor_pad' ? 'Bachelor Pad' : 'Three-Bed Room'} |
+                            <i class="fas fa-building"></i> Block: ${app.block_preference || 'Any'}
+                        </div>
+                        <div class="item-details"><i class="fas fa-calendar-alt"></i> ${new Date(app.created_at).toLocaleDateString()}</div>
+                        <button class="btn-sm" onclick="window.location.href='admin-accommodation.html?view=${app.id}'"><i class="fas fa-eye"></i> View</button>
+                    </div>
+                `).join('');
+            } else {
+                showError('recentAccommodation', 'Could not load accommodation applications.');
+            }
+        }
+
+        // ========== LOAD RECENT SUPPORT TICKETS ==========
+        async function loadRecentTickets() {
+            const container = document.getElementById('recentTickets');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading tickets...</div>';
+            const res = await safeApiCall('/api/admin/tickets?limit=5');
+            if (res && res.ok) {
+                const tickets = await res.json();
+                if (!tickets.length) {
+                    container.innerHTML = '<div class="item-card">No recent support tickets.</div>';
+                    return;
+                }
+                container.innerHTML = tickets.map(t => `
+                    <div class="item-card">
+                        <div class="item-title">
+                            <span><i class="fas fa-hashtag"></i> #${t.id} - ${escapeHtml(t.subject)}</span>
+                            <span class="badge ${t.status === 'open' ? 'badge-pending' : 'badge-resolved'}">${t.status}</span>
+                        </div>
+                        <div class="item-details"><i class="fas fa-user"></i> From: ${escapeHtml(t.student_name)}</div>
+                        <div class="item-details"><i class="fas fa-calendar-alt"></i> ${new Date(t.created_at).toLocaleDateString()}</div>
+                        <button class="btn-sm" onclick="window.location.href='admin-tickets.html?view=${t.id}'"><i class="fas fa-eye"></i> View</button>
+                    </div>
+                `).join('');
+            } else {
+                showError('recentTickets', 'Could not load support tickets.');
+            }
+        }
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== INIT ==========
+        loadStats();
+        loadRecentAccommodation();
+        loadRecentTickets();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Alumni Network - GIPS College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+            transition: transform 0.3s;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+
+        .network-container {
+            max-width: 1280px;
+            margin: 30px auto;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 25px;
+        }
+
+        @media (max-width: 1024px) {
+            .network-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            position: sticky;
+            top: 100px;
+        }
+
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .profile-title {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            padding: 12px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .feed-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 40px 20px;
+            color: #a0aec0;
+        }
+
+        .placeholder i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #cbd5e0;
+        }
+
+        .info-message {
+            background: #cfe2ff;
+            border-left: 4px solid #3182ce;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            color: #084298;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-message i {
+            font-size: 1.2rem;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        hr {
+            margin: 15px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .profile-card,
+            .connections-card {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <span>GIPS Alumni Network</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="alumni-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
+                <li><a href="alumni-network.html" class="nav-link active"><i class="fas fa-users"></i> Network</a></li>
+                <li><a href="alumni-jobs.html" class="nav-link"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li><a href="alumni-profile.html" class="nav-link"><i class="fas fa-id-card"></i> Profile</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="network-container">
+        <!-- Left Sidebar: Profile Card (real data from backend) -->
+        <div class="profile-card">
+            <div class="profile-avatar" id="profileAvatar"><i class="fas fa-user"></i></div>
+            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-title" id="profileTitle"></div>
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-number" id="connectionsCount">-</div>
+                    <div class="stat-label"><i class="fas fa-user-friends"></i> Connections</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="postsCount">-</div>
+                    <div class="stat-label"><i class="fas fa-newspaper"></i> Posts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="followersCount">-</div>
+                    <div class="stat-label"><i class="fas fa-heart"></i> Followers</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Feed (placeholder – no hardcoded posts) -->
+        <div class="feed-column">
+            <div class="feed-card">
+                <div class="placeholder">
+                    <i class="fas fa-newspaper"></i>
+                    <p>Alumni feed is under development.</p>
+                    <div class="info-message">
+                        <i class="fas fa-info-circle"></i>
+                        <span>You will soon be able to share posts, comment, and connect with fellow alumni.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar (placeholder) -->
+        <div class="connections-card">
+            <div class="placeholder">
+                <i class="fas fa-user-plus"></i>
+                <p>Suggested connections and online users will appear here soon.</p>
+            </div>
+            <hr>
+            <button class="logout-btn" style="width:100%; background:#667eea; display: flex; justify-content: center;"
+                onclick="alert('Video call feature coming soon')">
+                <i class="fas fa-video"></i> Start Video Call
+            </button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <p><i class="fas fa-graduation-cap"></i> Alumni Network | Stay Connected</p>
+        </div>
+    </footer>
+
+    <script>
+        // ---------- AUTH ----------
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
+
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return response;
+            } catch (error) { console.error(error); return null; }
+        }
+
+        // Load alumni profile & stats (real backend)
+        async function loadProfileAndStats() {
+            // Profile data
+            const profileRes = await safeApiCall('/api/alumni/profile');
+            let firstName = '', lastName = '', jobTitle = '', company = '';
+            if (profileRes && profileRes.ok) {
+                const data = await profileRes.json();
+                const fullName = data.name || 'Alumni Member';
+                document.getElementById('profileName').textContent = fullName;
+                document.getElementById('profileTitle').textContent = data.job_title ? `${data.job_title} at ${data.company || ''}` : 'Update your profile';
+                document.getElementById('profileAvatar').innerHTML = `<i class="fas fa-user-circle"></i>`;
+                // Optionally set initials if you prefer – but icon is fine
+            } else {
+                document.getElementById('profileName').textContent = 'Alumni User';
+                document.getElementById('profileTitle').textContent = 'Member';
+            }
+
+            // Stats
+            const statsRes = await safeApiCall('/api/alumni/stats');
+            if (statsRes && statsRes.ok) {
+                const stats = await statsRes.json();
+                document.getElementById('connectionsCount').textContent = stats.connections || '0';
+                document.getElementById('postsCount').textContent = stats.posts || '0';
+                document.getElementById('followersCount').textContent = stats.followers || '0';
+            } else {
+                document.getElementById('connectionsCount').textContent = '0';
+                document.getElementById('postsCount').textContent = '0';
+                document.getElementById('followersCount').textContent = '0';
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        loadProfileAndStats();
+    </script>
+</body>
+
+</html>

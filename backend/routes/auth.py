@@ -410,7 +410,7 @@ def register():
         return jsonify({'error': str(e)}), 500
 
 # ============================================
-# Login Endpoint (unchanged, correct)
+# Login Endpoint
 # ============================================
 
 @auth_bp.route('/login', methods=['POST'])
@@ -510,7 +510,6 @@ def login():
 
 # ============================================
 # Token Refresh, Verify, Logout, Profile, etc.
-# (All unchanged – copy from your existing working file)
 # ============================================
 
 @auth_bp.route('/refresh', methods=['POST'])
@@ -554,7 +553,7 @@ def logout():
             logger.info(f"User logged out: {user.email}")
             session.pop('user_id', None)
             session.clear()
-    return jsonify({'message': 'Logged out successfully'}), 200
+        return jsonify({'message': 'Logged out successfully'}), 200
     except Exception as e:
         logger.error(f"Logout error: {e}")
         return jsonify({'error': str(e)}), 500

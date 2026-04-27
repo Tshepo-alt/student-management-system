@@ -504,12 +504,13 @@ def create_app(config_name=None):
 
     # ============================================
     # PUBLIC PAGES (no authentication required)
+    # Served directly from frontend/ folder
     # ============================================
     @app.route('/privacy')
     def privacy_page():
         """Serve the privacy notice page - PUBLIC ACCESS"""
         try:
-            return send_from_directory('frontend/pages', 'privacy.html')
+            return send_from_directory('frontend', 'privacy.html')
         except Exception as e:
             logger.error(f"Error serving privacy page: {e}")
             return jsonify({'error': 'Privacy page not found'}), 404
@@ -518,7 +519,7 @@ def create_app(config_name=None):
     def contacts_page():
         """Serve the contacts page - PUBLIC ACCESS"""
         try:
-            return send_from_directory('frontend/pages', 'contacts.html')
+            return send_from_directory('frontend', 'contacts.html')
         except Exception as e:
             logger.error(f"Error serving contacts page: {e}")
             return jsonify({'error': 'Contacts page not found'}), 404
@@ -527,7 +528,7 @@ def create_app(config_name=None):
     def terms_page():
         """Serve the Terms of Service page - PUBLIC ACCESS"""
         try:
-            return send_from_directory('frontend/pages', 'terms.html')
+            return send_from_directory('frontend', 'terms.html')
         except Exception as e:
             logger.error(f"Error serving terms page: {e}")
             return jsonify({'error': 'Terms page not found'}), 404
@@ -536,7 +537,7 @@ def create_app(config_name=None):
     def about_page():
         """Serve the About Us page - PUBLIC ACCESS"""
         try:
-            return send_from_directory('frontend/pages', 'about.html')
+            return send_from_directory('frontend', 'about.html')
         except Exception as e:
             logger.error(f"Error serving about page: {e}")
             return jsonify({'error': 'About page not found'}), 404

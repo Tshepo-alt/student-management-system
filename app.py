@@ -2,12 +2,9 @@
 # FIX MODULE PATH: Add project root to sys.path
 # ============================================
 import sys
-from datetime import timedelta
 from pathlib import Path
 
 # Add the project root directory to the Python module search path.
-# This is necessary for Render and other production environments
-# where the project structure may not be in the default path.
 project_root = Path(__file__).parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
@@ -16,16 +13,11 @@ if str(project_root) not in sys.path:
 # STANDARD IMPORTS
 # ============================================
 import os
-from datetime import timedelta
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
-from datetime import timedelta
 import base64
-from datetime import timedelta
 import traceback
-from datetime import timedelta
 import logging
-from datetime import timedelta
 
 from flask import Flask, jsonify, send_from_directory, request, redirect
 from flask_cors import CORS
@@ -78,14 +70,13 @@ def create_app(config_name=None):
                 static_folder='frontend',
                 static_url_path='')
 
-# Security cookie settings
-app.config.update(
-    SESSION_COOKIE_SECURE=True,           # Send session cookie only over HTTPS
-    SESSION_COOKIE_HTTPONLY=True,         # Prevent JavaScript access
-    SESSION_COOKIE_SAMESITE='Lax',        # Good CSRF protection
-    PERMANENT_SESSION_LIFETIME=timedelta(days=31)  # Session expires after 31 days
-)
-
+    # Security cookie settings
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,           # Send session cookie only over HTTPS
+        SESSION_COOKIE_HTTPONLY=True,         # Prevent JavaScript access
+        SESSION_COOKIE_SAMESITE='Lax',        # Good CSRF protection
+        PERMANENT_SESSION_LIFETIME=timedelta(days=31)  # Session expires after 31 days
+    )
 
     # Load base configuration
     try:
@@ -336,7 +327,6 @@ app.config.update(
         authorization.init_app(app)
         authorization.register_grant(PasswordGrant)
         authorization.register_grant(AuthorizationCodeGrant)
-        # BearerTokenGrant removed – it does not exist in Authlib
         print("   ✅ OAuth2 Authorization Server initialized")
         print("      📌 Grants registered: Password, Authorization Code")
         app._oauth2_codes = {}
@@ -473,7 +463,6 @@ app.config.update(
                 return send_from_directory('frontend', 'index.html')
         except Exception:
             pass
-        # Fallback API info
         return jsonify({
             'message': 'GIPS College Student Management System API',
             'version': '2.0.0',
@@ -547,7 +536,6 @@ app.config.update(
         if filename.startswith('api/') or filename.startswith('uploads/'):
             return jsonify({'error': 'Not found'}), 404
         try:
-            # Serve any other static file from frontend/ (e.g., favicon.ico, robots.txt)
             if os.path.exists(os.path.join('frontend', filename)):
                 return send_from_directory('frontend', filename)
         except Exception:

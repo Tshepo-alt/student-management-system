@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Privacy Notice | GIPS College Student Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f4f9;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #334155;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+        }
+
+        .nav-link:hover {
+            background: #f59e0b;
+            color: white;
+        }
+
+        /* Hero section */
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 50px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Main content card */
+        .privacy-content {
+            background: white;
+            border-radius: 32px;
+            padding: 48px;
+            margin: 50px auto 50px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .privacy-content h2 {
+            color: #1e2a3e;
+            margin: 32px 0 16px;
+            font-size: 1.7rem;
+            font-weight: 600;
+            border-left: 5px solid #f59e0b;
+            padding-left: 18px;
+        }
+
+        .privacy-content h2:first-of-type {
+            margin-top: 0;
+        }
+
+        .privacy-content h3 {
+            margin: 24px 0 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .privacy-content p {
+            margin-bottom: 18px;
+            color: #2d3e50;
+        }
+
+        .privacy-content ul {
+            margin: 16px 0 24px 30px;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .privacy-content ul li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .privacy-content ul li:before {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #f59e0b;
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-size: 0.9rem;
+        }
+
+        .last-updated {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            color: #5b6e8c;
+            text-align: right;
+        }
+
+        /* Footer */
+        .footer {
+            background: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 24px 0;
+            font-size: 0.85rem;
+            border-top: 1px solid #1e293b;
+        }
+
+        .footer a {
+            color: #fbbf24;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .privacy-content {
+                padding: 28px 20px;
+                margin: 30px 16px;
+            }
+
+            .privacy-content h2 {
+                font-size: 1.4rem;
+                padding-left: 12px;
+            }
+
+            .privacy-content ul {
+                margin-left: 10px;
+            }
+
+            .footer {
+                padding: 20px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 30px 0;
+            }
+
+            .privacy-content h2 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"></div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                <li><a href="register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="hero">
+        <div class="container">
+            <h1><i class="fas fa-shield-alt"></i> Privacy Notice</h1>
+            <p>Your data is respected, protected, and never misused.</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="privacy-content">
+            <p><strong>Effective date:</strong> 27 April 2026</p>
+            <p>GIPS College (“we”, “us”, “our”) operates the Student Portal. This page informs you of our policies
+                regarding the collection, use, and disclosure of personal information. By using the portal, you agree to
+                the practices described below.</p>
+
+            <h2>1. Information we collect</h2>
+            <ul>
+                <li><strong>Personal information</strong> – full name, student number, email address, phone number,
+                    physical/postal address, date of birth, nationality, ID/passport number, emergency contact details.
+                </li>
+                <li><strong>Academic information</strong> – program, courses, grades, attendance, exam registrations,
+                    accommodation requests.</li>
+                <li><strong>Financial information</strong> – payment history, receipts, sponsorship status.</li>
+                <li><strong>Technical information</strong> – IP address, browser type, device information, cookies.</li>
+                <li><strong>Communications</strong> – messages sent via the portal (queries, tickets, chatbot
+                    conversations).</li>
+            </ul>
+
+            <h2>2. How we use your information</h2>
+            <ul>
+                <li>To manage your student account, enrolment, examinations, and payments.</li>
+                <li>To communicate important updates (registration deadlines, exam schedules, admission decisions).</li>
+                <li>To provide online classes (Google Meet) and AI-powered chatbot support.</li>
+                <li>To improve our services and troubleshoot technical issues.</li>
+            </ul>
+
+            <h2>3. Third‑party services</h2>
+            <p>We use the following trusted services that may process your data:</p>
+            <ul>
+                <li><strong>Google Meet / Calendar</strong> – for online classes (meeting links are generated using your
+                    course and email).</li>
+                <li><strong>OpenAI API</strong> – to power the chatbot (conversations are anonymised where possible).
+                </li>
+                <li><strong>Email service (SMTP)</strong> – to send you notifications (e.g., password reset, payment
+                    confirmation).</li>
+                <li><strong>Cloud database (Aiven)</strong> – hosted securely in the cloud.</li>
+            </ul>
+
+            <h2>4. Data retention</h2>
+            <p>Your data is kept as long as you are a student or alumni, and for up to 5 years after graduation for
+                academic record purposes. You may request deletion earlier by contacting the Registrar.</p>
+
+            <h2>5. Your rights</h2>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Access the personal data we hold about you.</li>
+                <li>Request correction of inaccurate or incomplete data.</li>
+                <li>Request deletion of your data (subject to legal or academic record‑keeping obligations).</li>
+                <li>Withdraw consent (e.g., for cookies or marketing emails).</li>
+            </ul>
+            <p>To exercise these rights, email IT Support at <a
+                    href="mailto:it@gipscollege.edu.bw">it@gipscollege.edu.bw</a>.</p>
+
+            <h2>6. Security</h2>
+            <p>We protect your data using encryption (SSL), secure cookies, and role‑based access controls. However, no
+                internet transmission is 100% secure.</p>
+
+            <h2>7. Cookies</h2>
+            <p>We use essential cookies for login sessions and preferences. You can disable cookies in your browser, but
+                some portal features may not work.</p>
+
+            <h2>8. Changes to this notice</h2>
+            <p>Any updates will be posted on this page. The “Last updated” date will be changed accordingly.</p>
+
+            <h2>9. Contact</h2>
+            <p>For privacy‑related questions, contact:</p>
+            <p><strong>GIPS College IT Support</strong><br>
+                Email: <a href="mailto:it@gipscollege.edu.bw">it@gipscollege.edu.bw</a><br>
+                Phone: +267 712345678</p>
+
+            <div class="last-updated">Last updated: 27 April 2026</div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <div style="margin-top: 8px;">
+                <a href="/pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
+                <a href="/pages/contact.html">Contact</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

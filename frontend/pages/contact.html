@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Contact Us | GIPS College Student Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f4f9;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.7rem 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #334155;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+        }
+
+        .nav-link:hover {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .contact-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin: 50px auto;
+        }
+
+        .contact-info {
+            flex: 1;
+            background: white;
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.08);
+        }
+
+        .contact-form {
+            flex: 1.5;
+            background: white;
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.08);
+        }
+
+        .contact-info h3,
+        .contact-form h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #1e2a3e;
+            border-left: 4px solid #f59e0b;
+            padding-left: 16px;
+        }
+
+        .info-detail {
+            margin-bottom: 28px;
+        }
+
+        .info-detail i {
+            width: 32px;
+            color: #f59e0b;
+            font-size: 1.2rem;
+        }
+
+        .info-detail strong {
+            display: inline-block;
+            width: 100px;
+            color: #2c3e50;
+        }
+
+        .info-detail a,
+        .info-detail span {
+            color: #334155;
+            text-decoration: none;
+        }
+
+        .info-detail a:hover {
+            color: #f59e0b;
+            text-decoration: underline;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: 0.2s;
+            background: #fefefe;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .form-message {
+            margin-top: 16px;
+            padding: 10px;
+            border-radius: 16px;
+            display: none;
+        }
+
+        .form-message.success {
+            background: #dcfce7;
+            color: #15803d;
+            border-left: 4px solid #10b981;
+        }
+
+        .form-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .footer {
+            background: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 24px 0;
+            font-size: 0.85rem;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #fbbf24;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .contact-grid {
+                flex-direction: column;
+                margin: 30px 16px;
+            }
+
+            .contact-info,
+            .contact-form {
+                padding: 24px;
+            }
+
+            .info-detail strong {
+                width: auto;
+                display: inline-block;
+                margin-right: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"></div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                <li><a href="register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></li>
+                <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
+                <li><a href="contact.html" class="nav-link active"><i class="fas fa-envelope"></i> Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="hero">
+        <div class="container">
+            <h1><i class="fas fa-address-card"></i> Contact Us</h1>
+            <p>We’re here to help. Reach out any time.</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-info">
+                <h3>Get in touch</h3>
+                <div class="info-detail">
+                    <i class="fas fa-map-marker-alt"></i> <strong>Address:</strong>
+                    <span>123 University Way, Gaborone, Botswana</span>
+                </div>
+                <div class="info-detail">
+                    <i class="fas fa-phone-alt"></i> <strong>Phone:</strong>
+                    <span><a href="tel:+267712345600">+267 712345600</a> (Main)</span>
+                </div>
+                <div class="info-detail">
+                    <i class="fas fa-envelope"></i> <strong>Email:</strong>
+                    <span><a href="mailto:info@gipscollege.edu.bw">info@gipscollege.edu.bw</a></span>
+                </div>
+                <div class="info-detail">
+                    <i class="fas fa-clock"></i> <strong>Hours:</strong>
+                    <span>Mon–Fri: 08:00 – 17:00<br>Sat: 09:00 – 13:00 (limited services)</span>
+                </div>
+                <div class="info-detail">
+                    <i class="fas fa-headset"></i> <strong>IT Support:</strong>
+                    <span><a href="mailto:it@gipscollege.edu.bw">it@gipscollege.edu.bw</a> / +267 712345678</span>
+                </div>
+                <div class="info-detail">
+                    <i class="fas fa-chalkboard-user"></i> <strong>Academic Office:</strong>
+                    <span><a href="mailto:academic@gipscollege.edu.bw">academic@gipscollege.edu.bw</a></span>
+                </div>
+                <div class="info-detail">
+                    <i class="fas fa-university"></i> <strong>Registrar:</strong>
+                    <span><a href="mailto:registrar@gipscollege.edu.bw">registrar@gipscollege.edu.bw</a></span>
+                </div>
+            </div>
+            <div class="contact-form">
+                <h3>Send us a message</h3>
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label>Your name *</label>
+                        <input type="text" id="name" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email address *</label>
+                        <input type="email" id="email" required placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Subject *</label>
+                        <select id="subject" required>
+                            <option value="General Inquiry">General Inquiry</option>
+                            <option value="Technical Support">Technical Support</option>
+                            <option value="Admission Question">Admission Question</option>
+                            <option value="Finance & Payments">Finance & Payments</option>
+                            <option value="Accommodation">Accommodation</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Message *</label>
+                        <textarea id="message" rows="5" required placeholder="Your message..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Send message</button>
+                    <div id="formFeedback" class="form-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GIPS College. All rights reserved.</p>
+            <div style="margin-top: 8px;">
+                <a href="/pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
+                <a href="/pages/contact.html"><i class="fas fa-envelope"></i> Contact</a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            const feedbackDiv = document.getElementById('formFeedback');
+
+            // Simple client-side validation
+            if (!name || !email || !message) {
+                feedbackDiv.textContent = 'Please fill in all required fields.';
+                feedbackDiv.className = 'form-message error';
+                feedbackDiv.style.display = 'block';
+                return;
+            }
+
+            feedbackDiv.style.display = 'none';
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            submitBtn.disabled = true;
+
+            try {
+                // You can replace '/api/contact' with your actual backend endpoint.
+                // For now, it will just simulate a success (or you can use mailto fallback).
+                // To actually send email, you would need a Flask endpoint like:
+                //   @app.route('/api/contact', methods=['POST']) that calls EmailService.
+                // For demonstration, we'll show success and later you can implement the endpoint.
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, subject, message })
+                });
+
+                if (response.ok) {
+                    feedbackDiv.textContent = 'Thank you! Your message has been sent. We’ll reply within 2 business days.';
+                    feedbackDiv.className = 'form-message success';
+                    document.getElementById('contactForm').reset();
+                } else {
+                    const err = await response.json();
+                    feedbackDiv.textContent = err.error || 'Failed to send. Please try again later.';
+                    feedbackDiv.className = 'form-message error';
+                }
+            } catch (error) {
+                // Fallback – if no backend endpoint, just show a message and suggest email.
+                feedbackDiv.textContent = 'Message could not be submitted directly. Please email info@gipscollege.edu.bw instead.';
+                feedbackDiv.className = 'form-message error';
+                console.error(error);
+            } finally {
+                feedbackDiv.style.display = 'block';
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

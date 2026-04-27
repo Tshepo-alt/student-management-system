@@ -287,7 +287,12 @@
     <div id="submissionsModal" class="modal"><div class="modal-content"><h3 id="modalTitle"><i class="fas fa-users"></i> Submissions</h3><div id="modalBody"></div><div style="margin-top: 20px; text-align: right;"><button class="btn btn-primary" onclick="closeModal()"><i class="fas fa-times"></i> Close</button></div></div></div>
     <div id="editModal" class="modal"><div class="modal-content"><h3><i class="fas fa-edit"></i> Edit Assignment</h3><form id="editAssignmentForm" enctype="multipart/form-data"><input type="hidden" id="editId"><div class="form-group"><label>Title</label><input type="text" id="editTitle" required></div><div class="form-group"><label>Course</label><select id="editCourseId" required></select></div><div class="form-group"><label>Description</label><textarea id="editDescription" rows="3"></textarea></div><div class="form-group"><label>Due Date</label><input type="date" id="editDueDate" required></div><div class="form-group"><label>Maximum Points</label><input type="number" id="editMaxPoints" step="1"></div><div class="form-group"><label><i class="fas fa-paperclip"></i> Assignment Material</label><div id="currentMaterialInfo" class="file-name" style="margin-bottom: 10px;"></div><div class="file-upload-area" onclick="document.getElementById('editMaterialFile').click()"><i class="fas fa-cloud-upload-alt"></i> Upload new file (replace)<input type="file" id="editMaterialFile" style="display: none;" accept=".pdf,.doc,.docx,.txt,.zip"></div><div id="editMaterialFileName" class="file-name" style="display: none;"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update</button><button type="button" class="btn btn-warning" onclick="closeModal('editModal')"><i class="fas fa-times"></i> Cancel</button></div></form></div></div>
 
-    <footer class="footer"><div class="container"><p>&copy; 2026 GIPS College. All rights reserved.</p><p><i class="fas fa-tasks"></i> Lecturer Portal | Assignment Management</p></div></footer>
+    <footer class="footer"><div class="container"><p>&copy; 2026 GIPS College. All rights reserved.</p><p><i class="fas fa-tasks"></i> Lecturer Portal | Assignment Management</p>
+            <div style="margin-top: 8px;">
+                <a href="/pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
+                <a href="/pages/contact.html"><i class="fas fa-envelope"></i> Contact</a>
+            </div>
+</div></footer>
 
     <script>
         const token = localStorage.getItem('access_token');

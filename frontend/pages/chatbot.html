@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Samantha AI - Premium Voice & Video Assistant | GIPS College</title>
+    <title>Samantha AI - Premium Voice Assistant | GIPS College</title>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -100,33 +100,11 @@
             color: white;
         }
 
-        /* Mode Toggle */
+        /* Language Toggle (only one mode remains) */
         .mode-toggle {
             display: flex;
-            gap: 15px;
-            justify-content: center;
+            justify-content: flex-end;
             margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .mode-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 30px;
-            border-radius: 50px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .mode-btn.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-color: transparent;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
         .lang-btn {
@@ -138,7 +116,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 10px;
         }
@@ -147,21 +125,17 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Voice Call Container */
+        /* Voice Call Container (professional AI card) */
         .voice-call-container {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
             backdrop-filter: blur(15px);
             border-radius: 50px;
-            padding: 20px 30px;
+            padding: 30px;
             margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            display: none;
-        }
-
-        .voice-call-container.active {
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 30px;
             flex-wrap: wrap;
             justify-content: space-between;
         }
@@ -169,27 +143,27 @@
         .avatar-container {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
+            flex-wrap: wrap;
         }
 
-        .avatar-wrapper {
-            position: relative;
-            width: 85px;
-            height: 85px;
-        }
-
-        .avatar-image {
-            width: 100%;
-            height: 100%;
+        /* Professional AI Avatar – CSS only, no external image */
+        .ai-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #667eea, #764ba2);
             border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid rgba(16, 185, 129, 0.5);
-            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            transition: all 0.2s ease;
+            position: relative;
         }
 
-        .avatar-speaking {
+        .ai-avatar.speaking {
             animation: speakPulse 0.4s ease infinite;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            box-shadow: 0 0 40px #10b981;
         }
 
         @keyframes speakPulse {
@@ -200,18 +174,27 @@
             }
 
             50% {
-                transform: scale(1.02);
+                transform: scale(1.03);
             }
         }
 
-        .call-timer-display {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #10b981;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px 15px;
-            border-radius: 30px;
-            font-family: monospace;
+        .ai-avatar i {
+            font-size: 3.5rem;
+            color: white;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        .ai-info h2 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .ai-info p {
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .status-dot {
@@ -221,7 +204,6 @@
             border-radius: 50%;
             animation: statusPulse 1.5s infinite;
             display: inline-block;
-            margin-right: 8px;
         }
 
         @keyframes statusPulse {
@@ -237,298 +219,18 @@
             }
         }
 
-        /* Video Call Container */
-        .video-call-container {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-            backdrop-filter: blur(15px);
-            border-radius: 32px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-            display: none;
-        }
-
-        .video-call-container.active {
-            display: block;
-        }
-
-        .video-header {
-            padding: 15px 25px;
-            background: rgba(0, 0, 0, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .video-controls {
-            display: flex;
-            gap: 12px;
-        }
-
-        .video-control-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            color: white;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-        }
-
-        .video-area {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            min-height: 450px;
-            position: relative;
-        }
-
-        /* Webcam Feed */
-        .webcam-feed {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 120px;
-            height: 90px;
-            border-radius: 12px;
-            border: 2px solid #10b981;
-            background: #000;
-            z-index: 20;
-            cursor: pointer;
-            overflow: hidden;
-        }
-
-        .webcam-feed video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .avatar-3d-container {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .avatar-body {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
-            box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
-            animation: bodyGlow 2s infinite;
-        }
-
-        @keyframes bodyGlow {
-
-            0%,
-            100% {
-                box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
-            }
-
-            50% {
-                box-shadow: 0 0 60px rgba(102, 126, 234, 0.8);
-            }
-        }
-
-        .avatar-face-3d {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-        }
-
-        .avatar-eyes-3d {
-            display: flex;
-            gap: 40px;
-            margin-bottom: 25px;
-        }
-
-        .eye-3d {
-            width: 30px;
-            height: 30px;
-            background: white;
-            border-radius: 50%;
-            position: relative;
-            transition: all 0.1s ease;
-        }
-
-        .eye-3d::after {
-            content: '';
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            background: #1a1a2a;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .avatar-mouth-3d {
-            width: 60px;
-            height: 35px;
-            border-bottom: 5px solid white;
-            border-radius: 0 0 40px 40px;
-            transition: all 0.2s;
-        }
-
-        .avatar-mouth-3d.speaking {
-            border-bottom: 5px solid #10b981;
-            animation: mouthMove3d 0.15s ease infinite alternate;
-        }
-
-        @keyframes mouthMove3d {
-            from {
-                height: 35px;
-            }
-
-            to {
-                height: 55px;
-            }
-        }
-
-        .avatar-hands {
-            position: absolute;
-            bottom: 10px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 80px;
-            z-index: 3;
-        }
-
-        .hand {
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .hand.waving {
-            animation: waveHand 0.5s ease infinite;
-        }
-
-        @keyframes waveHand {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            50% {
-                transform: rotate(30deg);
-            }
-
-            100% {
-                transform: rotate(0deg);
-            }
-        }
-
-        .avatar-wave-effect {
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.4), transparent);
-            animation: soundWaveEffect 0.5s infinite;
-            opacity: 0;
-        }
-
-        .avatar-wave-effect.active {
-            opacity: 1;
-            animation: soundWaveEffect 0.5s ease-out infinite;
-        }
-
-        @keyframes soundWaveEffect {
-            0% {
-                transform: scale(0.9);
-                opacity: 0.6;
-            }
-
-            100% {
-                transform: scale(1.3);
-                opacity: 0;
-            }
-        }
-
-        .avatar-name {
-            position: absolute;
-            bottom: -45px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 1rem;
+        .call-timer-display {
+            font-size: 1.3rem;
             font-weight: 600;
+            color: #10b981;
             background: rgba(0, 0, 0, 0.5);
-            padding: 5px 15px;
-            border-radius: 30px;
-            white-space: nowrap;
-        }
-
-        .listening-indicator {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
             padding: 8px 20px;
-            border-radius: 30px;
-            color: white;
-            font-size: 0.85rem;
-            display: none;
-            gap: 8px;
-            align-items: center;
-            z-index: 10;
+            border-radius: 40px;
+            font-family: monospace;
         }
 
-        .listening-wave {
-            display: flex;
-            gap: 3px;
-        }
-
-        .listening-wave span {
-            width: 4px;
-            height: 12px;
-            background: #10b981;
-            border-radius: 2px;
-            animation: waveAnim 0.5s infinite alternate;
-        }
-
-        @keyframes waveAnim {
-            from {
-                height: 8px;
-            }
-
-            to {
-                height: 20px;
-            }
-        }
-
-        /* Call Button */
         .call-button-container {
             text-align: center;
-            margin-top: 20px;
-            padding-bottom: 20px;
         }
 
         .premium-call-btn {
@@ -564,7 +266,7 @@
             }
         }
 
-        /* Chat Card */
+        /* Chat Card (same as before) */
         .chat-card {
             background: rgba(255, 255, 255, 0.98);
             border-radius: 32px;
@@ -595,10 +297,6 @@
             gap: 6px;
         }
 
-        .quick-action-btn i {
-            font-size: 0.9rem;
-        }
-
         .quick-action-btn:hover {
             background: #f1f5f9;
             border-color: #10b981;
@@ -617,18 +315,6 @@
             display: flex;
             gap: 12px;
             animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .message.user {
@@ -741,31 +427,6 @@
         }
 
         @media (max-width: 768px) {
-            .avatar-3d-container {
-                width: 220px;
-                height: 220px;
-            }
-
-            .avatar-eyes-3d {
-                gap: 25px;
-            }
-
-            .eye-3d {
-                width: 20px;
-                height: 20px;
-            }
-
-            .hand {
-                width: 35px;
-                height: 35px;
-                font-size: 1.2rem;
-            }
-
-            .webcam-feed {
-                width: 80px;
-                height: 60px;
-            }
-
             .voice-call-container {
                 flex-direction: column;
                 text-align: center;
@@ -775,9 +436,22 @@
                 justify-content: center;
             }
 
+            .call-timer-display {
+                font-size: 1rem;
+            }
+
             .quick-action-btn {
                 padding: 6px 12px;
                 font-size: 0.75rem;
+            }
+
+            .ai-avatar {
+                width: 70px;
+                height: 70px;
+            }
+
+            .ai-avatar i {
+                font-size: 2.5rem;
             }
         }
     </style>
@@ -807,21 +481,17 @@
     </nav>
 
     <div class="container">
+        <!-- Only Language Toggle (Mode removed) -->
         <div class="mode-toggle">
-            <button class="mode-btn active" id="voiceModeBtn"><i class="fas fa-microphone-alt"></i> Voice Call
-                Mode</button>
-            <button class="mode-btn" id="videoModeBtn"><i class="fas fa-video"></i> Video Call Mode</button>
             <button class="lang-btn" id="langToggleBtn"><i class="fas fa-language"></i> <span
                     id="langLabel">English</span></button>
         </div>
 
-        <!-- Voice Call Container -->
+        <!-- Voice Call Container (Professional CSS Avatar) -->
         <div class="voice-call-container" id="voiceContainer">
             <div class="avatar-container">
-                <div class="avatar-wrapper">
-                    <img src="../images/lesedi.png" alt="Samantha" class="avatar-image" id="voiceAvatar"
-                        onerror="this.src='https://placehold.co/85x85?text=S'">
-                    <div class="avatar-glow" id="voiceGlow"></div>
+                <div class="ai-avatar" id="aiAvatar">
+                    <i class="fas fa-microphone-alt"></i>
                 </div>
                 <div class="ai-info">
                     <h2>Samantha AI</h2>
@@ -835,47 +505,7 @@
             </div>
         </div>
 
-        <!-- Video Call Container -->
-        <div class="video-call-container" id="videoContainer">
-            <div class="video-header">
-                <div class="video-title"><i class="fas fa-video"></i> Samantha AI - Video Assistant</div>
-                <div class="video-controls">
-                    <button class="video-control-btn" id="videoMuteBtn"><i class="fas fa-microphone"></i></button>
-                    <button class="video-control-btn" id="waveHandBtn"><i class="fas fa-hand-peace"></i></button>
-                </div>
-            </div>
-            <div class="video-area">
-                <div class="avatar-3d-container" id="avatar3d">
-                    <div class="avatar-body"></div>
-                    <div class="avatar-face-3d">
-                        <div class="avatar-eyes-3d">
-                            <div class="eye-3d" id="leftEye3d"></div>
-                            <div class="eye-3d" id="rightEye3d"></div>
-                        </div>
-                        <div class="avatar-mouth-3d" id="mouth3d"></div>
-                    </div>
-                    <div class="avatar-hands">
-                        <div class="hand" id="leftHand"><i class="fas fa-hand-peace"></i></div>
-                        <div class="hand" id="rightHand"><i class="fas fa-hand-peace"></i></div>
-                    </div>
-                    <div class="avatar-wave-effect" id="videoWaveEffect"></div>
-                    <div class="avatar-name">Samantha (Live)</div>
-                </div>
-                <div class="webcam-feed" id="webcamFeed"><video id="webcamVideo" autoplay muted playsinline></video>
-                </div>
-                <div class="listening-indicator" id="videoListeningIndicator"><span><i
-                            class="fas fa-microphone-alt"></i> Listening...</span>
-                    <div class="listening-wave"><span></span><span></span><span></span><span></span></div>
-                </div>
-            </div>
-            <div class="call-timer-display" id="videoTimer" style="text-align:center; margin:10px auto;">00:00</div>
-            <div class="call-button-container">
-                <button class="premium-call-btn" id="videoCallBtn"><i class="fas fa-video"></i> Start Video
-                    Call</button>
-            </div>
-        </div>
-
-        <!-- Chat Card -->
+        <!-- Chat Card (No change) -->
         <div class="chat-card">
             <div class="quick-actions">
                 <button class="quick-action-btn" onclick="quickAction('register')"><i class="fas fa-book-open"></i>
@@ -892,7 +522,7 @@
                     <div class="message-avatar"><i class="fas fa-robot"></i></div>
                     <div class="message-content">
                         <strong>Hello! I'm Samantha.</strong><br><br>
-                        I'm your premium AI voice assistant. Click <strong>"Call Samantha"</strong> to start a
+                        I'm your premium AI voice assistant. Click <strong>"Call Samantha"</strong> to start a voice
                         conversation. I speak both English and Setswana!<br><br>
                         How can I help you today?
                         <div class="message-time">Just now</div>
@@ -910,12 +540,11 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2026 GIPS College | Samantha AI - Voice & Video Assistant<
-            <div style="margin-top: 8px;">
-                <a href="/pages/privacy.html"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/pages/contact.html"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-/p>
+        <p>&copy; 2026 GIPS College | Samantha AI - Premium Voice Assistant</p>
+        <div style="margin-top: 8px;">
+            <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
+            <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
+        </div>
     </footer>
 
     <script>
@@ -958,31 +587,17 @@
         function playTypingSound() { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value = 800; osc.type = 'sine'; gain.gain.value = 0.15; osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.15); osc.stop(audioCtx.currentTime + 0.15); }
 
         // ============================================
-        // WEB CAMERA
-        // ============================================
-        let webcamStream = null;
-        async function startWebcam() {
-            try {
-                webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const videoElement = document.getElementById('webcamVideo');
-                videoElement.srcObject = webcamStream;
-                addMessageToChat("📷 Camera activated! I can see you now.", false);
-            } catch (err) { console.log('Camera access denied:', err); }
-        }
-        function stopWebcam() { if (webcamStream) webcamStream.getTracks().forEach(track => track.stop()); }
-
-        // ============================================
-        // SPEECH RECOGNITION & SYNTHESIS WITH SETSWANA SUPPORT
+        // SPEECH RECOGNITION & SYNTHESIS (Setswana/English)
         // ============================================
         let recognition = null;
         let synthesis = window.speechSynthesis;
         let femaleVoice = null;
         let isCallActive = false;
-        let isMuted = false;
+        let isMuted = false;  // Not used in voice‑only mode, but kept for consistency
         let callTimerInterval = null;
         let callSeconds = 0;
         let isSpeakingNow = false;
-        let recognitionLang = 'en-US';  // Default English
+        let recognitionLang = 'en-US';
 
         function getFemaleVoice() {
             const voices = synthesis.getVoices();
@@ -1005,7 +620,6 @@
             recognition.continuous = false;
         }
 
-        // Language toggle function
         function toggleLanguage() {
             recognitionLang = (recognitionLang === 'en-US') ? 'tn-BW' : 'en-US';
             if (recognition) recognition.lang = recognitionLang;
@@ -1032,7 +646,7 @@
         }
 
         function speak(text, callback) {
-            if (!synthesis || isMuted) { if (callback) callback(); return; }
+            if (!synthesis) { if (callback) callback(); return; }
             if (isSpeakingNow) { synthesis.cancel(); setTimeout(() => speak(text, callback), 100); return; }
             const cleanText = text.replace(/<[^>]*>/g, '').replace(/\*\*/g, '').replace(/GIPS/g, 'Gips');
             const utterance = new SpeechSynthesisUtterance(cleanText);
@@ -1040,16 +654,15 @@
             utterance.rate = 0.85;
             utterance.pitch = 1.15;
             utterance.volume = 1;
-            utterance.onstart = () => { isSpeakingNow = true; if (currentMode === 'video') videoStartSpeaking(); else voiceStartSpeaking(); };
-            utterance.onend = () => { isSpeakingNow = false; if (currentMode === 'video') videoStopSpeaking(); else voiceStopSpeaking(); if (callback) callback(); if (isCallActive && !isMuted) setTimeout(() => startVoiceRecognition(), 300); };
-            utterance.onerror = () => { isSpeakingNow = false; if (callback) callback(); };
+            utterance.onstart = () => { isSpeakingNow = true; startSpeakingAnimation(); };
+            utterance.onend = () => { isSpeakingNow = false; stopSpeakingAnimation(); if (callback) callback(); if (isCallActive) setTimeout(() => startVoiceRecognition(), 300); };
+            utterance.onerror = () => { isSpeakingNow = false; stopSpeakingAnimation(); if (callback) callback(); };
             synthesis.cancel();
             synthesis.speak(utterance);
         }
 
         function startVoiceRecognition() {
-            if (!recognition || !isCallActive || isMuted || isSpeakingNow) return;
-            if (currentMode === 'video') videoStartListening();
+            if (!recognition || !isCallActive || isSpeakingNow) return;
             try { recognition.start(); } catch (e) { console.log('Recognition start error:', e); }
         }
 
@@ -1057,7 +670,6 @@
             recognition.onresult = async (event) => {
                 let transcript = event.results[0][0].transcript;
                 const corrected = correctSpelling(transcript);
-                if (currentMode === 'video') videoStopListening();
                 if (corrected !== transcript) {
                     addMessageToChat(`🎤 You said: "${transcript}"`, true);
                     addMessageToChat(`✨ I heard: "${corrected}"`, false);
@@ -1068,45 +680,20 @@
                 addMessageToChat(response, false);
                 speak(response);
             };
-            recognition.onerror = (e) => { console.log('Recognition error:', e.error); if (currentMode === 'video') videoStopListening(); if (isCallActive && !isMuted && !isSpeakingNow) setTimeout(() => startVoiceRecognition(), 1000); };
-            recognition.onend = () => { if (currentMode === 'video') videoStopListening(); if (isCallActive && !isMuted && !isSpeakingNow) setTimeout(() => startVoiceRecognition(), 500); };
+            recognition.onerror = (e) => { console.log('Recognition error:', e.error); if (isCallActive && !isSpeakingNow) setTimeout(() => startVoiceRecognition(), 1000); };
+            recognition.onend = () => { if (isCallActive && !isSpeakingNow) setTimeout(() => startVoiceRecognition(), 500); };
         }
 
         // ============================================
-        // AVATAR ANIMATIONS
+        // AVATAR ANIMATION (CSS only)
         // ============================================
-        const voiceAvatar = document.getElementById('voiceAvatar');
-        function voiceStartSpeaking() { voiceAvatar.classList.add('avatar-speaking'); }
-        function voiceStopSpeaking() { voiceAvatar.classList.remove('avatar-speaking'); }
-
-        const mouth3d = document.getElementById('mouth3d');
-        const videoWaveEffect = document.getElementById('videoWaveEffect');
-        const videoListeningIndicator = document.getElementById('videoListeningIndicator');
-        function videoStartSpeaking() { mouth3d.classList.add('speaking'); videoWaveEffect.classList.add('active'); }
-        function videoStopSpeaking() { mouth3d.classList.remove('speaking'); videoWaveEffect.classList.remove('active'); }
-        function videoStartListening() { videoListeningIndicator.style.display = 'flex'; }
-        function videoStopListening() { videoListeningIndicator.style.display = 'none'; }
-
-        function waveHand() {
-            const left = document.getElementById('leftHand'); const right = document.getElementById('rightHand');
-            left.classList.add('waving'); right.classList.add('waving');
-            setTimeout(() => { left.classList.remove('waving'); right.classList.remove('waving'); }, 800);
+        const aiAvatar = document.getElementById('aiAvatar');
+        function startSpeakingAnimation() {
+            aiAvatar.classList.add('speaking');
         }
-        document.getElementById('waveHandBtn').addEventListener('click', waveHand);
-
-        function moveEyes(e) {
-            const avatar = document.getElementById('avatar3d');
-            if (!avatar) return;
-            const rect = avatar.getBoundingClientRect();
-            const angle = Math.atan2(e.clientY - (rect.top + rect.height / 2), e.clientX - (rect.left + rect.width / 2));
-            const moveX = Math.cos(angle) * 6; const moveY = Math.sin(angle) * 6;
-            const leftEye = document.getElementById('leftEye3d'); const rightEye = document.getElementById('rightEye3d');
-            if (leftEye && rightEye) {
-                leftEye.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                rightEye.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            }
+        function stopSpeakingAnimation() {
+            aiAvatar.classList.remove('speaking');
         }
-        document.addEventListener('mousemove', moveEyes);
 
         // ============================================
         // CALL CONTROL WITH TIMER
@@ -1128,19 +715,11 @@
             playRingtone();
             setTimeout(() => { playConnectSound(); }, 1500);
             isCallActive = true;
-            isMuted = false;
-            if (currentMode === 'video') startWebcam();
-            if (currentMode === 'video') {
-                startTimer(document.getElementById('videoTimer'));
-                document.getElementById('videoCallBtn').classList.add('active');
-                document.getElementById('videoCallBtn').innerHTML = '<i class="fas fa-phone-slash"></i> End Call';
-                waveHand();
-            } else {
-                startTimer(document.getElementById('voiceTimer'));
-                document.getElementById('voiceCallBtn').classList.add('active');
-                document.getElementById('voiceCallBtn').innerHTML = '<i class="fas fa-phone-slash"></i> End Call';
-            }
-            const intro = `Hello ${userName}! I'm Samantha. ${currentMode === 'video' ? 'I can see you through your camera! You look great today.' : 'I can hear you clearly.'} How can I help you today?`;
+            startTimer(document.getElementById('voiceTimer'));
+            const callBtn = document.getElementById('voiceCallBtn');
+            callBtn.classList.add('active');
+            callBtn.innerHTML = '<i class="fas fa-phone-slash"></i> End Call';
+            const intro = `Hello ${userName}! I'm Samantha. I can hear you clearly. How can I help you today?`;
             addMessageToChat(intro, false);
             speak(intro, () => { setTimeout(() => startVoiceRecognition(), 500); });
         }
@@ -1152,17 +731,11 @@
             if (recognition) try { recognition.stop(); } catch (e) { }
             synthesis.cancel();
             isSpeakingNow = false;
-            if (currentMode === 'video') { videoStopSpeaking(); videoStopListening(); stopWebcam(); }
-            else voiceStopSpeaking();
-            if (currentMode === 'video') {
-                document.getElementById('videoCallBtn').classList.remove('active');
-                document.getElementById('videoCallBtn').innerHTML = '<i class="fas fa-video"></i> Start Video Call';
-                document.getElementById('videoTimer').textContent = '00:00';
-            } else {
-                document.getElementById('voiceCallBtn').classList.remove('active');
-                document.getElementById('voiceCallBtn').innerHTML = '<i class="fas fa-phone-alt"></i> Call Samantha';
-                document.getElementById('voiceTimer').textContent = '00:00';
-            }
+            stopSpeakingAnimation();
+            const callBtn = document.getElementById('voiceCallBtn');
+            callBtn.classList.remove('active');
+            callBtn.innerHTML = '<i class="fas fa-phone-alt"></i> Call Samantha';
+            document.getElementById('voiceTimer').textContent = '00:00';
             addMessageToChat(`📞 Call ended. Duration: ${Math.floor(callSeconds / 60)}:${(callSeconds % 60).toString().padStart(2, '0')}`, false);
         }
 
@@ -1256,65 +829,32 @@
             if (isCallActive) speak(response);
         }
 
-        // ============================================
-        // MODE TOGGLE
-        // ============================================
-        let currentMode = 'voice';
-        const voiceContainer = document.getElementById('voiceContainer');
-        const videoContainer = document.getElementById('videoContainer');
-
-        document.getElementById('voiceModeBtn').addEventListener('click', () => {
-            if (isCallActive) endCall();
-            currentMode = 'voice';
-            voiceContainer.classList.add('active');
-            videoContainer.classList.remove('active');
-            document.getElementById('voiceModeBtn').classList.add('active');
-            document.getElementById('videoModeBtn').classList.remove('active');
-        });
-        document.getElementById('videoModeBtn').addEventListener('click', () => {
-            if (isCallActive) endCall();
-            currentMode = 'video';
-            videoContainer.classList.add('active');
-            voiceContainer.classList.remove('active');
-            document.getElementById('videoModeBtn').classList.add('active');
-            document.getElementById('voiceModeBtn').classList.remove('active');
-        });
-
-        voiceContainer.classList.add('active');
-
-        document.getElementById('voiceCallBtn').addEventListener('click', () => { currentMode = 'voice'; startCall(); });
-        document.getElementById('videoCallBtn').addEventListener('click', () => { currentMode = 'video'; startCall(); });
-
-        document.getElementById('videoMuteBtn').addEventListener('click', () => {
-            isMuted = !isMuted;
-            const btn = document.getElementById('videoMuteBtn');
-            btn.style.background = isMuted ? '#ef4444' : 'rgba(255,255,255,0.2)';
-            btn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
-            if (!isMuted && isCallActive && !isSpeakingNow) startVoiceRecognition();
-        });
-
+        // Event listeners
+        document.getElementById('voiceCallBtn').addEventListener('click', startCall);
         document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); if (isCallActive) endCall(); localStorage.clear(); window.location.href = 'login.html'; });
 
         window.quickAction = quickAction;
         window.sendTextMessage = sendTextMessage;
         window.handleKeyPress = handleKeyPress;
 
-        console.log('✅ Samantha AI v4.0 loaded - English & Setswana support active!');
+        console.log('✅ Samantha AI v5.0 loaded (Voice only, professional CSS avatar, English/Setswana)');
     </script>
 
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
+    <div id="cookieBanner"
+        style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
+        This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
+        <button onclick="acceptCookies()"
+            style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
+    </div>
+    <script>
+        if (!localStorage.getItem('cookieConsent')) {
+            document.getElementById('cookieBanner').style.display = 'block';
+        }
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'true');
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+    </script>
 </body>
 
 </html>

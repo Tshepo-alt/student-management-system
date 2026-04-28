@@ -2,6 +2,12 @@
 <html lang="en">
 
 <head>
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
     <!-- Favicon -->
     
     
@@ -10,13 +16,6 @@
     
 
     <meta charset="UTF-8">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/favicon/site.webmanifest">
-    <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <meta name="theme-color" content="#667eea">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Reports & Analytics - Admin | GIPS College</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -778,14 +777,13 @@
         function exportReportHTML() {
             const content = document.getElementById('reportContent').innerHTML;
             const titleText = document.getElementById('reportTitle').innerText;
-            const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+            const fullHtml = `<!DOCTYPE html><html><head>
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <meta name="theme-color" content="#667eea"><title>${titleText}</title><style>body{font-family:Inter,sans-serif;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}th{background:#f1f5f9}</style>    <link rel="stylesheet" href="/css/portal-common.css">
+    <meta name="theme-color" content="#667eea"><meta charset="UTF-8">
+    <title>${titleText}</title><style>body{font-family:Inter,sans-serif;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}th{background:#f1f5f9}</style>    <link rel="stylesheet" href="/css/portal-common.css">
 </head><body><h2>GIPS College - ${titleText}</h2><p>Period: ${startDate} to ${endDate}</p>${content}
 <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
@@ -821,7 +819,12 @@
             const content = document.getElementById('reportContent').innerHTML;
             const title = document.getElementById('reportTitle').innerText;
             const printWindow = window.open('', '_blank');
-            printWindow.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>body{font-family:Inter,sans-serif;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}</style>    <link rel="stylesheet" href="/css/portal-common.css">
+            printWindow.document.write(`<!DOCTYPE html><html><head>
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <meta name="theme-color" content="#667eea"><title>${title}</title><style>body{font-family:Inter,sans-serif;padding:30px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:8px}</style>    <link rel="stylesheet" href="/css/portal-common.css">
 </head><body><h2>GIPS College - ${title}</h2><p>Period: ${startDate} to ${endDate}</p>${content}
 <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.

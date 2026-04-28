@@ -27,7 +27,7 @@
             padding-bottom: 20px;
         }
 
-        /* Navigation – clean and sticky */
+        /* Navigation */
         .navbar {
             background: white;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
@@ -89,7 +89,7 @@
             color: white;
         }
 
-        /* Welcome Banner – shorter on mobile */
+        /* Welcome Banner */
         .welcome-banner {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 24px;
@@ -116,7 +116,98 @@
             opacity: 0.8;
         }
 
-        /* Stats Cards – horizontal scroll on mobile? No, better vertical stacking but compact */
+        /* Weather Card (new) */
+        .weather-card {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s;
+        }
+
+        .weather-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .weather-location {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .weather-location i {
+            margin-right: 6px;
+        }
+
+        .weather-temp {
+            font-size: 2.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .weather-details {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 12px;
+        }
+
+        .forecast-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .forecast-day {
+            flex: 1;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 10px 5px;
+            min-width: 70px;
+        }
+
+        .forecast-day .day {
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .forecast-day i {
+            font-size: 1.6rem;
+            margin: 6px 0;
+            display: block;
+        }
+
+        .forecast-temp {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .forecast-temp-min {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-left: 4px;
+        }
+
+        /* Dashboard Stats */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -131,7 +222,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
             border: 1px solid #e2e8f0;
             position: relative;
-            transition: all 0.2s;
         }
 
         .stat-card p {
@@ -144,7 +234,6 @@
             font-size: 1.8rem;
             font-weight: 700;
             color: #1e293b;
-            margin-bottom: 0;
         }
 
         .stat-trend {
@@ -194,7 +283,7 @@
             gap: 10px;
         }
 
-        /* Dashboard Grid – two columns on desktop, one on mobile */
+        /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -240,13 +329,6 @@
             gap: 6px;
         }
 
-        .info-item span {
-            font-size: 0.85rem;
-            color: #1e293b;
-            font-weight: 500;
-        }
-
-        /* Course list */
         .course-list {
             max-height: 300px;
             overflow-y: auto;
@@ -276,54 +358,26 @@
             font-size: 0.7rem;
         }
 
-        .course-name {
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-        }
-
         .meeting-status-student {
+            margin-top: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
-        }
-
-        .meeting-active-badge {
-            background: #dcfce7;
-            color: #15803d;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-        }
-
-        .meeting-inactive-badge {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.7rem;
         }
 
         .btn-join-meeting,
         .btn-join-scheduled {
-            background: #667eea;
+            background: #10b981;
             border: none;
             color: white;
             padding: 6px 14px;
             border-radius: 30px;
             font-size: 0.75rem;
-            font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
         }
 
-        .btn-join-meeting {
-            background: #10b981;
-        }
-
-        .btn-join-scheduled:hover,
-        .btn-join-meeting:hover {
-            transform: translateY(-1px);
+        .btn-join-scheduled {
+            background: #667eea;
         }
 
         .online-classes-grid {
@@ -341,32 +395,6 @@
             border-left: 4px solid #667eea;
         }
 
-        .online-class-title {
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .online-class-duration {
-            background: #e2e8f0;
-            border-radius: 30px;
-            padding: 2px 8px;
-            font-size: 0.65rem;
-        }
-
-        .progress-section {
-            margin: 12px 0;
-        }
-
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            margin-bottom: 4px;
-        }
-
         .progress-bar {
             height: 6px;
             background: #e2e8f0;
@@ -378,41 +406,6 @@
             height: 100%;
             background: linear-gradient(90deg, #667eea, #764ba2);
             width: 0%;
-            border-radius: 10px;
-        }
-
-        .fee-breakdown {
-            margin-top: 8px;
-        }
-
-        .fee-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.85rem;
-        }
-
-        .fee-total {
-            margin-top: 8px;
-            padding-top: 6px;
-            border-top: 2px solid #667eea;
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* Quick Actions */
-        .actions-section {
-            margin: 30px 0;
-        }
-
-        .actions-section h3 {
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .actions-grid {
@@ -428,7 +421,6 @@
             text-align: center;
             text-decoration: none;
             color: #334155;
-            transition: 0.2s;
             border: 1px solid #e2e8f0;
         }
 
@@ -438,81 +430,11 @@
             margin-bottom: 6px;
         }
 
-        .action-card h4 {
-            font-size: 0.85rem;
-            margin-bottom: 4px;
-        }
-
-        .action-card p {
-            font-size: 0.7rem;
-            color: #64748b;
-        }
-
-        /* Activity List */
         .activity-list {
             background: white;
             border-radius: 20px;
             padding: 12px;
             border: 1px solid #e2e8f0;
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .activity-icon {
-            width: 36px;
-            height: 36px;
-            background: #eef2ff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #667eea;
-        }
-
-        .activity-desc {
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .activity-date {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            margin-top: 2px;
-        }
-
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #334155;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.85rem;
-            margin-top: 12px;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #e2e8f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         .footer {
@@ -521,10 +443,8 @@
             text-align: center;
             padding: 20px;
             margin-top: 30px;
-            font-size: 0.8rem;
         }
 
-        /* Meeting Modal */
         .meeting-modal {
             display: none;
             position: fixed;
@@ -554,15 +474,6 @@
             color: white;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-        }
-
-        .meeting-modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
         }
 
         .meeting-iframe {
@@ -571,36 +482,29 @@
             border: none;
         }
 
-        /* Responsive touch improvements */
-        @media (max-width: 640px) {
-            .container {
-                padding: 0 16px;
-            }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
 
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 640px) {
             .dashboard-stats {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-
-            .stat-card h3 {
-                font-size: 1.5rem;
-            }
-
-            .dashboard-grid {
-                gap: 16px;
             }
 
             .actions-grid {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-            }
-
-            .action-card {
-                padding: 10px 5px;
-            }
-
-            .action-card i {
-                font-size: 1.4rem;
             }
 
             .action-card h4 {
@@ -609,15 +513,6 @@
 
             .action-card p {
                 display: none;
-            }
-
-            .nav-link {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.75rem;
-            }
-
-            .welcome-banner h2 {
-                font-size: 1.2rem;
             }
         }
     </style>
@@ -647,14 +542,23 @@
     </nav>
 
     <div class="container">
+        <!-- Welcome Banner -->
         <div class="welcome-banner">
             <h2><i class="fas fa-user-graduate"></i> Welcome back, <span id="studentName">Student</span>!</h2>
             <p>Your academic journey continues. Here's what's happening today.</p>
             <div class="date" id="currentDate"></div>
         </div>
 
+        <!-- WEATHER WIDGET (fully integrated) -->
+        <div id="weatherWidget" class="weather-card">
+            <div id="weatherContent">
+                <p><i class="fas fa-spinner fa-spin"></i> Detecting your location & weather...</p>
+            </div>
+        </div>
+
         <div id="infoBanner" class="info-banner"></div>
 
+        <!-- Stats Cards -->
         <div class="dashboard-stats">
             <div class="stat-card">
                 <p><i class="fas fa-chart-line"></i> Current GPA</p>
@@ -674,6 +578,7 @@
             </div>
         </div>
 
+        <!-- Dashboard Grid -->
         <div class="dashboard-grid">
             <div class="info-card">
                 <h3><i class="fas fa-id-card"></i> Student Information</h3>
@@ -692,12 +597,10 @@
                 <div class="info-item"><label><i class="fas fa-calendar-alt"></i> Year of Study:</label><span
                         id="yearOfStudy">-</span></div>
             </div>
-
             <div class="info-card">
                 <h3><i class="fas fa-receipt"></i> Fee Summary</h3>
                 <div id="feeBreakdownContainer"></div>
             </div>
-
             <div class="info-card">
                 <h3><i class="fas fa-chart-line"></i> Academic Progress</h3>
                 <div class="progress-section">
@@ -712,16 +615,14 @@
                 <div class="info-item"><label><i class="fas fa-coins"></i> Exam Fees Due:</label><span
                         id="examFeesDue">P 0.00</span></div>
             </div>
-
             <div class="info-card">
                 <h3><i class="fas fa-book-open"></i> Current Courses</h3>
                 <div id="currentCoursesList" class="course-list">
                     <div class="loading-spinner"></div>
-                    <p style="font-size:0.8rem;">Loading courses...</p>
+                    <p>Loading courses...</p>
                 </div><button class="btn-secondary" onclick="window.location.href='course-registration.html'"><i
                         class="fas fa-edit"></i> Manage Courses</button>
             </div>
-
             <div class="info-card">
                 <h3><i class="fas fa-video"></i> Upcoming Classes</h3>
                 <div id="upcomingClassesList" class="online-classes-grid">
@@ -729,17 +630,17 @@
                     <p>Loading...</p>
                 </div>
             </div>
-
             <div class="info-card">
                 <h3><i class="fas fa-home"></i> Accommodation</h3>
                 <div class="info-item"><label>Status:</label><span id="accommodationStatus">Not Applied</span></div>
                 <div class="info-item"><label>Room:</label><span id="roomNumber">-</span> <label>Block:</label><span
-                        id="blockName">-</span></div>
-                <button class="btn-secondary" onclick="window.location.href='accomodation.html'"><i
-                        class="fas fa-pencil-alt"></i> Apply / View Status</button>
+                        id="blockName">-</span></div><button class="btn-secondary"
+                    onclick="window.location.href='accomodation.html'"><i class="fas fa-pencil-alt"></i> Apply / View
+                    Status</button>
             </div>
         </div>
 
+        <!-- Quick Actions -->
         <div class="actions-section">
             <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
             <div class="actions-grid">
@@ -782,6 +683,7 @@
             </div>
         </div>
 
+        <!-- Recent Activity -->
         <div class="activity-section">
             <h3><i class="fas fa-history"></i> Recent Activity</h3>
             <div id="activityList" class="activity-list">
@@ -791,13 +693,15 @@
         </div>
     </div>
 
+    <!-- Meeting Modal -->
     <div id="meetingModal" class="meeting-modal">
         <div class="meeting-modal-content">
             <div class="meeting-modal-header">
                 <h3><i class="fas fa-video"></i> <span id="meetingCourseName">Live Class</span></h3><button
                     class="meeting-modal-close" onclick="closeMeetingModal()"><i class="fas fa-times"></i></button>
-            </div><iframe id="meetingIframe" class="meeting-iframe"
-                allow="camera; microphone; fullscreen; display-capture" allowfullscreen></iframe>
+            </div>
+            <iframe id="meetingIframe" class="meeting-iframe" allow="camera; microphone; fullscreen; display-capture"
+                allowfullscreen></iframe>
         </div>
     </div>
 
@@ -805,16 +709,22 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-graduation-cap"></i> Excellence in Higher Learning</p>
-        
             <div style="margin-top: 8px;">
                 <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
                 <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
             </div>
-</div>
+        </div>
     </footer>
 
+    <div id="cookieBanner"
+        style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
+        This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
+        <button onclick="acceptCookies()"
+            style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
+    </div>
+
     <script>
-        // ========== SAFE API CALL ==========
+        // ========== UTILITIES ==========
         async function safeApiCall(endpoint, options = {}) {
             const token = localStorage.getItem('access_token');
             if (!token) { window.location.href = 'login.html'; return null; }
@@ -835,12 +745,81 @@
         document.getElementById('studentEmail').textContent = user.email || '-';
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // ========== LOAD DASHBOARD DATA ==========
+        // ========== WEATHER WIDGET (Free IP + Open-Meteo) ==========
+        async function loadWeather() {
+            const weatherDiv = document.getElementById('weatherContent');
+            try {
+                // 1. IP geolocation
+                const geoRes = await fetch('https://ipapi.co/json/');
+                if (!geoRes.ok) throw new Error('Geolocation failed');
+                const geo = await geoRes.json();
+                const { city, region, latitude, longitude } = geo;
+                if (!latitude || !longitude) throw new Error('Coordinates missing');
+
+                // 2. Weather from Open-Meteo (no API key)
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=3`);
+                if (!weatherRes.ok) throw new Error('Weather API failed');
+                const w = await weatherRes.json();
+                const current = w.current_weather;
+                const daily = w.daily;
+
+                // Helper: map weather code to FontAwesome icon & description
+                function getWeatherIconAndDesc(code) {
+                    if (code === 0) return { icon: '<i class="fas fa-sun"></i>', desc: 'Clear sky' };
+                    if (code === 1) return { icon: '<i class="fas fa-sun"></i>', desc: 'Mainly clear' };
+                    if (code === 2) return { icon: '<i class="fas fa-cloud-sun"></i>', desc: 'Partly cloudy' };
+                    if (code === 3) return { icon: '<i class="fas fa-cloud"></i>', desc: 'Overcast' };
+                    if (code >= 45 && code <= 48) return { icon: '<i class="fas fa-smog"></i>', desc: 'Fog' };
+                    if (code >= 51 && code <= 55) return { icon: '<i class="fas fa-cloud-drizzle"></i>', desc: 'Drizzle' };
+                    if (code >= 61 && code <= 67) return { icon: '<i class="fas fa-cloud-rain"></i>', desc: 'Rain' };
+                    if (code >= 71 && code <= 77) return { icon: '<i class="fas fa-snowflake"></i>', desc: 'Snow' };
+                    if (code >= 80 && code <= 82) return { icon: '<i class="fas fa-cloud-showers-heavy"></i>', desc: 'Showers' };
+                    if (code >= 95 && code <= 99) return { icon: '<i class="fas fa-bolt"></i>', desc: 'Thunderstorm' };
+                    return { icon: '<i class="fas fa-cloud-moon"></i>', desc: 'Cloudy' };
+                }
+
+                const currentWeather = getWeatherIconAndDesc(current.weathercode);
+                const tempUnit = current.temperature_units === '°C' ? '°C' : '°F';
+                const windUnit = current.wind_units || 'km/h';
+
+                // Build forecast HTML (3 days)
+                let forecastHtml = '<div class="forecast-container">';
+                for (let i = 0; i < daily.time.length; i++) {
+                    const date = new Date(daily.time[i]);
+                    const dayName = i === 0 ? 'Today' : date.toLocaleDateString(undefined, { weekday: 'short' });
+                    const maxTemp = Math.round(daily.temperature_2m_max[i]);
+                    const minTemp = Math.round(daily.temperature_2m_min[i]);
+                    const weatherCode = daily.weathercode[i];
+                    const { icon } = getWeatherIconAndDesc(weatherCode);
+                    forecastHtml += `<div class="forecast-day"><div class="day">${dayName}</div>${icon}<div class="forecast-temp">${maxTemp}°<span class="forecast-temp-min">${minTemp}°</span></div></div>`;
+                }
+                forecastHtml += '</div>';
+
+                // Render widget
+                weatherDiv.innerHTML = `
+                    <div class="weather-header">
+                        <div class="weather-location"><i class="fas fa-map-marker-alt"></i> ${city || 'Unknown'}, ${region || ''}</div>
+                        <div class="weather-temp">${Math.round(current.temperature)}${tempUnit} ${currentWeather.icon}</div>
+                    </div>
+                    <div class="weather-details">
+                        <div><i class="fas fa-tachometer-alt"></i> Feels like: ${Math.round(current.windchill || current.temperature)}°</div>
+                        <div><i class="fas fa-wind"></i> Wind: ${current.windspeed} ${windUnit}</div>
+                        <div><i class="fas fa-cloud-sun"></i> ${currentWeather.desc}</div>
+                    </div>
+                    ${forecastHtml}
+                    <div style="font-size:0.7rem; margin-top:10px; text-align:right; opacity:0.7;"><i class="fas fa-sync-alt"></i> Live weather</div>
+                `;
+            } catch (err) {
+                console.error('Weather error:', err);
+                weatherDiv.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Could not load weather. Please refresh later.</p>';
+            }
+        }
+
+        // ========== DASHBOARD DATA LOAD ==========
         async function loadDashboardData() {
             const response = await safeApiCall('/api/students/dashboard');
             if (!response || !response.ok) return;
             const data = await response.json();
-
             document.getElementById('currentGPA').textContent = data.current_gpa?.toFixed(2) || '0.00';
             document.getElementById('creditsEarned').textContent = data.credits_earned || '0';
             document.getElementById('courseCount').textContent = data.current_courses?.length || '0';
@@ -864,30 +843,20 @@
             const outstanding = data.outstanding_balance || 0;
             document.getElementById('outstandingBalance').textContent = `P ${outstanding.toFixed(2)}`;
             const paymentSpan = document.getElementById('paymentStatus');
-            if (data.is_government_sponsored) {
-                paymentSpan.innerHTML = data.exam_fees_due > 0 ? 'Exam Fees Due' : 'Exempted';
-            } else {
-                paymentSpan.innerHTML = outstanding > 0 ? 'Balance Due' : 'Fully Paid';
-            }
+            if (data.is_government_sponsored) paymentSpan.innerHTML = data.exam_fees_due > 0 ? 'Exam Fees Due' : 'Exempted';
+            else paymentSpan.innerHTML = outstanding > 0 ? 'Balance Due' : 'Fully Paid';
 
-            const feeContainer = document.getElementById('feeBreakdownContainer');
-            feeContainer.innerHTML = `<div class="fee-breakdown"><div class="fee-item"><span>Total Fees:</span><span>P ${totalFees.toFixed(2)}</span></div><div class="fee-item"><span>Paid:</span><span>P ${paidAmount.toFixed(2)}</span></div><div class="fee-total"><span>Outstanding:</span><span>P ${outstanding.toFixed(2)}</span></div></div>`;
-
+            document.getElementById('feeBreakdownContainer').innerHTML = `<div class="fee-breakdown"><div class="fee-item"><span>Total Fees:</span><span>P ${totalFees.toFixed(2)}</span></div><div class="fee-item"><span>Paid:</span><span>P ${paidAmount.toFixed(2)}</span></div><div class="fee-total"><span>Outstanding:</span><span>P ${outstanding.toFixed(2)}</span></div></div>`;
             const trendSpan = document.getElementById('gpaTrend');
             if (data.gpa_trend === 'up') { trendSpan.textContent = '↑ Improving'; trendSpan.className = 'stat-trend trend-up'; }
             else if (data.gpa_trend === 'down') { trendSpan.textContent = '↓ Declining'; trendSpan.className = 'stat-trend trend-down'; }
             else { trendSpan.textContent = '→ Stable'; trendSpan.className = 'stat-trend trend-steady'; }
 
             const banner = document.getElementById('infoBanner');
-            if (data.is_government_sponsored) {
-                banner.innerHTML = '<i class="fas fa-info-circle"></i> You are a government-sponsored student. Tuition & registration are exempt.';
-                banner.style.display = 'flex';
-            } else {
-                banner.style.display = 'none';
-            }
+            if (data.is_government_sponsored) { banner.innerHTML = '<i class="fas fa-info-circle"></i> You are a government-sponsored student. Tuition & registration are exempt.'; banner.style.display = 'flex'; }
+            else banner.style.display = 'none';
         }
 
-        // ========== CURRENT COURSES ==========
         async function loadCurrentCourses() {
             const response = await safeApiCall('/api/students/my-modules');
             if (!response || !response.ok) return;
@@ -909,7 +878,6 @@
             container.innerHTML = html;
         }
 
-        // ========== UPCOMING CLASSES ==========
         async function loadUpcomingClasses() {
             const container = document.getElementById('upcomingClassesList');
             const response = await safeApiCall('/api/students/online-classes');
@@ -925,7 +893,6 @@
             container.innerHTML = html;
         }
 
-        // ========== ACTIVITY ==========
         async function loadRecentActivity() {
             const container = document.getElementById('activityList');
             const response = await safeApiCall('/api/students/activity');
@@ -939,28 +906,23 @@
         function openMeeting(link, name) { if (!link) { alert('Meeting link not available.'); return; } document.getElementById('meetingCourseName').textContent = name; document.getElementById('meetingIframe').src = link; document.getElementById('meetingModal').style.display = 'flex'; }
         function closeMeetingModal() { document.getElementById('meetingIframe').src = ''; document.getElementById('meetingModal').style.display = 'none'; }
         function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-
         document.getElementById('logoutLink').addEventListener('click', async (e) => { e.preventDefault(); await safeApiCall('/api/auth/logout', { method: 'POST' }); localStorage.clear(); window.location.href = 'login.html'; });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMeetingModal(); });
 
-        async function init() { await loadDashboardData(); await loadCurrentCourses(); await loadUpcomingClasses(); await loadRecentActivity(); }
+        async function init() {
+            loadWeather(); // Weather first
+            await loadDashboardData();
+            await loadCurrentCourses();
+            await loadUpcomingClasses();
+            await loadRecentActivity();
+        }
         init();
-        setInterval(() => { if (!document.hidden) { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); loadUpcomingClasses(); } }, 60000);
-    </script>
+        setInterval(() => { if (!document.hidden) { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); loadUpcomingClasses(); loadWeather(); } }, 60000);
 
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
+        // Cookie consent
+        if (!localStorage.getItem('cookieConsent')) document.getElementById('cookieBanner').style.display = 'block';
+        window.acceptCookies = () => { localStorage.setItem('cookieConsent', 'true'); document.getElementById('cookieBanner').style.display = 'none'; };
+    </script>
 </body>
 
 </html>

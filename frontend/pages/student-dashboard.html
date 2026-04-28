@@ -116,7 +116,7 @@
             opacity: 0.8;
         }
 
-        /* Weather Card (new) */
+        /* Weather Card */
         .weather-card {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             border-radius: 24px;
@@ -286,7 +286,7 @@
         /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -329,6 +329,46 @@
             gap: 6px;
         }
 
+        /* News styles */
+        .news-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-title {
+            font-weight: 600;
+            color: #1e293b;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            transition: color 0.2s;
+        }
+
+        .news-title:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .news-meta {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 5px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Course list, etc. */
         .course-list {
             max-height: 300px;
             overflow-y: auto;
@@ -422,6 +462,13 @@
             text-decoration: none;
             color: #334155;
             border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            border-color: #667eea;
         }
 
         .action-card i {
@@ -435,6 +482,8 @@
             border-radius: 20px;
             padding: 12px;
             border: 1px solid #e2e8f0;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .footer {
@@ -498,6 +547,7 @@
             }
         }
 
+        /* Mobile fine-tuning */
         @media (max-width: 640px) {
             .dashboard-stats {
                 grid-template-columns: repeat(2, 1fr);
@@ -513,6 +563,25 @@
 
             .action-card p {
                 display: none;
+            }
+
+            .weather-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .forecast-container {
+                gap: 6px;
+            }
+
+            .forecast-day {
+                min-width: 60px;
+                padding: 6px 3px;
+            }
+
+            .forecast-day i {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -549,7 +618,7 @@
             <div class="date" id="currentDate"></div>
         </div>
 
-        <!-- WEATHER WIDGET (fully integrated) -->
+        <!-- Weather Widget -->
         <div id="weatherWidget" class="weather-card">
             <div id="weatherContent">
                 <p><i class="fas fa-spinner fa-spin"></i> Detecting your location & weather...</p>
@@ -580,6 +649,7 @@
 
         <!-- Dashboard Grid -->
         <div class="dashboard-grid">
+            <!-- Student Information -->
             <div class="info-card">
                 <h3><i class="fas fa-id-card"></i> Student Information</h3>
                 <div class="info-item"><label><i class="fas fa-hashtag"></i> Student #:</label><span
@@ -597,10 +667,14 @@
                 <div class="info-item"><label><i class="fas fa-calendar-alt"></i> Year of Study:</label><span
                         id="yearOfStudy">-</span></div>
             </div>
+
+            <!-- Fee Summary -->
             <div class="info-card">
                 <h3><i class="fas fa-receipt"></i> Fee Summary</h3>
                 <div id="feeBreakdownContainer"></div>
             </div>
+
+            <!-- Academic Progress -->
             <div class="info-card">
                 <h3><i class="fas fa-chart-line"></i> Academic Progress</h3>
                 <div class="progress-section">
@@ -615,14 +689,20 @@
                 <div class="info-item"><label><i class="fas fa-coins"></i> Exam Fees Due:</label><span
                         id="examFeesDue">P 0.00</span></div>
             </div>
+
+            <!-- Current Courses -->
             <div class="info-card">
                 <h3><i class="fas fa-book-open"></i> Current Courses</h3>
                 <div id="currentCoursesList" class="course-list">
                     <div class="loading-spinner"></div>
                     <p>Loading courses...</p>
-                </div><button class="btn-secondary" onclick="window.location.href='course-registration.html'"><i
+                </div>
+                <button class="btn-secondary" onclick="window.location.href='course-registration.html'"
+                    style="background:#f1f5f9; border:none; padding:8px 16px; border-radius:30px; width:100%; margin-top:12px; cursor:pointer;"><i
                         class="fas fa-edit"></i> Manage Courses</button>
             </div>
+
+            <!-- Upcoming Classes -->
             <div class="info-card">
                 <h3><i class="fas fa-video"></i> Upcoming Classes</h3>
                 <div id="upcomingClassesList" class="online-classes-grid">
@@ -630,13 +710,25 @@
                     <p>Loading...</p>
                 </div>
             </div>
+
+            <!-- Accommodation -->
             <div class="info-card">
                 <h3><i class="fas fa-home"></i> Accommodation</h3>
                 <div class="info-item"><label>Status:</label><span id="accommodationStatus">Not Applied</span></div>
                 <div class="info-item"><label>Room:</label><span id="roomNumber">-</span> <label>Block:</label><span
-                        id="blockName">-</span></div><button class="btn-secondary"
-                    onclick="window.location.href='accomodation.html'"><i class="fas fa-pencil-alt"></i> Apply / View
-                    Status</button>
+                        id="blockName">-</span></div>
+                <button class="btn-secondary" onclick="window.location.href='accomodation.html'"
+                    style="background:#f1f5f9; border:none; padding:8px 16px; border-radius:30px; width:100%; margin-top:12px; cursor:pointer;"><i
+                        class="fas fa-pencil-alt"></i> Apply / View Status</button>
+            </div>
+
+            <!-- NEWS HEADLINES (new card based on course) -->
+            <div class="info-card" id="newsCard">
+                <h3><i class="fas fa-newspaper"></i> Headlines for Your Course</h3>
+                <div id="newsContent" style="max-height: 300px; overflow-y: auto;">
+                    <div class="loading-spinner"></div>
+                    <p>Loading latest news...</p>
+                </div>
             </div>
         </div>
 
@@ -749,21 +841,18 @@
         async function loadWeather() {
             const weatherDiv = document.getElementById('weatherContent');
             try {
-                // 1. IP geolocation
                 const geoRes = await fetch('https://ipapi.co/json/');
                 if (!geoRes.ok) throw new Error('Geolocation failed');
                 const geo = await geoRes.json();
                 const { city, region, latitude, longitude } = geo;
                 if (!latitude || !longitude) throw new Error('Coordinates missing');
 
-                // 2. Weather from Open-Meteo (no API key)
                 const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=3`);
                 if (!weatherRes.ok) throw new Error('Weather API failed');
                 const w = await weatherRes.json();
                 const current = w.current_weather;
                 const daily = w.daily;
 
-                // Helper: map weather code to FontAwesome icon & description
                 function getWeatherIconAndDesc(code) {
                     if (code === 0) return { icon: '<i class="fas fa-sun"></i>', desc: 'Clear sky' };
                     if (code === 1) return { icon: '<i class="fas fa-sun"></i>', desc: 'Mainly clear' };
@@ -782,20 +871,17 @@
                 const tempUnit = current.temperature_units === '°C' ? '°C' : '°F';
                 const windUnit = current.wind_units || 'km/h';
 
-                // Build forecast HTML (3 days)
                 let forecastHtml = '<div class="forecast-container">';
                 for (let i = 0; i < daily.time.length; i++) {
                     const date = new Date(daily.time[i]);
                     const dayName = i === 0 ? 'Today' : date.toLocaleDateString(undefined, { weekday: 'short' });
                     const maxTemp = Math.round(daily.temperature_2m_max[i]);
                     const minTemp = Math.round(daily.temperature_2m_min[i]);
-                    const weatherCode = daily.weathercode[i];
-                    const { icon } = getWeatherIconAndDesc(weatherCode);
+                    const { icon } = getWeatherIconAndDesc(daily.weathercode[i]);
                     forecastHtml += `<div class="forecast-day"><div class="day">${dayName}</div>${icon}<div class="forecast-temp">${maxTemp}°<span class="forecast-temp-min">${minTemp}°</span></div></div>`;
                 }
                 forecastHtml += '</div>';
 
-                // Render widget
                 weatherDiv.innerHTML = `
                     <div class="weather-header">
                         <div class="weather-location"><i class="fas fa-map-marker-alt"></i> ${city || 'Unknown'}, ${region || ''}</div>
@@ -812,6 +898,64 @@
             } catch (err) {
                 console.error('Weather error:', err);
                 weatherDiv.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Could not load weather. Please refresh later.</p>';
+            }
+        }
+
+        // ========== NEWS FETCHER (RSS2JSON, free, no API key) ==========
+        async function loadCourseNews(programName) {
+            const newsContainer = document.getElementById('newsContent');
+            if (!newsContainer) return;
+            // Map program name to relevant RSS feeds
+            const feedMap = {
+                'computer science': 'http://rss.cnn.com/rss/edition_technology.rss',
+                'information technology': 'https://www.wired.com/feed/rss',
+                'software engineering': 'https://www.zdnet.com/news/rss.xml',
+                'business': 'https://feeds.bloomberg.com/markets/news.rss',
+                'economics': 'https://www.economist.com/feeds/print-sections/77/business.xml',
+                'engineering': 'https://www.sciencedaily.com/rss/top/engineering.xml',
+                'accounting': 'https://www.accountingtoday.com/rss.xml',
+                'marketing': 'https://www.marketingweek.com/feed/',
+                'law': 'https://www.abajournal.com/feed/',
+                'medicine': 'https://www.medicalnewstoday.com/feeds/news.rss',
+                'nursing': 'https://nursing.medscape.com/nursing/rss/news',
+                'education': 'https://www.edweek.org/feed/rss',
+                'default': 'https://www.bbc.com/news/technology/rss.xml'
+            };
+            const normalized = programName.toLowerCase();
+            let feedUrl = feedMap.default;
+            for (const [key, url] of Object.entries(feedMap)) {
+                if (normalized.includes(key)) {
+                    feedUrl = url;
+                    break;
+                }
+            }
+            try {
+                const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error('News fetch failed');
+                const data = await response.json();
+                const items = data.items || [];
+                if (items.length === 0) {
+                    newsContainer.innerHTML = '<p>No recent headlines found for your field of study.</p>';
+                    return;
+                }
+                let html = '<ul class="news-list">';
+                items.slice(0, 5).forEach(item => {
+                    const title = item.title.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+                    const link = item.link;
+                    const pubDate = new Date(item.pubDate).toLocaleDateString();
+                    html += `
+                        <li class="news-item">
+                            <a href="${link}" target="_blank" rel="noopener noreferrer" class="news-title">${escapeHtml(title)}</a>
+                            <div class="news-meta"><i class="fas fa-calendar-alt"></i> ${pubDate}</div>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                newsContainer.innerHTML = html;
+            } catch (err) {
+                console.error('News error:', err);
+                newsContainer.innerHTML = '<p>Unable to load headlines at this time. Please try again later.</p>';
             }
         }
 
@@ -855,6 +999,12 @@
             const banner = document.getElementById('infoBanner');
             if (data.is_government_sponsored) { banner.innerHTML = '<i class="fas fa-info-circle"></i> You are a government-sponsored student. Tuition & registration are exempt.'; banner.style.display = 'flex'; }
             else banner.style.display = 'none';
+
+            // Trigger news feed after program name is displayed
+            const progName = document.getElementById('programName').innerText;
+            if (progName && progName !== '-') {
+                loadCourseNews(progName);
+            }
         }
 
         async function loadCurrentCourses() {
@@ -910,7 +1060,7 @@
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMeetingModal(); });
 
         async function init() {
-            loadWeather(); // Weather first
+            loadWeather();
             await loadDashboardData();
             await loadCurrentCourses();
             await loadUpcomingClasses();

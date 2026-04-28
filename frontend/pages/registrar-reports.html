@@ -2,13 +2,20 @@
 <html lang="en">
 <head>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="manifest" href="/favicon/site.webmanifest">
+    
+    
+    
+    
+    
 
     <meta charset="UTF-8">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="theme-color" content="#667eea">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Registrar Reports - GIPS College</title>
     <!-- Font Awesome 6 -->
@@ -380,6 +387,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 <body>
     <nav class="navbar">
@@ -741,7 +749,8 @@
             printWindow.document.write(`
                 <html><head><title>Registrar Report</title>
                 <style>body{font-family: Arial; padding: 40px;} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px}</style>
-                </head><body>${previewDiv.innerHTML}
+                    <link rel="stylesheet" href="/css/portal-common.css">
+</head><body>${previewDiv.innerHTML}
 <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
     <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>

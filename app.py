@@ -19,7 +19,7 @@ import base64
 import traceback
 import logging
 
-from flask import Flask, jsonify, send_from_directory, request, redirect
+from flask import Flask, jsonify, send_from_directory, request, redirect, make_response
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
@@ -501,6 +501,22 @@ def create_app(config_name=None):
         except Exception as e:
             logger.error(f"Error serving page {filename}: {e}")
             return jsonify({'error': 'Page not found', 'path': filename}), 404
+
+    # ============================================
+    # PWA SUPPORT: Manifest and Service Worker
+    # ============================================
+    @app.route('/manifest.json')
+    def manifest():
+        """Serve the PWA manifest.json with proper caching."""
+        return send_from_directory('frontend', 'manifest.json')
+
+    @app.route('/service-worker.js')
+    def service_worker():
+        """Serve the service worker with no-cache headers and proper scope."""
+        response = make_response(send_from_directory('frontend', 'service-worker.js'))
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Service-Worker-Allowed'] = '/'
+        return response
 
     # ============================================
     # PUBLIC PAGES (no authentication required)

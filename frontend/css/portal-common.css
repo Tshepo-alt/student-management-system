@@ -1,0 +1,131 @@
+/* portal-common.css – GIPS College Portal Global Styles */
+/* Responsive, mobile-friendly, professional */
+
+/* Base reset & typography */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Responsive container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+}
+
+/* Better touch targets on mobile */
+button,
+a,
+.btn,
+.nav-link,
+.action-card {
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+/* Responsive images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Make cards and sections consistent */
+.card,
+.info-card,
+.stat-card,
+.weather-card,
+.chat-card {
+    border-radius: 24px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover,
+.info-card:hover,
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile-first grid */
+.grid-2,
+.dashboard-stats,
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-stats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+}
+
+/* Navbar improvements */
+.navbar {
+    background: white;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0.7rem 0;
+}
+
+.nav-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #4a5568;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    background: #f1f5f9;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* Footer */
+.footer {
+    background: #1e293b;
+    color: #cbd5e1;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+}
+
+/* Scroll behaviour */
+html {
+    scroll-behavior: smooth;
+}

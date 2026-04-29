@@ -376,6 +376,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['student'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -496,182 +526,8 @@
 </div>
     </footer>
 
-    <script>
-        // ========== AUTHENTICATION ==========
-        const token = localStorage.getItem('access_token');
-        if (!token) window.location.href = 'login.html';
+    
 
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function showMessage(msg, type) {
-            const msgDiv = document.getElementById('message');
-            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
-            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-            msgDiv.style.display = 'block';
-            setTimeout(() => msgDiv.style.display = 'none', 5000);
-        }
-
-        // ========== LOAD PROFILE ==========
-        async function loadProfile() {
-            const res = await safeApiCall('/api/students/profile');
-            if (res && res.ok) {
-                const data = await res.json();
-                document.getElementById('firstName').value = data.first_name || '';
-                document.getElementById('lastName').value = data.last_name || '';
-                document.getElementById('email').value = data.email || '';
-                document.getElementById('phone').value = data.phone || '';
-                document.getElementById('bio').value = data.bio || '';
-                document.getElementById('address').value = data.address || '';
-                document.getElementById('city').value = data.city || '';
-                document.getElementById('postalCode').value = data.postal_code || '';
-                document.getElementById('linkedin').value = data.linkedin || '';
-                document.getElementById('github').value = data.github || '';
-                document.getElementById('twitter').value = data.twitter || '';
-                document.getElementById('website').value = data.website || '';
-
-                const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Student';
-                document.getElementById('profileName').textContent = fullName;
-                document.getElementById('profileRole').textContent = data.role ? data.role.toUpperCase() : 'STUDENT';
-
-                if (data.avatar_url) {
-                    document.getElementById('avatarImage').src = data.avatar_url;
-                    document.getElementById('avatarImage').style.display = 'block';
-                    document.querySelector('.profile-avatar i').style.display = 'none';
-                }
-            } else {
-                showMessage('Could not load profile data. Please refresh.', 'error');
-            }
-        }
-
-        // ========== SAVE PROFILE ==========
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                first_name: document.getElementById('firstName').value,
-                last_name: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                bio: document.getElementById('bio').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postal_code: document.getElementById('postalCode').value,
-                linkedin: document.getElementById('linkedin').value,
-                github: document.getElementById('github').value,
-                twitter: document.getElementById('twitter').value,
-                website: document.getElementById('website').value
-            };
-
-            const currentPw = document.getElementById('currentPassword').value;
-            const newPw = document.getElementById('newPassword').value;
-            const confirmPw = document.getElementById('confirmPassword').value;
-
-            if (newPw && !currentPw) {
-                showMessage('Please enter your current password to change it.', 'error');
-                return;
-            }
-            if (newPw && newPw !== confirmPw) {
-                showMessage('New passwords do not match.', 'error');
-                return;
-            }
-            if (newPw) {
-                payload.current_password = currentPw;
-                payload.new_password = newPw;
-            }
-
-            const res = await safeApiCall('/api/students/profile', {
-                method: 'PUT',
-                body: JSON.stringify(payload),
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            if (res && res.ok) {
-                showMessage('Profile updated successfully!', 'success');
-                document.getElementById('currentPassword').value = '';
-                document.getElementById('newPassword').value = '';
-                document.getElementById('confirmPassword').value = '';
-                loadProfile(); // refresh
-            } else {
-                showMessage('Failed to update profile. Please try again.', 'error');
-            }
-        });
-
-        // ========== AVATAR UPLOAD ==========
-        document.getElementById('avatarUpload').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('avatar', file);
-
-            const res = await safeApiCall('/api/students/avatar', {
-                method: 'POST',
-                body: formData,
-                headers: {} // let browser set content-type
-            });
-
-            if (res && res.ok) {
-                const data = await res.json();
-                document.getElementById('avatarImage').src = data.avatar_url;
-                document.getElementById('avatarImage').style.display = 'block';
-                document.querySelector('.profile-avatar i').style.display = 'none';
-                showMessage('Avatar updated!', 'success');
-            } else {
-                // Local preview only (since backend may not be ready)
-                const reader = new FileReader();
-                reader.onload = function (ev) {
-                    document.getElementById('avatarImage').src = ev.target.result;
-                    document.getElementById('avatarImage').style.display = 'block';
-                    document.querySelector('.profile-avatar i').style.display = 'none';
-                    showMessage('Avatar updated (local preview).', 'success');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // ========== RESET ==========
-        function resetForm() {
-            loadProfile();
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            showMessage('Form reset.', 'success');
-        }
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== INIT ==========
-        loadProfile();
-        window.resetForm = resetForm;
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 
 </html>

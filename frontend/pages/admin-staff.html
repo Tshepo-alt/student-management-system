@@ -471,6 +471,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -609,257 +639,7 @@
         </div>
     </div>
 
-    <script>
-        // ========== AUTH & SIDEBAR ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!token) window.location.href = 'login.html';
-        if (user.role !== 'admin' && user.role !== 'administrator') window.location.href = 'student-dashboard.html';
-
-        // Avatar
-        const initial = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
-        document.getElementById('adminAvatar').textContent = initial;
-
-        // Sidebar toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        // ========== GLOBAL DATA ==========
-        let staffData = [];
-
-        // ========== LOAD STAFF ==========
-        async function loadStaff() {
-            const tbody = document.getElementById('staffTableBody');
-            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading staff...</div></td></tr>';
-            const res = await safeApiCall('/api/admin/users?role=staff,lecturer,finance,registrar,admin');
-            if (res && res.ok) {
-                const data = await res.json();
-                staffData = data.filter(u => u.role !== 'student');
-                displayStaff();
-            } else {
-                // Demo data
-                staffData = [
-                    { id: 1, first_name: 'Thabo', last_name: 'Molefe', email: 'thabo@gipscollege.edu.bw', phone: '+26771123456', role: 'lecturer', department: 'Computer Science', status: 'active' },
-                    { id: 2, first_name: 'Keitumetse', last_name: 'Masire', email: 'keitumetse@gipscollege.edu.bw', phone: '+26771234567', role: 'admin', department: 'Administration', status: 'active' },
-                    { id: 3, first_name: 'Boitumelo', last_name: 'Ndlovu', email: 'boitumelo@gipscollege.edu.bw', phone: '+26771345678', role: 'finance', department: 'Finance', status: 'active' },
-                    { id: 4, first_name: 'Otsile', last_name: 'Phiri', email: 'otsile@gipscollege.edu.bw', phone: '+26771456789', role: 'lecturer', department: 'Business', status: 'inactive' },
-                    { id: 5, first_name: 'Lerato', last_name: 'Modise', email: 'lerato@gipscollege.edu.bw', phone: '+26771567890', role: 'registrar', department: 'Registry', status: 'active' }
-                ];
-                displayStaff();
-            }
-        }
-
-        function displayStaff(searchTerm = '') {
-            const tbody = document.getElementById('staffTableBody');
-            let filtered = [...staffData];
-            if (searchTerm) {
-                const term = searchTerm.toLowerCase();
-                filtered = staffData.filter(s =>
-                    (s.first_name || '').toLowerCase().includes(term) ||
-                    (s.last_name || '').toLowerCase().includes(term) ||
-                    (s.email || '').toLowerCase().includes(term) ||
-                    (s.role || '').toLowerCase().includes(term) ||
-                    (s.department || '').toLowerCase().includes(term)
-                );
-            }
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8">No staff members found</td></tr>';
-                return;
-            }
-            tbody.innerHTML = filtered.map(s => `
-            <tr>
-                <td>${s.id}</td>
-                <td>${escapeHtml(s.first_name || '')} ${escapeHtml(s.last_name || '')}</td>
-                <td>${escapeHtml(s.email || '')}</td>
-                <td>${escapeHtml(s.phone || 'N/A')}</td>
-                <td><span class="role-badge role-${s.role}">${(s.role || '').toUpperCase()}</span></td>
-                <td>${escapeHtml(s.department || 'N/A')}</td>
-                <td><span class="status-${s.status === 'inactive' ? 'inactive' : 'active'}">${s.status === 'inactive' ? 'inactive' : 'active'}</span></td>
-                <td>
-                    <button class="btn btn-warning" onclick="editStaff(${s.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn btn-danger" onclick="deleteStaff(${s.id})"><i class="fas fa-trash-alt"></i> Delete</button>
-                </td>
-            </tr>
-        `).join('');
-        }
-
-        function searchStaff() {
-            const term = document.getElementById('searchInput').value;
-            displayStaff(term);
-        }
-
-        // ========== CRUD OPERATIONS ==========
-        async function addStaff(staffPayload) {
-            const res = await safeApiCall('/api/admin/users', { method: 'POST', body: JSON.stringify(staffPayload) });
-            if (res && res.ok) {
-                const newStaff = await res.json();
-                staffData.push(newStaff);
-                displayStaff(document.getElementById('searchInput').value);
-                alert(`Staff ${staffPayload.first_name} ${staffPayload.last_name} created!`);
-                return true;
-            } else {
-                const newId = staffData.length + 1;
-                staffData.push({ id: newId, ...staffPayload, status: 'active' });
-                displayStaff(document.getElementById('searchInput').value);
-                alert(`Staff ${staffPayload.first_name} ${staffPayload.last_name} added! (Demo Mode)`);
-                return true;
-            }
-        }
-
-        async function updateStaff(id, staffPayload) {
-            const res = await safeApiCall(`/api/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(staffPayload) });
-            if (res && res.ok) {
-                const updated = await res.json();
-                const idx = staffData.findIndex(s => s.id === id);
-                if (idx !== -1) staffData[idx] = updated;
-                displayStaff(document.getElementById('searchInput').value);
-                alert('Staff updated!');
-                return true;
-            } else {
-                const idx = staffData.findIndex(s => s.id === id);
-                if (idx !== -1) {
-                    staffData[idx] = { ...staffData[idx], ...staffPayload };
-                    displayStaff(document.getElementById('searchInput').value);
-                    alert('Staff updated! (Demo Mode)');
-                }
-                return true;
-            }
-        }
-
-        async function deleteStaff(id) {
-            const staff = staffData.find(s => s.id === id);
-            if (!staff) return;
-            if (!confirm(`Delete ${staff.first_name} ${staff.last_name}? This action is permanent.`)) return;
-            const res = await safeApiCall(`/api/admin/users/${id}`, { method: 'DELETE' });
-            if (res && res.ok) {
-                staffData = staffData.filter(s => s.id !== id);
-                displayStaff(document.getElementById('searchInput').value);
-                alert('Staff deleted!');
-            } else {
-                staffData = staffData.filter(s => s.id !== id);
-                displayStaff(document.getElementById('searchInput').value);
-                alert('Staff deleted! (Demo Mode)');
-            }
-        }
-
-        // ========== MODAL HANDLERS ==========
-        function openAddStaffModal() {
-            document.getElementById('addStaffForm').reset();
-            document.getElementById('addStaffModal').style.display = 'flex';
-        }
-
-        function editStaff(id) {
-            const staff = staffData.find(s => s.id === id);
-            if (staff) {
-                document.getElementById('editStaffId').value = staff.id;
-                document.getElementById('editFirstName').value = staff.first_name || '';
-                document.getElementById('editLastName').value = staff.last_name || '';
-                document.getElementById('editEmail').value = staff.email || '';
-                document.getElementById('editPhone').value = staff.phone || '';
-                document.getElementById('editRole').value = staff.role || 'staff';
-                document.getElementById('editDepartment').value = staff.department || '';
-                document.getElementById('editStatus').value = staff.status === 'inactive' ? 'inactive' : 'active';
-                document.getElementById('editStaffModal').style.display = 'flex';
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // ========== FORM SUBMISSIONS ==========
-        document.getElementById('addStaffForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                first_name: document.getElementById('firstName').value,
-                last_name: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                role: document.getElementById('role').value,
-                department: document.getElementById('department').value,
-                password: document.getElementById('password').value
-            };
-            await addStaff(payload);
-            closeModal('addStaffModal');
-        });
-
-        document.getElementById('editStaffForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = parseInt(document.getElementById('editStaffId').value);
-            const payload = {
-                first_name: document.getElementById('editFirstName').value,
-                last_name: document.getElementById('editLastName').value,
-                email: document.getElementById('editEmail').value,
-                phone: document.getElementById('editPhone').value,
-                role: document.getElementById('editRole').value,
-                department: document.getElementById('editDepartment').value,
-                status: document.getElementById('editStatus').value
-            };
-            await updateStaff(id, payload);
-            closeModal('editStaffModal');
-        });
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== HELPER ==========
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ========== INIT ==========
-        loadStaff();
-
-        window.searchStaff = searchStaff;
-        window.openAddStaffModal = openAddStaffModal;
-        window.editStaff = editStaff;
-        window.deleteStaff = deleteStaff;
-        window.closeModal = closeModal;
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
-
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
+    
 
 </body>
 

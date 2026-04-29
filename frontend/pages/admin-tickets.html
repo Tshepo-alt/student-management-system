@@ -503,6 +503,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -610,284 +640,7 @@
         </div>
     </div>
 
-    <script>
-        // ========== AUTH & ROLE (no redirect, just role detection) ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!token) window.location.href = 'login.html';
-        const role = user.role || '';
-        const isAdmin = ['admin', 'administrator'].includes(role);
-        const isLecturer = role === 'lecturer';
-        const isFinance = role === 'finance';
-        const isAccommodationStaff = role === 'staff' && (user.email || '').includes('accommodation');
-        const isGeneralStaff = role === 'staff' && !isAccommodationStaff;
-
-        // Set portal title & subtitle
-        let portalTitle = 'Admin Portal';
-        let pageSubtitle = 'Manage student support tickets, assign to staff, and track resolutions';
-        let sidebarLinks = [];
-
-        if (isAdmin) {
-            portalTitle = 'Admin Portal';
-            sidebarLinks = [
-                { href: 'admin-dashboard.html', icon: 'fas fa-chalkboard', text: 'Dashboard' },
-                { href: 'admin-students.html', icon: 'fas fa-users', text: 'Students' },
-                { href: 'admin-staff.html', icon: 'fas fa-user-tie', text: 'Staff' },
-                { href: 'admin-programs.html', icon: 'fas fa-book-open', text: 'Programs' },
-                { href: 'admin-modules.html', icon: 'fas fa-layer-group', text: 'Modules' },
-                { href: 'admin-accommodation.html', icon: 'fas fa-building', text: 'Accommodation' },
-                { href: 'admin-payments.html', icon: 'fas fa-credit-card', text: 'Payments' },
-                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Tickets', active: true }
-            ];
-        } else if (isLecturer) {
-            portalTitle = 'Lecturer Portal';
-            pageSubtitle = 'Course-related support tickets';
-            sidebarLinks = [
-                { href: 'lecturer-dashboard.html', icon: 'fas fa-chart-line', text: 'Dashboard' },
-                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Tickets', active: true }
-            ];
-        } else if (isFinance) {
-            portalTitle = 'Finance Portal';
-            pageSubtitle = 'Payment-related support tickets';
-            sidebarLinks = [
-                { href: 'finance-dashboard.html', icon: 'fas fa-chart-line', text: 'Dashboard' },
-                { href: 'admin-payments.html', icon: 'fas fa-credit-card', text: 'Payments' },
-                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Tickets', active: true }
-            ];
-        } else if (isAccommodationStaff) {
-            portalTitle = 'Accommodation Portal';
-            pageSubtitle = 'Accommodation support tickets';
-            sidebarLinks = [
-                { href: 'admin-accommodation.html', icon: 'fas fa-bed', text: 'Accommodation' },
-                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Tickets', active: true }
-            ];
-        } else if (isGeneralStaff) {
-            portalTitle = 'Staff Portal';
-            pageSubtitle = 'General support tickets';
-            sidebarLinks = [
-                { href: 'staff-dashboard.html', icon: 'fas fa-chart-line', text: 'Dashboard' },
-                { href: 'admin-tickets.html', icon: 'fas fa-ticket-alt', text: 'Tickets', active: true }
-            ];
-        }
-        document.getElementById('portalTitle').innerHTML = portalTitle;
-        document.getElementById('pageSubtitle').innerText = pageSubtitle;
-
-        // Build sidebar
-        const sidebarContainer = document.getElementById('sidebarMenu');
-        sidebarContainer.innerHTML = sidebarLinks.map(link => `
-        <a href="${link.href}" class="sidebar-menu-item ${link.active ? 'active' : ''}">
-            <i class="${link.icon}"></i> <span>${link.text}</span>
-        </a>
-    `).join('');
-        // Add logout
-        const logoutItem = document.createElement('a');
-        logoutItem.href = '#';
-        logoutItem.id = 'logoutLink';
-        logoutItem.className = 'sidebar-menu-item';
-        logoutItem.innerHTML = '<i class="fas fa-sign-out-alt"></i> <span>Logout</span>';
-        sidebarContainer.appendChild(logoutItem);
-
-        // Avatar
-        const avatarInitial = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
-        document.getElementById('adminAvatar').textContent = avatarInitial;
-
-        // Mobile sidebar toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // ========== DEMO TICKET DATA (role-filtered) ==========
-        const allTickets = [
-            { id: 1, student_name: 'John Doe', student_number: 'GIPS/2026/00001', category: 'login', issue: 'Cannot login to portal', description: 'Keep getting "Invalid credentials" even after password reset.', priority: 'high', status: 'open', created: '2026-03-20T10:30:00', responses: [] },
-            { id: 2, student_name: 'Jane Smith', student_number: 'GIPS/2026/00002', category: 'payment', issue: 'Payment not reflecting', description: 'Made payment 2 days ago but status still pending.', priority: 'medium', status: 'in-progress', created: '2026-03-21T14:15:00', responses: [{ admin: 'Admin', message: 'Checking with finance department.', date: '2026-03-22T09:00:00' }] },
-            { id: 3, student_name: 'Mike Johnson', student_number: 'GIPS/2026/00003', category: 'accommodation', issue: 'Accommodation application stuck', description: 'Applied for accommodation but no response yet.', priority: 'low', status: 'open', created: '2026-03-22T11:45:00', responses: [] },
-            { id: 4, student_name: 'Alice Brown', student_number: 'GIPS/2026/00004', category: 'course', issue: 'Assignment grade dispute', description: 'I believe my assignment was graded incorrectly.', priority: 'medium', status: 'open', created: '2026-03-23T09:20:00', responses: [] },
-            { id: 5, student_name: 'Bob Williams', student_number: 'GIPS/2026/00005', category: 'payment', issue: 'Refund request', description: 'I overpaid tuition fees, need refund.', priority: 'high', status: 'in-progress', created: '2026-03-21T16:00:00', responses: [{ admin: 'Finance', message: 'Processing refund request.', date: '2026-03-22T10:30:00' }] },
-            { id: 6, student_name: 'Carol Davis', student_number: 'GIPS/2026/00006', category: 'course', issue: 'Course material missing', description: 'Cannot access lecture notes for CS101.', priority: 'medium', status: 'resolved', created: '2026-03-19T12:00:00', responses: [{ admin: 'Lecturer', message: 'Material uploaded.', date: '2026-03-20T08:00:00' }] }
-        ];
-
-        let tickets = [];
-        if (isAdmin) tickets = allTickets.map(t => ({ ...t }));
-        else if (isLecturer) tickets = allTickets.filter(t => t.category === 'course').map(t => ({ ...t }));
-        else if (isFinance) tickets = allTickets.filter(t => t.category === 'payment').map(t => ({ ...t }));
-        else if (isAccommodationStaff) tickets = allTickets.filter(t => t.category === 'accommodation').map(t => ({ ...t }));
-        else tickets = allTickets.map(t => ({ ...t }));
-
-        let currentTicketId = null;
-
-        // Helper: update stats & table
-        function updateStatsAndTable() {
-            const open = tickets.filter(t => t.status === 'open').length;
-            const progress = tickets.filter(t => t.status === 'in-progress').length;
-            const resolved = tickets.filter(t => t.status === 'resolved').length;
-            document.getElementById('openCount').innerText = open;
-            document.getElementById('progressCount').innerText = progress;
-            document.getElementById('resolvedCount').innerText = resolved;
-            document.getElementById('avgResponse').innerText = Math.floor(Math.random() * 6) + 1; // demo avg
-            renderTable();
-        }
-
-        function renderTable(filterStatus = 'all', searchTerm = '') {
-            const tbody = document.getElementById('ticketsTableBody');
-            let filtered = tickets;
-            if (searchTerm) {
-                const term = searchTerm.toLowerCase();
-                filtered = filtered.filter(t => t.student_name.toLowerCase().includes(term) || t.issue.toLowerCase().includes(term) || t.student_number.includes(term));
-            }
-            if (filterStatus !== 'all') {
-                filtered = filtered.filter(t => t.status === filterStatus);
-            }
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8"><div class="loading">No tickets found</div></td></tr>';
-                return;
-            }
-            tbody.innerHTML = filtered.map(t => `
-            <tr>
-                <td>#${t.id}</td>
-                <td><strong>${escapeHtml(t.student_name)}</strong></td>
-                <td>${escapeHtml(t.student_number)}</td>
-                <td>${escapeHtml(t.issue)}</td>
-                <td><span class="badge priority-${t.priority}">${t.priority.toUpperCase()}</span></td>
-                <td><span class="badge status-${t.status.replace('-', '')}">${t.status === 'in-progress' ? 'IN PROGRESS' : t.status.toUpperCase()}</span></td>
-                <td>${new Date(t.created).toLocaleDateString()}</td>
-                <td><button class="btn btn-primary" onclick="openTicket(${t.id})"><i class="fas fa-eye"></i> View</button></td>
-            </tr>
-        `).join('');
-        }
-
-        function filterTickets() {
-            const status = document.getElementById('statusFilter').value;
-            const search = document.getElementById('searchInput').value;
-            renderTable(status, search);
-        }
-
-        // Modal functions
-        function openTicket(id) {
-            currentTicketId = id;
-            const ticket = tickets.find(t => t.id === id);
-            if (!ticket) return;
-            let repliesHtml = '<h3><i class="fas fa-history"></i> Conversation</h3>';
-            if (ticket.responses && ticket.responses.length) {
-                ticket.responses.forEach(r => {
-                    repliesHtml += `<div class="reply-item"><strong>${escapeHtml(r.admin)}</strong> · ${new Date(r.date).toLocaleString()}<br>${escapeHtml(r.message)}</div>`;
-                });
-            } else {
-                repliesHtml += '<p>No responses yet.</p>';
-            }
-            const detailHtml = `
-            <div class="info-block" style="margin-bottom: 20px;">
-                <p><i class="fas fa-hashtag"></i> <strong>Ticket #${ticket.id}</strong></p>
-                <p><i class="fas fa-user-graduate"></i> <strong>Student:</strong> ${escapeHtml(ticket.student_name)} (${escapeHtml(ticket.student_number)})</p>
-                <p><i class="fas fa-exclamation-triangle"></i> <strong>Issue:</strong> ${escapeHtml(ticket.issue)}</p>
-                <p><i class="fas fa-align-left"></i> <strong>Description:</strong> ${escapeHtml(ticket.description)}</p>
-                <p><i class="fas fa-flag"></i> <strong>Priority:</strong> <span class="badge priority-${ticket.priority}">${ticket.priority.toUpperCase()}</span></p>
-                <p><i class="fas fa-chart-simple"></i> <strong>Status:</strong> <span class="badge status-${ticket.status.replace('-', '')}">${ticket.status.toUpperCase()}</span></p>
-                <p><i class="fas fa-calendar-alt"></i> <strong>Created:</strong> ${new Date(ticket.created).toLocaleString()}</p>
-            </div>
-            ${repliesHtml}
-        `;
-            document.getElementById('ticketDetailContent').innerHTML = detailHtml;
-            document.getElementById('responseMsg').value = '';
-            document.getElementById('ticketModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('ticketModal').style.display = 'none';
-            currentTicketId = null;
-        }
-
-        function sendResponse() {
-            const msg = document.getElementById('responseMsg').value.trim();
-            if (!msg) { alert('Please enter a response'); return; }
-            const ticket = tickets.find(t => t.id === currentTicketId);
-            if (!ticket) return;
-            if (!ticket.responses) ticket.responses = [];
-            ticket.responses.push({
-                admin: user.first_name || user.username || 'Staff',
-                message: msg,
-                date: new Date().toISOString()
-            });
-            if (ticket.status === 'open') ticket.status = 'in-progress';
-            updateStatsAndTable();
-            openTicket(currentTicketId);
-            alert('Response added (Demo Mode)');
-        }
-
-        function resolveTicket() {
-            if (!confirm('Mark this ticket as resolved?')) return;
-            const ticket = tickets.find(t => t.id === currentTicketId);
-            if (ticket) {
-                ticket.status = 'resolved';
-                updateStatsAndTable();
-                closeModal();
-                alert('Ticket resolved');
-            }
-        }
-
-        function assignTicket() {
-            const staffName = prompt('Enter staff member name to assign:');
-            if (staffName) {
-                const ticket = tickets.find(t => t.id === currentTicketId);
-                if (ticket) {
-                    if (!ticket.responses) ticket.responses = [];
-                    ticket.responses.push({
-                        admin: 'System',
-                        message: `Assigned to ${staffName}`,
-                        date: new Date().toISOString()
-                    });
-                    ticket.status = 'in-progress';
-                    updateStatsAndTable();
-                    openTicket(currentTicketId);
-                    alert(`Assigned to ${staffName} (Demo)`);
-                }
-            }
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; });
-        }
-
-        // Logout
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // Initial render
-        updateStatsAndTable();
-        window.filterTickets = filterTickets;
-        window.openTicket = openTicket;
-        window.closeModal = closeModal;
-        window.sendResponse = sendResponse;
-        window.resolveTicket = resolveTicket;
-        window.assignTicket = assignTicket;
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
-
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
+    
 
 </body>
 

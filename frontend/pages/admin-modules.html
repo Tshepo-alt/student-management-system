@@ -434,6 +434,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -650,378 +680,7 @@
 
     <div class="footer">© 2026 GIPS College. All rights reserved.</div>
 
-    <script>
-        // ========== AUTHENTICATION & SIDEBAR ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!token) window.location.href = 'login.html';
-        if (user.role !== 'admin' && user.role !== 'administrator') window.location.href = 'student-dashboard.html';
-
-        document.getElementById('adminAvatar').textContent = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
-
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // ========== GLOBAL DATA ==========
-        let modules = [];
-        let programs = [];
-        let programModules = [];
-
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        // ========== LOAD DATA ==========
-        async function loadModules() {
-            const tbody = document.getElementById('modulesTableBody');
-            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading modules...</div></td></tr>';
-            const res = await safeApiCall('/api/admin/modules');
-            if (res && res.ok) {
-                modules = await res.json();
-            } else {
-                // Demo data
-                modules = [
-                    { id: 1, module_code: 'CS101', module_name: 'Introduction to Programming', credits: 12, year_level: 1, semester: 1, module_type: 'core', description: 'Fundamentals of programming using Python.', prerequisites: 'None', has_practicals: true },
-                    { id: 2, module_code: 'CS102', module_name: 'Object-Oriented Programming', credits: 12, year_level: 1, semester: 2, module_type: 'core', description: 'OOP concepts using Java.', prerequisites: 'CS101', has_practicals: true },
-                    { id: 3, module_code: 'CS201', module_name: 'Database Systems', credits: 12, year_level: 2, semester: 1, module_type: 'core', description: 'SQL and database design.', prerequisites: 'CS101', has_practicals: true }
-                ];
-            }
-            displayModules();
-        }
-
-        async function loadPrograms() {
-            const res = await safeApiCall('/api/admin/programs');
-            if (res && res.ok) {
-                programs = await res.json();
-            } else {
-                programs = [
-                    { id: 1, program_code: 'BSC-CS', program_name: 'Bachelor of Computer Science' },
-                    { id: 2, program_code: 'BBA-BM', program_name: 'Bachelor of Business Administration' }
-                ];
-            }
-        }
-
-        async function loadProgramModules() {
-            const tbody = document.getElementById('mappingTableBody');
-            tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading mappings...</div></td></tr>';
-            const res = await safeApiCall('/api/admin/program-modules');
-            if (res && res.ok) {
-                programModules = await res.json();
-            } else {
-                programModules = [
-                    { id: 1, program_id: 1, program_name: 'Computer Science', module_id: 1, module_code: 'CS101', module_name: 'Introduction to Programming', credits: 12, compulsory: true },
-                    { id: 2, program_id: 1, program_name: 'Computer Science', module_id: 2, module_code: 'CS102', module_name: 'Object-Oriented Programming', credits: 12, compulsory: true }
-                ];
-            }
-            displayMappings();
-        }
-
-        function displayModules(search = '') {
-            const tbody = document.getElementById('modulesTableBody');
-            let filtered = modules;
-            if (search) {
-                const term = search.toLowerCase();
-                filtered = modules.filter(m => (m.module_code || '').toLowerCase().includes(term) || (m.module_name || '').toLowerCase().includes(term));
-            }
-            if (!filtered.length) {
-                tbody.innerHTML = '<tr><td colspan="8">No modules found</td></tr>';
-                return;
-            }
-            tbody.innerHTML = filtered.map(m => `
-                <tr>
-                    <td>${m.id}</td>
-                    <td><strong>${escapeHtml(m.module_code)}</strong></td>
-                    <td>${escapeHtml(m.module_name)}</td>
-                    <td>${m.credits}</td>
-                    <td>Year ${m.year_level}</td>
-                    <td>Semester ${m.semester}</td>
-                    <td><span class="type-badge type-${m.module_type}">${m.module_type.toUpperCase()}</span></td>
-                    <td>
-                        <button class="btn btn-warning" onclick="editModule(${m.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn btn-danger" onclick="deleteModule(${m.id})"><i class="fas fa-trash-alt"></i> Delete</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function displayMappings() {
-            const tbody = document.getElementById('mappingTableBody');
-            if (!programModules.length) {
-                tbody.innerHTML = '<tr><td colspan="6">No modules assigned to programs</td></tr>';
-                return;
-            }
-            tbody.innerHTML = programModules.map(pm => `
-                <tr>
-                    <td><strong>${escapeHtml(pm.program_name)}</strong></td>
-                    <td>${escapeHtml(pm.module_code)}</td>
-                    <td>${escapeHtml(pm.module_name)}</td>
-                    <td>${pm.credits}</td>
-                    <td>${pm.compulsory ? '<i class="fas fa-check-circle" style="color:#10b981;"></i> Yes' : '<i class="fas fa-ban" style="color:#ef4444;"></i> Elective'}</td>
-                    <td><button class="btn btn-danger" onclick="removeMapping(${pm.id})"><i class="fas fa-trash-alt"></i> Remove</button></td>
-                </tr>
-            `).join('');
-        }
-
-        // ========== SEARCH ==========
-        function searchModules() {
-            const term = document.getElementById('searchInput').value;
-            displayModules(term);
-        }
-
-        // ========== MODULE CRUD ==========
-        async function addModule(moduleData) {
-            const res = await safeApiCall('/api/admin/modules', { method: 'POST', body: JSON.stringify(moduleData) });
-            if (res && res.ok) {
-                const newModule = await res.json();
-                modules.push(newModule);
-                displayModules();
-                alert(`Module "${moduleData.module_code} - ${moduleData.module_name}" created!`);
-                return true;
-            } else {
-                // Demo mode
-                const newId = modules.length + 1;
-                modules.push({ id: newId, ...moduleData });
-                displayModules();
-                alert(`Module "${moduleData.module_code} - ${moduleData.module_name}" created! (Demo Mode)`);
-                return true;
-            }
-        }
-
-        async function updateModule(id, moduleData) {
-            const res = await safeApiCall(`/api/admin/modules/${id}`, { method: 'PUT', body: JSON.stringify(moduleData) });
-            if (res && res.ok) {
-                const updated = await res.json();
-                const idx = modules.findIndex(m => m.id === id);
-                if (idx !== -1) modules[idx] = updated;
-                displayModules();
-                programModules = programModules.map(pm => pm.module_id === id ? { ...pm, module_code: updated.module_code, module_name: updated.module_name, credits: updated.credits } : pm);
-                displayMappings();
-                alert('Module updated!');
-                return true;
-            } else {
-                const idx = modules.findIndex(m => m.id === id);
-                if (idx !== -1) {
-                    modules[idx] = { ...modules[idx], ...moduleData };
-                    displayModules();
-                    programModules = programModules.map(pm => pm.module_id === id ? { ...pm, module_code: moduleData.module_code, module_name: moduleData.module_name, credits: moduleData.credits } : pm);
-                    displayMappings();
-                    alert('Module updated! (Demo Mode)');
-                }
-                return true;
-            }
-        }
-
-        async function deleteModule(id) {
-            if (!confirm('Delete this module? It will be removed from all programs.')) return;
-            const res = await safeApiCall(`/api/admin/modules/${id}`, { method: 'DELETE' });
-            if (res && res.ok) {
-                modules = modules.filter(m => m.id !== id);
-                programModules = programModules.filter(pm => pm.module_id !== id);
-                displayModules();
-                displayMappings();
-                alert('Module deleted!');
-            } else {
-                modules = modules.filter(m => m.id !== id);
-                programModules = programModules.filter(pm => pm.module_id !== id);
-                displayModules();
-                displayMappings();
-                alert('Module deleted! (Demo Mode)');
-            }
-        }
-
-        async function removeMapping(id) {
-            if (!confirm('Remove this module from the program?')) return;
-            const res = await safeApiCall(`/api/admin/program-modules/${id}`, { method: 'DELETE' });
-            if (res && res.ok) {
-                programModules = programModules.filter(pm => pm.id !== id);
-                displayMappings();
-                alert('Module removed from program!');
-            } else {
-                programModules = programModules.filter(pm => pm.id !== id);
-                displayMappings();
-                alert('Module removed from program! (Demo Mode)');
-            }
-        }
-
-        async function assignModuleToProgram(programId, moduleId, isCompulsory) {
-            const res = await safeApiCall('/api/admin/program-modules', {
-                method: 'POST',
-                body: JSON.stringify({ program_id: programId, module_id: moduleId, is_compulsory: isCompulsory === 'yes' })
-            });
-            if (res && res.ok) {
-                const newMapping = await res.json();
-                programModules.push(newMapping);
-                displayMappings();
-                alert('Module assigned to program!');
-                return true;
-            } else {
-                const program = programs.find(p => p.id === programId);
-                const module = modules.find(m => m.id === moduleId);
-                if (programModules.some(pm => pm.program_id === programId && pm.module_id === moduleId)) {
-                    alert('Already assigned!');
-                    return false;
-                }
-                programModules.push({
-                    id: Date.now(),
-                    program_id: programId,
-                    program_name: program.program_name,
-                    module_id: moduleId,
-                    module_code: module.module_code,
-                    module_name: module.module_name,
-                    credits: module.credits,
-                    compulsory: isCompulsory === 'yes'
-                });
-                displayMappings();
-                alert(`Module "${module.module_code}" assigned to ${program.program_name}! (Demo Mode)`);
-                return true;
-            }
-        }
-
-        // ========== MODAL HANDLERS ==========
-        function openAddModuleModal() {
-            document.getElementById('addModuleForm').reset();
-            document.getElementById('addModuleModal').style.display = 'flex';
-        }
-
-        function openAssignModuleModal() {
-            const programSelect = document.getElementById('programSelect');
-            const moduleSelect = document.getElementById('moduleSelect');
-            programSelect.innerHTML = programs.map(p => `<option value="${p.id}">${escapeHtml(p.program_name)}</option>`).join('');
-            moduleSelect.innerHTML = modules.map(m => `<option value="${m.id}">${escapeHtml(m.module_code)} - ${escapeHtml(m.module_name)}</option>`).join('');
-            document.getElementById('assignModuleModal').style.display = 'flex';
-        }
-
-        function editModule(id) {
-            const m = modules.find(m => m.id === id);
-            if (m) {
-                document.getElementById('editModuleId').value = m.id;
-                document.getElementById('editModuleCode').value = m.module_code;
-                document.getElementById('editModuleName').value = m.module_name;
-                document.getElementById('editCredits').value = m.credits;
-                document.getElementById('editYearLevel').value = m.year_level;
-                document.getElementById('editSemester').value = m.semester;
-                document.getElementById('editModuleType').value = m.module_type;
-                document.getElementById('editModuleDescription').value = m.description || '';
-                document.getElementById('editPrerequisites').value = m.prerequisites || '';
-                document.getElementById('editHasPracticals').value = m.has_practicals ? 'yes' : 'no';
-                document.getElementById('editModuleModal').style.display = 'flex';
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // ========== FORM SUBMISSIONS ==========
-        document.getElementById('addModuleForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const moduleData = {
-                module_code: document.getElementById('moduleCode').value.toUpperCase(),
-                module_name: document.getElementById('moduleName').value,
-                credits: parseInt(document.getElementById('credits').value),
-                year_level: parseInt(document.getElementById('yearLevel').value),
-                semester: parseInt(document.getElementById('semester').value),
-                module_type: document.getElementById('moduleType').value,
-                description: document.getElementById('moduleDescription').value,
-                prerequisites: document.getElementById('prerequisites').value,
-                has_practicals: document.getElementById('hasPracticals').value === 'yes'
-            };
-            await addModule(moduleData);
-            closeModal('addModuleModal');
-        });
-
-        document.getElementById('editModuleForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = parseInt(document.getElementById('editModuleId').value);
-            const moduleData = {
-                module_code: document.getElementById('editModuleCode').value.toUpperCase(),
-                module_name: document.getElementById('editModuleName').value,
-                credits: parseInt(document.getElementById('editCredits').value),
-                year_level: parseInt(document.getElementById('editYearLevel').value),
-                semester: parseInt(document.getElementById('editSemester').value),
-                module_type: document.getElementById('editModuleType').value,
-                description: document.getElementById('editModuleDescription').value,
-                prerequisites: document.getElementById('editPrerequisites').value,
-                has_practicals: document.getElementById('editHasPracticals').value === 'yes'
-            };
-            await updateModule(id, moduleData);
-            closeModal('editModuleModal');
-        });
-
-        document.getElementById('assignModuleForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const programId = parseInt(document.getElementById('programSelect').value);
-            const moduleId = parseInt(document.getElementById('moduleSelect').value);
-            const isCompulsory = document.getElementById('isCompulsory').value;
-            await assignModuleToProgram(programId, moduleId, isCompulsory);
-            closeModal('assignModuleModal');
-        });
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== HELPER ==========
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ========== INIT ==========
-        async function init() {
-            await loadPrograms();
-            await loadModules();
-            await loadProgramModules();
-        }
-        init();
-
-        // Make functions global for inline onclick
-        window.searchModules = searchModules;
-        window.openAddModuleModal = openAddModuleModal;
-        window.openAssignModuleModal = openAssignModuleModal;
-        window.editModule = editModule;
-        window.deleteModule = deleteModule;
-        window.removeMapping = removeMapping;
-        window.closeModal = closeModal;
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
-
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
+    
 
 </body>
 

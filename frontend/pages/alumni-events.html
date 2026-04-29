@@ -439,6 +439,36 @@
     <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['alumni'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
@@ -503,313 +533,7 @@
 </div>
     </footer>
 
-    <script>
-        // ============================================
-        // AUTHENTICATION
-        // ============================================
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
 
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-
-        let currentUser = {
-            id: user.id,
-            name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'Alumni',
-            email: user.email
-        };
-
-        // ============================================
-        // DEMO DATA (will be replaced by API)
-        // ============================================
-        let events = [
-            {
-                id: 1,
-                title: "Annual Alumni Reunion 2026",
-                date: "2026-06-15",
-                time: "18:00",
-                location: "Gaborone International Convention Centre",
-                description: "Join fellow alumni for an evening of networking, reminiscing, and celebration. Dress code: Formal.",
-                image_icon: "🎉",
-                status: "upcoming",
-                registration_open: true
-            },
-            {
-                id: 2,
-                title: "Career Networking Mixer",
-                date: "2026-05-10",
-                time: "17:30",
-                location: "GIPS College Main Hall",
-                description: "Connect with industry professionals and fellow alumni. Light refreshments provided.",
-                image_icon: "🤝",
-                status: "upcoming",
-                registration_open: true
-            },
-            {
-                id: 3,
-                title: "Tech Talk: AI in Africa",
-                date: "2026-04-20",
-                time: "15:00",
-                location: "Virtual (Zoom)",
-                description: "Join us for an online discussion on the future of AI in Africa. Speaker: Dr. Thabo Motsamai.",
-                image_icon: "💻",
-                status: "past",
-                registration_open: false
-            },
-            {
-                id: 4,
-                title: "Women in Leadership Summit",
-                date: "2026-03-05",
-                time: "09:00",
-                location: "Gaborone Sun Hotel",
-                description: "A day of empowerment and networking for women leaders.",
-                image_icon: "👩‍💼",
-                status: "past",
-                registration_open: false
-            }
-        ];
-
-        let myRegistrations = [1]; // user registered for event id 1
-
-        // ============================================
-        // SAFE API CALL
-        // ============================================
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
-        }
-
-        // ============================================
-        // LOAD EVENTS (Real API or demo)
-        // ============================================
-        async function loadUpcomingEvents() {
-            const container = document.getElementById('upcomingEvents');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading events...</div>';
-            const response = await safeApiCall('/api/alumni/events?status=upcoming');
-            let upcomingEvents = [];
-            if (response && response.ok) {
-                upcomingEvents = await response.json();
-            } else {
-                upcomingEvents = events.filter(e => e.status === 'upcoming');
-            }
-            renderEvents(upcomingEvents, container, 'upcoming');
-        }
-
-        async function loadPastEvents() {
-            const container = document.getElementById('pastEvents');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading past events...</div>';
-            const response = await safeApiCall('/api/alumni/events?status=past');
-            let pastEvents = [];
-            if (response && response.ok) {
-                pastEvents = await response.json();
-            } else {
-                pastEvents = events.filter(e => e.status === 'past');
-            }
-            renderEvents(pastEvents, container, 'past');
-        }
-
-        async function loadMyRegistrations() {
-            const container = document.getElementById('myRegistrations');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading your registrations...</div>';
-            const response = await safeApiCall('/api/alumni/registrations');
-            let registeredEvents = [];
-            if (response && response.ok) {
-                registeredEvents = await response.json();
-            } else {
-                registeredEvents = events.filter(e => myRegistrations.includes(e.id));
-            }
-            renderEvents(registeredEvents, container, 'registered');
-        }
-
-        function renderEvents(eventsList, container, type) {
-            if (!eventsList.length) {
-                container.innerHTML = '<div class="loading">No events found.</div>';
-                return;
-            }
-
-            container.innerHTML = eventsList.map(event => {
-                // Replace emoji in image_icon with a suitable Font Awesome icon if possible
-                let iconHtml = '<i class="fas fa-calendar-alt"></i>';
-                if (event.image_icon === '🎉') iconHtml = '<i class="fas fa-glass-cheers"></i>';
-                else if (event.image_icon === '🤝') iconHtml = '<i class="fas fa-handshake"></i>';
-                else if (event.image_icon === '💻') iconHtml = '<i class="fas fa-laptop-code"></i>';
-                else if (event.image_icon === '👩‍💼') iconHtml = '<i class="fas fa-user-tie"></i>';
-                else iconHtml = event.image_icon ? `<span style="font-size:2rem;">${event.image_icon}</span>` : '<i class="fas fa-calendar-alt"></i>';
-                return `
-                <div class="event-card">
-                    <div class="event-image">${iconHtml}</div>
-                    <div class="event-details">
-                        <div class="event-title">${escapeHtml(event.title)}</div>
-                        <div class="event-date"><i class="fas fa-calendar-day"></i> ${formatDate(event.date)} at ${event.time || 'TBA'}</div>
-                        <div class="event-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(event.location)}</div>
-                        <div class="event-description">${escapeHtml(event.description.substring(0, 120))}${event.description.length > 120 ? '...' : ''}</div>
-                        <div class="event-footer">
-                            <span class="badge ${type === 'upcoming' ? 'badge-upcoming' : 'badge-past'}">${type === 'upcoming' ? 'Upcoming' : 'Past'}</span>
-                            ${type === 'upcoming' ? 
-                                (event.registration_open !== false ? 
-                                    `<button class="btn btn-primary" onclick="registerForEvent(${event.id})"><i class="fas fa-ticket-alt"></i> Register</button>` : 
-                                    '<span>Registration closed</span>') : 
-                                `<button class="btn btn-secondary" onclick="viewEventDetails(${event.id})"><i class="fas fa-eye"></i> Details</button>`
-                            }
-                        </div>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        // ============================================
-        // EVENT REGISTRATION
-        // ============================================
-        async function registerForEvent(eventId) {
-            const response = await safeApiCall(`/api/alumni/events/${eventId}/register`, { method: 'POST' });
-            if (response && response.ok) {
-                const data = await response.json();
-                showMessage('Registration successful!', 'success');
-                if (document.querySelector('.tab-btn.active').getAttribute('data-tab') === 'my') {
-                    loadMyRegistrations();
-                }
-            } else {
-                // Demo mode
-                if (!myRegistrations.includes(eventId)) {
-                    myRegistrations.push(eventId);
-                    showMessage('Registration successful (demo)!', 'success');
-                    if (document.querySelector('.tab-btn.active').getAttribute('data-tab') === 'my') {
-                        loadMyRegistrations();
-                    }
-                } else {
-                    showMessage('You are already registered.', 'error');
-                }
-            }
-        }
-
-        // ============================================
-        // VIEW EVENT DETAILS
-        // ============================================
-        async function viewEventDetails(eventId) {
-            const response = await safeApiCall(`/api/alumni/events/${eventId}`);
-            let event = null;
-            if (response && response.ok) {
-                event = await response.json();
-            } else {
-                event = events.find(e => e.id === eventId);
-            }
-            if (!event) return;
-
-            const modal = document.getElementById('eventModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalBody = document.getElementById('modalBody');
-
-            modalTitle.innerHTML = `<i class="fas fa-info-circle"></i> ${escapeHtml(event.title)}`;
-            modalBody.innerHTML = `
-                <div style="margin: 15px 0;">
-                    <p><i class="fas fa-calendar-day"></i> <strong>Date:</strong> ${formatDate(event.date)} at ${event.time || 'TBA'}</p>
-                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> ${escapeHtml(event.location)}</p>
-                    <p><strong>Description:</strong><br>${escapeHtml(event.description)}</p>
-                </div>
-                ${event.registration_open !== false && event.status === 'upcoming' ?
-                    `<button class="btn btn-primary" onclick="registerForEvent(${event.id}); closeModal();"><i class="fas fa-ticket-alt"></i> Register Now</button>` :
-                    '<p><em>Registration is closed for this event.</em></p>'
-                }
-            `;
-            modal.style.display = 'flex';
-        }
-
-        // ============================================
-        // HELPER FUNCTIONS
-        // ============================================
-        function formatDate(dateStr) {
-            if (!dateStr) return 'TBA';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function showMessage(msg, type) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
-            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-            msgDiv.style.display = 'block';
-            document.querySelector('.container').prepend(msgDiv);
-            setTimeout(() => msgDiv.remove(), 3000);
-        }
-
-        function closeModal() {
-            document.getElementById('eventModal').style.display = 'none';
-        }
-
-        // ============================================
-        // TAB SWITCHING
-        // ============================================
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tabId = btn.getAttribute('data-tab');
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-                document.getElementById(tabId).classList.add('active');
-                if (tabId === 'upcoming') loadUpcomingEvents();
-                else if (tabId === 'past') loadPastEvents();
-                else if (tabId === 'my') loadMyRegistrations();
-            });
-        });
-
-        // ============================================
-        // LOGOUT
-        // ============================================
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ============================================
-        // INITIALIZE
-        // ============================================
-        loadUpcomingEvents();
-        loadPastEvents();
-        loadMyRegistrations();
-
-        // Make functions global for onclick
-        window.registerForEvent = registerForEvent;
-        window.viewEventDetails = viewEventDetails;
-        window.closeModal = closeModal;
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 </html>

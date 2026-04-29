@@ -239,6 +239,36 @@
     <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['lecturer'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'"></div>
@@ -301,107 +331,7 @@
             </div>
 </div></footer>
 
-    <script>
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!token) window.location.href = 'login.html';
-        if (user.role !== 'lecturer') window.location.href = 'student-dashboard.html';
+    
 
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return response;
-            } catch (error) { console.error(`API call error to ${endpoint}:`, error); return null; }
-        }
-
-        let assignments = [];
-        let courses = [];
-
-        async function loadCoursesForDropdown() {
-            const response = await safeApiCall('/api/lecturer/courses');
-            if (response && response.ok) courses = await response.json();
-            else courses = [{ id: 1, name: 'CS101 - Introduction to Programming' }, { id: 2, name: 'CS201 - Database Systems' }, { id: 3, name: 'CS301 - Web Development' }];
-            const createSelect = document.getElementById('newCourseId');
-            const editSelect = document.getElementById('editCourseId');
-            const filterSelect = document.getElementById('courseFilter');
-            const options = courses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            createSelect.innerHTML = options;
-            editSelect.innerHTML = options;
-            filterSelect.innerHTML = '<option value="all">All Courses</option>' + options;
-        }
-
-        async function loadAssignments() {
-            const response = await safeApiCall('/api/lecturer/assignments');
-            if (response && response.ok) assignments = await response.json();
-            else {
-                assignments = [
-                    { id: 1, title: 'Programming Assignment 1', courseId: 1, courseName: 'CS101 - Introduction to Programming', description: 'Write a Python program to calculate student grades.', dueDate: '2026-04-15', maxPoints: 100, materialFile: 'assignment1.pdf', materialName: 'assignment_instructions.pdf', submissions: [{ studentId: 1, studentName: 'John Doe', submittedAt: '2026-04-10', grade: null, file: 'submission1.pdf' }] },
-                    { id: 2, title: 'Database Design Project', courseId: 2, courseName: 'CS201 - Database Systems', description: 'Design an ER diagram and SQL schema for a library system.', dueDate: '2026-04-20', maxPoints: 100, materialFile: null, materialName: null, submissions: [] }
-                ];
-            }
-            renderAssignments();
-        }
-
-        function renderAssignments() {
-            const container = document.getElementById('assignmentsContainer');
-            const courseFilter = document.getElementById('courseFilter').value;
-            const searchTerm = document.getElementById('searchAssignments').value.toLowerCase();
-            let filtered = assignments;
-            if (courseFilter !== 'all') filtered = filtered.filter(a => a.courseId == courseFilter);
-            if (searchTerm) filtered = filtered.filter(a => a.title.toLowerCase().includes(searchTerm));
-            if (!filtered.length) { container.innerHTML = '<div class="loading">No assignments found.</div>'; return; }
-            container.innerHTML = filtered.map(a => `
-                <div class="assignment-card">
-                    <div class="assignment-title">${escapeHtml(a.title)}</div>
-                    <div class="assignment-course">${a.courseName}</div>
-                    <div class="assignment-details">
-                        <span><i class="fas fa-calendar-alt"></i> Due: ${a.dueDate}</span>
-                        <span><i class="fas fa-star"></i> Max: ${a.maxPoints} pts</span>
-                        <span><i class="fas fa-file-upload"></i> Submissions: ${a.submissions?.length || 0}</span>
-                    </div>
-                    ${a.materialFile ? `<div class="material-link"><i class="fas fa-paperclip"></i> <a href="#" onclick="downloadMaterial(${a.id})">${escapeHtml(a.materialName)}</a></div>` : '<div class="material-link"><i class="fas fa-ban"></i> No material uploaded</div>'}
-                    <div class="assignment-actions">
-                        <button class="btn btn-primary btn-sm" onclick="viewSubmissions(${a.id})"><i class="fas fa-eye"></i> Submissions</button>
-                        <button class="btn btn-warning btn-sm" onclick="editAssignment(${a.id})"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteAssignment(${a.id})"><i class="fas fa-trash-alt"></i> Delete</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function viewSubmissions(id) { const a = assignments.find(a => a.id === id); if (!a) return; const modal = document.getElementById('submissionsModal'); document.getElementById('modalTitle').innerHTML = `<i class="fas fa-users"></i> Submissions: ${escapeHtml(a.title)}`; document.getElementById('modalBody').innerHTML = a.submissions?.length ? a.submissions.map(s => `<div class="submission-item"><div><strong>${escapeHtml(s.studentName)}</strong><br><small><i class="fas fa-clock"></i> Submitted: ${s.submittedAt}</small></div><div><input type="number" class="grade-input" placeholder="Grade" value="${s.grade !== null ? s.grade : ''}" step="1" min="0" max="${a.maxPoints}"><button class="btn btn-primary btn-sm" onclick="saveGrade(${a.id}, ${s.studentId}, this)"><i class="fas fa-save"></i> Save</button></div></div>`).join('') : '<p>No submissions yet.</p>'; modal.style.display = 'flex'; }
-        function saveGrade(assignmentId, studentId, button) { const gradeInput = button.closest('.submission-item').querySelector('.grade-input'); const grade = parseInt(gradeInput.value, 10); if (isNaN(grade)) { alert('Please enter a valid grade.'); return; } const assignment = assignments.find(a => a.id === assignmentId); const submission = assignment.submissions.find(s => s.studentId === studentId); if (submission) { submission.grade = grade; alert(`Grade saved: ${submission.studentName} - ${grade}/${assignment.maxPoints}`); } }
-        function editAssignment(id) { const a = assignments.find(a => a.id === id); if (!a) return; document.getElementById('editId').value = a.id; document.getElementById('editTitle').value = a.title; document.getElementById('editCourseId').value = a.courseId; document.getElementById('editDescription').value = a.description || ''; document.getElementById('editDueDate').value = a.dueDate; document.getElementById('editMaxPoints').value = a.maxPoints; const currentDiv = document.getElementById('currentMaterialInfo'); currentDiv.innerHTML = a.materialFile ? `<i class="fas fa-paperclip"></i> Current: ${escapeHtml(a.materialName)}` : '<i class="fas fa-ban"></i> No material uploaded.'; document.getElementById('editMaterialFileName').style.display = 'none'; document.getElementById('editMaterialFile').value = ''; document.getElementById('editModal').style.display = 'flex'; }
-        function deleteAssignment(id) { if (confirm('Are you sure you want to delete this assignment?')) { assignments = assignments.filter(a => a.id !== id); renderAssignments(); } }
-        document.getElementById('createAssignmentForm').addEventListener('submit', async (e) => { e.preventDefault(); const newId = assignments.length ? Math.max(...assignments.map(a => a.id)) + 1 : 4; const courseId = parseInt(document.getElementById('newCourseId').value); const course = courses.find(c => c.id === courseId); const fileInput = document.getElementById('newMaterialFile'); let materialFile = null, materialName = null; if (fileInput.files.length > 0) { materialFile = fileInput.files[0].name; materialName = fileInput.files[0].name; } const newAssignment = { id: newId, title: document.getElementById('newTitle').value, courseId: courseId, courseName: course ? course.name : '', description: document.getElementById('newDescription').value, dueDate: document.getElementById('newDueDate').value, maxPoints: parseInt(document.getElementById('newMaxPoints').value) || 100, materialFile: materialFile, materialName: materialName, submissions: [] }; assignments.push(newAssignment); renderAssignments(); document.getElementById('createAssignmentForm').reset(); document.getElementById('newMaterialFileName').style.display = 'none'; alert('Assignment created!'); document.querySelector('.tab-btn[data-tab="list"]').click(); });
-        document.getElementById('editAssignmentForm').addEventListener('submit', async (e) => { e.preventDefault(); const id = parseInt(document.getElementById('editId').value); const a = assignments.find(a => a.id === id); if (a) { a.title = document.getElementById('editTitle').value; a.courseId = parseInt(document.getElementById('editCourseId').value); const course = courses.find(c => c.id === a.courseId); a.courseName = course ? course.name : ''; a.description = document.getElementById('editDescription').value; a.dueDate = document.getElementById('editDueDate').value; a.maxPoints = parseInt(document.getElementById('editMaxPoints').value) || 100; const fileInput = document.getElementById('editMaterialFile'); if (fileInput.files.length > 0) { a.materialFile = fileInput.files[0].name; a.materialName = fileInput.files[0].name; } renderAssignments(); closeModal('editModal'); alert('Assignment updated!'); } });
-        document.getElementById('newMaterialFile').addEventListener('change', function(e) { const file = e.target.files[0]; const display = document.getElementById('newMaterialFileName'); if (file) { display.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${escapeHtml(file.name)} (${(file.size/1024/1024).toFixed(2)} MB)`; display.style.display = 'inline-block'; } else display.style.display = 'none'; });
-        document.getElementById('editMaterialFile').addEventListener('change', function(e) { const file = e.target.files[0]; const display = document.getElementById('editMaterialFileName'); if (file) { display.innerHTML = `<i class="fas fa-check-circle"></i> New file: ${escapeHtml(file.name)} (${(file.size/1024/1024).toFixed(2)} MB)`; display.style.display = 'inline-block'; } else display.style.display = 'none'; });
-        function downloadMaterial(id) { const a = assignments.find(a => a.id === id); if (a && a.materialFile) alert(`Downloading: ${a.materialName}\n(Simulated download)`); else alert('No material available.'); }
-        function closeModal(modalId = 'submissionsModal') { document.getElementById(modalId).style.display = 'none'; }
-        document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', () => { const tabId = btn.dataset.tab; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active')); document.getElementById(`tab-${tabId}`).classList.add('active'); if (tabId === 'list') renderAssignments(); if (tabId === 'create') loadCoursesForDropdown(); }); });
-        document.getElementById('courseFilter').addEventListener('change', renderAssignments); document.getElementById('searchAssignments').addEventListener('input', renderAssignments);
-        document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-        loadCoursesForDropdown(); loadAssignments();
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 </html>

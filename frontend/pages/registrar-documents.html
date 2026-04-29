@@ -378,6 +378,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['registrar'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College Logo"
@@ -468,237 +498,8 @@
         </div>
     </footer>
 
-    <script>
-        // ========== AUTH ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const userRole = localStorage.getItem('user_role') || user.role;
-        if (!token) window.location.href = 'login.html';
-        if (userRole !== 'registrar') window.location.href = 'student-dashboard.html';
+    
 
-        // ========== HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            const tok = localStorage.getItem('access_token');
-            if (!tok) { window.location.href = 'login.html'; return null; }
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${tok}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return response;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function showMessage(message, type) {
-            const msgDiv = document.createElement('div');
-            msgDiv.style.position = 'fixed'; msgDiv.style.top = '20px'; msgDiv.style.right = '20px'; msgDiv.style.zIndex = '2000';
-            msgDiv.style.backgroundColor = type === 'success' ? '#28a745' : (type === 'error' ? '#dc3545' : '#ffc107');
-            msgDiv.style.color = type === 'warning' ? '#2d3748' : 'white';
-            msgDiv.style.padding = '12px 20px'; msgDiv.style.borderRadius = '12px';
-            msgDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle')}"></i> ${message}`;
-            document.body.appendChild(msgDiv);
-            setTimeout(() => msgDiv.remove(), 3000);
-        }
-
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-
-        // ========== LOAD REAL DATA FROM BACKEND ==========
-        let documents = [];
-        let currentDocumentId = null;
-
-        async function loadDocuments() {
-            const container = document.getElementById('documentsList');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading documents...</div>';
-            const response = await safeApiCall('/api/admin/documents');
-            if (response && response.ok) {
-                documents = await response.json();
-                updateStats();
-                renderDocuments();
-            } else {
-                container.innerHTML = '<div class="loading"><i class="fas fa-exclamation-triangle"></i> Failed to load documents. Please try again later.</div>';
-            }
-        }
-
-        function updateStats() {
-            const total = documents.length;
-            const pending = documents.filter(d => d.status === 'pending').length;
-            const verified = documents.filter(d => d.status === 'verified').length;
-            const rejected = documents.filter(d => d.status === 'rejected').length;
-            document.getElementById('totalDocuments').textContent = total;
-            document.getElementById('pendingDocuments').textContent = pending;
-            document.getElementById('verifiedDocuments').textContent = verified;
-            document.getElementById('rejectedDocuments').textContent = rejected;
-        }
-
-        function renderDocuments(search = '', status = 'all') {
-            const container = document.getElementById('documentsList');
-            let filtered = [...documents];
-            if (search) {
-                const term = search.toLowerCase();
-                filtered = filtered.filter(d => d.student_name.toLowerCase().includes(term) || d.document_type.toLowerCase().includes(term) || d.student_number.includes(term));
-            }
-            if (status !== 'all') filtered = filtered.filter(d => d.status === status);
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="loading"><i class="fas fa-info-circle"></i> No documents found.</div>';
-                return;
-            }
-            container.innerHTML = filtered.map(doc => {
-                const statusClass = doc.status === 'pending' ? 'badge-pending' : (doc.status === 'verified' ? 'badge-verified' : 'badge-rejected');
-                const statusText = doc.status.charAt(0).toUpperCase() + doc.status.slice(1);
-                return `
-                    <div class="document-card" onclick="viewDocument(${doc.id})">
-                        <div class="document-title">
-                            <i class="fas fa-file-pdf"></i> ${escapeHtml(doc.document_type)}
-                            <span class="badge ${statusClass}" style="margin-left: auto;">${statusText}</span>
-                        </div>
-                        <div class="document-meta">
-                            <i class="fas fa-user"></i> ${escapeHtml(doc.student_name)}<br>
-                            <i class="fas fa-id-card"></i> ${doc.student_number}<br>
-                            <i class="fas fa-calendar-alt"></i> Submitted: ${doc.submission_date}
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); viewDocument(${doc.id})" style="padding: 4px 12px; font-size: 0.75rem;"><i class="fas fa-eye"></i> View</button>
-                            ${doc.status === 'pending' ? `
-                                <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); verifyDocument(${doc.id})" style="padding: 4px 12px; font-size: 0.75rem;"><i class="fas fa-check"></i> Verify</button>
-                                <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); rejectDocument(${doc.id})" style="padding: 4px 12px; font-size: 0.75rem;"><i class="fas fa-times"></i> Reject</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function searchDocuments() {
-            const searchTerm = document.getElementById('searchInput').value;
-            const status = document.getElementById('statusFilter').value;
-            renderDocuments(searchTerm, status);
-        }
-
-        // ========== DOCUMENT ACTIONS ==========
-        function viewDocument(id) {
-            const doc = documents.find(d => d.id === id);
-            if (!doc) return;
-            currentDocumentId = id;
-            const modal = document.getElementById('documentModal');
-            const detailsDiv = document.getElementById('documentDetails');
-            const statusClass = doc.status === 'pending' ? 'badge-pending' : (doc.status === 'verified' ? 'badge-verified' : 'badge-rejected');
-            const statusText = doc.status.charAt(0).toUpperCase() + doc.status.slice(1);
-            detailsDiv.innerHTML = `
-                <div style="margin: 15px 0;">
-                    <p><strong><i class="fas fa-user"></i> Student:</strong> ${escapeHtml(doc.student_name)} (${doc.student_number})</p>
-                    <p><strong><i class="fas fa-file-alt"></i> Document Type:</strong> ${escapeHtml(doc.document_type)}</p>
-                    <p><strong><i class="fas fa-file"></i> File Name:</strong> ${escapeHtml(doc.file_name)}</p>
-                    <p><strong><i class="fas fa-calendar-alt"></i> Submission Date:</strong> ${doc.submission_date}</p>
-                    <p><strong><i class="fas fa-chart-simple"></i> Status:</strong> <span class="badge ${statusClass}">${statusText}</span></p>
-                    ${doc.notes ? `<p><strong><i class="fas fa-comment"></i> Notes:</strong> ${escapeHtml(doc.notes)}</p>` : ''}
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-comment"></i> Comments (required for rejection)</label>
-                    <textarea id="docNotes" rows="2" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:12px;">${doc.notes || ''}</textarea>
-                </div>
-            `;
-            const verifyBtn = document.getElementById('verifyDocBtn');
-            const rejectBtn = document.getElementById('rejectDocBtn');
-            if (doc.status === 'pending') {
-                verifyBtn.style.display = 'inline-flex';
-                rejectBtn.style.display = 'inline-flex';
-                verifyBtn.onclick = () => performVerify(id);
-                rejectBtn.onclick = () => performReject(id);
-            } else {
-                verifyBtn.style.display = 'none';
-                rejectBtn.style.display = 'none';
-            }
-            modal.style.display = 'flex';
-        }
-
-        async function performVerify(id) {
-            const note = document.getElementById('docNotes')?.value || '';
-            const response = await safeApiCall(`/api/admin/documents/${id}/verify`, {
-                method: 'POST',
-                body: JSON.stringify({ notes: note })
-            });
-            if (response && response.ok) {
-                showMessage('Document verified successfully!', 'success');
-                await loadDocuments();  // refresh list and stats
-                closeModal('documentModal');
-            } else {
-                showMessage('Verification failed. Please try again.', 'error');
-            }
-        }
-
-        async function performReject(id) {
-            const note = document.getElementById('docNotes')?.value;
-            if (!note) {
-                showMessage('Please provide a rejection reason.', 'warning');
-                return;
-            }
-            const response = await safeApiCall(`/api/admin/documents/${id}/reject`, {
-                method: 'POST',
-                body: JSON.stringify({ notes: note })
-            });
-            if (response && response.ok) {
-                showMessage('Document rejected.', 'error');
-                await loadDocuments();
-                closeModal('documentModal');
-            } else {
-                showMessage('Rejection failed. Please try again.', 'error');
-            }
-        }
-
-        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-
-        // ========== EXPORT ==========
-        function exportDocuments() {
-            const data = documents.map(d => ({
-                'Student Name': d.student_name,
-                'Student Number': d.student_number,
-                'Document Type': d.document_type,
-                'File Name': d.file_name,
-                'Submission Date': d.submission_date,
-                'Status': d.status,
-                'Notes': d.notes || ''
-            }));
-            if (!data.length) { showMessage('No documents to export.', 'warning'); return; }
-            const headers = Object.keys(data[0]).join(',');
-            const rows = data.map(obj => Object.values(obj).map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
-            const csv = [headers, ...rows].join('\n');
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `documents_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showMessage('Export started!', 'success');
-        }
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
-
-        // ========== INIT ==========
-        loadDocuments();
-
-        // Expose functions globally
-        window.searchDocuments = searchDocuments;
-        window.viewDocument = viewDocument;
-        window.verifyDocument = performVerify;
-        window.rejectDocument = performReject;
-        window.exportDocuments = exportDocuments;
-        window.closeModal = closeModal;
-    </script>
-
-    <div id="cookieBanner"
-        style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-        This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-        <button onclick="acceptCookies()"
-            style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-    </div>
-    <script>
-        if (!localStorage.getItem('cookieConsent')) document.getElementById('cookieBanner').style.display = 'block';
-        window.acceptCookies = () => { localStorage.setItem('cookieConsent', 'true'); document.getElementById('cookieBanner').style.display = 'none'; };
-    </script>
 </body>
 
 </html>

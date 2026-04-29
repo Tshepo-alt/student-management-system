@@ -386,6 +386,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -501,271 +531,7 @@
         </div>
     </div>
 
-    <script>
-        // ========== AUTHENTICATION & SIDEBAR ==========
-        const token = localStorage.getItem('access_token');
-        let user = JSON.parse(localStorage.getItem('user') || '{}');
-
-        if (!token) window.location.href = 'login.html';
-        if (user.role !== 'admin' && user.role !== 'administrator') window.location.href = 'student-dashboard.html';
-
-        // Sidebar toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // ========== HELPER FUNCTIONS ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ========== PROFILE MANAGEMENT ==========
-        async function loadProfile() {
-            const res = await safeApiCall('/api/auth/profile');
-            if (res && res.ok) {
-                const data = await res.json();
-                user = data;
-                localStorage.setItem('user', JSON.stringify(user));
-
-                document.getElementById('firstName').value = data.first_name || '';
-                document.getElementById('lastName').value = data.last_name || '';
-                document.getElementById('email').value = data.email || '';
-                document.getElementById('phone').value = data.phone || '';
-                document.getElementById('department').value = data.department || 'Administration';
-                document.getElementById('bio').value = data.bio || '';
-
-                const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.username || 'Admin';
-                document.getElementById('displayName').textContent = fullName;
-                document.getElementById('displayEmail').textContent = data.email || user.email;
-                document.getElementById('userRole').innerHTML = `<i class="fas fa-crown"></i> ${(data.role || user.role || 'Administrator').toUpperCase()}`;
-
-                const initial = (data.first_name ? data.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
-                document.getElementById('adminAvatar').textContent = initial;
-                document.getElementById('profileAvatar').textContent = initial;
-            } else {
-                // fallback
-                document.getElementById('firstName').value = user.first_name || '';
-                document.getElementById('lastName').value = user.last_name || '';
-                document.getElementById('email').value = user.email || '';
-                document.getElementById('phone').value = user.phone || '';
-                document.getElementById('department').value = user.department || 'Administration';
-                document.getElementById('bio').value = user.bio || '';
-
-                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || 'Admin';
-                document.getElementById('displayName').textContent = fullName;
-                document.getElementById('displayEmail').textContent = user.email || '';
-                document.getElementById('userRole').innerHTML = `<i class="fas fa-crown"></i> ${(user.role || 'Administrator').toUpperCase()}`;
-
-                const initial = (user.first_name ? user.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
-                document.getElementById('adminAvatar').textContent = initial;
-                document.getElementById('profileAvatar').textContent = initial;
-            }
-        }
-
-        async function saveProfile(profileData) {
-            const res = await safeApiCall('/api/auth/profile', {
-                method: 'PUT',
-                body: JSON.stringify(profileData)
-            });
-            if (res && res.ok) {
-                const updated = await res.json();
-                user = updated;
-                localStorage.setItem('user', JSON.stringify(user));
-
-                const fullName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.username || 'Admin';
-                document.getElementById('displayName').textContent = fullName;
-                document.getElementById('displayEmail').textContent = profileData.email || user.email;
-
-                const initial = (profileData.first_name ? profileData.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
-                document.getElementById('adminAvatar').textContent = initial;
-                document.getElementById('profileAvatar').textContent = initial;
-
-                addActivity('Profile updated');
-                alert('✅ Profile updated successfully!');
-                return true;
-            } else {
-                // demo fallback
-                localStorage.setItem('user', JSON.stringify({ ...user, ...profileData }));
-                const fullName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || user.username || 'Admin';
-                document.getElementById('displayName').textContent = fullName;
-                document.getElementById('displayEmail').textContent = profileData.email || user.email;
-                const initial = (profileData.first_name ? profileData.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
-                document.getElementById('adminAvatar').textContent = initial;
-                document.getElementById('profileAvatar').textContent = initial;
-                addActivity('Profile updated (Demo)');
-                alert('✅ Profile updated successfully! (Demo Mode)');
-                return true;
-            }
-        }
-
-        async function changePasswordAPI(current, newPwd) {
-            const res = await safeApiCall('/api/auth/change-password', {
-                method: 'POST',
-                body: JSON.stringify({ current_password: current, new_password: newPwd })
-            });
-            if (res && res.ok) {
-                alert('✅ Password changed successfully! Please login again.');
-                addActivity('Password changed');
-                setTimeout(() => {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                }, 2000);
-                return true;
-            } else {
-                alert('✅ Password changed successfully! (Demo Mode) Please login again.');
-                addActivity('Password changed (Demo)');
-                setTimeout(() => {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                }, 2000);
-                return true;
-            }
-        }
-
-        // ========== ACTIVITY LOG ==========
-        async function loadActivity() {
-            const container = document.getElementById('activityList');
-            const res = await safeApiCall('/api/auth/activity');
-            if (res && res.ok) {
-                const acts = await res.json();
-                if (!acts.length) {
-                    container.innerHTML = '<p>No recent activity</p>';
-                } else {
-                    container.innerHTML = acts.slice(0, 10).map(a => `
-                    <div class="activity-item">
-                        <span><i class="fas fa-clock"></i> ${escapeHtml(a.action)}</span>
-                        <span class="activity-date">${new Date(a.created_at).toLocaleString()}</span>
-                    </div>
-                `).join('');
-                }
-            } else {
-                const acts = JSON.parse(localStorage.getItem('admin_activity') || '[]');
-                if (!acts.length) {
-                    container.innerHTML = '<p>No recent activity</p>';
-                } else {
-                    container.innerHTML = acts.slice(0, 10).map(a => `
-                    <div class="activity-item">
-                        <span><i class="fas fa-clock"></i> ${escapeHtml(a.action)}</span>
-                        <span class="activity-date">${new Date(a.date).toLocaleString()}</span>
-                    </div>
-                `).join('');
-                }
-            }
-        }
-
-        async function addActivity(action) {
-            const res = await safeApiCall('/api/auth/activity', {
-                method: 'POST',
-                body: JSON.stringify({ action })
-            });
-            if (!res || !res.ok) {
-                const acts = JSON.parse(localStorage.getItem('admin_activity') || '[]');
-                acts.unshift({ action, date: new Date().toISOString() });
-                localStorage.setItem('admin_activity', JSON.stringify(acts.slice(0, 50)));
-            }
-            loadActivity();
-        }
-
-        // ========== UTILITIES ==========
-        function changeAvatar() {
-            alert('Avatar upload feature coming soon.');
-        }
-
-        async function logoutAllSessions() {
-            if (!confirm('⚠️ This will log you out from all devices. Are you sure?')) return;
-            const res = await safeApiCall('/api/auth/logout-all', { method: 'POST' });
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                first_name: document.getElementById('firstName').value,
-                last_name: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                department: document.getElementById('department').value,
-                bio: document.getElementById('bio').value
-            };
-            await saveProfile(data);
-        });
-
-        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const current = document.getElementById('currentPassword').value;
-            const newPwd = document.getElementById('newPassword').value;
-            const confirm = document.getElementById('confirmPassword').value;
-            if (!current || !newPwd || !confirm) {
-                alert('Please fill all password fields');
-                return;
-            }
-            if (newPwd !== confirm) {
-                alert('New passwords do not match');
-                return;
-            }
-            if (newPwd.length < 8) {
-                alert('Password must be at least 8 characters');
-                return;
-            }
-            await changePasswordAPI(current, newPwd);
-        });
-
-        document.getElementById('logoutLink').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await addActivity('Logged out');
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        async function init() {
-            await loadProfile();
-            await loadActivity();
-            await addActivity('Profile page viewed');
-        }
-        init();
-
-        window.changeAvatar = changeAvatar;
-        window.logoutAllSessions = logoutAllSessions;
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
-
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
+    
 
 </body>
 

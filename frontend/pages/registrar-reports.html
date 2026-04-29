@@ -389,6 +389,36 @@
     <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['registrar'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
@@ -477,297 +507,8 @@
 </div>
     </footer>
 
-    <script>
-        // ============================================
-        // AUTHENTICATION & ROLE CHECK
-        // ============================================
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
 
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-
-        // Allow only registrar (and optionally admin, but keep strict)
-        if (user.role !== 'registrar') {
-            window.location.href = 'student-dashboard.html';
-        }
-
-        // ============================================
-        // GLOBALS
-        // ============================================
-        let currentReportType = null;
-        let startDate = '2026-01-01';
-        let endDate = '2026-12-31';
-
-        // ============================================
-        // DEMO REPORT DATA (Replace with API calls)
-        // ============================================
-        const demoReports = {
-            enrollment: {
-                title: 'Enrollment Summary',
-                data: {
-                    total_students: 1234,
-                    new_enrollments: 456,
-                    active_students: 1089,
-                    graduates: 234,
-                    program_distribution: [
-                        { name: 'Computer Science', count: 450, percentage: 36.5 },
-                        { name: 'Business Administration', count: 380, percentage: 30.8 },
-                        { name: 'Accounting', count: 220, percentage: 17.8 },
-                        { name: 'Information Technology', count: 184, percentage: 14.9 }
-                    ],
-                    campus_distribution: [
-                        { name: 'Gaborone Main Campus', count: 650, percentage: 52.7 },
-                        { name: 'Gaborone Main Mall', count: 234, percentage: 19.0 },
-                        { name: 'Francistown Campus', count: 198, percentage: 16.0 },
-                        { name: 'Maun Campus', count: 152, percentage: 12.3 }
-                    ]
-                }
-            },
-            admissions: {
-                title: 'Admissions Report',
-                data: {
-                    total_applications: 892,
-                    accepted: 456,
-                    rejected: 212,
-                    pending: 224,
-                    acceptance_rate: 51.1,
-                    by_program: [
-                        { program: 'Computer Science', applications: 210, accepted: 98 },
-                        { program: 'Business Administration', applications: 185, accepted: 92 },
-                        { program: 'Accounting', applications: 120, accepted: 58 },
-                        { program: 'Information Technology', applications: 98, accepted: 45 }
-                    ]
-                }
-            },
-            graduation: {
-                title: 'Graduation Projections',
-                data: {
-                    total_expected: 342,
-                    by_program: [
-                        { program: 'Computer Science', count: 112, year: 2026 },
-                        { program: 'Business Administration', count: 98, year: 2026 },
-                        { program: 'Accounting', count: 76, year: 2026 },
-                        { program: 'Information Technology', count: 56, year: 2026 }
-                    ],
-                    historical: [
-                        { year: 2023, graduates: 278 },
-                        { year: 2024, graduates: 312 },
-                        { year: 2025, graduates: 334 }
-                    ]
-                }
-            },
-            academic: {
-                title: 'Academic Performance',
-                data: {
-                    gpa_distribution: [
-                        { range: '3.5 - 4.0 (Excellent)', count: 234, percentage: 21.5 },
-                        { range: '3.0 - 3.4 (Good)', count: 456, percentage: 41.8 },
-                        { range: '2.5 - 2.9 (Satisfactory)', count: 289, percentage: 26.5 },
-                        { range: 'Below 2.5 (Warning)', count: 111, percentage: 10.2 }
-                    ],
-                    program_performance: [
-                        { program: 'Computer Science', avg_gpa: 3.2, pass_rate: 92 },
-                        { program: 'Business Administration', avg_gpa: 3.1, pass_rate: 89 },
-                        { program: 'Accounting', avg_gpa: 3.0, pass_rate: 87 },
-                        { program: 'Information Technology', avg_gpa: 3.3, pass_rate: 94 }
-                    ]
-                }
-            }
-        };
-
-        // ============================================
-        // SAFE API CALL (future)
-        // ============================================
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
-        }
-
-        // ============================================
-        // GENERATE REPORT
-        // ============================================
-        async function generateReport(type) {
-            currentReportType = type;
-            const previewDiv = document.getElementById('reportPreview');
-            const reportContentDiv = document.getElementById('reportContent');
-            const previewTitle = document.getElementById('previewTitle');
-            
-            previewDiv.style.display = 'block';
-            reportContentDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading report...</div>';
-            
-            // In real implementation, call API: /api/registrar/reports/{type}?start=...&end=...
-            // For demo, use local data
-            const report = demoReports[type];
-            if (!report) {
-                reportContentDiv.innerHTML = '<div class="loading">Report not available.</div>';
-                return;
-            }
-            
-            previewTitle.innerHTML = `<i class="fas fa-chart-line"></i> ${report.title} (${startDate} – ${endDate})`;
-            
-            let html = `
-                <div style="background: #f9fafb; padding: 12px; border-radius: 12px; margin-bottom: 20px;">
-                    <strong>Period:</strong> ${startDate} to ${endDate}<br>
-                    <strong>Generated:</strong> ${new Date().toLocaleString()}
-                </div>
-            `;
-            
-            if (type === 'enrollment') {
-                const d = report.data;
-                html += `
-                    <h3><i class="fas fa-chart-simple"></i> Key Metrics</h3>
-                    <table>
-                        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-                        <tbody>
-                            <tr><td>Total Students</td><td><strong>${d.total_students}</strong></td></tr>
-                            <tr><td>New Enrollments</td><td>${d.new_enrollments}</td></tr>
-                            <tr><td>Active Students</td><td>${d.active_students}</td></tr>
-                            <tr><td>Graduated This Period</td><td>${d.graduates}</td></tr>
-                        </tbody>
-                    </table>
-                    <h3 style="margin-top:20px"><i class="fas fa-book"></i> Program Distribution</h3>
-                    <table>
-                        <thead><tr><th>Program</th><th>Students</th><th>Percentage</th></tr></thead>
-                        <tbody>
-                            ${d.program_distribution.map(p => `<tr><td>${p.name}</td><td>${p.count}</td><td>${p.percentage}%</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                    <h3 style="margin-top:20px"><i class="fas fa-building"></i> Campus Distribution</h3>
-                    <table>
-                        <thead><tr><th>Campus</th><th>Students</th><th>Percentage</th></tr></thead>
-                        <tbody>
-                            ${d.campus_distribution.map(c => `<tr><td>${c.name}</td><td>${c.count}</td><td>${c.percentage}%</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                `;
-            } else if (type === 'admissions') {
-                const d = report.data;
-                html += `
-                    <h3><i class="fas fa-chart-simple"></i> Admissions Summary</h3>
-                    <table>
-                        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-                        <tbody>
-                            <tr><td>Total Applications</td><td>${d.total_applications}</td></tr>
-                            <tr><td>Accepted</td><td>${d.accepted}</td></tr>
-                            <tr><td>Rejected</td><td>${d.rejected}</td></tr>
-                            <tr><td>Pending Review</td><td>${d.pending}</td></tr>
-                            <tr><td>Acceptance Rate</td><td>${d.acceptance_rate}%</td></tr>
-                        </tbody>
-                    </table>
-                    <h3 style="margin-top:20px"><i class="fas fa-book"></i> Applications by Program</h3>
-                    <table>
-                        <thead><tr><th>Program</th><th>Applications</th><th>Accepted</th></tr></thead>
-                        <tbody>
-                            ${d.by_program.map(p => `<tr><td>${p.program}</td><td>${p.applications}</td><td>${p.accepted}</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                `;
-            } else if (type === 'graduation') {
-                const d = report.data;
-                html += `
-                    <h3><i class="fas fa-graduation-cap"></i> Expected Graduates (${endDate.split('-')[0]})</h3>
-                    <table>
-                        <thead><tr><th>Program</th><th>Expected Graduates</th></tr></thead>
-                        <tbody>
-                            ${d.by_program.map(p => `<tr><td>${p.program}</td><td>${p.count}</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                    <h3 style="margin-top:20px"><i class="fas fa-chart-line"></i> Historical Graduation Trends</h3>
-                    <table>
-                        <thead><tr><th>Year</th><th>Graduates</th></tr></thead>
-                        <tbody>
-                            ${d.historical.map(h => `<tr><td>${h.year}</td><td>${h.graduates}</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                `;
-            } else if (type === 'academic') {
-                const d = report.data;
-                html += `
-                    <h3><i class="fas fa-chart-simple"></i> GPA Distribution</h3>
-                    <table>
-                        <thead><tr><th>GPA Range</th><th>Students</th><th>Percentage</th></tr></thead>
-                        <tbody>
-                            ${d.gpa_distribution.map(g => `<tr><td>${g.range}</td><td>${g.count}</td><td>${g.percentage}%</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                    <h3 style="margin-top:20px"><i class="fas fa-chart-line"></i> Program Performance</h3>
-                    <table>
-                        <thead><tr><th>Program</th><th>Average GPA</th><th>Pass Rate</th></tr></thead>
-                        <tbody>
-                            ${d.program_performance.map(p => `<tr><td>${p.program}</td><td>${p.avg_gpa}</td><td>${p.pass_rate}%</td></tr>`).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-            
-            reportContentDiv.innerHTML = html;
-        }
-        
-        // ============================================
-        // EXPORT FUNCTIONS (demo)
-        // ============================================
-        function exportCSV() {
-            if (!currentReportType) return;
-            const content = document.getElementById('reportContent').innerText;
-            const blob = new Blob([content], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${currentReportType}_report_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            alert('CSV export (demo)');
-        }
-        
-        function exportPDF() {
-            alert('PDF export feature coming soon. Use Print > Save as PDF.');
-        }
-        
-        function printReport() {
-            const previewDiv = document.getElementById('reportPreview');
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html><head>
-    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea"><title>Registrar Report</title>
-                <style>body{font-family: Arial; padding: 40px;} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px}</style>
-                    <link rel="stylesheet" href="/css/portal-common.css">
-</head><body>${previewDiv.innerHTML}
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body></html>
             `);
             printWindow.document.close();
@@ -816,14 +557,7 @@
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
     <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
 </div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
+
+
 </body>
 </html>

@@ -375,6 +375,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['student'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -462,195 +492,8 @@
 </div>
     </footer>
 
-    <script>
-        // ========== AUTHENTICATION ==========
-        const token = localStorage.getItem('access_token');
-        if (!token) window.location.href = 'login.html';
+    
 
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function showMessage(msg, type, containerSelector = '.form-card') {
-            const container = document.querySelector(containerSelector);
-            const msgDiv = document.createElement('div');
-            msgDiv.className = type === 'error' ? 'error-message' : 'success-message';
-            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-            msgDiv.style.cssText = 'margin-top: 16px; padding: 12px; border-radius: 16px;';
-            container.insertBefore(msgDiv, container.querySelector('form')?.nextSibling);
-            setTimeout(() => msgDiv.remove(), 5000);
-        }
-
-        // ========== LOAD QUERIES FROM BACKEND ==========
-        async function loadQueries() {
-            const container = document.getElementById('queriesContainer');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading queries...</div>';
-
-            const res = await safeApiCall('/api/students/queries');
-            if (res && res.ok) {
-                const queries = await res.json();
-                if (!queries.length) {
-                    container.innerHTML = '<div class="loading">No queries submitted yet.</div>';
-                    return;
-                }
-                // Sort by date descending (newest first)
-                queries.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                container.innerHTML = queries.map(q => {
-                    let statusClass = 'pending';
-                    if (q.status === 'resolved') statusClass = 'resolved';
-                    else if (q.status === 'in-progress') statusClass = 'in-progress';
-                    return `
-                        <div class="query-item" onclick="viewQuery(${q.id})">
-                            <div class="query-info">
-                                <div class="query-title">
-                                    <strong>${escapeHtml(q.subject)}</strong>
-                                    <span class="badge badge-${statusClass}">${getStatusText(q.status)}</span>
-                                </div>
-                                <div class="query-meta">
-                                    <span><i class="fas fa-tag"></i> ${escapeHtml(q.category || 'General')}</span>
-                                    <span><i class="fas fa-calendar-alt"></i> ${formatDate(q.created_at)}</span>
-                                </div>
-                            </div>
-                            <div class="query-date"><i class="fas fa-chevron-right"></i></div>
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                container.innerHTML = '<div class="loading">Unable to load queries. Please try again later.</div>';
-            }
-        }
-
-        function getStatusText(status) {
-            const map = { 'pending': 'Pending', 'in-progress': 'In Progress', 'resolved': 'Resolved' };
-            return map[status] || status;
-        }
-
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        // ========== VIEW QUERY DETAILS ==========
-        async function viewQuery(id) {
-            const res = await safeApiCall(`/api/students/queries/${id}`);
-            if (!res || !res.ok) {
-                showMessage('Could not load query details', 'error', '.queries-list');
-                return;
-            }
-            const q = await res.json();
-
-            let responsesHtml = '';
-            if (q.responses && q.responses.length) {
-                responsesHtml = '<h4 style="margin-top: 15px;">Responses</h4>';
-                q.responses.forEach(r => {
-                    responsesHtml += `
-                        <div class="response-item">
-                            <div class="response-staff">${escapeHtml(r.staff_name || 'Staff')}</div>
-                            <div>${escapeHtml(r.message)}</div>
-                            <div class="response-date">${formatDate(r.created_at)}</div>
-                        </div>
-                    `;
-                });
-            } else {
-                responsesHtml = '<p><i class="fas fa-info-circle"></i> No responses yet. Our team will get back to you soon.</p>';
-            }
-
-            const modalBody = `
-                <div><strong>Category:</strong> ${escapeHtml(q.category || 'General')}</div>
-                <div><strong>Submitted:</strong> ${formatDate(q.created_at)}</div>
-                <div><strong>Status:</strong> <span class="badge badge-${q.status === 'pending' ? 'pending' : (q.status === 'resolved' ? 'resolved' : 'in-progress')}">${getStatusText(q.status)}</span></div>
-                <div style="margin: 15px 0;"><strong>Message:</strong><br>${escapeHtml(q.message)}</div>
-                <hr>
-                ${responsesHtml}
-            `;
-            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-envelope-open-text"></i> ${escapeHtml(q.subject)}`;
-            document.getElementById('modalBody').innerHTML = modalBody;
-            document.getElementById('queryModal').style.display = 'flex';
-        }
-
-        // ========== SUBMIT NEW QUERY ==========
-        document.getElementById('queryForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('queryTitle').value.trim();
-            const category = document.getElementById('queryCategory').value;
-            const message = document.getElementById('queryMessage').value.trim();
-
-            if (!title || !message) {
-                showMessage('Please fill in both title and message.', 'error');
-                return;
-            }
-
-            const payload = { subject: title, category: category, message: message };
-
-            const res = await safeApiCall('/api/students/queries', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-
-            if (res && res.ok) {
-                showMessage('Query submitted successfully!', 'success');
-                document.getElementById('queryTitle').value = '';
-                document.getElementById('queryMessage').value = '';
-                document.getElementById('queryCategory').selectedIndex = 0;
-                loadQueries(); // refresh list
-            } else {
-                showMessage('Failed to submit query. Please try again.', 'error');
-            }
-        });
-
-        // ========== MODAL HELPERS ==========
-        function closeModal() {
-            document.getElementById('queryModal').style.display = 'none';
-        }
-
-        window.viewQuery = viewQuery;
-        window.closeModal = closeModal;
-
-        // Close modal on outside click
-        window.onclick = function (e) {
-            if (e.target === document.getElementById('queryModal')) closeModal();
-        };
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== HELPER ==========
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ========== INIT ==========
-        loadQueries();
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 
 </html>

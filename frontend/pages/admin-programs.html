@@ -407,6 +407,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -554,266 +584,7 @@
 
     <div class="footer">© 2026 GIPS College. All rights reserved.</div>
 
-    <script>
-        // ========== AUTHENTICATION & SIDEBAR ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!token) window.location.href = 'login.html';
-        if (user.role !== 'admin' && user.role !== 'administrator') window.location.href = 'student-dashboard.html';
-
-        // Avatar
-        const initial = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
-        document.getElementById('adminAvatar').textContent = initial;
-
-        // Sidebar toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        // ========== GLOBAL DATA ==========
-        let programs = [];
-        let faculties = [];
-
-        // ========== LOAD FACULTIES ==========
-        async function loadFaculties() {
-            const res = await safeApiCall('/api/admin/faculties');
-            if (res && res.ok) {
-                faculties = await res.json();
-            } else {
-                faculties = [
-                    { id: 1, faculty_name: 'Faculty of Information & Communication Technology' },
-                    { id: 2, faculty_name: 'Faculty of Business Administration' },
-                    { id: 3, faculty_name: 'Faculty of Commerce & Accounting' }
-                ];
-            }
-            const selects = ['faculty', 'editFaculty'];
-            selects.forEach(id => {
-                const sel = document.getElementById(id);
-                if (sel) sel.innerHTML = faculties.map(f => `<option value="${f.id}">${escapeHtml(f.faculty_name)}</option>`).join('');
-            });
-        }
-
-        // ========== LOAD PROGRAMS ==========
-        async function loadPrograms() {
-            const tbody = document.getElementById('programsTableBody');
-            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading programs...</div></td></tr>';
-            const res = await safeApiCall('/api/admin/programs');
-            if (res && res.ok) {
-                programs = await res.json();
-            } else {
-                // demo data
-                programs = [
-                    { id: 1, program_code: 'BSC-CS', program_name: 'Bachelor of Computer Science', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Comprehensive CS program', career_opportunities: 'Software Developer, IT Consultant', entry_requirements: 'BGCSE with 32 points', is_active: true },
-                    { id: 2, program_code: 'BBA-BM', program_name: 'Bachelor of Business Administration', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Business management', career_opportunities: 'Business Manager, Consultant', entry_requirements: 'BGCSE with 32 points', is_active: true },
-                    { id: 3, program_code: 'BAF', program_name: 'Bachelor of Accounting and Finance', duration_years: 4, total_credits: 480, min_bgcse_points: 32, description: 'Accounting program', career_opportunities: 'Accountant, Auditor', entry_requirements: 'BGCSE with 32 points', is_active: true }
-                ];
-            }
-            displayPrograms();
-        }
-
-        function displayPrograms() {
-            const tbody = document.getElementById('programsTableBody');
-            if (!programs.length) {
-                tbody.innerHTML = '<tr><td colspan="8">No programs found</td></tr>';
-                return;
-            }
-            tbody.innerHTML = programs.map(p => `
-            <tr>
-                <td>${p.id}</td>
-                <td><strong>${escapeHtml(p.program_code)}</strong></td>
-                <td>${escapeHtml(p.program_name)}</td>
-                <td>${p.duration_years} years</td>
-                <td>${p.total_credits || '-'}</td>
-                <td>${p.min_bgcse_points || 32}</td>
-                <td><span class="status-${p.is_active ? 'active' : 'inactive'}">${p.is_active ? 'active' : 'inactive'}</span></td>
-                <td>
-                    <button class="btn btn-warning" onclick="editProgram(${p.id})" style="margin-right:5px"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn btn-danger" onclick="deleteProgram(${p.id})"><i class="fas fa-trash-alt"></i> Delete</button>
-                 </td>
-            </tr>
-        `).join('');
-        }
-
-        // ========== CRUD OPERATIONS ==========
-        async function addProgram(programData) {
-            const res = await safeApiCall('/api/admin/programs', { method: 'POST', body: JSON.stringify(programData) });
-            if (res && res.ok) {
-                const newProgram = await res.json();
-                programs.push(newProgram);
-                displayPrograms();
-                alert(`Program "${programData.program_name}" created!`);
-                return true;
-            } else {
-                // demo
-                const newId = programs.length + 1;
-                programs.push({ id: newId, ...programData });
-                displayPrograms();
-                alert(`Program "${programData.program_name}" created! (Demo Mode)`);
-                return true;
-            }
-        }
-
-        async function updateProgram(id, programData) {
-            const res = await safeApiCall(`/api/admin/programs/${id}`, { method: 'PUT', body: JSON.stringify(programData) });
-            if (res && res.ok) {
-                const updated = await res.json();
-                const idx = programs.findIndex(p => p.id === id);
-                if (idx !== -1) programs[idx] = updated;
-                displayPrograms();
-                alert('Program updated!');
-                return true;
-            } else {
-                const idx = programs.findIndex(p => p.id === id);
-                if (idx !== -1) { programs[idx] = { ...programs[idx], ...programData }; displayPrograms(); alert('Program updated! (Demo Mode)'); }
-                return true;
-            }
-        }
-
-        async function deleteProgram(id) {
-            const program = programs.find(p => p.id === id);
-            if (!program) return;
-            if (!confirm(`Delete "${program.program_name}"? This will affect enrolled students.`)) return;
-            const res = await safeApiCall(`/api/admin/programs/${id}`, { method: 'DELETE' });
-            if (res && res.ok) {
-                programs = programs.filter(p => p.id !== id);
-                displayPrograms();
-                alert('Program deleted!');
-            } else {
-                programs = programs.filter(p => p.id !== id);
-                displayPrograms();
-                alert('Program deleted! (Demo Mode)');
-            }
-        }
-
-        // ========== MODAL FUNCTIONS ==========
-        function openAddProgramModal() {
-            document.getElementById('addProgramForm').reset();
-            document.getElementById('addProgramModal').style.display = 'flex';
-        }
-
-        function editProgram(id) {
-            const p = programs.find(p => p.id === id);
-            if (p) {
-                document.getElementById('editProgramId').value = p.id;
-                document.getElementById('editProgramCode').value = p.program_code || '';
-                document.getElementById('editProgramName').value = p.program_name || '';
-                document.getElementById('editDuration').value = p.duration_years || 3;
-                document.getElementById('editCredits').value = p.total_credits || '';
-                document.getElementById('editMinBgcse').value = p.min_bgcse_points || 32;
-                document.getElementById('editDescription').value = p.description || '';
-                document.getElementById('editCareerOpportunities').value = p.career_opportunities || '';
-                document.getElementById('editEntryRequirements').value = p.entry_requirements || '';
-                document.getElementById('editStatus').value = p.is_active ? 'active' : 'inactive';
-                if (p.faculty_id) document.getElementById('editFaculty').value = p.faculty_id;
-                document.getElementById('editProgramModal').style.display = 'flex';
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // ========== FORM HANDLERS ==========
-        document.getElementById('addProgramForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const programData = {
-                program_code: document.getElementById('programCode').value.toUpperCase(),
-                program_name: document.getElementById('programName').value,
-                duration_years: parseInt(document.getElementById('duration').value),
-                total_credits: parseInt(document.getElementById('credits').value) || null,
-                min_bgcse_points: parseInt(document.getElementById('minBgcse').value) || 32,
-                faculty_id: parseInt(document.getElementById('faculty').value) || null,
-                description: document.getElementById('description').value,
-                career_opportunities: document.getElementById('careerOpportunities').value,
-                entry_requirements: document.getElementById('entryRequirements').value,
-                is_active: document.getElementById('status').value === 'active'
-            };
-            await addProgram(programData);
-            closeModal('addProgramModal');
-        });
-
-        document.getElementById('editProgramForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = parseInt(document.getElementById('editProgramId').value);
-            const programData = {
-                program_code: document.getElementById('editProgramCode').value.toUpperCase(),
-                program_name: document.getElementById('editProgramName').value,
-                duration_years: parseInt(document.getElementById('editDuration').value),
-                total_credits: parseInt(document.getElementById('editCredits').value) || null,
-                min_bgcse_points: parseInt(document.getElementById('editMinBgcse').value) || 32,
-                faculty_id: parseInt(document.getElementById('editFaculty').value) || null,
-                description: document.getElementById('editDescription').value,
-                career_opportunities: document.getElementById('editCareerOpportunities').value,
-                entry_requirements: document.getElementById('editEntryRequirements').value,
-                is_active: document.getElementById('editStatus').value === 'active'
-            };
-            await updateProgram(id, programData);
-            closeModal('editProgramModal');
-        });
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== HELPER ==========
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ========== INIT ==========
-        async function init() {
-            await loadFaculties();
-            await loadPrograms();
-        }
-        init();
-
-        window.openAddProgramModal = openAddProgramModal;
-        window.editProgram = editProgram;
-        window.deleteProgram = deleteProgram;
-        window.closeModal = closeModal;
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
-
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
+    
 
 </body>
 

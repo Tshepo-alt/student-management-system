@@ -508,6 +508,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar"></div>
 
@@ -754,346 +784,8 @@
 </div>
     </footer>
 
-    <script>
-        // ========== AUTHENTICATION & SIDEBAR ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const userRole = user.role || localStorage.getItem('user_role');
-        if (!token) window.location.href = 'login.html';
-        const allowedRoles = ['admin', 'administrator', 'staff'];
-        if (!allowedRoles.includes(userRole)) window.location.href = 'student-dashboard.html';
+    
 
-        const isStaff = userRole === 'staff';
-        const sidebar = document.getElementById('sidebar');
-        sidebar.innerHTML = isStaff ? `
-            <div class="sidebar-header"><img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'"><h3>Staff Portal</h3></div>
-            <div class="sidebar-menu">
-                <a href="staff-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
-                <a href="admin-accommodation.html" class="sidebar-menu-item active"><i class="fas fa-building"></i> <span>Accommodation</span></a>
-                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
-            </div>
-        ` : `
-            <div class="sidebar-header"><img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'"><h3>Admin Portal</h3></div>
-            <div class="sidebar-menu">
-                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> <span>Dashboard</span></a>
-                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> <span>Students</span></a>
-                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> <span>Staff</span></a>
-                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> <span>Programs</span></a>
-                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> <span>Modules</span></a>
-                <a href="admin-accommodation.html" class="sidebar-menu-item active"><i class="fas fa-building"></i> <span>Accommodation</span></a>
-                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> <span>Payments</span></a>
-                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> <span>Tickets</span></a>
-                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
-            </div>
-        `;
-        document.getElementById('adminAvatar').textContent = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
-
-        // Sidebar toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebarEl = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebarEl.classList.toggle('open'));
-
-        // ========== DATA & API ==========
-        let applications = [], rooms = [], allocations = [];
-        const roomCapacity = { bachelor_pad: 2, three_bed: 6 };
-        document.getElementById('roomType')?.addEventListener('change', function () {
-            document.getElementById('roomCapacity').value = roomCapacity[this.value];
-        });
-
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, { ...options, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers } });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        async function loadStats() {
-            const res = await safeApiCall('/api/admin/stats');
-            if (res && res.ok) {
-                const stats = await res.json();
-                document.getElementById('totalRooms').textContent = stats.total_rooms || 0;
-                document.getElementById('availableRooms').textContent = stats.available_rooms || 0;
-                document.getElementById('occupancyRate').textContent = `${stats.occupancy_rate || 0}%`;
-                document.getElementById('pendingApps').textContent = stats.pending_accommodation || 0;
-                document.getElementById('allocatedRooms').textContent = stats.allocated_students || 0;
-            } else {
-                // fallback
-                document.getElementById('totalRooms').textContent = rooms.length;
-                document.getElementById('availableRooms').textContent = rooms.filter(r => r.is_available).length;
-                document.getElementById('occupancyRate').textContent = rooms.length ? Math.round((rooms.filter(r => !r.is_available).length / rooms.length) * 100) : 0;
-                document.getElementById('pendingApps').textContent = applications.filter(a => a.status === 'pending').length;
-                document.getElementById('allocatedRooms').textContent = allocations.length;
-            }
-        }
-
-        async function loadApplications() {
-            const tbody = document.getElementById('applicationsTableBody');
-            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div></td></tr>';
-            const res = await safeApiCall('/api/accommodation/admin/applications');
-            if (res && res.ok) {
-                applications = await res.json();
-            } else {
-                // fallback demo data
-                applications = [
-                    { id: 1, student_name: 'Thabo Motsamai', student_number: 'GIPS/2026/00001', email: 'thabo@example.com', room_type: 'bachelor_pad', room_type_display: 'Bachelor Pad', block_preference: 'A', status: 'pending', created_at: '2026-03-20T10:30:00', medical_conditions: 'None', dietary_requirements: 'None', emergency_contact: { name: 'Kefilwe Motsamai', phone: '+267 71234567', relationship: 'Mother' } },
-                    { id: 2, student_name: 'Kelebogile Modise', student_number: 'GIPS/2026/00002', email: 'kele@example.com', room_type: 'three_bed', room_type_display: 'Three-Bed Room', block_preference: 'B', status: 'pending', created_at: '2026-03-21T14:15:00', medical_conditions: 'Asthma', dietary_requirements: 'Vegetarian', emergency_contact: { name: 'Mpho Modise', phone: '+267 72345678', relationship: 'Father' } }
-                ];
-            }
-            renderApplications();
-        }
-
-        async function loadRooms() {
-            const tbody = document.getElementById('roomsTableBody');
-            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div></td></tr>';
-            const res = await safeApiCall('/api/accommodation/admin/rooms');
-            if (res && res.ok) {
-                rooms = await res.json();
-            } else {
-                // fallback demo rooms
-                rooms = [];
-                for (let block of ['A', 'B', 'C', 'D', 'E']) {
-                    for (let i = 1; i <= 16; i++) rooms.push({ id: rooms.length + 1, block_name: block, room_number: `${i}01`, room_type: 'bachelor_pad', capacity: 2, current_occupants: Math.random() > 0.7 ? 2 : (Math.random() > 0.5 ? 1 : 0), is_available: Math.random() > 0.6 });
-                    for (let i = 1; i <= 16; i++) rooms.push({ id: rooms.length + 1, block_name: block, room_number: `${i}02`, room_type: 'three_bed', capacity: 6, current_occupants: Math.random() > 0.7 ? 6 : (Math.random() > 0.5 ? 3 : 0), is_available: Math.random() > 0.6 });
-                }
-            }
-            renderRooms();
-            loadStats();
-        }
-
-        async function loadAllocations() {
-            const tbody = document.getElementById('allocationsTableBody');
-            tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</div></td></tr>';
-            const res = await safeApiCall('/api/accommodation/admin/allocations');
-            if (res && res.ok) {
-                allocations = await res.json();
-            } else {
-                allocations = [];
-            }
-            renderAllocations();
-        }
-
-        function renderApplications() {
-            const tbody = document.getElementById('applicationsTableBody');
-            const search = document.getElementById('searchApplications')?.value.toLowerCase() || '';
-            const statusFilter = document.getElementById('filterStatus')?.value || 'all';
-            let filtered = applications.filter(a => {
-                const matchSearch = a.student_name.toLowerCase().includes(search) || a.student_number.toLowerCase().includes(search);
-                const matchStatus = statusFilter === 'all' || a.status === statusFilter;
-                return matchSearch && matchStatus;
-            });
-            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8">No applications found</td></tr>'; return; }
-            const statusClass = { pending: 'status-pending', approved: 'status-approved', allocated: 'status-allocated', rejected: 'status-rejected', waitlisted: 'status-waitlisted' };
-            tbody.innerHTML = filtered.map(a => `
-                <tr>
-                    <td>${a.id}</td>
-                    <td><strong>${escapeHtml(a.student_name)}</strong><br><small>${escapeHtml(a.email || '')}</small></td>
-                    <td>${escapeHtml(a.student_number)}</td>
-                    <td>${escapeHtml(a.room_type_display || a.room_type)}</td>
-                    <td>${escapeHtml(a.block_preference || 'Any')}</td>
-                    <td><span class="status-badge ${statusClass[a.status] || 'status-pending'}">${a.status.toUpperCase()}</span></td>
-                    <td>${new Date(a.created_at).toLocaleDateString()}</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="viewApplicant(${a.id})"><i class="fas fa-eye"></i></button>
-                        ${a.status === 'pending' ? `
-                            <button class="btn btn-success btn-sm" onclick="approveApplication(${a.id})"><i class="fas fa-check"></i></button>
-                            <button class="btn btn-danger btn-sm" onclick="rejectApplication(${a.id})"><i class="fas fa-times"></i></button>
-                            <button class="btn btn-warning btn-sm" onclick="waitlistApplication(${a.id})"><i class="fas fa-list"></i></button>
-                        ` : ''}
-                        ${a.status === 'approved' ? `<button class="btn btn-primary btn-sm" onclick="openAllocateModal(${a.id})"><i class="fas fa-home"></i></button>` : ''}
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function renderRooms() {
-            const tbody = document.getElementById('roomsTableBody');
-            const search = document.getElementById('searchRooms')?.value.toLowerCase() || '';
-            const blockFilter = document.getElementById('filterBlock')?.value || 'all';
-            let filtered = rooms.filter(r => (r.room_number.toLowerCase().includes(search) || r.block_name.toLowerCase().includes(search)) && (blockFilter === 'all' || r.block_name === blockFilter));
-            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8">No rooms found</td></tr>'; return; }
-            const occupancyClass = (occ, cap) => occ >= cap ? 'room-full' : (occ > 0 ? 'room-partial' : 'room-available');
-            tbody.innerHTML = filtered.map(r => `
-                <tr>
-                    <td><strong>Block ${escapeHtml(r.block_name)}</strong></td>
-                    <td>${escapeHtml(r.room_number)}</td>
-                    <td>${r.room_type === 'bachelor_pad' ? 'Bachelor Pad' : 'Three-Bed'}</td>
-                    <td>${r.capacity}</td>
-                    <td class="${occupancyClass(r.current_occupants, r.capacity)}">${r.current_occupants} / ${r.capacity}</td>
-                    <td><span class="status-badge ${r.is_available ? 'status-approved' : 'status-rejected'}">${r.is_available ? 'Available' : 'Full'}</span></td>
-                    <td>${r.has_kitchen ? '<i class="fas fa-utensils"></i>' : ''} ${r.has_shower ? '<i class="fas fa-shower"></i>' : ''} ${r.has_study_table ? '<i class="fas fa-book"></i>' : ''} ${r.has_bed ? '<i class="fas fa-bed"></i>' : ''}</td>
-                    <td><button class="btn btn-danger btn-sm" onclick="deleteRoom(${r.id})"><i class="fas fa-trash-alt"></i></button></td>
-                </tr>
-            `).join('');
-        }
-
-        function renderAllocations() {
-            const tbody = document.getElementById('allocationsTableBody');
-            if (!allocations.length) { tbody.innerHTML = '<tr><td colspan="8">No allocations found</td></tr>'; return; }
-            tbody.innerHTML = allocations.map(a => `
-                <tr>
-                    <td><strong>${escapeHtml(a.student_name)}</strong></td>
-                    <td>${escapeHtml(a.student_number)}</td>
-                    <td>Block ${escapeHtml(a.block)}</td>
-                    <td>${escapeHtml(a.room_number)}</td>
-                    <td>${a.room_type === 'bachelor_pad' ? 'Bachelor Pad' : 'Three-Bed'}</td>
-                    <td>${new Date(a.allocated_date).toLocaleDateString()}</td>
-                    <td><span class="status-badge status-allocated">ALLOCATED</span></td>
-                    <td><button class="btn btn-danger btn-sm" onclick="cancelAllocation(${a.id})"><i class="fas fa-trash-alt"></i></button></td>
-                </tr>
-            `).join('');
-        }
-
-        // Application actions
-        window.viewApplicant = function (id) {
-            const app = applications.find(a => a.id === id);
-            if (!app) return;
-            document.getElementById('applicantDetails').innerHTML = `
-                <div class="form-group"><label><i class="fas fa-user"></i> Name:</label><div>${escapeHtml(app.student_name)}</div></div>
-                <div class="form-group"><label><i class="fas fa-id-card"></i> Student Number:</label><div>${escapeHtml(app.student_number)}</div></div>
-                <div class="form-group"><label><i class="fas fa-envelope"></i> Email:</label><div>${escapeHtml(app.email)}</div></div>
-                <div class="form-group"><label><i class="fas fa-bed"></i> Room Type:</label><div>${escapeHtml(app.room_type_display || app.room_type)}</div></div>
-                <div class="form-group"><label><i class="fas fa-building"></i> Block Preference:</label><div>${escapeHtml(app.block_preference || 'Any')}</div></div>
-                <div class="form-group"><label><i class="fas fa-notes-medical"></i> Medical:</label><div>${escapeHtml(app.medical_conditions || 'None')}</div></div>
-                <div class="form-group"><label><i class="fas fa-utensils"></i> Diet:</label><div>${escapeHtml(app.dietary_requirements || 'None')}</div></div>
-                <div class="form-group"><label><i class="fas fa-phone-alt"></i> Emergency:</label><div>${escapeHtml(app.emergency_contact?.name || 'N/A')} (${escapeHtml(app.emergency_contact?.relationship || '')})<br>${escapeHtml(app.emergency_contact?.phone || '')}</div></div>
-            `;
-            document.getElementById('viewApplicantModal').style.display = 'flex';
-        };
-        window.approveApplication = async function (id) { if (!confirm('Approve?')) return; const app = applications.find(a => a.id === id); if (app) { app.status = 'approved'; renderApplications(); loadStats(); } };
-        window.rejectApplication = async function (id) { if (!confirm('Reject?')) return; const app = applications.find(a => a.id === id); if (app) { app.status = 'rejected'; renderApplications(); loadStats(); } };
-        window.waitlistApplication = async function (id) { if (!confirm('Add to waitlist?')) return; const app = applications.find(a => a.id === id); if (app) { app.status = 'waitlisted'; renderApplications(); loadStats(); } };
-
-        // Room actions
-        window.deleteRoom = function (id) { if (confirm('Delete room?')) { rooms = rooms.filter(r => r.id !== id); renderRooms(); loadStats(); } };
-        function openAddRoomModal() { document.getElementById('addRoomForm').reset(); document.getElementById('roomCapacity').value = 2; document.getElementById('addRoomModal').style.display = 'flex'; }
-        document.getElementById('addRoomForm')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const newRoom = {
-                id: rooms.length + 1,
-                block_name: document.getElementById('roomBlock').value,
-                room_number: document.getElementById('roomNumber').value,
-                room_type: document.getElementById('roomType').value,
-                capacity: parseInt(document.getElementById('roomCapacity').value),
-                current_occupants: 0,
-                is_available: true,
-                has_kitchen: document.getElementById('roomKitchen').checked,
-                has_shower: document.getElementById('roomShower').checked,
-                has_study_table: document.getElementById('roomStudyTable').checked,
-                has_bed: document.getElementById('roomBed').checked
-            };
-            rooms.push(newRoom);
-            renderRooms();
-            loadStats();
-            closeModal('addRoomModal');
-            alert(`Room ${newRoom.block_name}${newRoom.room_number} added`);
-        });
-
-        // Allocation actions
-        window.loadRoomsForBlock = function () {
-            const block = document.getElementById('allocateBlock').value;
-            const roomSelect = document.getElementById('allocateRoomNumber');
-            const available = rooms.filter(r => r.block_name === block && r.is_available);
-            roomSelect.innerHTML = '<option value="">Select Room</option>';
-            available.forEach(r => roomSelect.innerHTML += `<option value="${r.room_number}" data-room-id="${r.id}">${r.room_number} (${r.room_type === 'bachelor_pad' ? '2 beds' : '6 beds'}) - ${r.current_occupants}/${r.capacity} occupied</option>`);
-        };
-        window.openAllocateModal = function (applicationId = null) {
-            const select = document.getElementById('allocateApplicationId');
-            const approvedApps = applications.filter(a => a.status === 'approved');
-            select.innerHTML = '<option value="">Select Application</option>';
-            approvedApps.forEach(a => select.innerHTML += `<option value="${a.id}" ${applicationId == a.id ? 'selected' : ''}>${a.student_name} (${a.student_number})</option>`);
-            document.getElementById('allocateModal').style.display = 'flex';
-        };
-        document.getElementById('allocateForm')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const appId = parseInt(document.getElementById('allocateApplicationId').value);
-            const block = document.getElementById('allocateBlock').value;
-            const roomNumber = document.getElementById('allocateRoomNumber').value;
-            const checkin = document.getElementById('allocateCheckin').value;
-            const checkout = document.getElementById('allocateCheckout').value;
-            if (!appId || !block || !roomNumber) { alert('Fill all fields'); return; }
-            const app = applications.find(a => a.id === appId);
-            const room = rooms.find(r => r.block_name === block && r.room_number === roomNumber);
-            if (app && room) {
-                app.status = 'allocated';
-                room.current_occupants++;
-                if (room.current_occupants >= room.capacity) room.is_available = false;
-                allocations.push({
-                    id: allocations.length + 1,
-                    student_name: app.student_name,
-                    student_number: app.student_number,
-                    block: block,
-                    room_number: roomNumber,
-                    room_type: room.room_type,
-                    allocated_date: new Date().toISOString().split('T')[0],
-                    status: 'allocated',
-                    check_in_date: checkin,
-                    check_out_date: checkout
-                });
-                renderApplications();
-                renderRooms();
-                renderAllocations();
-                loadStats();
-                closeModal('allocateModal');
-                alert(`Room allocated to ${app.student_name}`);
-            }
-        });
-        window.cancelAllocation = function (id) {
-            if (!confirm('Cancel this allocation?')) return;
-            const alloc = allocations.find(a => a.id === id);
-            if (alloc) {
-                const room = rooms.find(r => r.block_name === alloc.block && r.room_number === alloc.room_number);
-                if (room) { room.current_occupants--; if (room.current_occupants < room.capacity) room.is_available = true; }
-                allocations = allocations.filter(a => a.id !== id);
-                const app = applications.find(a => a.student_name === alloc.student_name);
-                if (app) app.status = 'approved';
-                renderApplications();
-                renderRooms();
-                renderAllocations();
-                loadStats();
-                alert('Allocation cancelled');
-            }
-        };
-
-        // Event listeners
-        document.getElementById('searchApplications')?.addEventListener('input', renderApplications);
-        document.getElementById('filterStatus')?.addEventListener('change', renderApplications);
-        document.getElementById('searchRooms')?.addEventListener('input', renderRooms);
-        document.getElementById('filterBlock')?.addEventListener('change', renderRooms);
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
-            });
-        });
-        document.getElementById('logoutLink')?.addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
-
-        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-        window.closeModal = closeModal;
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-
-        // Initialize
-        loadApplications();
-        loadRooms();
-        loadAllocations();
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 
 </html>

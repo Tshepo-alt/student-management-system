@@ -259,6 +259,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['alumni'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
@@ -339,75 +369,8 @@
 </div>
     </footer>
 
-    <script>
-        // ---------- AUTH ----------
-        const token = localStorage.getItem('access_token');
-        if (!token) window.location.href = 'login.html';
+    
 
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return response;
-            } catch (error) { console.error(error); return null; }
-        }
-
-        // Load alumni profile & stats (real backend)
-        async function loadProfileAndStats() {
-            // Profile data
-            const profileRes = await safeApiCall('/api/alumni/profile');
-            let firstName = '', lastName = '', jobTitle = '', company = '';
-            if (profileRes && profileRes.ok) {
-                const data = await profileRes.json();
-                const fullName = data.name || 'Alumni Member';
-                document.getElementById('profileName').textContent = fullName;
-                document.getElementById('profileTitle').textContent = data.job_title ? `${data.job_title} at ${data.company || ''}` : 'Update your profile';
-                document.getElementById('profileAvatar').innerHTML = `<i class="fas fa-user-circle"></i>`;
-                // Optionally set initials if you prefer – but icon is fine
-            } else {
-                document.getElementById('profileName').textContent = 'Alumni User';
-                document.getElementById('profileTitle').textContent = 'Member';
-            }
-
-            // Stats
-            const statsRes = await safeApiCall('/api/alumni/stats');
-            if (statsRes && statsRes.ok) {
-                const stats = await statsRes.json();
-                document.getElementById('connectionsCount').textContent = stats.connections || '0';
-                document.getElementById('postsCount').textContent = stats.posts || '0';
-                document.getElementById('followersCount').textContent = stats.followers || '0';
-            } else {
-                document.getElementById('connectionsCount').textContent = '0';
-                document.getElementById('postsCount').textContent = '0';
-                document.getElementById('followersCount').textContent = '0';
-            }
-        }
-
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        loadProfileAndStats();
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 
 </html>

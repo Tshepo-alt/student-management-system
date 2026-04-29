@@ -363,6 +363,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -451,163 +481,8 @@
 </div>
     </footer>
 
-    <script>
-        // ========== AUTH & SIDEBAR ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!token) window.location.href = 'login.html';
-        if (!['admin', 'administrator'].includes(user.role)) window.location.href = 'student-dashboard.html';
-        document.getElementById('adminAvatar').textContent = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
-        document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
-        document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
+    
 
-        // ========== ENDPOINTS ==========
-        const endpoints = [
-            { method: 'GET', url: '/api/health', name: 'Health Check', auth: false },
-            { method: 'GET', url: '/api/admin/stats', name: 'Admin Stats', auth: true },
-            { method: 'GET', url: '/api/admin/users', name: 'Users List', auth: true },
-            { method: 'GET', url: '/api/admin/students', name: 'Students List', auth: true },
-            { method: 'GET', url: '/api/admin/programs', name: 'Programs List', auth: true },
-            { method: 'GET', url: '/api/admin/modules', name: 'Modules List', auth: true },
-            { method: 'POST', url: '/api/auth/login', name: 'Login (Test)', auth: false }
-        ];
-
-        function renderEndpoints() {
-            const container = document.getElementById('endpointsList');
-            container.innerHTML = endpoints.map(ep => `
-            <div class="api-item">
-                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                    <span class="api-method method-${ep.method.toLowerCase()}">${ep.method}</span>
-                    <strong>${ep.url}</strong>
-                    <span style="color:#475569;">${ep.name}</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span id="status-${ep.url.replace(/\//g, '-')}" class="status-badge status-warning">Not Tested</span>
-                    <button class="btn btn-primary" onclick="testEndpoint('${ep.url}', '${ep.method}', ${ep.auth})"><i class="fas fa-play"></i> Test</button>
-                </div>
-            </div>
-        `).join('');
-            const select = document.getElementById('endpointSelect');
-            select.innerHTML = endpoints.map(ep => `<option value="${ep.url}">${ep.method} ${ep.url} - ${ep.name}</option>`).join('');
-        }
-
-        async function testEndpoint(url, method, requiresAuth) {
-            const statusId = `status-${url.replace(/\//g, '-')}`;
-            const span = document.getElementById(statusId);
-            if (!span) return;
-            span.textContent = 'Testing...';
-            span.className = 'status-badge status-warning';
-            const start = Date.now();
-            try {
-                const headers = { 'Content-Type': 'application/json' };
-                if (requiresAuth && token) headers['Authorization'] = `Bearer ${token}`;
-                const options = { method, headers };
-                if (method === 'POST' && url === '/api/auth/login') {
-                    options.body = JSON.stringify({ email: 'admin@gipscollege.edu.bw', password: 'Admin123!' });
-                }
-                const res = await fetch(url, options);
-                const elapsed = Date.now() - start;
-                if (res.ok) {
-                    span.textContent = `✓ OK (${elapsed}ms)`;
-                    span.className = 'status-badge status-online';
-                } else {
-                    span.textContent = `✗ Error ${res.status}`;
-                    span.className = 'status-badge status-offline';
-                }
-            } catch (err) {
-                span.textContent = '✗ Offline';
-                span.className = 'status-badge status-offline';
-            }
-            updateStats();
-        }
-
-        async function testAllEndpoints() {
-            for (const ep of endpoints) {
-                await testEndpoint(ep.url, ep.method, ep.auth);
-                await new Promise(r => setTimeout(r, 300));
-            }
-        }
-
-        async function testSelectedEndpoint() {
-            const url = document.getElementById('endpointSelect').value;
-            const ep = endpoints.find(e => e.url === url);
-            if (ep) {
-                await testEndpoint(ep.url, ep.method, ep.auth);
-                await showResponse(ep.url, ep.method, ep.auth);
-            }
-        }
-
-        async function showResponse(url, method, requiresAuth) {
-            const pre = document.getElementById('responseJson');
-            pre.textContent = 'Loading...';
-            try {
-                const headers = { 'Content-Type': 'application/json' };
-                if (requiresAuth && token) headers['Authorization'] = `Bearer ${token}`;
-                const options = { method, headers };
-                if (method === 'POST' && url === '/api/auth/login') {
-                    options.body = JSON.stringify({ email: 'admin@gipscollege.edu.bw', password: 'Admin123!' });
-                }
-                const res = await fetch(url, options);
-                const data = await res.json();
-                pre.textContent = JSON.stringify(data, null, 2);
-            } catch (err) {
-                pre.textContent = `Error: ${err.message}`;
-            }
-        }
-
-        async function updateStats() {
-            try {
-                const start = Date.now();
-                const res = await fetch('/api/health', { headers: { 'Authorization': `Bearer ${token}` } });
-                const elapsed = Date.now() - start;
-                if (res.ok) {
-                    document.getElementById('apiStatus').innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i> Online';
-                    document.getElementById('responseTime').textContent = `${elapsed}ms`;
-                    document.getElementById('uptime').textContent = '99.9%';
-                    const requests = JSON.parse(localStorage.getItem('api_requests') || '[]');
-                    const today = new Date().toDateString();
-                    const todayCount = requests.filter(r => new Date(r.date).toDateString() === today).length;
-                    document.getElementById('requestsToday').textContent = todayCount;
-                } else {
-                    throw new Error('Health check failed');
-                }
-            } catch {
-                document.getElementById('apiStatus').innerHTML = '<i class="fas fa-times-circle" style="color:#ef4444;"></i> Offline';
-                document.getElementById('responseTime').textContent = '--';
-                document.getElementById('uptime').textContent = '--';
-            }
-        }
-
-        function trackRequest() {
-            const requests = JSON.parse(localStorage.getItem('api_requests') || '[]');
-            requests.push({ date: new Date().toISOString() });
-            localStorage.setItem('api_requests', JSON.stringify(requests.slice(-1000)));
-            updateStats();
-        }
-
-        window.testEndpoint = testEndpoint;
-        window.testAllEndpoints = testAllEndpoints;
-        window.testSelectedEndpoint = testSelectedEndpoint;
-
-        renderEndpoints();
-        updateStats();
-        trackRequest();
-        setTimeout(() => testAllEndpoints(), 1000);
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 
 </html>

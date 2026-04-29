@@ -463,6 +463,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -546,183 +576,7 @@
         </div>
     </div>
 
-    <script>
-        // ========== AUTH & GLOBALS ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const userRole = localStorage.getItem('user_role');
-
-        if (!token || (userRole !== 'admin' && userRole !== 'administrator')) window.location.href = 'login.html';
-
-        document.getElementById('adminName').textContent = user.first_name || user.username || 'Admin';
-        document.getElementById('adminAvatar').textContent = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
-        document.getElementById('adminAvatar').addEventListener('click', () => window.location.href = 'admin-profile.html');
-
-        // ========== SIDEBAR TOGGLE (Mobile) ==========
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, { ...options, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers } });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function showMessage(msg, type) {
-            const errDiv = document.getElementById('errorMessage'), infoDiv = document.getElementById('infoMessage');
-            if (type === 'error') {
-                errDiv.textContent = msg; errDiv.style.display = 'block'; infoDiv.style.display = 'none';
-                setTimeout(() => errDiv.style.display = 'none', 5000);
-            } else {
-                infoDiv.textContent = msg; infoDiv.style.display = 'block'; errDiv.style.display = 'none';
-                setTimeout(() => infoDiv.style.display = 'none', 5000);
-            }
-        }
-
-        // ========== LOAD STATS ==========
-        async function loadStats() {
-            const container = document.getElementById('statsGrid');
-            container.innerHTML = '<div class="loading-spinner"></div> Loading statistics...';
-            const res = await safeApiCall('/api/admin/stats');
-            if (res && res.ok) {
-                const stats = await res.json();
-                container.innerHTML = `
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-number">${stats.total_students || 0}</div><div class="stat-label">Total Students</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-tie"></i></div><div class="stat-number">${(stats.staff || 0) + (stats.lecturers || 0)}</div><div class="stat-label">Staff Members</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-number">${stats.pending_registrations || 0}</div><div class="stat-label">Pending Registrations</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-credit-card"></i></div><div class="stat-number">${stats.pending_payments || 0}</div><div class="stat-label">Pending Payments</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-number">${stats.open_tickets || 0}</div><div class="stat-label">Open Tickets</div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-home"></i></div><div class="stat-number">${stats.pending_accommodation || 0}</div><div class="stat-label">Accommodation Apps</div></div>
-                `;
-            } else {
-                container.innerHTML = '<div class="error-banner" style="display:block;">Failed to load statistics</div>';
-                showMessage('Could not load dashboard stats. Check network or backend.', 'error');
-            }
-        }
-
-        // ========== LOAD PENDING STUDENTS ==========
-        async function loadPendingStudents() {
-            const container = document.getElementById('pendingStudentsList');
-            container.innerHTML = '<div class="loading-spinner"></div> Loading student registrations...';
-            const res = await safeApiCall('/api/admin/students?status=pending');
-            if (res && res.ok) {
-                const students = await res.json();
-                const pending = students.filter(s => s.admission_status === 'pending');
-                if (!pending.length) { container.innerHTML = '<div class="approval-item">✅ No pending student registrations.</div>'; return; }
-                container.innerHTML = pending.map(s => `
-                    <div class="approval-item">
-                        <div class="approval-info">
-                            <strong>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</strong>
-                            <span class="badge badge-student">Student</span><br>
-                            <small>${escapeHtml(s.program_name || 'N/A')}</small><br>
-                            <small>${escapeHtml(s.student_number)}</small><br>
-                            <small>${escapeHtml(s.email)}</small>
-                        </div>
-                        <div>
-                            <button class="btn-approve" onclick="approveStudent(${s.id})"><i class="fas fa-check"></i> Approve</button>
-                            <button class="btn-reject" onclick="rejectStudent(${s.id})"><i class="fas fa-times"></i> Reject</button>
-                            <button class="btn-view" onclick="viewStudent(${s.id})"><i class="fas fa-eye"></i> View</button>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<div class="approval-item">❌ Unable to load pending students.</div>';
-            }
-        }
-
-        // ========== LOAD PENDING ACCOMMODATION ==========
-        async function loadPendingAccommodation() {
-            const container = document.getElementById('pendingAccommodationList');
-            container.innerHTML = '<div class="loading-spinner"></div> Loading accommodation applications...';
-            const res = await safeApiCall('/api/accommodation/admin/applications?status=pending');
-            if (res && res.ok) {
-                const apps = await res.json();
-                if (!apps.length) { container.innerHTML = '<div class="approval-item">✅ No pending accommodation applications.</div>'; return; }
-                container.innerHTML = apps.map(app => `
-                    <div class="approval-item">
-                        <div class="approval-info">
-                            <strong>${escapeHtml(app.student_name)}</strong>
-                            <span class="badge badge-accommodation">Accommodation</span><br>
-                            <small>${escapeHtml(app.student_number)}</small><br>
-                            <small>${app.room_type === 'bachelor_pad' ? 'Bachelor Pad' : 'Three-Bed Room'}</small>
-                        </div>
-                        <div>
-                            <button class="btn-approve" onclick="approveAccommodation(${app.id})"><i class="fas fa-check"></i> Approve</button>
-                            <button class="btn-reject" onclick="rejectAccommodation(${app.id})"><i class="fas fa-times"></i> Reject</button>
-                            <button class="btn-view" onclick="viewAccommodation(${app.id})"><i class="fas fa-eye"></i> View</button>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<div class="approval-item">❌ Unable to load accommodation applications.</div>';
-            }
-        }
-
-        // ========== ACTIONS ==========
-        async function approveStudent(id) { if (!confirm('Approve?')) return; const res = await safeApiCall(`/api/admin/students/${id}/approve`, { method: 'POST' }); if (res && res.ok) { showMessage('Student approved!', 'success'); await loadStats(); await loadPendingStudents(); } else showMessage('Failed to approve.', 'error'); }
-        async function rejectStudent(id) { if (!confirm('Reject?')) return; const res = await safeApiCall(`/api/admin/students/${id}/reject`, { method: 'POST' }); if (res && res.ok) { showMessage('Student rejected.', 'error'); await loadStats(); await loadPendingStudents(); } else showMessage('Failed to reject.', 'error'); }
-        async function approveAccommodation(id) { if (!confirm('Approve?')) return; const res = await safeApiCall(`/api/admin/accommodation/applications/${id}/approve`, { method: 'POST' }); if (res && res.ok) { showMessage('Accommodation approved!', 'success'); await loadStats(); await loadPendingAccommodation(); } else showMessage('Failed to approve.', 'error'); }
-        async function rejectAccommodation(id) { if (!confirm('Reject?')) return; const res = await safeApiCall(`/api/admin/accommodation/applications/${id}/reject`, { method: 'POST' }); if (res && res.ok) { showMessage('Accommodation rejected.', 'error'); await loadStats(); await loadPendingAccommodation(); } else showMessage('Failed to reject.', 'error'); }
-        function viewStudent(id) { window.location.href = `admin-students.html?view=${id}`; }
-        function viewAccommodation(id) { window.location.href = `admin-accommodation.html?view=${id}`; }
-
-        // ========== TABS ==========
-        function setupTabs() {
-            const tabs = document.querySelectorAll('.pending-tab');
-            const studentsDiv = document.getElementById('pendingStudentsList'), accomDiv = document.getElementById('pendingAccommodationList');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    if (tab.dataset.tab === 'students') { studentsDiv.style.display = 'block'; accomDiv.style.display = 'none'; }
-                    else { studentsDiv.style.display = 'none'; accomDiv.style.display = 'block'; }
-                });
-            });
-        }
-
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-
-        document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
-
-        window.approveStudent = approveStudent; window.rejectStudent = rejectStudent;
-        window.approveAccommodation = approveAccommodation; window.rejectAccommodation = rejectAccommodation;
-        window.viewStudent = viewStudent; window.viewAccommodation = viewAccommodation;
-
-        loadStats(); loadPendingStudents(); loadPendingAccommodation(); setupTabs();
-        setInterval(() => {
-            loadStats();
-            const active = document.querySelector('.pending-tab.active')?.dataset.tab;
-            if (active === 'students') loadPendingStudents(); else loadPendingAccommodation();
-        }, 60000);
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
-
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
+    
 
 </body>
 

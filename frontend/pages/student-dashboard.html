@@ -595,6 +595,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['student'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="Logo" onerror="this.style.display='none'">
@@ -822,264 +852,8 @@
             style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
     </div>
 
-    <script>
-        // ========== UTILITIES ==========
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
-            if (!token) { window.location.href = 'login.html'; return null; }
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return response;
-            } catch (error) { console.error(error); return null; }
-        }
+    
 
-        const token = localStorage.getItem('access_token');
-        if (!token) window.location.href = 'login.html';
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        document.getElementById('studentName').textContent = user.first_name || user.email?.split('@')[0] || 'Student';
-        document.getElementById('studentEmail').textContent = user.email || '-';
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-        // ========== WEATHER WIDGET (Free IP + Open-Meteo) ==========
-        async function loadWeather() {
-            const weatherDiv = document.getElementById('weatherContent');
-            try {
-                const geoRes = await fetch('https://ipapi.co/json/');
-                if (!geoRes.ok) throw new Error('Geolocation failed');
-                const geo = await geoRes.json();
-                const { city, region, latitude, longitude } = geo;
-                if (!latitude || !longitude) throw new Error('Coordinates missing');
-
-                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=3`);
-                if (!weatherRes.ok) throw new Error('Weather API failed');
-                const w = await weatherRes.json();
-                const current = w.current_weather;
-                const daily = w.daily;
-
-                function getWeatherIconAndDesc(code) {
-                    if (code === 0) return { icon: '<i class="fas fa-sun"></i>', desc: 'Clear sky' };
-                    if (code === 1) return { icon: '<i class="fas fa-sun"></i>', desc: 'Mainly clear' };
-                    if (code === 2) return { icon: '<i class="fas fa-cloud-sun"></i>', desc: 'Partly cloudy' };
-                    if (code === 3) return { icon: '<i class="fas fa-cloud"></i>', desc: 'Overcast' };
-                    if (code >= 45 && code <= 48) return { icon: '<i class="fas fa-smog"></i>', desc: 'Fog' };
-                    if (code >= 51 && code <= 55) return { icon: '<i class="fas fa-cloud-drizzle"></i>', desc: 'Drizzle' };
-                    if (code >= 61 && code <= 67) return { icon: '<i class="fas fa-cloud-rain"></i>', desc: 'Rain' };
-                    if (code >= 71 && code <= 77) return { icon: '<i class="fas fa-snowflake"></i>', desc: 'Snow' };
-                    if (code >= 80 && code <= 82) return { icon: '<i class="fas fa-cloud-showers-heavy"></i>', desc: 'Showers' };
-                    if (code >= 95 && code <= 99) return { icon: '<i class="fas fa-bolt"></i>', desc: 'Thunderstorm' };
-                    return { icon: '<i class="fas fa-cloud-moon"></i>', desc: 'Cloudy' };
-                }
-
-                const currentWeather = getWeatherIconAndDesc(current.weathercode);
-                const tempUnit = current.temperature_units === '°C' ? '°C' : '°F';
-                const windUnit = current.wind_units || 'km/h';
-
-                let forecastHtml = '<div class="forecast-container">';
-                for (let i = 0; i < daily.time.length; i++) {
-                    const date = new Date(daily.time[i]);
-                    const dayName = i === 0 ? 'Today' : date.toLocaleDateString(undefined, { weekday: 'short' });
-                    const maxTemp = Math.round(daily.temperature_2m_max[i]);
-                    const minTemp = Math.round(daily.temperature_2m_min[i]);
-                    const { icon } = getWeatherIconAndDesc(daily.weathercode[i]);
-                    forecastHtml += `<div class="forecast-day"><div class="day">${dayName}</div>${icon}<div class="forecast-temp">${maxTemp}°<span class="forecast-temp-min">${minTemp}°</span></div></div>`;
-                }
-                forecastHtml += '</div>';
-
-                weatherDiv.innerHTML = `
-                    <div class="weather-header">
-                        <div class="weather-location"><i class="fas fa-map-marker-alt"></i> ${city || 'Unknown'}, ${region || ''}</div>
-                        <div class="weather-temp">${Math.round(current.temperature)}${tempUnit} ${currentWeather.icon}</div>
-                    </div>
-                    <div class="weather-details">
-                        <div><i class="fas fa-tachometer-alt"></i> Feels like: ${Math.round(current.windchill || current.temperature)}°</div>
-                        <div><i class="fas fa-wind"></i> Wind: ${current.windspeed} ${windUnit}</div>
-                        <div><i class="fas fa-cloud-sun"></i> ${currentWeather.desc}</div>
-                    </div>
-                    ${forecastHtml}
-                    <div style="font-size:0.7rem; margin-top:10px; text-align:right; opacity:0.7;"><i class="fas fa-sync-alt"></i> Live weather</div>
-                `;
-            } catch (err) {
-                console.error('Weather error:', err);
-                weatherDiv.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Could not load weather. Please refresh later.</p>';
-            }
-        }
-
-        // ========== NEWS FETCHER (RSS2JSON, free, no API key) ==========
-        async function loadCourseNews(programName) {
-            const newsContainer = document.getElementById('newsContent');
-            if (!newsContainer) return;
-            // Map program name to relevant RSS feeds
-            const feedMap = {
-                'computer science': 'http://rss.cnn.com/rss/edition_technology.rss',
-                'information technology': 'https://www.wired.com/feed/rss',
-                'software engineering': 'https://www.zdnet.com/news/rss.xml',
-                'business': 'https://feeds.bloomberg.com/markets/news.rss',
-                'economics': 'https://www.economist.com/feeds/print-sections/77/business.xml',
-                'engineering': 'https://www.sciencedaily.com/rss/top/engineering.xml',
-                'accounting': 'https://www.accountingtoday.com/rss.xml',
-                'marketing': 'https://www.marketingweek.com/feed/',
-                'law': 'https://www.abajournal.com/feed/',
-                'medicine': 'https://www.medicalnewstoday.com/feeds/news.rss',
-                'nursing': 'https://nursing.medscape.com/nursing/rss/news',
-                'education': 'https://www.edweek.org/feed/rss',
-                'default': 'https://www.bbc.com/news/technology/rss.xml'
-            };
-            const normalized = programName.toLowerCase();
-            let feedUrl = feedMap.default;
-            for (const [key, url] of Object.entries(feedMap)) {
-                if (normalized.includes(key)) {
-                    feedUrl = url;
-                    break;
-                }
-            }
-            try {
-                const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error('News fetch failed');
-                const data = await response.json();
-                const items = data.items || [];
-                if (items.length === 0) {
-                    newsContainer.innerHTML = '<p>No recent headlines found for your field of study.</p>';
-                    return;
-                }
-                let html = '<ul class="news-list">';
-                items.slice(0, 5).forEach(item => {
-                    const title = item.title.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-                    const link = item.link;
-                    const pubDate = new Date(item.pubDate).toLocaleDateString();
-                    html += `
-                        <li class="news-item">
-                            <a href="${link}" target="_blank" rel="noopener noreferrer" class="news-title">${escapeHtml(title)}</a>
-                            <div class="news-meta"><i class="fas fa-calendar-alt"></i> ${pubDate}</div>
-                        </li>
-                    `;
-                });
-                html += '</ul>';
-                newsContainer.innerHTML = html;
-            } catch (err) {
-                console.error('News error:', err);
-                newsContainer.innerHTML = '<p>Unable to load headlines at this time. Please try again later.</p>';
-            }
-        }
-
-        // ========== DASHBOARD DATA LOAD ==========
-        async function loadDashboardData() {
-            const response = await safeApiCall('/api/students/dashboard');
-            if (!response || !response.ok) return;
-            const data = await response.json();
-            document.getElementById('currentGPA').textContent = data.current_gpa?.toFixed(2) || '0.00';
-            document.getElementById('creditsEarned').textContent = data.credits_earned || '0';
-            document.getElementById('courseCount').textContent = data.current_courses?.length || '0';
-            document.getElementById('registeredExams').textContent = data.registered_exams || '0';
-            document.getElementById('examFeesDue').textContent = `P ${data.exam_fees_due?.toFixed(2) || '0.00'}`;
-            document.getElementById('completionProgress').style.width = `${data.completion_percent || 0}%`;
-            document.getElementById('completionPercent').textContent = `${data.completion_percent || 0}%`;
-            document.getElementById('studentNumber').textContent = data.student_number || '-';
-            document.getElementById('programName').textContent = data.program_name || '-';
-            document.getElementById('campusName').textContent = data.campus_name || '-';
-            document.getElementById('academicStatus').textContent = data.academic_status || 'Good Standing';
-            document.getElementById('yearOfStudy').textContent = data.current_year || '1';
-            const sponsorshipSpan = document.getElementById('sponsorshipType');
-            sponsorshipSpan.innerHTML = data.is_government_sponsored ? 'Government Sponsored <span class="exempted-badge">Exempted</span>' : 'Self Sponsored';
-            document.getElementById('accommodationStatus').textContent = data.accommodation_status || 'Not Applied';
-            document.getElementById('roomNumber').textContent = data.room_number || '-';
-            document.getElementById('blockName').textContent = data.block_name || '-';
-
-            const totalFees = data.total_fees || 0;
-            const paidAmount = data.paid_amount || 0;
-            const outstanding = data.outstanding_balance || 0;
-            document.getElementById('outstandingBalance').textContent = `P ${outstanding.toFixed(2)}`;
-            const paymentSpan = document.getElementById('paymentStatus');
-            if (data.is_government_sponsored) paymentSpan.innerHTML = data.exam_fees_due > 0 ? 'Exam Fees Due' : 'Exempted';
-            else paymentSpan.innerHTML = outstanding > 0 ? 'Balance Due' : 'Fully Paid';
-
-            document.getElementById('feeBreakdownContainer').innerHTML = `<div class="fee-breakdown"><div class="fee-item"><span>Total Fees:</span><span>P ${totalFees.toFixed(2)}</span></div><div class="fee-item"><span>Paid:</span><span>P ${paidAmount.toFixed(2)}</span></div><div class="fee-total"><span>Outstanding:</span><span>P ${outstanding.toFixed(2)}</span></div></div>`;
-            const trendSpan = document.getElementById('gpaTrend');
-            if (data.gpa_trend === 'up') { trendSpan.textContent = '↑ Improving'; trendSpan.className = 'stat-trend trend-up'; }
-            else if (data.gpa_trend === 'down') { trendSpan.textContent = '↓ Declining'; trendSpan.className = 'stat-trend trend-down'; }
-            else { trendSpan.textContent = '→ Stable'; trendSpan.className = 'stat-trend trend-steady'; }
-
-            const banner = document.getElementById('infoBanner');
-            if (data.is_government_sponsored) { banner.innerHTML = '<i class="fas fa-info-circle"></i> You are a government-sponsored student. Tuition & registration are exempt.'; banner.style.display = 'flex'; }
-            else banner.style.display = 'none';
-
-            // Trigger news feed after program name is displayed
-            const progName = document.getElementById('programName').innerText;
-            if (progName && progName !== '-') {
-                loadCourseNews(progName);
-            }
-        }
-
-        async function loadCurrentCourses() {
-            const response = await safeApiCall('/api/students/my-modules');
-            if (!response || !response.ok) return;
-            const data = await response.json();
-            const courses = data.modules || [];
-            const container = document.getElementById('currentCoursesList');
-            if (courses.length === 0) { container.innerHTML = '<p class="info-item">No courses registered.</p>'; return; }
-            let html = '';
-            for (const course of courses) {
-                let meeting = { is_active: false, meeting_link: null };
-                try {
-                    const meetingRes = await safeApiCall(`/api/classes/course/${course.id}/meeting`);
-                    if (meetingRes && meetingRes.ok) meeting = await meetingRes.json();
-                } catch (e) { }
-                const isLive = meeting.is_active === true;
-                const meetingLink = meeting.meeting_link;
-                html += `<div class="course-item"><div class="course-header"><span class="course-code">${escapeHtml(course.code)}</span><span class="course-credits">${course.credits} cr</span></div><div class="course-name">${escapeHtml(course.name)}</div><div class="meeting-status-student">${isLive ? `<span class="meeting-active-badge"><i class="fas fa-video"></i> Live</span><button class="btn-join-meeting" onclick="openMeeting('${meetingLink}', '${escapeHtml(course.name)}')">Join</button>` : `<span class="meeting-inactive-badge"><i class="fas fa-video-slash"></i> No active session</span>`}</div></div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        async function loadUpcomingClasses() {
-            const container = document.getElementById('upcomingClassesList');
-            const response = await safeApiCall('/api/students/online-classes');
-            if (!response || !response.ok) { container.innerHTML = '<p>Unable to load.</p>'; return; }
-            const data = await response.json();
-            const meetings = data.meetings || [];
-            if (meetings.length === 0) { container.innerHTML = '<p>No upcoming classes.</p>'; return; }
-            let html = '';
-            meetings.forEach(m => {
-                const startTime = new Date(m.scheduled_start).toLocaleString();
-                html += `<div class="online-class-card"><div class="online-class-title"><span>${escapeHtml(m.course_name)} (${escapeHtml(m.course_code)})</span><span class="online-class-duration">${m.duration_minutes} min</span></div><div class="online-class-details"><i class="fas fa-chalkboard-teacher"></i> ${m.meeting_platform}</div><div class="online-class-time"><i class="fas fa-calendar-alt"></i> ${startTime}</div><button class="btn-join-scheduled" onclick="openMeeting('${m.meeting_link}', '${escapeHtml(m.course_name)}')"><i class="fas fa-video"></i> Join</button></div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        async function loadRecentActivity() {
-            const container = document.getElementById('activityList');
-            const response = await safeApiCall('/api/students/activity');
-            if (!response || !response.ok) { container.innerHTML = '<p>Activity unavailable.</p>'; return; }
-            const activities = await response.json();
-            const activityList = activities.activities || [];
-            if (activityList.length === 0) { container.innerHTML = '<div class="info-item">No recent activity</div>'; return; }
-            container.innerHTML = activityList.map(act => `<div class="activity-item"><div class="activity-icon"><i class="fas ${act.icon || 'fa-bell'}"></i></div><div><div class="activity-desc">${escapeHtml(act.description)}</div><div class="activity-date">${new Date(act.date).toLocaleString()}</div></div></div>`).join('');
-        }
-
-        function openMeeting(link, name) { if (!link) { alert('Meeting link not available.'); return; } document.getElementById('meetingCourseName').textContent = name; document.getElementById('meetingIframe').src = link; document.getElementById('meetingModal').style.display = 'flex'; }
-        function closeMeetingModal() { document.getElementById('meetingIframe').src = ''; document.getElementById('meetingModal').style.display = 'none'; }
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-        document.getElementById('logoutLink').addEventListener('click', async (e) => { e.preventDefault(); await safeApiCall('/api/auth/logout', { method: 'POST' }); localStorage.clear(); window.location.href = 'login.html'; });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMeetingModal(); });
-
-        async function init() {
-            loadWeather();
-            await loadDashboardData();
-            await loadCurrentCourses();
-            await loadUpcomingClasses();
-            await loadRecentActivity();
-        }
-        init();
-        setInterval(() => { if (!document.hidden) { loadDashboardData(); loadRecentActivity(); loadCurrentCourses(); loadUpcomingClasses(); loadWeather(); } }, 60000);
-
-        // Cookie consent
-        if (!localStorage.getItem('cookieConsent')) document.getElementById('cookieBanner').style.display = 'block';
-        window.acceptCookies = () => { localStorage.setItem('cookieConsent', 'true'); document.getElementById('cookieBanner').style.display = 'none'; };
-    </script>
 </body>
 
 </html>

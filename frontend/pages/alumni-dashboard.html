@@ -402,6 +402,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['alumni'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="congrats-ticker">
         <div class="ticker-content">
             <i class="fas fa-graduation-cap"></i> Congratulations on your journey, Alumni!
@@ -506,149 +536,8 @@
 </div>
     </footer>
 
-    <script>
-        // ========== AUTH ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
 
-        if (!token) window.location.href = 'login.html';
-
-        document.getElementById('alumniName').innerText = user.first_name || user.username || 'Alumni';
-
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function showError(containerId, message) {
-            const container = document.getElementById(containerId);
-            if (container) container.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
-        }
-
-        // ========== PROFILE ==========
-        async function loadProfile() {
-            const container = document.getElementById('profileInfo');
-            const res = await safeApiCall('/api/alumni/profile');
-            if (res && res.ok) {
-                const data = await res.json();
-                container.innerHTML = `
-                    <div class="info-item"><label><i class="fas fa-check-circle"></i> Status</label><span class="info-value"><span class="badge badge-alumni">✓ Verified Alumni</span></span></div>
-                    <div class="info-item"><label><i class="fas fa-calendar-alt"></i> Graduation Year</label><span class="info-value">${data.graduation_year || 'Not set'}</span></div>
-                    <div class="info-item"><label><i class="fas fa-briefcase"></i> Current Job</label><span class="info-value">${data.job_title || 'Not specified'}</span></div>
-                    <div class="info-item"><label><i class="fas fa-building"></i> Company</label><span class="info-value">${data.company || 'Not specified'}</span></div>
-                    <div class="info-item"><label><i class="fas fa-envelope"></i> Email</label><span class="info-value">${data.email || user.email}</span></div>
-                    <div class="info-item"><label><i class="fas fa-id-badge"></i> Student Number</label><span class="info-value">${data.student_number || 'N/A'}</span></div>
-                `;
-            } else {
-                showError('profileInfo', 'Could not load profile. Please try again later.');
-            }
-        }
-
-        // ========== STATS ==========
-        async function loadStats() {
-            const res = await safeApiCall('/api/alumni/stats');
-            if (res && res.ok) {
-                const stats = await res.json();
-                document.getElementById('connectionsCount').innerText = stats.connections || 0;
-                document.getElementById('jobsApplied').innerText = stats.jobs_applied || 0;
-                document.getElementById('eventsAttended').innerText = stats.events_attended || 0;
-                document.getElementById('postsCount').innerText = stats.posts || 0;
-            } else {
-                // fallback to zeros (no hardcoded fake numbers)
-                document.getElementById('connectionsCount').innerText = '0';
-                document.getElementById('jobsApplied').innerText = '0';
-                document.getElementById('eventsAttended').innerText = '0';
-                document.getElementById('postsCount').innerText = '0';
-            }
-        }
-
-        // ========== ACTIVITY ==========
-        async function loadActivity() {
-            const container = document.getElementById('activityList');
-            const res = await safeApiCall('/api/alumni/activity?limit=5');
-            if (res && res.ok) {
-                const activities = await res.json();
-                if (!activities.length) {
-                    container.innerHTML = '<div class="info-item">No recent activity.</div>';
-                    return;
-                }
-                container.innerHTML = activities.map(a => `
-                    <div class="info-item">
-                        <div><strong><i class="fas fa-${a.icon || 'bell'}"></i> ${escapeHtml(a.title)}</strong></div>
-                        <div style="font-size:0.8rem; color:#475569;">${escapeHtml(a.message)}</div>
-                        <div style="font-size:0.7rem; color:#94a3b8;"><i class="fas fa-clock"></i> ${new Date(a.created_at).toLocaleDateString()}</div>
-                    </div>
-                `).join('');
-            } else {
-                showError('activityList', 'Unable to load recent activity.');
-            }
-        }
-
-        // ========== JOB RECOMMENDATIONS ==========
-        async function loadJobs() {
-            const container = document.getElementById('jobList');
-            const res = await safeApiCall('/api/alumni/jobs/recommended?limit=3');
-            if (res && res.ok) {
-                const jobs = await res.json();
-                if (!jobs.length) {
-                    container.innerHTML = '<div class="info-item">No job recommendations at the moment.</div>';
-                    return;
-                }
-                container.innerHTML = jobs.map(j => `
-                    <div class="info-item" style="flex-direction:column; align-items:flex-start;">
-                        <div><strong><i class="fas fa-briefcase"></i> ${escapeHtml(j.title)}</strong></div>
-                        <div style="font-size:0.8rem;"><i class="fas fa-building"></i> ${escapeHtml(j.company)} • ${j.location || 'Any location'}</div>
-                        <div style="font-size:0.75rem;"><span class="badge" style="background:#10b98120; color:#065f46;">P ${j.salary_range || 'Negotiable'}</span></div>
-                        <button class="btn-sm" onclick="alert('Apply feature coming soon')"><i class="fas fa-paper-plane"></i> Apply</button>
-                    </div>
-                `).join('');
-            } else {
-                showError('jobList', 'Could not load job recommendations.');
-            }
-        }
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== HELPER ==========
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ========== INIT ==========
-        loadProfile();
-        loadStats();
-        loadActivity();
-        loadJobs();
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 
 </html>

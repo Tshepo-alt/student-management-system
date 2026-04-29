@@ -410,6 +410,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['admin', 'administrator'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <div class="admin-wrapper">
         <!-- Sidebar (consistent with other admin pages) -->
         <div class="sidebar" id="sidebar">
@@ -489,181 +519,7 @@
         </div>
     </div>
 
-    <script>
-        // ========== AUTH & DOM ELEMENTS ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const isLoggedInFlag = localStorage.getItem('isLoggedIn');
-
-        // Avatar
-        const initial = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
-        document.getElementById('adminAvatar').textContent = initial;
-
-        // Sidebar toggle (mobile)
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // ========== HELPER: Safe API call (no redirect) ==========
-        async function testApiCall(endpoint) {
-            const accessToken = localStorage.getItem('access_token');
-            if (!accessToken) return { error: 'No token found in localStorage' };
-            try {
-                const res = await fetch(endpoint, {
-                    headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }
-                });
-                if (res.status === 401) return { error: '401 Unauthorized – token invalid/expired' };
-                if (!res.ok) return { error: `HTTP ${res.status} – ${res.statusText}` };
-                const data = await res.json();
-                return { success: true, data, status: res.status };
-            } catch (err) {
-                return { error: err.message };
-            }
-        }
-
-        // ========== RENDER AUTH STATUS ==========
-        function renderAuthStatus() {
-            const container = document.getElementById('authStatus');
-            if (!token) {
-                container.innerHTML = `<div class="error"><i class="fas fa-times-circle"></i> No access token found. Please login first.</div>
-                                   <div style="margin-top:12px"><a href="login.html" class="btn btn-primary" style="text-decoration:none"><i class="fas fa-sign-in-alt"></i> Go to Login</a></div>`;
-                return;
-            }
-            if (isLoggedInFlag !== 'true') {
-                container.innerHTML = `<div class="warning"><i class="fas fa-exclamation-triangle"></i> isLoggedIn flag is not set to 'true' in localStorage. Manual flag may be missing.</div>`;
-            } else {
-                const tokenPreview = token.length > 45 ? token.substring(0, 45) + '…' : token;
-                container.innerHTML = `<div class="success"><i class="fas fa-check-circle"></i> Token present and isLoggedIn = true</div>
-                                   <div class="info-grid" style="margin-top:16px">
-                                        <div class="info-item"><i class="fas fa-key"></i><div><div class="label">Token (preview)</div><div class="value">${escapeHtml(tokenPreview)}</div></div></div>
-                                        <div class="info-item"><i class="fas fa-toggle-on"></i><div><div class="label">isLoggedIn</div><div class="value">${isLoggedInFlag}</div></div></div>
-                                   </div>`;
-            }
-        }
-
-        function renderUserInfo() {
-            const container = document.getElementById('userInfo');
-            if (!user || Object.keys(user).length === 0) {
-                container.innerHTML = `<div class="warning"><i class="fas fa-info-circle"></i> No user data stored in localStorage.</div>`;
-                return;
-            }
-            container.innerHTML = `
-            <div class="info-grid">
-                <div class="info-item"><i class="fas fa-envelope"></i><div><div class="label">Email / Username</div><div class="value">${escapeHtml(user.email || user.username || 'N/A')}</div></div></div>
-                <div class="info-item"><i class="fas fa-user-tag"></i><div><div class="label">Role</div><div class="value">${escapeHtml(user.role || 'N/A')}</div></div></div>
-                <div class="info-item"><i class="fas fa-id-card"></i><div><div class="label">User ID</div><div class="value">${user.id || 'N/A'}</div></div></div>
-                <div class="info-item"><i class="fas fa-calendar-alt"></i><div><div class="label">First name</div><div class="value">${escapeHtml(user.first_name || '—')}</div></div></div>
-                <div class="info-item"><i class="fas fa-calendar-alt"></i><div><div class="label">Last name</div><div class="value">${escapeHtml(user.last_name || '—')}</div></div></div>
-            </div>
-        `;
-        }
-
-        // ========== FETCH STATS ==========
-        async function refreshStats() {
-            const statsDiv = document.getElementById('statsResult');
-            statsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Fetching /api/admin/stats...</div>';
-
-            const result = await testApiCall('/api/admin/stats');
-            if (result.success) {
-                statsDiv.innerHTML = `
-                <div class="success"><i class="fas fa-check-circle"></i> API responded with status ${result.status}</div>
-                <pre>${JSON.stringify(result.data, null, 2)}</pre>
-                <div class="warning" style="margin-top:12px"><i class="fas fa-info-circle"></i> Note: If you see demo data below, the API might be mocked, but authentication passed.</div>
-            `;
-            } else {
-                // Provide demo stats for visual feedback (but show error clearly)
-                statsDiv.innerHTML = `
-                <div class="error"><i class="fas fa-exclamation-triangle"></i> Stats API failed: ${escapeHtml(result.error)}</div>
-                <div class="info-grid" style="margin-top:16px">
-                    <div class="info-item"><i class="fas fa-users"></i><div><div class="label">Total Students (demo)</div><div class="value">1,245</div></div></div>
-                    <div class="info-item"><i class="fas fa-user-tie"></i><div><div class="label">Staff (demo)</div><div class="value">87</div></div></div>
-                    <div class="info-item"><i class="fas fa-book-open"></i><div><div class="label">Programs (demo)</div><div class="value">14</div></div></div>
-                    <div class="info-item"><i class="fas fa-hourglass-half"></i><div><div class="label">Pending Approvals</div><div class="value">3</div></div></div>
-                </div>
-                <div class="warning"><i class="fas fa-database"></i> Demo data shown because API call failed, but your token is valid (no auto-logout).</div>
-            `;
-            }
-        }
-
-        // ========== DEBUG INFO ==========
-        function renderDebugInfo() {
-            const debugDiv = document.getElementById('debugInfo');
-            const localStorageKeys = Object.keys(localStorage);
-            const now = new Date();
-            debugDiv.innerHTML = `
-            <div class="info-grid">
-                <div class="info-item"><i class="fas fa-link"></i><div><div class="label">Current URL</div><div class="value">${escapeHtml(window.location.href)}</div></div></div>
-                <div class="info-item"><i class="fas fa-database"></i><div><div class="label">LocalStorage keys</div><div class="value">${localStorageKeys.join(', ') || 'none'}</div></div></div>
-                <div class="info-item"><i class="fas fa-clock"></i><div><div class="label">Timestamp</div><div class="value">${now.toLocaleString()}</div></div></div>
-                <div class="info-item"><i class="fas fa-globe"></i><div><div class="label">User Agent</div><div class="value" style="font-size:0.7rem">${escapeHtml(navigator.userAgent.substring(0, 80))}…</div></div></div>
-            </div>
-            <div style="margin-top:16px"><strong>Full localStorage content:</strong></div>
-            <pre>${JSON.stringify(localStorage, null, 2)}</pre>
-            <div style="margin-top:16px"><strong>Full user object from localStorage:</strong></div>
-            <pre>${JSON.stringify(user, null, 2)}</pre>
-        `;
-        }
-
-        // ========== LOGOUT ==========
-        function logout() {
-            localStorage.clear();
-            alert('Session cleared. Redirecting to login page.');
-            window.location.href = 'login.html';
-        }
-
-        // ========== INIT PAGE ==========
-        function init() {
-            renderAuthStatus();
-            renderUserInfo();
-            refreshStats();
-            renderDebugInfo();
-        }
-
-        init();
-
-        // Event listeners
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            logout();
-        });
-
-        window.refreshStats = refreshStats;
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>]/g, function (m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
-
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
+    
 
 </body>
 

@@ -8,13 +8,6 @@
     <link rel="manifest" href="/favicon/site.webmanifest">
     <meta name="theme-color" content="#667eea">
     <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Registrar Dashboard - GIPS College</title>
@@ -333,6 +326,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['registrar'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -341,6 +364,8 @@
                 <li><a href="registrar-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i>
                         Dashboard</a></li>
                 <li><a href="registrar-students.html" class="nav-link"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="registrar-registrations.html" class="nav-link"><i class="fas fa-clipboard-list"></i>
+                        Semester Registrations</a></li>
                 <li><a href="registrar-documents.html" class="nav-link"><i class="fas fa-file-alt"></i> Documents</a>
                 </li>
                 <li><a href="registrar-reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
@@ -355,13 +380,17 @@
     <div class="container">
         <div class="dashboard-header">
             <h1><i class="fas fa-user-graduate"></i> Welcome, <span id="registrarName">Registrar</span>!</h1>
-            <p>Manage student admissions, document verification, academic records, and staff queries.</p>
+            <p>Manage student admissions, semester registrations, document verification, and academic records.</p>
         </div>
 
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <div class="stat-number" id="totalStudents">--</div>
                 <div class="stat-label"><i class="fas fa-users"></i> Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingSemesterReg">--</div>
+                <div class="stat-label"><i class="fas fa-clipboard-list"></i> Pending Semester Registrations</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="pendingAdmissions">--</div>
@@ -378,12 +407,14 @@
             <div class="action-buttons">
                 <a href="registrar-students.html?action=add" class="action-btn"><i class="fas fa-user-plus"></i> Add New
                     Student</a>
+                <a href="registrar-registrations.html" class="action-btn"><i class="fas fa-check-double"></i> Approve
+                    Semester Registrations</a>
                 <a href="registrar-students.html?status=pending" class="action-btn"><i
-                        class="fas fa-clipboard-list"></i> Review Applications</a>
-                <a href="registrar-documents.html" class="action-btn"><i class="fas fa-file-upload"></i> Manage
+                        class="fas fa-clipboard-list"></i> Review Admissions</a>
+                <a href="registrar-documents.html" class="action-btn"><i class="fas fa-file-upload"></i> Verify
                     Documents</a>
                 <a href="registrar-reports.html" class="action-btn"><i class="fas fa-chart-line"></i> Generate
-                    Report</a>
+                    Reports</a>
             </div>
         </div>
 
@@ -399,166 +430,15 @@
         <div class="container">
             <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-clipboard-list"></i> Registrar Portal | Academic Records Management</p>
-        
             <div style="margin-top: 8px;">
                 <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
                 <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
             </div>
-</div>
+        </div>
     </footer>
 
-    <script>
-        // ========== AUTHENTICATION ==========
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!token) window.location.href = 'login.html';
-        if (user.role !== 'registrar') window.location.href = 'student-dashboard.html';
+    
 
-        document.getElementById('registrarName').textContent = user.first_name || user.username || 'Registrar';
-
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function showMessage(msg, type) {
-            const msgDiv = document.createElement('div');
-            msgDiv.style.position = 'fixed';
-            msgDiv.style.top = '20px';
-            msgDiv.style.right = '20px';
-            msgDiv.style.zIndex = '2000';
-            msgDiv.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
-            msgDiv.style.color = 'white';
-            msgDiv.style.padding = '12px 20px';
-            msgDiv.style.borderRadius = '12px';
-            msgDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-            msgDiv.style.display = 'flex';
-            msgDiv.style.alignItems = 'center';
-            msgDiv.style.gap = '8px';
-            msgDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${msg}`;
-            document.body.appendChild(msgDiv);
-            setTimeout(() => msgDiv.remove(), 3000);
-        }
-
-        // ========== LOAD STATISTICS ==========
-        async function loadStats() {
-            const res = await safeApiCall('/api/admin/stats');
-            if (res && res.ok) {
-                const data = await res.json();
-                document.getElementById('totalStudents').textContent = data.total_students || 0;
-                document.getElementById('pendingAdmissions').textContent = data.pending_registrations || 0;
-                document.getElementById('graduating').textContent = data.graduating_this_year || 0;
-            } else {
-                document.getElementById('totalStudents').textContent = '0';
-                document.getElementById('pendingAdmissions').textContent = '0';
-                document.getElementById('graduating').textContent = '0';
-            }
-        }
-
-        // ========== LOAD PENDING ADMISSIONS (students with admission_status = 'pending') ==========
-        async function loadPendingAdmissions() {
-            const container = document.getElementById('pendingList');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading pending admissions...</div>';
-            const res = await safeApiCall('/api/admin/students?status=pending');
-            if (res && res.ok) {
-                const students = await res.json();
-                const pending = students.filter(s => s.admission_status === 'pending');
-                if (pending.length === 0) {
-                    container.innerHTML = '<div class="approval-item"><i class="fas fa-check-circle"></i> No pending admissions.</div>';
-                    return;
-                }
-                container.innerHTML = pending.map(s => `
-                    <div class="approval-item">
-                        <div class="approval-info">
-                            <strong>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</strong>
-                            <small>${escapeHtml(s.student_number)}</small>
-                            <small>${escapeHtml(s.program_name || 'N/A')}</small>
-                        </div>
-                        <div>
-                            <button class="btn-approve" onclick="approveAdmission(${s.id})"><i class="fas fa-check"></i> Approve Admission</button>
-                            <button class="btn-reject" onclick="rejectAdmission(${s.id})"><i class="fas fa-times"></i> Reject</button>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<div class="error-message" style="display:block;">Unable to load pending admissions. Please try again later.</div>';
-            }
-        }
-
-        // ========== APPROVE ADMISSION (using correct endpoint) ==========
-        async function approveAdmission(studentId) {
-            if (!confirm('Approve this student\'s admission?')) return;
-            const res = await safeApiCall(`/api/admin/students/${studentId}/approve-admission`, { method: 'POST' });
-            if (res && res.ok) {
-                showMessage('✅ Admission approved! Student can now register for semester.', 'success');
-                await loadStats();
-                await loadPendingAdmissions();
-            } else {
-                let errorMsg = 'Failed to approve admission.';
-                if (res && res.status === 400) {
-                    const err = await res.json();
-                    errorMsg = err.error || errorMsg;
-                }
-                showMessage(errorMsg, 'error');
-            }
-        }
-
-        // ========== REJECT ADMISSION ==========
-        async function rejectAdmission(studentId) {
-            if (!confirm('Reject this student\'s admission? This action cannot be undone.')) return;
-            const res = await safeApiCall(`/api/admin/students/${studentId}/reject`, { method: 'POST' });
-            if (res && res.ok) {
-                showMessage('❌ Admission rejected.', 'error');
-                await loadStats();
-                await loadPendingAdmissions();
-            } else {
-                showMessage('Failed to reject admission.', 'error');
-            }
-        }
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Expose functions for inline onclick
-        window.approveAdmission = approveAdmission;
-        window.rejectAdmission = rejectAdmission;
-
-        // ========== INIT ==========
-        loadStats();
-        loadPendingAdmissions();
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 
 </html>

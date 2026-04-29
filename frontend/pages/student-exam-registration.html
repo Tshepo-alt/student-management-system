@@ -316,6 +316,36 @@
 </head>
 
 <body>
+
+<script>
+// ========== ROLE CHECK ==========
+(function() {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role || localStorage.getItem('user_role');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const allowedRoles = ['student'];
+    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+        const roleRedirects = {
+            'admin': 'admin-dashboard.html',
+            'administrator': 'admin-dashboard.html',
+            'registrar': 'registrar-dashboard.html',
+            'finance': 'finance-dashboard.html',
+            'lecturer': 'lecturer-dashboard.html',
+            'staff': 'staff-dashboard.html',
+            'student': 'student-dashboard.html',
+            'alumni': 'alumni-dashboard.html'
+        };
+        const target = roleRedirects[userRole] || 'student-dashboard.html';
+        window.location.href = target;
+        return;
+    }
+})();
+</script>
+
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -385,183 +415,8 @@
 </div>
     </footer>
 
-    <script>
-        // ========== AUTHENTICATION ==========
-        const token = localStorage.getItem('access_token');
-        if (!token) window.location.href = 'login.html';
+    
 
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function showMessage(msg, type) {
-            const msgDiv = document.getElementById('message');
-            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
-            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-            msgDiv.style.display = 'block';
-            setTimeout(() => msgDiv.style.display = 'none', 5000);
-        }
-
-        // ========== LOAD DATA FROM BACKEND ==========
-        async function loadExamData() {
-            // Load sponsorship info
-            const dashboardRes = await safeApiCall('/api/students/dashboard');
-            let isGovSponsored = false;
-            if (dashboardRes && dashboardRes.ok) {
-                const data = await dashboardRes.json();
-                isGovSponsored = data.is_government_sponsored || false;
-                const banner = document.getElementById('infoBanner');
-                if (isGovSponsored) {
-                    banner.innerHTML = '<i class="fas fa-hand-holding-heart"></i> You are a government-sponsored student. Tuition is exempt, but you must pay exam fees for supplementary/resit/retake (P300 per supplementary, P600 per resit, P1000 per retake).';
-                    banner.style.display = 'flex';
-                } else {
-                    banner.style.display = 'none';
-                }
-            }
-
-            // Load current modules (enrolled courses)
-            const coursesRes = await safeApiCall('/api/students/my-modules');
-            if (coursesRes && coursesRes.ok) {
-                const data = await coursesRes.json();
-                const modules = data.modules || [];
-                renderCurrentModules(modules);
-            } else {
-                document.getElementById('currentModulesList').innerHTML = '<div class="loading">Unable to load current modules.</div>';
-            }
-
-            // Load failed modules (supplementary/retake eligible)
-            const failedRes = await safeApiCall('/api/students/failed-modules');
-            if (failedRes && failedRes.ok) {
-                const failedModules = await failedRes.json();
-                renderFailedModules(failedModules, isGovSponsored);
-            } else {
-                // If endpoint doesn't exist yet, show a placeholder
-                document.getElementById('failedModulesList').innerHTML = '<div class="loading">No failed modules found.</div>';
-            }
-        }
-
-        function renderCurrentModules(modules) {
-            const container = document.getElementById('currentModulesList');
-            if (!modules.length) {
-                container.innerHTML = '<div class="loading">No modules registered for the current semester.</div>';
-                return;
-            }
-            container.innerHTML = modules.map(module => `
-                <div class="module-item">
-                    <div class="module-info">
-                        <span class="module-code">${escapeHtml(module.code)}</span>
-                        <span class="module-name">${escapeHtml(module.name)}</span>
-                        <span class="badge badge-success" style="margin-left: 10px;"><i class="fas fa-check-circle"></i> Registered for Final Exam</span>
-                    </div>
-                    <div>
-                        <span class="fee"><i class="fas fa-info-circle"></i> Fee: Included in tuition</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderFailedModules(failedModules, isGovSponsored) {
-            const container = document.getElementById('failedModulesList');
-            if (!failedModules.length) {
-                container.innerHTML = '<div class="loading">✅ No failed modules. You are eligible for all exams.</div>';
-                return;
-            }
-
-            container.innerHTML = failedModules.map(module => {
-                let examTypeText = '';
-                let fee = 0;
-                if (module.exam_type === 'supplementary') {
-                    examTypeText = 'Supplementary Exam';
-                    fee = module.fee || 300;
-                } else if (module.exam_type === 'resit') {
-                    examTypeText = 'Resit Exam';
-                    fee = module.fee || 600;
-                } else {
-                    examTypeText = 'Retake Exam';
-                    fee = module.fee || 1000;
-                }
-
-                return `
-                    <div class="module-item" data-module-id="${module.id}">
-                        <div class="module-info">
-                            <span class="module-code">${escapeHtml(module.code)}</span>
-                            <span class="module-name">${escapeHtml(module.name)}</span>
-                            <span class="badge badge-danger" style="margin-left: 10px;"><i class="fas fa-exclamation-triangle"></i> Failed (${module.previous_grade || 'F'})</span>
-                            <div style="font-size: 0.8rem; color: #475569; margin-top: 4px;">
-                                <i class="fas fa-info-circle"></i> ${examTypeText} required
-                            </div>
-                        </div>
-                        <div>
-                            <span class="fee"><i class="fas fa-coins"></i> Fee: P${fee}</span>
-                            ${module.registered ?
-                        `<button class="btn-register btn-disabled" disabled><i class="fas fa-check"></i> Registered</button>` :
-                        `<button class="btn-register" onclick="registerForExam(${module.id}, '${module.exam_type}')"><i class="fas fa-edit"></i> Register Now</button>`
-                    }
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // ========== REGISTER FOR A SUPPLEMENTARY/RETAKE EXAM ==========
-        async function registerForExam(moduleId, examType) {
-            const res = await safeApiCall('/api/students/exam-registration', {
-                method: 'POST',
-                body: JSON.stringify({ module_id: moduleId, exam_type: examType })
-            });
-            if (res && res.ok) {
-                const data = await res.json();
-                showMessage(`✅ Successfully registered for exam. Payment of P${data.fee || 0} required.`, 'success');
-                // Refresh the list to show updated registration status
-                await loadExamData();
-            } else {
-                showMessage('Registration failed. Please try again later.', 'error');
-            }
-        }
-
-        // ========== HELPER ==========
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== INIT ==========
-        loadExamData();
-
-        // Expose registerForExam for inline onclick
-        window.registerForExam = registerForExam;
-    </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
 </body>
 
 </html>

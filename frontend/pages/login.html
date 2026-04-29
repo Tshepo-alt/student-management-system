@@ -67,10 +67,23 @@
         }
 
         @keyframes floatBubble {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            20% { opacity: 0.6; }
-            80% { opacity: 0.6; }
-            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.6;
+            }
+
+            80% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         .navbar {
@@ -124,8 +137,12 @@
             background: #f1f5f9;
         }
 
-        .nav-link i { font-size: 0.9rem; }
-        .nav-link:hover, .nav-link.active {
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
             background: #f59e0b;
             color: white;
         }
@@ -137,10 +154,12 @@
             overflow: hidden;
             white-space: nowrap;
         }
+
         .slogan-wrapper {
             display: inline-block;
             animation: slideText 20s linear infinite;
         }
+
         .slogan-text {
             display: inline-block;
             padding: 0 30px;
@@ -148,9 +167,15 @@
             font-weight: 600;
             color: #1e293b;
         }
+
         @keyframes slideText {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
 
         .auth-section {
@@ -172,11 +197,13 @@
             transition: transform 0.3s ease, box-shadow 0.3s;
             border: 1px solid rgba(245, 158, 11, 0.2);
         }
+
         .auth-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
             border-color: rgba(245, 158, 11, 0.5);
         }
+
         .auth-card h2 {
             text-align: center;
             font-size: 2rem;
@@ -187,6 +214,7 @@
             color: transparent;
             margin-bottom: 12px;
         }
+
         .role-badge {
             display: block;
             text-align: center;
@@ -201,7 +229,11 @@
             margin-left: auto;
             margin-right: auto;
         }
-        .form-group { margin-bottom: 24px; }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -209,6 +241,7 @@
             color: #334155;
             font-size: 0.85rem;
         }
+
         .form-group input {
             width: 100%;
             padding: 12px 16px;
@@ -218,11 +251,13 @@
             transition: 0.2s;
             background: #fafcff;
         }
+
         .form-group input:focus {
             outline: none;
             border-color: #f59e0b;
             box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
         }
+
         .btn-primary {
             background: linear-gradient(135deg, #f59e0b, #fbbf24);
             color: #0f172a;
@@ -239,11 +274,17 @@
             justify-content: center;
             gap: 8px;
         }
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.5);
         }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .loading-spinner {
             display: inline-block;
             width: 18px;
@@ -253,8 +294,15 @@
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .error-message, .success-message {
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-message,
+        .success-message {
             padding: 10px 16px;
             border-radius: 20px;
             margin: 20px 0 0;
@@ -262,17 +310,42 @@
             font-size: 0.85rem;
             display: none;
         }
-        .error-message { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
-        .success-message { background: #dcfce7; color: #15803d; border-left: 4px solid #10b981; }
-        .forgot-link { text-align: center; margin: 16px 0 8px; }
-        .forgot-link a { color: #f59e0b; text-decoration: none; font-weight: 500; font-size: 0.85rem; }
-        .forgot-link a:hover { text-decoration: underline; }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #15803d;
+            border-left: 4px solid #10b981;
+        }
+
+        .forgot-link {
+            text-align: center;
+            margin: 16px 0 8px;
+        }
+
+        .forgot-link a {
+            color: #f59e0b;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+
         .demo-buttons {
             margin-top: 28px;
             padding: 16px;
             background: #f8fafc;
             border-radius: 28px;
         }
+
         .demo-buttons p {
             text-align: center;
             font-weight: 600;
@@ -280,11 +353,13 @@
             margin-bottom: 12px;
             font-size: 0.85rem;
         }
+
         .demo-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
         }
+
         .demo-btn {
             background: white;
             border: 1px solid #e2e8f0;
@@ -300,12 +375,14 @@
             gap: 6px;
             color: #1e293b;
         }
+
         .demo-btn:hover {
             background: #f59e0b;
             color: white;
             border-color: #f59e0b;
             transform: translateY(-1px);
         }
+
         .footer {
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(8px);
@@ -314,6 +391,7 @@
             padding: 24px 20px;
             font-size: 0.75rem;
         }
+
         .developer-info {
             margin-top: 16px;
             padding-top: 16px;
@@ -324,6 +402,7 @@
             align-items: center;
             gap: 20px;
         }
+
         .developer-logo {
             display: flex;
             align-items: center;
@@ -332,10 +411,28 @@
             padding: 6px 16px;
             border-radius: 40px;
         }
-        .developer-logo i { font-size: 1.2rem; color: #f59e0b; }
-        .developer-logo span { font-weight: 600; color: white; letter-spacing: 1px; }
-        .developer-bio { font-size: 0.7rem; color: #cbd5e1; }
-        .developer-bio a { color: #fbbf24; text-decoration: none; }
+
+        .developer-logo i {
+            font-size: 1.2rem;
+            color: #f59e0b;
+        }
+
+        .developer-logo span {
+            font-weight: 600;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .developer-bio {
+            font-size: 0.7rem;
+            color: #cbd5e1;
+        }
+
+        .developer-bio a {
+            color: #fbbf24;
+            text-decoration: none;
+        }
+
         .welcome-overlay {
             position: fixed;
             top: 0;
@@ -350,38 +447,99 @@
             justify-content: center;
             flex-direction: column;
         }
+
         .hourglass {
             width: 80px;
             height: 120px;
             position: relative;
             margin-bottom: 24px;
         }
-        .hourglass .top, .hourglass .bottom {
+
+        .hourglass .top,
+        .hourglass .bottom {
             position: absolute;
             width: 0;
             height: 0;
             border-left: 40px solid transparent;
             border-right: 40px solid transparent;
         }
-        .hourglass .top { top: 0; border-bottom: 48px solid #fbbf24; animation: sandFall 2s infinite; }
-        .hourglass .bottom { bottom: 0; border-top: 48px solid #f59e0b; animation: sandFill 2s infinite; }
+
+        .hourglass .top {
+            top: 0;
+            border-bottom: 48px solid #fbbf24;
+            animation: sandFall 2s infinite;
+        }
+
+        .hourglass .bottom {
+            bottom: 0;
+            border-top: 48px solid #f59e0b;
+            animation: sandFill 2s infinite;
+        }
+
         @keyframes sandFall {
-            0% { opacity: 0.2; transform: translateY(0); }
-            50% { opacity: 1; transform: translateY(24px); }
-            100% { opacity: 0.2; transform: translateY(48px); }
+            0% {
+                opacity: 0.2;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(24px);
+            }
+
+            100% {
+                opacity: 0.2;
+                transform: translateY(48px);
+            }
         }
+
         @keyframes sandFill {
-            0% { opacity: 0.2; transform: translateY(0); }
-            50% { opacity: 1; transform: translateY(-24px); }
-            100% { opacity: 0.2; transform: translateY(-48px); }
+            0% {
+                opacity: 0.2;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(-24px);
+            }
+
+            100% {
+                opacity: 0.2;
+                transform: translateY(-48px);
+            }
         }
-        .welcome-text { font-size: 1.4rem; font-weight: 600; color: white; text-align: center; }
+
+        .welcome-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+        }
+
         @media (max-width: 640px) {
-            .navbar .container { flex-direction: column; gap: 8px; }
-            .nav-menu { justify-content: center; }
-            .auth-card { padding: 28px 24px; margin: 0 16px; }
-            .demo-grid { grid-template-columns: repeat(2, 1fr); }
-            .developer-info { flex-direction: column; gap: 12px; }
+            .navbar .container {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-menu {
+                justify-content: center;
+            }
+
+            .auth-card {
+                padding: 28px 24px;
+                margin: 0 16px;
+            }
+
+            .demo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .developer-info {
+                flex-direction: column;
+                gap: 12px;
+            }
         }
     </style>
     <link rel="stylesheet" href="/css/portal-common.css">
@@ -391,7 +549,8 @@
     <div class="bubbles" id="bubbles"></div>
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'"></div>
+            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
+                    onerror="this.style.display='none'"></div>
             <ul class="nav-menu">
                 <li><a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="login.html" class="nav-link active"><i class="fas fa-sign-in-alt"></i> Login</a></li>
@@ -402,7 +561,8 @@
     </nav>
     <div class="animated-slogan">
         <div class="slogan-wrapper">
-            <span class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to Higher Education | 35 Years of Excellence | Your Success Starts Here</span>
+            <span class="slogan-text">Excellence in Higher Learning | The Ultimate Journey to Higher Education | 35
+                Years of Excellence | Your Success Starts Here</span>
         </div>
     </div>
     <section class="auth-section">
@@ -413,13 +573,16 @@
                 <form id="loginForm">
                     <div class="form-group">
                         <label><i class="fas fa-envelope"></i> Email / Username</label>
-                        <input type="text" id="email" autocomplete="username" required placeholder="Enter your email or username">
+                        <input type="text" id="email" autocomplete="username" required
+                            placeholder="Enter your email or username">
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-lock"></i> Password</label>
-                        <input type="password" id="password" autocomplete="current-password" required placeholder="Enter your password">
+                        <input type="password" id="password" autocomplete="current-password" required
+                            placeholder="Enter your password">
                     </div>
-                    <button type="submit" id="loginBtn" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <button type="submit" id="loginBtn" class="btn-primary"><i class="fas fa-sign-in-alt"></i>
+                        Login</button>
                 </form>
                 <div id="loginMessage" class="error-message"></div>
                 <div id="loginSuccessMessage" class="success-message"></div>
@@ -429,13 +592,27 @@
                 <div class="demo-buttons">
                     <p><i class="fas fa-key"></i> Quick Login (Demo)</p>
                     <div class="demo-grid">
-                        <button type="button" class="demo-btn" onclick="fillCredentials('admin@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-user-cog"></i> Admin</button>
-                        <button type="button" class="demo-btn" onclick="fillCredentials('registrar@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-address-card"></i> Registrar</button>
-                        <button type="button" class="demo-btn" onclick="fillCredentials('finance@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-chart-line"></i> Finance</button>
-                        <button type="button" class="demo-btn" onclick="fillCredentials('lecturer@example.com', 'Admin123!')"><i class="fas fa-chalkboard-user"></i> Lecturer</button>
-                        <button type="button" class="demo-btn" onclick="fillCredentials('accommodation@gipscollege.edu.bw', 'Admin123!')"><i class="fas fa-building"></i> Accommodation</button>
-                        <button type="button" class="demo-btn" onclick="fillCredentials('student@example.com', 'Student123!')"><i class="fas fa-user-graduate"></i> Student</button>
-                        <button type="button" class="demo-btn" onclick="fillCredentials('alumni@example.com', 'Student123!')"><i class="fas fa-users"></i> Alumni</button>
+                        <button type="button" class="demo-btn"
+                            onclick="fillCredentials('admin@gipscollege.edu.bw', 'Admin123!')"><i
+                                class="fas fa-user-cog"></i> Admin</button>
+                        <button type="button" class="demo-btn"
+                            onclick="fillCredentials('registrar@gipscollege.edu.bw', 'Admin123!')"><i
+                                class="fas fa-address-card"></i> Registrar</button>
+                        <button type="button" class="demo-btn"
+                            onclick="fillCredentials('finance@gipscollege.edu.bw', 'Admin123!')"><i
+                                class="fas fa-chart-line"></i> Finance</button>
+                        <button type="button" class="demo-btn"
+                            onclick="fillCredentials('lecturer@example.com', 'Admin123!')"><i
+                                class="fas fa-chalkboard-user"></i> Lecturer</button>
+                        <button type="button" class="demo-btn"
+                            onclick="fillCredentials('accommodation@gipscollege.edu.bw', 'Admin123!')"><i
+                                class="fas fa-building"></i> Accommodation</button>
+                        <button type="button" class="demo-btn"
+                            onclick="fillCredentials('student@example.com', 'Student123!')"><i
+                                class="fas fa-user-graduate"></i> Student</button>
+                        <button type="button" class="demo-btn"
+                            onclick="fillCredentials('alumni@example.com', 'Student123!')"><i class="fas fa-users"></i>
+                            Alumni</button>
                     </div>
                 </div>
             </div>
@@ -450,7 +627,8 @@
                 <div class="developer-bio">
                     Developed by <strong>Tshepo Sekokonyane</strong> | Final-year student at GIPS College<br>
                     Full-stack developer | Moodle integration | AI chatbot | Available for internship/attachment<br>
-                    <i class="fas fa-envelope"></i> sekokonyanetshepo045@gmail.com | <i class="fas fa-phone-alt"></i> 72174152
+                    <i class="fas fa-envelope"></i> sekokonyanetshepo045@gmail.com | <i class="fas fa-phone-alt"></i>
+                    72174152
                 </div>
             </div>
             <div style="margin-top: 8px;">
@@ -460,12 +638,17 @@
         </div>
     </footer>
     <div id="welcomeOverlay" class="welcome-overlay">
-        <div class="hourglass"><div class="top"></div><div class="bottom"></div></div>
+        <div class="hourglass">
+            <div class="top"></div>
+            <div class="bottom"></div>
+        </div>
         <div class="welcome-text" id="welcomeMessage">Welcome!</div>
     </div>
-    <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#1e293b; color:white; text-align:center; padding:1rem; z-index:9999; border-top: 2px solid #f59e0b;">
+    <div id="cookieBanner"
+        style="display:none; position:fixed; bottom:0; left:0; right:0; background:#1e293b; color:white; text-align:center; padding:1rem; z-index:9999; border-top: 2px solid #f59e0b;">
         This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-        <button onclick="acceptCookies()" style="margin-left:1rem; background:#f59e0b; color:#0f172a; border:none; padding:0.5rem 1rem; border-radius:40px; cursor:pointer; font-weight:600;">Accept</button>
+        <button onclick="acceptCookies()"
+            style="margin-left:1rem; background:#f59e0b; color:#0f172a; border:none; padding:0.5rem 1rem; border-radius:40px; cursor:pointer; font-weight:600;">Accept</button>
     </div>
 
     <script>
@@ -650,17 +833,18 @@
 
     <!-- LOGOUT SCRIPT (works on any page) -->
     <script>
-    (function() {
-        function doLogout(e) {
-            if (e) e.preventDefault();
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = 'login.html';
-        }
-        const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-        logoutElements.forEach(el => el.addEventListener('click', doLogout));
-        window.logout = doLogout;
-    })();
+        (function () {
+            function doLogout(e) {
+                if (e) e.preventDefault();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }
+            const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
+            logoutElements.forEach(el => el.addEventListener('click', doLogout));
+            window.logout = doLogout;
+        })();
     </script>
 </body>
+
 </html>

@@ -364,7 +364,6 @@ def register():
             program_id=program.id,
             enrollment_date=datetime.now().date(),
             admission_status='pending',
-            # New file path columns
             bgcse_certificate_path=bgcse_cert_path,
             id_document_path=id_doc_path,
             passport_photo_path=photo_path
@@ -410,7 +409,7 @@ def register():
         return jsonify({'error': str(e)}), 500
 
 # ============================================
-# Login Endpoint
+# Login Endpoint (with strict role-based redirection)
 # ============================================
 
 @auth_bp.route('/login', methods=['POST'])
@@ -447,18 +446,24 @@ def login():
         db.session.commit()
         logger.info(f"Successful login for user: {email}")
 
-        # Redirect based on role
-        redirect_url = None
-        if user.role in ['admin', 'lecturer', 'finance', 'registrar', 'staff']:
-            role_map = {
-                'admin': '/pages/admin-dashboard.html',
-                'lecturer': '/pages/lecturer-dashboard.html',
-                'finance': '/pages/finance-dashboard.html',
-                'registrar': '/pages/registrar-dashboard.html',
-                'staff': '/pages/staff-dashboard.html'
-            }
-            redirect_url = role_map.get(user.role, '/pages/student-dashboard.html')
+        # Normalise role: 'administrator' -> 'admin'
+        role = user.role
+        if role == 'administrator':
+            role = 'admin'
+
+        role_map = {
+            'admin': '/pages/admin-dashboard.html',
+            'lecturer': '/pages/lecturer-dashboard.html',
+            'finance': '/pages/finance-dashboard.html',
+            'registrar': '/pages/registrar-dashboard.html',
+            'staff': '/pages/staff-dashboard.html',
+            'alumni': '/pages/alumni-dashboard.html'
+        }
+
+        if role in role_map:
+            redirect_url = role_map[role]
         else:
+            # Student or fallback
             student = Student.query.filter_by(user_id=user.id).first()
             if student:
                 if student.admission_status == 'pending':

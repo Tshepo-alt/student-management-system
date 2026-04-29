@@ -8,19 +8,12 @@
     <link rel="manifest" href="/favicon/site.webmanifest">
     <meta name="theme-color" content="#667eea">
     <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Admin Dashboard - GIPS College</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (your existing styles – unchanged) */
+        /* (full styles as in the working version – identical to the one you provided) */
         * {
             margin: 0;
             padding: 0;
@@ -327,10 +320,6 @@
             gap: 8px;
         }
 
-        .pending-tab i {
-            font-size: 0.9rem;
-        }
-
         .pending-tab.active {
             background: #667eea;
             color: white;
@@ -463,9 +452,6 @@
 </head>
 
 <body>
-
-
-
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -473,22 +459,19 @@
                 <h3>Admin Portal</h3>
                 <p>GIPS College</p>
             </div>
-            
-
-<div class="sidebar-menu">
-    <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> Dashboard</a>
-    <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
-    <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
-    <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
-    <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
-    <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> Accommodation</a>
-    <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
-    <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
-    <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
-    <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
-</div>
-
-
+            <div class="sidebar-menu">
+                <a href="admin-dashboard.html" class="sidebar-menu-item active"><i class="fas fa-chalkboard"></i>
+                    Dashboard</a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
+                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i>
+                    Accommodation</a>
+                <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+                <div style="margin: 12px 20px; border-top: 1px solid #334155;"></div>
                 <a href="admin-api.html" class="sidebar-menu-item"><i class="fas fa-plug"></i> API</a>
                 <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> Settings</a>
                 <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -552,23 +535,212 @@
         </div>
     </div>
 
-    
+    <script>
+        // ========== AUTH & GLOBALS ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userRole = localStorage.getItem('user_role') || user.role;
+        if (!token) window.location.href = 'login.html';
+        if (userRole !== 'admin' && userRole !== 'administrator') window.location.href = 'student-dashboard.html';
 
+        document.getElementById('adminName').textContent = user.first_name || user.username || 'Admin';
+        const initial = (user.first_name ? user.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
+        document.getElementById('adminAvatar').textContent = initial;
+        document.getElementById('adminAvatar').addEventListener('click', () => window.location.href = 'admin-profile.html');
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        // Sidebar toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
 
+        // API Helper
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        function showMessage(msg, type) {
+            const errDiv = document.getElementById('errorMessage'), infoDiv = document.getElementById('infoMessage');
+            if (type === 'error') {
+                errDiv.textContent = msg; errDiv.style.display = 'block'; infoDiv.style.display = 'none';
+                setTimeout(() => errDiv.style.display = 'none', 5000);
+            } else {
+                infoDiv.textContent = msg; infoDiv.style.display = 'block'; errDiv.style.display = 'none';
+                setTimeout(() => infoDiv.style.display = 'none', 5000);
+            }
+        }
+
+        // ========== LOAD STATISTICS ==========
+        async function loadStats() {
+            const container = document.getElementById('statsGrid');
+            container.innerHTML = '<div class="loading-spinner"></div> Loading statistics...';
+            const res = await safeApiCall('/api/admin/stats');
+            if (res && res.ok) {
+                const stats = await res.json();
+                container.innerHTML = `
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-number">${stats.total_students || 0}</div><div class="stat-label">Total Students</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-tie"></i></div><div class="stat-number">${(stats.staff || 0) + (stats.lecturers || 0)}</div><div class="stat-label">Staff Members</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-number">${stats.pending_registrations || 0}</div><div class="stat-label">Pending Registrations</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-credit-card"></i></div><div class="stat-number">${stats.pending_payments || 0}</div><div class="stat-label">Pending Payments</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-ticket-alt"></i></div><div class="stat-number">${stats.open_tickets || 0}</div><div class="stat-label">Open Tickets</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-home"></i></div><div class="stat-number">${stats.pending_accommodation || 0}</div><div class="stat-label">Accommodation Apps</div></div>
+                `;
+            } else {
+                container.innerHTML = '<div class="error-banner" style="display:block;">Failed to load statistics</div>';
+                showMessage('Could not load dashboard stats.', 'error');
+            }
+        }
+
+        // ========== PENDING STUDENT REGISTRATIONS ==========
+        async function loadPendingStudents() {
+            const container = document.getElementById('pendingStudentsList');
+            container.innerHTML = '<div class="loading-spinner"></div> Loading student registrations...';
+            const res = await safeApiCall('/api/admin/students?status=pending');
+            if (res && res.ok) {
+                const students = await res.json();
+                const pending = students.filter(s => s.admission_status === 'pending');
+                if (!pending.length) { container.innerHTML = '<div class="approval-item">✅ No pending student registrations.</div>'; return; }
+                container.innerHTML = pending.map(s => `
+                    <div class="approval-item">
+                        <div class="approval-info">
+                            <strong>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</strong>
+                            <span class="badge badge-student">Student</span><br>
+                            <small>${escapeHtml(s.program_name || 'N/A')}</small><br>
+                            <small>${escapeHtml(s.student_number)}</small><br>
+                            <small>${escapeHtml(s.email)}</small>
+                        </div>
+                        <div>
+                            <button class="btn-approve" onclick="approveStudent(${s.id})"><i class="fas fa-check"></i> Approve</button>
+                            <button class="btn-reject" onclick="rejectStudent(${s.id})"><i class="fas fa-times"></i> Reject</button>
+                            <button class="btn-view" onclick="viewStudent(${s.id})"><i class="fas fa-eye"></i> View</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="approval-item">❌ Unable to load pending students.</div>';
+            }
+        }
+
+        // ========== PENDING ACCOMMODATION APPLICATIONS ==========
+        async function loadPendingAccommodation() {
+            const container = document.getElementById('pendingAccommodationList');
+            container.innerHTML = '<div class="loading-spinner"></div> Loading accommodation applications...';
+            const res = await safeApiCall('/api/admin/accommodation/applications');
+            if (res && res.ok) {
+                const apps = await res.json();
+                const pending = apps.filter(a => a.status === 'pending');
+                if (!pending.length) { container.innerHTML = '<div class="approval-item">✅ No pending accommodation applications.</div>'; return; }
+                container.innerHTML = pending.map(app => `
+                    <div class="approval-item">
+                        <div class="approval-info">
+                            <strong>${escapeHtml(app.student_name)}</strong>
+                            <span class="badge badge-accommodation">Accommodation</span><br>
+                            <small>${escapeHtml(app.student_number)}</small><br>
+                            <small>${app.room_type === 'bachelor_pad' ? 'Bachelor Pad' : 'Three-Bed Room'}</small>
+                        </div>
+                        <div>
+                            <button class="btn-view" onclick="viewAccommodation(${app.id})"><i class="fas fa-eye"></i> View/Allocate</button>
+                            <button class="btn-reject" onclick="rejectAccommodation(${app.id})"><i class="fas fa-times"></i> Reject</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="approval-item">❌ Unable to load accommodation applications.</div>';
+            }
+        }
+
+        // ========== ACTIONS (Student) ==========
+        async function approveStudent(id) {
+            if (!confirm('Approve this student\'s admission?')) return;
+            const res = await safeApiCall(`/api/admin/students/${id}/approve-admission`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('Student admission approved!', 'success');
+                await loadStats(); await loadPendingStudents();
+            } else showMessage('Failed to approve admission.', 'error');
+        }
+
+        async function rejectStudent(id) {
+            if (!confirm('Reject this student\'s admission?')) return;
+            const res = await safeApiCall(`/api/admin/students/${id}/reject`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('Student admission rejected.', 'error');
+                await loadStats(); await loadPendingStudents();
+            } else showMessage('Failed to reject admission.', 'error');
+        }
+
+        function viewStudent(id) { window.location.href = `admin-students.html?view=${id}`; }
+
+        // ========== ACTIONS (Accommodation) ==========
+        function viewAccommodation(id) { window.location.href = `admin-accommodation.html?view=${id}`; }
+        async function rejectAccommodation(id) {
+            const reason = prompt('Reason for rejection:');
+            if (!reason) return;
+            // Note: Your admin.py currently does NOT have a reject endpoint for accommodation.
+            // You may need to add it. For now, we show a placeholder message.
+            alert('Rejection endpoint not yet implemented. You would call PUT /api/admin/accommodation/applications/' + id + '/reject');
+        }
+
+        // ========== TABS ==========
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.pending-tab');
+            const studentsDiv = document.getElementById('pendingStudentsList');
+            const accomDiv = document.getElementById('pendingAccommodationList');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    if (tab.dataset.tab === 'students') {
+                        studentsDiv.style.display = 'block';
+                        accomDiv.style.display = 'none';
+                    } else {
+                        studentsDiv.style.display = 'none';
+                        accomDiv.style.display = 'block';
+                    }
+                });
+            });
+        }
+
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        // Logout
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // Make functions globally accessible for inline onclick
+        window.approveStudent = approveStudent;
+        window.rejectStudent = rejectStudent;
+        window.viewStudent = viewStudent;
+        window.viewAccommodation = viewAccommodation;
+        window.rejectAccommodation = rejectAccommodation;
+
+        // Initial load
+        loadStats();
+        loadPendingStudents();
+        loadPendingAccommodation();
+        setupTabs();
+
+        // Optional auto-refresh every 60 seconds
+        setInterval(() => {
+            loadStats();
+            const activeTab = document.querySelector('.pending-tab.active')?.dataset.tab;
+            if (activeTab === 'students') loadPendingStudents();
+            else if (activeTab === 'accommodation') loadPendingAccommodation();
+        }, 60000);
+    </script>
 </body>
 
 </html>

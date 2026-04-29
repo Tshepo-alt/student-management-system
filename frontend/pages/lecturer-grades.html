@@ -344,34 +344,7 @@
 </head>
 <body>
 
-<script>
-// ========== ROLE CHECK ==========
-(function() {
-    const token = localStorage.getItem('access_token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const userRole = user.role || localStorage.getItem('user_role');
-    if (!token) {
-        window.location.href = 'login.html';
-        return;
-    }
-    const allowedRoles = ['lecturer'];
-    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-        const roleRedirects = {
-            'admin': 'admin-dashboard.html',
-            'administrator': 'admin-dashboard.html',
-            'registrar': 'registrar-dashboard.html',
-            'finance': 'finance-dashboard.html',
-            'lecturer': 'lecturer-dashboard.html',
-            'staff': 'staff-dashboard.html',
-            'student': 'student-dashboard.html',
-            'alumni': 'alumni-dashboard.html'
-        };
-        const target = roleRedirects[userRole] || 'student-dashboard.html';
-        window.location.href = target;
-        return;
-    }
-})();
-</script>
+
 
     <nav class="navbar">
         <div class="container">

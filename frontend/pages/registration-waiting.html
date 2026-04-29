@@ -270,173 +270,7 @@
 </div>
     </footer>
 
-    <script>
-        // ============================================
-        // SAFE API CALL
-        // ============================================
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return null;
-            }
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
-        }
-
-        // ============================================
-        // CHECK REGISTRATION STATUS
-        // ============================================
-        async function checkRegistrationStatus() {
-            const container = document.getElementById('statusContainer');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Checking registration status...</div>';
-
-            try {
-                const response = await safeApiCall('/api/students/current-registration');
-                if (response && response.ok) {
-                    const data = await response.json();
-
-                    if (data.has_registration) {
-                        if (data.status === 'approved') {
-                            // Registration approved, redirect to dashboard
-                            window.location.href = 'student-dashboard.html';
-                        } else if (data.status === 'rejected') {
-                            showRejectedPage(data);
-                        } else {
-                            // Pending or other status
-                            showWaitingPage(data);
-                        }
-                    } else {
-                        // No registration found - should not happen if user came here correctly
-                        showNoRegistrationPage();
-                    }
-                } else {
-                    container.innerHTML = `
-                        <div class="waiting-body">
-                            <div class="status-icon"><i class="fas fa-exclamation-triangle" style="color: #e53e3e;"></i></div>
-                            <div class="status-message">Unable to load registration status</div>
-                            <p>Please try again later or contact the admissions office.</p>
-                            <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error(error);
-                container.innerHTML = `
-                    <div class="waiting-body">
-                        <div class="status-icon"><i class="fas fa-exclamation-triangle" style="color: #e53e3e;"></i></div>
-                        <div class="status-message">Network error</div>
-                        <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
-                    </div>
-                `;
-            }
-        }
-
-        function showWaitingPage(data) {
-            const container = document.getElementById('statusContainer');
-            const registrationDate = data.created_at ? new Date(data.created_at).toLocaleDateString() : 'recently';
-
-            container.innerHTML = `
-                <div class="waiting-header">
-                    <i class="fas fa-clock"></i>
-                    <h1>Registration Pending</h1>
-                </div>
-                <div class="waiting-body">
-                    <div class="status-icon"><i class="fas fa-hourglass-half"></i></div>
-                    <div class="status-message">Your semester registration is being processed</div>
-                    <div class="info-text">
-                        <p>Your registration request was submitted on <strong>${registrationDate}</strong>.</p>
-                        <p>It is currently under review by the finance and academic offices.</p>
-                        <p>You will be notified once approved. This page will automatically redirect you when your registration is confirmed.</p>
-                    </div>
-                    <div class="info-text" style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 20px;">
-                        <i class="fas fa-info-circle"></i> Need assistance? Contact the Admissions Office.
-                    </div>
-                    <div style="margin-top: 30px;">
-                        <a href="mailto:admissions@gipscollege.edu.bw" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact Support</a>
-                        <button class="btn btn-primary" onclick="checkRegistrationStatus()"><i class="fas fa-sync-alt"></i> Refresh Status</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showRejectedPage(data) {
-            const container = document.getElementById('statusContainer');
-            container.innerHTML = `
-                <div class="waiting-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
-                    <i class="fas fa-times-circle"></i>
-                    <h1>Registration Not Approved</h1>
-                </div>
-                <div class="waiting-body">
-                    <div class="status-icon"><i class="fas fa-times-circle" style="color: #dc3545;"></i></div>
-                    <div class="status-message">Your registration request was not approved</div>
-                    <div class="info-text">
-                        <p>Please contact the admissions or finance office for more information.</p>
-                    </div>
-                    <div style="margin-top: 30px;">
-                        <a href="mailto:admissions@gipscollege.edu.bw" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact Admissions</a>
-                        <a href="semester-registration.html" class="btn btn-primary"><i class="fas fa-edit"></i> Try Again</a>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showNoRegistrationPage() {
-            const container = document.getElementById('statusContainer');
-            container.innerHTML = `
-                <div class="waiting-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h1>No Active Registration</h1>
-                </div>
-                <div class="waiting-body">
-                    <div class="status-icon"><i class="fas fa-file-alt"></i></div>
-                    <div class="status-message">You have not submitted a semester registration</div>
-                    <div class="info-text">
-                        <p>Please complete your semester registration to access the student portal.</p>
-                    </div>
-                    <div style="margin-top: 30px;">
-                        <a href="semester-registration.html" class="btn btn-primary"><i class="fas fa-edit"></i> Start Registration</a>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Auto-refresh every 30 seconds to check if registration has been approved
-        let interval = setInterval(() => {
-            checkRegistrationStatus();
-        }, 30000);
-
-        // ============================================
-        // LOGOUT
-        // ============================================
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ============================================
-        // INIT
-        // ============================================
-        checkRegistrationStatus();
-    </script>
+    
 
 <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
@@ -458,6 +292,21 @@
     const token = localStorage.getItem('access_token');
     const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
     // If logged in, stay; if not, allow access.
+})();
+</script>
+
+
+<script>
+(function() {
+    function doLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+    }
+    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
+    logoutElements.forEach(el => el.addEventListener('click', doLogout));
+    window.logout = doLogout;
 })();
 </script>
 

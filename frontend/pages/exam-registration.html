@@ -386,230 +386,7 @@
 </div>
     </footer>
 
-    <script>
-        // ============================================
-        // SAFE API CALL FUNCTION
-        // ============================================
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return null;
-            }
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        ...options.headers
-                    }
-                });
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            } catch (error) {
-                console.error(`API call error to ${endpoint}:`, error);
-                return null;
-            }
-        }
-
-        // ============================================
-        // AUTHENTICATION
-        // ============================================
-        const token = localStorage.getItem('access_token');
-        if (!token) window.location.href = 'login.html';
-
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        console.log('Logged in user:', user);
-
-        // ============================================
-        // DEMO DATA (would come from API)
-        // ============================================
-        // Current modules (enrolled this semester)
-        const currentModules = [
-            { id: 1, code: "CS301", name: "Artificial Intelligence", credits: 12 },
-            { id: 2, code: "CS302", name: "Database Management Systems", credits: 12 },
-            { id: 3, code: "CS303", name: "Web Application Development", credits: 12 }
-        ];
-
-        // Failed modules with attempt count (first fail = supplementary, second+ = retake)
-        const failedModules = [
-            { 
-                id: 4, code: "CS304", name: "Cyber Security Fundamentals", credits: 12,
-                attempts: 1,   // first fail → supplementary
-                previous_grade: "F",
-                exam_type: "supplementary",
-                fee: 300,
-                registered: false
-            },
-            { 
-                id: 5, code: "CS305", name: "Mobile App Development", credits: 12,
-                attempts: 2,   // second fail → retake
-                previous_grade: "F (supplementary)",
-                exam_type: "retake",
-                fee: 1000,
-                registered: false
-            }
-        ];
-
-        let isGovernmentSponsored = false;
-
-        // ============================================
-        // RENDER FUNCTIONS
-        // ============================================
-        function renderCurrentModules() {
-            const container = document.getElementById('currentModulesList');
-            if (!currentModules.length) {
-                container.innerHTML = '<p>No modules registered for the current semester.</p>';
-                return;
-            }
-            container.innerHTML = currentModules.map(module => `
-                <div class="module-item">
-                    <div class="module-info">
-                        <span class="module-code">${escapeHtml(module.code)}</span>
-                        <span class="module-name">${escapeHtml(module.name)}</span>
-                        <span class="badge badge-success" style="margin-left: 10px;"><i class="fas fa-check-circle"></i> Registered for Final Exam</span>
-                    </div>
-                    <div>
-                        <span class="fee"><i class="fas fa-info-circle"></i> Fee: Included in tuition</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderFailedModules() {
-            const container = document.getElementById('failedModulesList');
-            if (!failedModules.length) {
-                container.innerHTML = '<p>✅ No failed modules. You are eligible for all exams.</p>';
-                return;
-            }
-
-            container.innerHTML = failedModules.map(module => {
-                let examTypeText = '';
-                let feeDisplay = '';
-                if (module.exam_type === 'supplementary') {
-                    examTypeText = 'Supplementary Exam';
-                    feeDisplay = `<span class="fee"><i class="fas fa-coins"></i> Fee: P${module.fee}</span>`;
-                } else if (module.exam_type === 'resit') {
-                    examTypeText = 'Resit Exam';
-                    feeDisplay = `<span class="fee"><i class="fas fa-coins"></i> Fee: P${module.fee}</span>`;
-                } else {
-                    examTypeText = 'Retake Exam';
-                    feeDisplay = `<span class="fee"><i class="fas fa-coins"></i> Fee: P${module.fee}</span>`;
-                }
-
-                return `
-                    <div class="module-item" data-module-id="${module.id}">
-                        <div class="module-info">
-                            <span class="module-code">${escapeHtml(module.code)}</span>
-                            <span class="module-name">${escapeHtml(module.name)}</span>
-                            <span class="badge badge-danger" style="margin-left: 10px;"><i class="fas fa-exclamation-triangle"></i> Failed (${module.previous_grade})</span>
-                            <div style="font-size: 0.8rem; color: #718096; margin-top: 4px;">
-                                <i class="fas fa-info-circle"></i> ${examTypeText} required
-                            </div>
-                        </div>
-                        <div>
-                            ${feeDisplay}
-                            ${module.registered ? 
-                                `<button class="btn-register btn-disabled" disabled><i class="fas fa-check"></i> Registered</button>` :
-                                `<button class="btn-register" onclick="registerForExam(${module.id})"><i class="fas fa-edit"></i> Register Now</button>`
-                            }
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Register for a supplementary/retake exam
-        async function registerForExam(moduleId) {
-            const module = failedModules.find(m => m.id === moduleId);
-            if (!module || module.registered) return;
-
-            // Simulate API call
-            const response = await safeApiCall('/api/students/exam-registration', {
-                method: 'POST',
-                body: JSON.stringify({
-                    module_id: moduleId,
-                    exam_type: module.exam_type
-                })
-            });
-
-            if (response && response.ok) {
-                const data = await response.json();
-                module.registered = true;
-                renderFailedModules();
-                showMessage(`Successfully registered for ${module.code} ${module.exam_type} exam.`, 'success');
-            } else {
-                // Demo mode
-                module.registered = true;
-                renderFailedModules();
-                showMessage(`✅ Successfully registered for ${module.code} ${module.exam_type} exam (Demo Mode).`, 'success');
-            }
-        }
-
-        // ============================================
-        // LOAD SPONSORSHIP INFO
-        // ============================================
-        async function loadSponsorshipInfo() {
-            const response = await safeApiCall('/api/students/dashboard');
-            if (response && response.ok) {
-                const data = await response.json();
-                isGovernmentSponsored = data.is_government_sponsored || false;
-            }
-            // Update banner
-            const banner = document.getElementById('infoBanner');
-            if (isGovernmentSponsored) {
-                banner.innerHTML = `<i class="fas fa-hand-holding-heart"></i> You are a government-sponsored student. Tuition is exempt, but you must pay exam fees for supplementary/resit/retake (P300 per supplementary, P600 per resit, P1000 per retake).`;
-                banner.style.display = 'flex';
-            } else {
-                banner.style.display = 'none';
-            }
-        }
-
-        // ============================================
-        // HELPER FUNCTIONS
-        // ============================================
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function showMessage(msg, type) {
-            const msgDiv = document.getElementById('message');
-            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
-            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
-            msgDiv.style.display = 'block';
-            setTimeout(() => msgDiv.style.display = 'none', 5000);
-        }
-
-        // ============================================
-        // LOGOUT
-        // ============================================
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ============================================
-        // INIT
-        // ============================================
-        async function init() {
-            await loadSponsorshipInfo();
-            renderCurrentModules();
-            renderFailedModules();
-        }
-        init();
-
-        // Make registerForExam global for onclick
-        window.registerForExam = registerForExam;
-    </script>
+    
 
 <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
@@ -631,6 +408,21 @@
     const token = localStorage.getItem('access_token');
     const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
     // If logged in, stay; if not, allow access.
+})();
+</script>
+
+
+<script>
+(function() {
+    function doLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+    }
+    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
+    logoutElements.forEach(el => el.addEventListener('click', doLogout));
+    window.logout = doLogout;
 })();
 </script>
 

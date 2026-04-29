@@ -623,6 +623,21 @@
 
     
 
+
+<script>
+(function() {
+    function doLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+    }
+    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
+    logoutElements.forEach(el => el.addEventListener('click', doLogout));
+    window.logout = doLogout;
+})();
+</script>
+
 </body>
 
 </html>

@@ -632,231 +632,7 @@
 </div>
     </footer>
 
-    <script>
-        // ========== RULES DATA (static from college policies) ==========
-        const ruleCategories = [
-            { id: 'general', name: 'General Rules', icon: 'fa-home', description: 'Fundamental rules for all residents' },
-            { id: 'conduct', name: 'Conduct & Behavior', icon: 'fa-users', description: 'Expected behavior and community standards' },
-            { id: 'visitors', name: 'Visitors Policy', icon: 'fa-user-friends', description: 'Rules for guests and visitors' },
-            { id: 'maintenance', name: 'Room Maintenance', icon: 'fa-tools', description: 'Responsibilities for your living space' },
-            { id: 'security', name: 'Security & Safety', icon: 'fa-shield-alt', description: 'Safety protocols' },
-            { id: 'facilities', name: 'Facilities Usage', icon: 'fa-utensils', description: 'Guidelines for shared facilities' },
-            { id: 'fines', name: 'Fines & Penalties', icon: 'fa-money-bill-wave', description: 'Consequences for violations' }
-        ];
-
-        const rulesData = [
-            // General
-            { id: 1, title: "Check-in and Check-out", desc: "Check-in within 48 hours of arrival; check-out by 10:00 AM on the last day of the semester.", category: "general", mandatory: true },
-            { id: 2, title: "Room Allocation", desc: "Rooms are allocated on first-come, first-served basis. Changes require written approval.", category: "general", mandatory: true },
-            { id: 3, title: "Registration Requirement", desc: "Only registered students with valid ID may reside. Proof required on request.", category: "general", mandatory: true },
-            // Conduct
-            { id: 4, title: "Noise and Conduct", desc: "Quiet hours 10 PM – 7 AM. No loud music or disruptive behavior.", category: "conduct", mandatory: true },
-            { id: 5, title: "Respect for Others", desc: "Harassment, bullying, or discrimination will result in eviction.", category: "conduct", mandatory: true },
-            { id: 6, title: "Smoking and Alcohol", desc: "Strictly prohibited within residence premises.", category: "conduct", mandatory: true },
-            // Visitors
-            { id: 7, title: "Visitor Hours", desc: "Visitors allowed 8 AM – 8 PM. Overnight guests require prior approval.", category: "visitors", mandatory: true },
-            { id: 8, title: "Guest Registration", desc: "All visitors must register at security with valid ID.", category: "visitors", mandatory: true },
-            { id: 9, title: "Overnight Guest Limit", desc: "Maximum 3 nights per month with written permission.", category: "visitors", mandatory: true },
-            // Maintenance
-            { id: 10, title: "Room Cleanliness", desc: "Keep rooms and common areas clean. Report issues promptly.", category: "maintenance", mandatory: true },
-            { id: 11, title: "No Unauthorized Alterations", desc: "No painting, drilling, or structural changes without permission.", category: "maintenance", mandatory: true },
-            // Security
-            { id: 12, title: "Lock Your Room", desc: "Always lock room doors. Do not share keys or access cards.", category: "security", mandatory: true },
-            { id: 13, title: "Report Suspicious Activity", desc: "Report any suspicious persons or activities to security immediately.", category: "security", mandatory: true },
-            { id: 14, title: "Fire Safety", desc: "Know emergency exits. Do not prop fire doors.", category: "security", mandatory: true },
-            // Facilities
-            { id: 15, title: "Kitchen Use", desc: "Clean up after use. Label food. No dirty dishes overnight.", category: "facilities", mandatory: true },
-            { id: 16, title: "Electricity and Water", desc: "Conserve resources. Turn off appliances when not in use.", category: "facilities", mandatory: true },
-            // Fines
-            { id: 17, title: "Damages", desc: "Cost of repairs charged to responsible student. Repeated offenses may lead to eviction.", category: "fines", mandatory: true },
-            { id: 18, title: "Noise Violations", desc: "First: warning; Second: P500 fine; Third: eviction.", category: "fines", mandatory: true },
-            { id: 19, title: "Smoking Violation", desc: "P1000 fine per incident and mandatory meeting with manager.", category: "fines", mandatory: true }
-        ];
-
-        // ========== RENDER SIDEBAR AND CONTENT ==========
-        function renderSidebar() {
-            const container = document.getElementById('ruleCategories');
-            container.innerHTML = ruleCategories.map(cat => `
-                <li><a class="rule-category-link" data-category="${cat.id}">
-                    <i class="fas ${cat.icon}"></i> ${cat.name}
-                </a></li>
-            `).join('');
-        }
-
-        function renderContent() {
-            const mainContainer = document.getElementById('rulesContent');
-            mainContainer.innerHTML = ruleCategories.map(cat => {
-                const rules = rulesData.filter(r => r.category === cat.id);
-                const rulesHtml = rules.map((rule, idx) => `
-                    <div class="rule-card">
-                        <div class="rule-title">
-                            <span class="rule-number">${idx + 1}</span>
-                            ${escapeHtml(rule.title)}
-                            <span class="rule-badge ${rule.mandatory ? 'mandatory' : 'recommended'}">${rule.mandatory ? 'Mandatory' : 'Recommended'}</span>
-                        </div>
-                        <div class="rule-description">${escapeHtml(rule.desc)}</div>
-                    </div>
-                `).join('');
-                return `
-                    <div class="category-section" id="category-${cat.id}" data-category="${cat.id}">
-                        <div class="category-header">
-                            <h2><i class="fas ${cat.icon}"></i> ${cat.name}</h2>
-                            <div class="category-description">${cat.description}</div>
-                        </div>
-                        <div class="rules-list">${rulesHtml || '<p>No rules in this category.</p>'}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function setupCategorySwitching() {
-            const links = document.querySelectorAll('.rule-category-link');
-            const sections = document.querySelectorAll('.category-section');
-            const activeCategory = localStorage.getItem('activeRuleCategory') || 'general';
-            links.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const cat = link.dataset.category;
-                    links.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                    sections.forEach(s => s.classList.remove('active'));
-                    document.getElementById(`category-${cat}`).classList.add('active');
-                    localStorage.setItem('activeRuleCategory', cat);
-                });
-                if (link.dataset.category === activeCategory) {
-                    link.classList.add('active');
-                    document.getElementById(`category-${activeCategory}`).classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-            // Fallback: if none active, activate first
-            if (!document.querySelector('.category-section.active')) {
-                const firstLink = links[0];
-                if (firstLink) firstLink.click();
-            }
-        }
-
-        // ========== AUTH ==========
-        const token = localStorage.getItem('access_token');
-        if (!token) window.location.href = 'login.html';
-
-        // ========== API HELPER ==========
-        async function safeApiCall(endpoint, options = {}) {
-            try {
-                const res = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-                });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return res;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        // ========== ACKNOWLEDGMENT ==========
-        let hasAcknowledged = localStorage.getItem('accommodation_rules_acknowledged') === 'true';
-
-        function updateAcknowledgeButton() {
-            const btn = document.getElementById('acknowledgeBtn');
-            if (hasAcknowledged) {
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> Rules Acknowledged ✓';
-                btn.disabled = true;
-                btn.style.opacity = '0.7';
-                btn.style.cursor = 'default';
-            } else {
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> Acknowledge Rules';
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-            }
-        }
-
-        async function openAgreementModal() {
-            if (hasAcknowledged) {
-                alert('You have already acknowledged the rules.');
-                return;
-            }
-            const modal = document.getElementById('agreementModal');
-            const agreementDiv = document.getElementById('agreementText');
-            // Build summary text
-            const allRules = rulesData.map(r => `• ${r.title}: ${r.desc}`).join('\n\n');
-            agreementDiv.innerHTML = `<strong>GIPS STUDENT VILLAGE RULES</strong><br><br>${escapeHtml(allRules).replace(/\n/g, '<br>')}`;
-            document.getElementById('agreeRules').checked = false;
-            document.getElementById('acknowledgeError').style.display = 'none';
-            document.getElementById('acknowledgeSuccess').style.display = 'none';
-            modal.style.display = 'flex';
-        }
-
-        async function submitAcknowledgment() {
-            if (!document.getElementById('agreeRules').checked) {
-                const errDiv = document.getElementById('acknowledgeError');
-                errDiv.textContent = 'Please confirm that you agree to the rules.';
-                errDiv.style.display = 'block';
-                return;
-            }
-            const res = await safeApiCall('/api/accommodation/acknowledge-rules', {
-                method: 'POST',
-                body: JSON.stringify({ acknowledged: true })
-            });
-            if (res && res.ok) {
-                hasAcknowledged = true;
-                localStorage.setItem('accommodation_rules_acknowledged', 'true');
-                document.getElementById('acknowledgeSuccess').textContent = '✓ Rules acknowledged successfully!';
-                document.getElementById('acknowledgeSuccess').style.display = 'block';
-                updateAcknowledgeButton();
-                setTimeout(() => {
-                    document.getElementById('agreementModal').style.display = 'none';
-                }, 1500);
-            } else {
-                // Fallback: still allow local acknowledgment
-                hasAcknowledged = true;
-                localStorage.setItem('accommodation_rules_acknowledged', 'true');
-                document.getElementById('acknowledgeSuccess').textContent = '✓ Rules acknowledged (demo mode).';
-                document.getElementById('acknowledgeSuccess').style.display = 'block';
-                updateAcknowledgeButton();
-                setTimeout(() => {
-                    document.getElementById('agreementModal').style.display = 'none';
-                }, 1500);
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('agreementModal').style.display = 'none';
-        }
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== HELPER ==========
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ========== INIT ==========
-        renderSidebar();
-        renderContent();
-        setupCategorySwitching();
-        updateAcknowledgeButton();
-
-        document.getElementById('acknowledgeBtn').addEventListener('click', openAgreementModal);
-        document.querySelectorAll('.close').forEach(btn => {
-            btn.addEventListener('click', closeModal);
-        });
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) closeModal();
-        });
-
-        window.submitAcknowledgment = submitAcknowledgment;
-        window.openAgreementModal = openAgreementModal;
-        window.closeModal = closeModal;
-    </script>
+    
 
 <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
@@ -878,6 +654,21 @@
     const token = localStorage.getItem('access_token');
     const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
     // If logged in, stay; if not, allow access.
+})();
+</script>
+
+
+<script>
+(function() {
+    function doLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+    }
+    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
+    logoutElements.forEach(el => el.addEventListener('click', doLogout));
+    window.logout = doLogout;
 })();
 </script>
 

@@ -798,267 +798,7 @@
 </div>
     </footer>
 
-    <script>
-        const token = localStorage.getItem('access_token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        
-        if (!token) {
-            window.location.href = 'login.html';
-        }
-        
-        // Check if user is admin
-        if (user.role !== 'admin') {
-            window.location.href = 'student-dashboard.html';
-        }
-        
-        // Display admin name
-        document.getElementById('adminName').textContent = user.first_name || 'Admin';
-        
-        // Handle logo error
-        const logoImage = document.getElementById('logoImage');
-        if (logoImage) logoImage.onerror = function() { this.style.display = 'none'; };
-        
-        // API call function
-        async function apiCall(endpoint, options = {}) {
-            const response = await fetch(endpoint, {
-                ...options,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                }
-            });
-            if (response.status === 401) {
-                localStorage.clear();
-                window.location.href = 'login.html';
-            }
-            return response;
-        }
-        
-        // Load all data
-        async function loadStats() {
-            try {
-                const response = await apiCall('/api/admin/stats');
-                const stats = await response.json();
-                document.getElementById('totalStudents').textContent = stats.total_students || 0;
-                document.getElementById('totalStaff').textContent = (stats.staff || 0) + (stats.lecturers || 0);
-                document.getElementById('totalPrograms').textContent = stats.total_programs || 0;
-                document.getElementById('pendingApplications').textContent = stats.pending_applications || 0;
-                document.getElementById('pendingPayments').textContent = stats.pending_payments || 0;
-                document.getElementById('openTickets').textContent = stats.open_tickets || 0;
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        }
-        
-        async function loadStudents() {
-            try {
-                const response = await apiCall('/api/admin/students');
-                const students = await response.json();
-                const tbody = document.getElementById('studentsList');
-                if (students.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7">No students found</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = students.map(s => `
-                    <tr>
-                        <td>${s.id}</td>
-                        <td>${s.student_number || 'N/A'}</td>
-                        <td>${s.first_name} ${s.last_name}</td>
-                        <td>${s.email}</td>
-                        <td>${s.program_name || 'N/A'}</td>
-                        <td><span class="badge" style="background:${s.admission_status === 'accepted' ? '#d4edda' : '#fff3cd'}; color:${s.admission_status === 'accepted' ? '#155724' : '#856404'}">${s.admission_status || 'pending'}</span></td>
-                        <td><button class="btn btn-sm btn-warning" onclick="editStudent(${s.id})"><i class="fas fa-edit"></i> Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteStudent(${s.id})"><i class="fas fa-trash"></i> Delete</button></td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading students:', error);
-            }
-        }
-        
-        async function loadStaff() {
-            const tbody = document.getElementById('staffList');
-            tbody.innerHTML = '<tr><td colspan="7"><div class="loading-spinner"></div> Loading staff...</td></tr>';
-            // Demo staff data
-            tbody.innerHTML = `
-                <tr><td>1</td><td>Admin User</td><td>admin@example.com</td><td>Admin</td><td>Administration</td><td>Active</td><td><button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</button></td></tr>
-                <tr><td>2</td><td>John Lecturer</td><td>john@gipscollege.edu</td><td>Lecturer</td><td>Computer Science</td><td>Active</td><td><button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Edit</button></td></tr>
-            `;
-        }
-        
-        async function loadPrograms() {
-            try {
-                const response = await apiCall('/api/admin/programs');
-                const programs = await response.json();
-                const tbody = document.getElementById('programsList');
-                if (programs.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7">No programs found</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = programs.map(p => `
-                    <tr>
-                        <td>${p.id}</td>
-                        <td>${p.program_code || 'N/A'}</td>
-                        <td>${p.program_name}</td>
-                        <td>${p.duration_years} years</td>
-                        <td>${p.total_credits || 'N/A'}</td>
-                        <td><span style="color:${p.is_active ? '#28a745' : '#dc3545'}">${p.is_active ? 'Active' : 'Inactive'}</span></td>
-                        <td><button class="btn btn-sm btn-warning" onclick="editProgram(${p.id})"><i class="fas fa-edit"></i> Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteProgram(${p.id})"><i class="fas fa-trash"></i> Delete</button></td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading programs:', error);
-            }
-        }
-        
-        async function loadModules() {
-            try {
-                const response = await apiCall('/api/admin/modules');
-                const modules = await response.json();
-                const tbody = document.getElementById('modulesList');
-                if (modules.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7">No modules found</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = modules.map(m => `
-                    <tr>
-                        <td>${m.id}</td>
-                        <td>${m.module_code}</td>
-                        <td>${m.module_name}</td>
-                        <td>${m.credits}</td>
-                        <td>Year ${m.year_level}</td>
-                        <td>Semester ${m.semester}</td>
-                        <td><button class="btn btn-sm btn-warning" onclick="editModule(${m.id})"><i class="fas fa-edit"></i> Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteModule(${m.id})"><i class="fas fa-trash"></i> Delete</button></td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading modules:', error);
-            }
-        }
-        
-        async function loadAccommodations() {
-            try {
-                const response = await apiCall('/api/admin/accommodations');
-                const accommodations = await response.json();
-                const tbody = document.getElementById('accommodationList');
-                if (accommodations.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8">No accommodations found</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = accommodations.map(a => `
-                    <tr>
-                        <td>${a.id}</td>
-                        <td>${a.name}</td>
-                        <td>${a.location || 'Main Campus'}</td>
-                        <td>P ${a.price_per_semester}</td>
-                        <td>${a.total_rooms}</td>
-                        <td>${a.available_rooms}</td>
-                        <td><span style="color:${a.is_active ? '#28a745' : '#dc3545'}">${a.is_active ? 'Active' : 'Inactive'}</span></td>
-                        <td><button class="btn btn-sm btn-warning" onclick="editAccommodation(${a.id})"><i class="fas fa-edit"></i> Edit</button></td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading accommodations:', error);
-            }
-        }
-        
-        function loadPayments() {
-            const tbody = document.getElementById('paymentsList');
-            tbody.innerHTML = `
-                <tr><td>1</td><td>John Doe</td><td>P 8,500</td><td>2026-03-15</td><td>Card</td><td><span class="badge" style="background:#d4edda;color:#155724">Completed</span></td><td>#REC-001</td></tr>
-                <tr><td>2</td><td>Jane Smith</td><td>P 5,000</td><td>2026-03-14</td><td>Mobile Money</td><td><span class="badge" style="background:#fff3cd;color:#856404">Pending</span></td><td>#REC-002</td></tr>
-            `;
-        }
-        
-        function loadTickets() {
-            const tbody = document.getElementById('ticketsList');
-            tbody.innerHTML = `
-                <tr><td>1</td><td>John Doe</td><td>Cannot login to portal</td><td><span class="badge" style="background:#fff3cd;color:#856404">Open</span></td><td>2026-03-20</td><td><button class="btn btn-sm btn-success"><i class="fas fa-check"></i> Resolve</button></td></tr>
-            `;
-        }
-        
-        // Tab switching
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const tab = this.dataset.tab;
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById(tab).classList.add('active');
-                
-                // Load data for tab
-                if (tab === 'students') loadStudents();
-                else if (tab === 'staff') loadStaff();
-                else if (tab === 'programs') loadPrograms();
-                else if (tab === 'modules') loadModules();
-                else if (tab === 'accommodation') loadAccommodations();
-                else if (tab === 'payments') loadPayments();
-                else if (tab === 'tickets') loadTickets();
-            });
-        });
-        
-        // Modal functions
-        function openAddStudentModal() {
-            document.getElementById('addStudentModal').style.display = 'flex';
-        }
-        
-        function openAddProgramModal() {
-            document.getElementById('addProgramModal').style.display = 'flex';
-        }
-        
-        function openAddStaffModal() { alert('Add staff feature coming soon'); }
-        function openAddModuleModal() { alert('Add module feature coming soon'); }
-        function openAddAccommodationModal() { alert('Add accommodation feature coming soon'); }
-        
-        function filterStudents() { loadStudents(); }
-        function filterPayments() { loadPayments(); }
-        function exportStudents() { alert('Exporting student data...'); }
-        function exportPayments() { alert('Exporting payment data...'); }
-        function generateReport(type) { alert(`Generating ${type} report...`); }
-        function editStudent(id) { alert(`Edit student ${id}`); }
-        function deleteStudent(id) { if(confirm('Delete student?')) alert(`Student ${id} deleted`); }
-        function editProgram(id) { alert(`Edit program ${id}`); }
-        function deleteProgram(id) { if(confirm('Delete program?')) alert(`Program ${id} deleted`); }
-        function editModule(id) { alert(`Edit module ${id}`); }
-        function deleteModule(id) { if(confirm('Delete module?')) alert(`Module ${id} deleted`); }
-        function editAccommodation(id) { alert(`Edit accommodation ${id}`); }
-        
-        // Close modals
-        document.querySelectorAll('.close').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.closest('.modal').style.display = 'none';
-            });
-        });
-        
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
-        });
-        
-        // Add student form
-        document.getElementById('addStudentForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            alert('Student creation feature - implement with API');
-            document.getElementById('addStudentModal').style.display = 'none';
-        });
-        
-        // Add program form
-        document.getElementById('addProgramForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            alert('Program creation feature - implement with API');
-            document.getElementById('addProgramModal').style.display = 'none';
-        });
-        
-        // Logout
-        document.getElementById('logoutLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-        
-        // Load initial data
-        loadStats();
-        loadStudents();
-    </script>
+    
 
 <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
@@ -1080,6 +820,21 @@
     const token = localStorage.getItem('access_token');
     const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
     // If logged in, stay; if not, allow access.
+})();
+</script>
+
+
+<script>
+(function() {
+    function doLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+    }
+    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
+    logoutElements.forEach(el => el.addEventListener('click', doLogout));
+    window.logout = doLogout;
 })();
 </script>
 

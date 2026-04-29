@@ -551,255 +551,7 @@
         </div>
     </footer>
 
-    <script>
-        // ========== AUTH ==========
-        const token = localStorage.getItem('access_token');
-        if (!token) window.location.href = 'login.html';
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-        let currentAssignment = null;
-
-        // ========== HELPERS ==========
-        async function safeApiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('access_token');
-            if (!token) { window.location.href = 'login.html'; return null; }
-            try {
-                const response = await fetch(endpoint, {
-                    ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, ...options.headers }
-                });
-                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-                return response;
-            } catch (err) { console.error(err); return null; }
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function getDueDateStatus(dueDate) {
-            const now = new Date();
-            const due = new Date(dueDate);
-            const daysDiff = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
-            if (daysDiff < 0) return { class: 'overdue', text: `Overdue by ${Math.abs(daysDiff)} days` };
-            if (daysDiff <= 3) return { class: 'soon', text: `Due in ${daysDiff} day${daysDiff !== 1 ? 's' : ''}` };
-            return { class: 'normal', text: `Due: ${due.toLocaleDateString()}` };
-        }
-
-        // ========== LOAD ASSIGNMENTS FROM REAL API ==========
-        async function loadAllAssignments() {
-            const res = await safeApiCall('/api/assignments/');
-            if (res && res.ok) return await res.json();
-            return [];
-        }
-
-        async function loadMySubmissions() {
-            const res = await safeApiCall('/api/assignments/my-submissions');
-            if (res && res.ok) return await res.json();
-            return [];
-        }
-
-        // Build maps of submitted/graded
-        async function loadDashboard() {
-            const [assignments, submissions] = await Promise.all([loadAllAssignments(), loadMySubmissions()]);
-            const submittedMap = new Map(); // assignment_id -> submission object
-            submissions.forEach(sub => { submittedMap.set(sub.assignment_id, sub); });
-
-            const pending = [];
-            const submittedList = [];
-            const gradedList = [];
-
-            for (const a of assignments) {
-                const sub = submittedMap.get(a.id);
-                if (!sub) {
-                    pending.push(a);
-                } else if (sub.score !== null && sub.score !== undefined) {
-                    gradedList.push({ ...a, submission: sub });
-                } else {
-                    submittedList.push({ ...a, submission: sub });
-                }
-            }
-
-            renderPending(pending);
-            renderSubmitted(submittedList);
-            renderGraded(gradedList);
-        }
-
-        function renderPending(assignments) {
-            const container = document.getElementById('pendingAssignments');
-            if (!assignments.length) {
-                container.innerHTML = '<div class="info-message"><i class="fas fa-check-circle"></i> No pending assignments! You\'re all caught up.</div>';
-                return;
-            }
-            container.innerHTML = assignments.map(a => {
-                const due = getDueDateStatus(a.due_date);
-                return `
-                    <div class="assignment-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-file-alt"></i> ${escapeHtml(a.title)}</h3>
-                            <span class="due-date ${due.class}"><i class="fas fa-calendar-alt"></i> ${due.text}</span>
-                        </div>
-                        <p><strong><i class="fas fa-book"></i> Course:</strong> ${escapeHtml(a.course_name)}</p>
-                        <p><strong>Description:</strong> ${escapeHtml(a.description || 'No description provided.')}</p>
-                        <p><strong>Points:</strong> ${a.max_score || 0}</p>
-                        <button class="btn btn-primary" onclick="openSubmissionModal(${a.id}, '${escapeHtml(a.title).replace(/'/g, "\\'")}', ${a.max_score || 0})"><i class="fas fa-paper-plane"></i> Submit Assignment</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderSubmitted(list) {
-            const container = document.getElementById('submittedAssignments');
-            if (!list.length) {
-                container.innerHTML = '<div class="info-message"><i class="fas fa-info-circle"></i> You haven\'t submitted any assignments yet.</div>';
-                return;
-            }
-            container.innerHTML = list.map(item => `
-                <div class="submission-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-file-alt"></i> ${escapeHtml(item.title)}</h3>
-                        <span class="badge badge-submitted">Submitted</span>
-                    </div>
-                    <p><strong>Submitted on:</strong> ${new Date(item.submission.submission_date).toLocaleString()}</p>
-                    <p><strong>Comments:</strong> ${escapeHtml(item.submission.comments || 'None')}</p>
-                    <p><strong>Status:</strong> Pending grading</p>
-                </div>
-            `).join('');
-        }
-
-        function renderGraded(list) {
-            const container = document.getElementById('gradedAssignments');
-            if (!list.length) {
-                container.innerHTML = '<div class="info-message"><i class="fas fa-chart-line"></i> No graded assignments yet.</div>';
-                return;
-            }
-            container.innerHTML = list.map(item => {
-                const score = item.submission.score;
-                const max = item.max_score || 1;
-                const percent = (score / max * 100).toFixed(1);
-                const icon = percent >= 80 ? '<i class="fas fa-trophy" style="color:#f59e0b;"></i>' : (percent >= 60 ? '<i class="fas fa-smile"></i>' : '<i class="fas fa-book-open"></i>');
-                return `
-                    <div class="submission-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-file-alt"></i> ${escapeHtml(item.title)}</h3>
-                            <span class="badge badge-graded">Graded</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                            <div>
-                                <p><strong>Score:</strong> <span class="score">${score}/${max}</span> (${percent}%)</p>
-                                <p><strong>Feedback:</strong> ${escapeHtml(item.submission.feedback || 'No feedback provided.')}</p>
-                                <p><strong>Graded on:</strong> ${new Date(item.submission.graded_at).toLocaleString()}</p>
-                            </div>
-                            <div style="font-size: 1.2rem;">${icon}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // ========== SUBMIT ASSIGNMENT ==========
-        window.openSubmissionModal = function (id, title, maxPoints) {
-            currentAssignment = { id, title, maxPoints };
-            document.getElementById('assignmentInfo').innerHTML = `
-                <p><strong>Assignment:</strong> ${escapeHtml(title)}</p>
-                <p><strong>Points:</strong> ${maxPoints}</p>
-            `;
-            document.getElementById('submissionError').style.display = 'none';
-            document.getElementById('submissionSuccess').style.display = 'none';
-            document.getElementById('fileNameDisplay').style.display = 'none';
-            document.getElementById('submissionFile').value = '';
-            document.getElementById('submissionComments').value = '';
-            document.getElementById('submissionModal').style.display = 'block';
-        };
-
-        document.getElementById('submissionFile')?.addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            const displayDiv = document.getElementById('fileNameDisplay');
-            if (file) {
-                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                displayDiv.innerHTML = `<i class="fas fa-check-circle" style="color:#38a169;"></i> Selected: ${escapeHtml(file.name)} (${sizeMB} MB)`;
-                displayDiv.style.display = 'block';
-            } else displayDiv.style.display = 'none';
-        });
-
-        document.getElementById('submissionForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const file = document.getElementById('submissionFile').files[0];
-            const comments = document.getElementById('submissionComments').value;
-            const errorDiv = document.getElementById('submissionError');
-            const successDiv = document.getElementById('submissionSuccess');
-            const submitBtn = document.getElementById('submitBtn');
-
-            errorDiv.style.display = 'none';
-            successDiv.style.display = 'none';
-            if (!file) { showMessage(errorDiv, 'Please select a file', 'error'); return; }
-            if (file.size > 10 * 1024 * 1024) { showMessage(errorDiv, 'File too large (max 10MB)', 'error'); return; }
-
-            const formData = new FormData();
-            formData.append('file', file);
-            if (comments) formData.append('comments', comments);
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading-spinner"></span> Uploading...';
-
-            const res = await fetch(`/api/assignments/${currentAssignment.id}/submit`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-                body: formData
-            });
-            if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return; }
-            if (res.ok) {
-                showMessage(successDiv, '✓ Assignment submitted successfully!', 'success');
-                setTimeout(() => {
-                    document.getElementById('submissionModal').style.display = 'none';
-                    loadDashboard();
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Submit Assignment';
-                }, 2000);
-            } else {
-                const err = await res.json();
-                showMessage(errorDiv, err.error || 'Submission failed. Please try again.', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-check"></i> Submit Assignment';
-            }
-        });
-
-        function showMessage(el, msg, type) {
-            el.textContent = msg;
-            el.className = type === 'error' ? 'error-message' : 'success-message';
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 4000);
-        }
-
-        // ========== TAB SWITCHING ==========
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const tabId = this.dataset.tab;
-                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-                // no extra load – data already loaded once
-            });
-        });
-
-        // ========== LOGOUT ==========
-        document.getElementById('logoutLink')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        // ========== INIT ==========
-        loadDashboard();
-
-        // Cookie banner (same as before)
-        if (!localStorage.getItem('cookieConsent')) document.getElementById('cookieBanner').style.display = 'block';
-        window.acceptCookies = () => { localStorage.setItem('cookieConsent', 'true'); document.getElementById('cookieBanner').style.display = 'none'; };
-    </script>
+    
 
     <div id="cookieBanner"
         style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
@@ -814,6 +566,21 @@
     const token = localStorage.getItem('access_token');
     const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
     // If logged in, stay; if not, allow access.
+})();
+</script>
+
+
+<script>
+(function() {
+    function doLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+    }
+    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
+    logoutElements.forEach(el => el.addEventListener('click', doLogout));
+    window.logout = doLogout;
 })();
 </script>
 

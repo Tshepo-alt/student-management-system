@@ -775,103 +775,7 @@
         <i class="fas fa-comment-dots"></i>
     </div>
 
-    <script>
-        // Bubbles
-        function createBubbles() {
-            const container = document.getElementById('bubbles');
-            const texts = ["Excellence in Higher Learning", "The Ultimate Journey", "35 Years of Excellence", "Your Success Starts Here"];
-            for (let i = 0; i < 40; i++) {
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
-                const size = Math.random() * 100 + 50;
-                bubble.style.width = size + 'px';
-                bubble.style.height = size + 'px';
-                bubble.style.left = Math.random() * 100 + '%';
-                bubble.style.animationDuration = Math.random() * 12 + 8 + 's';
-                bubble.style.animationDelay = Math.random() * 10 + 's';
-                bubble.innerText = texts[Math.floor(Math.random() * texts.length)];
-                container.appendChild(bubble);
-            }
-        }
-
-        // Navigation based on login status
-        const token = localStorage.getItem('access_token');
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-        const navMenu = document.getElementById('navMenu');
-        const ctaButtons = document.getElementById('ctaButtons');
-
-        function updateNavigation() {
-            if (token && isLoggedIn) {
-                const userName = user.first_name || user.username || user.email?.split('@')[0] || 'Student';
-                const userInitial = userName.charAt(0).toUpperCase();
-                navMenu.innerHTML = `
-                    <li><a href="/" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="pages/student-dashboard.html" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
-                    <li>
-                        <div class="user-greeting">
-                            <div class="user-avatar">${userInitial}</div>
-                            <span class="user-name">${escapeHtml(userName)}</span>
-                            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                        </div>
-                    </li>
-                `;
-                ctaButtons.innerHTML = `
-                    <a href="pages/student-dashboard.html" class="btn btn-light"><i class="fas fa-chart-line"></i> Go to Dashboard</a>
-                    <a href="pages/chatbot.html" class="btn btn-outline-light"><i class="fas fa-comment-dots"></i> Chat with Samantha</a>
-                `;
-            } else {
-                navMenu.innerHTML = `
-                    <li><a href="/" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="pages/login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-                    <li><a href="pages/register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></li>
-                    <li><a href="pages/chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
-                `;
-                ctaButtons.innerHTML = `
-                    <a href="pages/login.html" class="btn btn-light"><i class="fas fa-sign-in-alt"></i> Student Login</a>
-                    <a href="pages/register.html" class="btn btn-outline-light"><i class="fas fa-edit"></i> Apply Now</a>
-                `;
-            }
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Logo fallback
-        const logoImage = document.getElementById('logoImage');
-        if (logoImage) logoImage.onerror = function () { this.style.display = 'none'; };
-
-        // Scroll animations for cards
-        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-        document.querySelectorAll('.feature-card, .program-card, .stat-box').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(el);
-        });
-
-        createBubbles();
-        updateNavigation();
-    </script>
+    
 
 <div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
     This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
@@ -893,6 +797,21 @@
     const token = localStorage.getItem('access_token');
     const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
     // If logged in, stay; if not, allow access.
+})();
+</script>
+
+
+<script>
+(function() {
+    function doLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+    }
+    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
+    logoutElements.forEach(el => el.addEventListener('click', doLogout));
+    window.logout = doLogout;
 })();
 </script>
 

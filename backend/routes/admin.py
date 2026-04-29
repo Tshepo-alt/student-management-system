@@ -14,7 +14,7 @@ from sqlalchemy import func, text
 # Add backend directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from models import db, User, Student, Program, Module, Accommodation, Registration, Payment, Notification, TokenBlocklist, Campus, AccommodationRegistration, AccommodationRoom, AcademicRecord, ExamRegistration, FeesConfig, Course, Enrollment, StaffQuery
+from models import db, User, Student, Program, Module, Accommodation, Registration, Payment, Notification, TokenBlocklist, Campus, AccommodationRegistration, AccommodationRoom, AcademicRecord, ExamRegistration, FeesConfig, Course, Enrollment, StaffQuery, SystemConfig
 
 # ========== MOODLE INTEGRATION IMPORTS ==========
 from services.moodle_integration import MoodleClient
@@ -1039,7 +1039,7 @@ def allocate_accommodation(app_id):
         print(f"Allocate accommodation error: {e}")
         return jsonify({'error': str(e)}), 500
 
-# ==================== NEW: STAFF QUERIES MANAGEMENT ====================
+# ==================== STAFF QUERIES MANAGEMENT ====================
 
 @admin_bp.route('/tickets', methods=['GET'])
 @jwt_required()
@@ -1190,6 +1190,317 @@ def get_ticket_stats():
             'high_priority': high_priority
         }), 200
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== REGISTRATION MANAGEMENT (REGISTRAR) ====================
+
+@admin_bp.route('/registrations/pending', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_pending_registrations():
+    """Get all semester registrations with status 'pending' for approval."""
+    try:
+        registrations = Registration.query.filter_by(registration_status='pending') \
+            .order_by(Registration.created_at.desc()).all()
+        result = []
+        for reg in registrations:
+            student = Student.query.get(reg.student_id)
+            if not student:
+                continue
+            # Get enrolled modules for this registration
+            enrollments = Enrollment.query.filter_by(registration_id=reg.id, status='registered').all()
+            modules = []
+            for e in enrollments:
+                if e.module:
+                    modules.append(f"{e.module.module_code} - {e.module.module_name}")
+            # Get previous academic record (if any)
+            prev_records = AcademicRecord.query.filter_by(student_id=student.id) \
+                .order_by(AcademicRecord.created_at.desc()).first()
+            prev_results = []
+            if prev_records:
+                prev_results = [{
+                    'semester_gpa': float(prev_records.semester_gpa) if prev_records.semester_gpa else 0,
+                    'academic_status': prev_records.academic_status
+                }]
+            result.append({
+                'id': reg.id,
+                'student_number': student.student_number,
+                'first_name': student.first_name,
+                'last_name': student.last_name,
+                'program': student.program.program_name if student.program else 'N/A',
+                'semester': f"Semester {reg.semester.semester_number} ({reg.academic_year.year_name})" if reg.semester and reg.academic_year else 'N/A',
+                'year_of_study': reg.year_of_study,
+                'sponsorship': 'government' if student.is_government_sponsored else 'private',
+                'modules': modules,
+                'previous_results': prev_results,
+                'gpa': float(student.current_gpa) if student.current_gpa else None,
+                'status': reg.registration_status
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Error fetching pending registrations: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/registrations/approved', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_approved_registrations():
+    """Get all registrations with status 'approved'."""
+    try:
+        registrations = Registration.query.filter_by(registration_status='approved') \
+            .order_by(Registration.created_at.desc()).all()
+        result = []
+        for reg in registrations:
+            student = Student.query.get(reg.student_id)
+            if not student:
+                continue
+            enrollments = Enrollment.query.filter_by(registration_id=reg.id, status='registered').all()
+            modules = [f"{e.module.module_code} - {e.module.module_name}" for e in enrollments if e.module]
+            result.append({
+                'id': reg.id,
+                'student_number': student.student_number,
+                'first_name': student.first_name,
+                'last_name': student.last_name,
+                'program': student.program.program_name if student.program else 'N/A',
+                'semester': f"Semester {reg.semester.semester_number} ({reg.academic_year.year_name})" if reg.semester and reg.academic_year else 'N/A',
+                'year_of_study': reg.year_of_study,
+                'sponsorship': 'government' if student.is_government_sponsored else 'private',
+                'modules': modules,
+                'status': reg.registration_status
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Error fetching approved registrations: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/registrations/rejected', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_rejected_registrations():
+    """Get all registrations with status 'rejected'."""
+    try:
+        registrations = Registration.query.filter_by(registration_status='rejected') \
+            .order_by(Registration.created_at.desc()).all()
+        result = []
+        for reg in registrations:
+            student = Student.query.get(reg.student_id)
+            if not student:
+                continue
+            enrollments = Enrollment.query.filter_by(registration_id=reg.id, status='registered').all()
+            modules = [f"{e.module.module_code} - {e.module.module_name}" for e in enrollments if e.module]
+            result.append({
+                'id': reg.id,
+                'student_number': student.student_number,
+                'first_name': student.first_name,
+                'last_name': student.last_name,
+                'program': student.program.program_name if student.program else 'N/A',
+                'semester': f"Semester {reg.semester.semester_number} ({reg.academic_year.year_name})" if reg.semester and reg.academic_year else 'N/A',
+                'year_of_study': reg.year_of_study,
+                'sponsorship': 'government' if student.is_government_sponsored else 'private',
+                'modules': modules,
+                'status': reg.registration_status
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Error fetching rejected registrations: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/registrations/<int:reg_id>/approve', methods=['POST'])
+@jwt_required()
+@admin_required
+def approve_registration(reg_id):
+    """Approve a pending semester registration."""
+    try:
+        registration = Registration.query.get(reg_id)
+        if not registration:
+            return jsonify({'error': 'Registration not found'}), 404
+        if registration.registration_status != 'pending':
+            return jsonify({'error': f'Registration already {registration.registration_status}'}), 400
+
+        registration.registration_status = 'approved'
+        registration.approved_by = get_jwt_identity()
+        registration.approved_at = datetime.utcnow()
+        db.session.commit()
+
+        # Notify student
+        student = Student.query.get(registration.student_id)
+        if student and student.user_id:
+            notification = Notification(
+                user_id=student.user_id,
+                title='Registration Approved',
+                message=f'Your semester registration has been approved. You can now access your courses.',
+                notification_type='success'
+            )
+            db.session.add(notification)
+            db.session.commit()
+
+        return jsonify({'message': 'Registration approved successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error approving registration: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/registrations/<int:reg_id>/reject', methods=['POST'])
+@jwt_required()
+@admin_required
+def reject_registration(reg_id):
+    """Reject a pending semester registration with a reason."""
+    try:
+        data = request.get_json()
+        reason = data.get('reason', 'No reason provided')
+        registration = Registration.query.get(reg_id)
+        if not registration:
+            return jsonify({'error': 'Registration not found'}), 404
+        if registration.registration_status != 'pending':
+            return jsonify({'error': f'Registration already {registration.registration_status}'}), 400
+
+        registration.registration_status = 'rejected'
+        registration.notes = f"Rejected by Registrar: {reason}"
+        db.session.commit()
+
+        # Notify student
+        student = Student.query.get(registration.student_id)
+        if student and student.user_id:
+            notification = Notification(
+                user_id=student.user_id,
+                title='Registration Rejected',
+                message=f'Your semester registration was rejected. Reason: {reason}. Please contact the Registrar\'s office.',
+                notification_type='error'
+            )
+            db.session.add(notification)
+            db.session.commit()
+
+        return jsonify({'message': 'Registration rejected'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error rejecting registration: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ==================== SYSTEM SETTINGS (EXISTING FEE SETTINGS) ====================
+
+@admin_bp.route('/settings', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_settings():
+    """Get system settings"""
+    try:
+        settings = {
+            'academic_year': '2025/2026',
+            'current_semester': 2,
+            'registration_start': '2026-01-15',
+            'registration_end': '2026-02-15',
+            'late_fee': 500,
+            'application_fee': 500,
+            'registration_fee': 2000,
+            'exam_fee': 500,
+            'supplementary_exam_fee': 300,
+            'resit_exam_fee': 600,
+            'retake_exam_fee': 1000,
+            'accommodation_deposit': 5000,
+            'session_timeout': 30,
+            'max_login_attempts': 5
+        }
+        return jsonify(settings), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/settings', methods=['PUT'])
+@jwt_required()
+@admin_required
+def update_settings():
+    """Update system settings"""
+    try:
+        data = request.get_json()
+        
+        # Update FeesConfig if provided
+        if 'supplementary_exam_fee' in data:
+            fee = FeesConfig.query.filter_by(fee_type='supplementary').first()
+            if fee:
+                fee.amount = data['supplementary_exam_fee']
+        
+        if 'resit_exam_fee' in data:
+            fee = FeesConfig.query.filter_by(fee_type='resit').first()
+            if fee:
+                fee.amount = data['resit_exam_fee']
+        
+        if 'retake_exam_fee' in data:
+            fee = FeesConfig.query.filter_by(fee_type='retake').first()
+            if fee:
+                fee.amount = data['retake_exam_fee']
+        
+        db.session.commit()
+        return jsonify({'message': 'Settings updated successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+# ==================== PERSISTENT SYSTEM CONFIGURATION (FEATURE TOGGLES) ====================
+
+@admin_bp.route('/config', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_system_config():
+    """Get all persisted system configuration (feature toggles, etc.)"""
+    try:
+        configs = SystemConfig.query.all()
+        result = {}
+        for cfg in configs:
+            result[cfg.config_key] = cfg.get_value()
+        # Provide default values if not set
+        defaults = {
+            'ENABLE_2FA_FOR_STAFF': False,
+            'ENABLE_EMAIL_VERIFICATION': True,
+            'ENABLE_CHATBOT': True,
+            'ENABLE_ONLINE_CLASSES': True,
+            'SESSION_TIMEOUT_MINUTES': 30,
+            'MAX_LOGIN_ATTEMPTS': 5
+        }
+        for key, default_value in defaults.items():
+            if key not in result:
+                result[key] = default_value
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/config', methods=['POST'])
+@jwt_required()
+@admin_required
+def update_system_config():
+    """Update or create system configuration values"""
+    try:
+        data = request.get_json()
+        for key, value in data.items():
+            cfg = SystemConfig.query.filter_by(config_key=key).first()
+            if not cfg:
+                # Determine config_type heuristically
+                if isinstance(value, bool):
+                    cfg_type = 'boolean'
+                elif isinstance(value, int):
+                    cfg_type = 'integer'
+                elif isinstance(value, float):
+                    cfg_type = 'float'
+                elif isinstance(value, dict) or isinstance(value, list):
+                    cfg_type = 'json'
+                else:
+                    cfg_type = 'string'
+                cfg = SystemConfig(
+                    config_key=key,
+                    config_type=cfg_type,
+                    updated_by=get_jwt_identity()
+                )
+                db.session.add(cfg)
+            cfg.set_value(value)
+            cfg.updated_at = datetime.utcnow()
+            cfg.updated_by = get_jwt_identity()
+        db.session.commit()
+        return jsonify({'message': 'Configuration saved'}), 200
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 # ==================== CSV EXPORTS ====================
@@ -1355,64 +1666,6 @@ def export_accommodation_applicants():
     except Exception as e:
         print(f"Export error: {e}")
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
-
-# ==================== SYSTEM SETTINGS ====================
-
-@admin_bp.route('/settings', methods=['GET'])
-@jwt_required()
-@admin_required
-def get_settings():
-    """Get system settings"""
-    try:
-        settings = {
-            'academic_year': '2025/2026',
-            'current_semester': 2,
-            'registration_start': '2026-01-15',
-            'registration_end': '2026-02-15',
-            'late_fee': 500,
-            'application_fee': 500,
-            'registration_fee': 2000,
-            'exam_fee': 500,
-            'supplementary_exam_fee': 300,
-            'resit_exam_fee': 600,
-            'retake_exam_fee': 1000,
-            'accommodation_deposit': 5000,
-            'session_timeout': 30,
-            'max_login_attempts': 5
-        }
-        return jsonify(settings), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@admin_bp.route('/settings', methods=['PUT'])
-@jwt_required()
-@admin_required
-def update_settings():
-    """Update system settings"""
-    try:
-        data = request.get_json()
-        
-        # Update FeesConfig if provided
-        if 'supplementary_exam_fee' in data:
-            fee = FeesConfig.query.filter_by(fee_type='supplementary').first()
-            if fee:
-                fee.amount = data['supplementary_exam_fee']
-        
-        if 'resit_exam_fee' in data:
-            fee = FeesConfig.query.filter_by(fee_type='resit').first()
-            if fee:
-                fee.amount = data['resit_exam_fee']
-        
-        if 'retake_exam_fee' in data:
-            fee = FeesConfig.query.filter_by(fee_type='retake').first()
-            if fee:
-                fee.amount = data['retake_exam_fee']
-        
-        db.session.commit()
-        return jsonify({'message': 'Settings updated successfully'}), 200
-    except Exception as e:
-        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 # ==================== REPORTS ====================

@@ -1,88 +1,82 @@
 # create_demo_users.py
-import sys
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-# Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
-
-from models import db, User, Student
-from werkzeug.security import generate_password_hash
 from flask import Flask
-from datetime import datetime
+from config import config
+from models import db, User, Student, Program, Campus
+from werkzeug.security import generate_password_hash
 
-# Create a minimal Flask app context
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Admin@localhost:3306/gips_college_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+env = os.getenv('FLASK_ENV', 'development')
+app.config.from_object(config[env])
 db.init_app(app)
 
-# Define demo users: (email, username, role, first_name, last_name, password)
-demo_users = [
-    # student
-    ('student@example.com', 'student', 'student', 'John', 'Doe', 'Student123!'),
-    # admin
-    ('admin@gipscollege.edu.bw', 'admin', 'admin', 'Admin', 'User', 'Admin@2026!'),
-    # registrar
-    ('registrar@gipscollege.edu.bw', 'registrar', 'registrar', 'Registrar', 'Officer', 'Registrar@2026!'),
-    # finance
-    ('finance@gipscollege.edu.bw', 'finance', 'finance', 'Finance', 'Officer', 'Finance@2026!'),
-    # accommodation staff
-    ('accommodation@gipscollege.edu.bw', 'accommodation_staff', 'staff', 'Accommodation', 'Staff', 'Staff@2026!'),
-    # lecturer
-    ('lecturer@example.com', 'lecturer', 'lecturer', 'Lecturer', 'User', 'Lecturer@2026!'),
-    # alumni
-    ('alumni@example.com', 'alumni', 'alumni', 'Alumni', 'User', 'Alumni@2026!'),
-]
-
-def create_user(email, username, role, first_name, last_name, password):
-    """Create a user and associated student record if needed."""
-    with app.app_context():
-        # Check if user already exists
-        existing = User.query.filter_by(email=email).first()
-        if existing:
-            print(f"⚠️ User {email} already exists, skipping.")
-            return
-
-        # Create user
-        user = User(
-            username=username,
+def create_user(email, password, role, first_name=None, last_name=None):
+    """Create a user if not exists. Returns the user object."""
+    existing = User.query.filter_by(email=email).first()
+    if existing:
+        print(f"User {email} already exists (role={existing.role})")
+        return existing
+    user = User(
+        username=email.split('@')[0],
+        email=email,
+        password_hash=generate_password_hash(password),
+        role=role,
+        is_active=True,
+        is_verified=True
+    )
+    db.session.add(user)
+    db.session.flush()  # to get user.id
+    # For student role, also create Student record
+    if role == 'student':
+        # Get first available program and campus (or create dummy ones if none exist)
+        program = Program.query.first()
+        campus = Campus.query.first()
+        if not program or not campus:
+            print("⚠️ No program or campus found. Student record will be incomplete.")
+        # Generate student number
+        year = 2026
+        student_count = Student.query.count() + 1
+        student_number = f"GIPS/{year}/{student_count:05d}"
+        student = Student(
+            user_id=user.id,
+            student_number=student_number,
+            first_name=first_name or email.split('@')[0].capitalize(),
+            last_name=last_name or "User",
             email=email,
-            password_hash=generate_password_hash(password),
-            role=role,
-            is_active=True,
-            is_verified=True,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            phone="+26770000000",
+            program_id=program.id if program else None,
+            campus_id=campus.id if campus else None,
+            admission_status='accepted',
+            is_government_sponsored=False,
+            wants_accommodation=False,
+            enrollment_date=db.func.current_date()
         )
-        db.session.add(user)
-        db.session.flush()
-
-        # For student and alumni, also create a student record
-        if role in ['student', 'alumni']:
-            student = Student(
-                user_id=user.id,
-                student_number=f"DEMO-{username.upper()}",
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                is_active=True,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow()
-            )
-            db.session.add(student)
-
-        db.session.commit()
-        print(f"✅ Created {role}: {email} / {password}")
+        db.session.add(student)
+        print(f"  -> Created Student record for {email}: {student_number}")
+    db.session.commit()
+    print(f"Created user: {email} -> {role}")
+    return user
 
 def main():
-    print("=" * 60)
-    print("Creating demo users for GIPS College Portal")
-    print("=" * 60)
-    for email, username, role, first_name, last_name, password in demo_users:
-        create_user(email, username, role, first_name, last_name, password)
-    print("=" * 60)
-    print("Done! You can now log in with any of these credentials.")
-    print("=" * 60)
+    with app.app_context():
+        # Define users to create
+        users_data = [
+            ("admin@gipscollege.edu.bw", "Admin123!", "admin", "System", "Administrator"),
+            ("registrar@gipscollege.edu.bw", "Admin123!", "registrar", "Registrar", "Office"),
+            ("finance@gipscollege.edu.bw", "Admin123!", "finance", "Finance", "Officer"),
+            ("lecturer@example.com", "Admin123!", "lecturer", "Lecturer", "User"),
+            ("accommodation@gipscollege.edu.bw", "Admin123!", "staff", "Accommodation", "Officer"),
+            ("student@example.com", "Student123!", "student", "Test", "Student"),
+            ("alumni@example.com", "Student123!", "alumni", "Alumni", "User"),
+        ]
+        for email, password, role, first, last in users_data:
+            create_user(email, password, role, first, last)
+
+        print("\n✅ Demo users created/verified in database.")
+        print("\nYou can now log in with the credentials from your login.html demo buttons.")
 
 if __name__ == '__main__':
     main()

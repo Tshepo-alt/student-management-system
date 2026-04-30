@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +15,7 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* (keep all existing styles – unchanged) */
         * {
             margin: 0;
             padding: 0;
@@ -32,10 +28,9 @@
             min-height: 100vh;
         }
 
-        /* Navigation */
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -112,7 +107,6 @@
             width: 70%;
         }
 
-        /* Page Header */
         .results-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 24px;
@@ -121,7 +115,7 @@
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         .results-header::before {
@@ -145,7 +139,6 @@
             font-size: 1rem;
         }
 
-        /* GPA Summary Cards */
         .gpa-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -158,8 +151,8 @@
             padding: 20px;
             border-radius: 20px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
@@ -177,7 +170,7 @@
 
         .gpa-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
         }
 
         .gpa-card h3 {
@@ -207,12 +200,26 @@
             font-weight: 600;
         }
 
-        .standing-first { background: #c6f6d5; color: #276749; }
-        .standing-second { background: #cfe2ff; color: #084298; }
-        .standing-pass { background: #feebc8; color: #c05621; }
-        .standing-probation { background: #fed7d7; color: #c53030; }
+        .standing-first {
+            background: #c6f6d5;
+            color: #276749;
+        }
 
-        /* Tabs */
+        .standing-second {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .standing-pass {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .standing-probation {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
         .tabs {
             display: flex;
             gap: 12px;
@@ -220,8 +227,7 @@
             background: white;
             padding: 8px;
             border-radius: 20px;
-            border: 1px solid rgba(102,126,234,0.1);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             flex-wrap: wrap;
         }
 
@@ -240,14 +246,10 @@
             gap: 8px;
         }
 
-        .tab-button i {
-            font-size: 1rem;
-        }
-
         .tab-button.active {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .tab-content {
@@ -260,18 +262,24 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* Semester Summary */
         .semester-summary {
             background: white;
             border-radius: 20px;
             padding: 20px;
             margin-bottom: 25px;
-            border: 1px solid rgba(102,126,234,0.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .semester-header {
@@ -300,10 +308,6 @@
             flex-wrap: wrap;
         }
 
-        .semester-stat {
-            text-align: center;
-        }
-
         .semester-stat .label {
             font-size: 0.7rem;
             color: #718096;
@@ -315,7 +319,6 @@
             color: #667eea;
         }
 
-        /* Results Table */
         .results-table-container {
             overflow-x: auto;
         }
@@ -342,11 +345,30 @@
             background: #f9fafb;
         }
 
-        .grade-A { color: #38a169; font-weight: bold; }
-        .grade-B { color: #3182ce; font-weight: bold; }
-        .grade-C { color: #dd6b20; font-weight: bold; }
-        .grade-D { color: #e53e3e; font-weight: bold; }
-        .grade-F { color: #c53030; font-weight: bold; }
+        .grade-A {
+            color: #38a169;
+            font-weight: bold;
+        }
+
+        .grade-B {
+            color: #3182ce;
+            font-weight: bold;
+        }
+
+        .grade-C {
+            color: #dd6b20;
+            font-weight: bold;
+        }
+
+        .grade-D {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+
+        .grade-F {
+            color: #c53030;
+            font-weight: bold;
+        }
 
         .credit-pass {
             background: #c6f6d5;
@@ -366,8 +388,8 @@
             display: inline-block;
         }
 
-        /* Info Banners */
-        .info-banner, .warning-banner {
+        .info-banner,
+        .warning-banner {
             padding: 12px 16px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -388,7 +410,6 @@
             color: #c53030;
         }
 
-        /* Actions */
         .transcript-actions {
             display: flex;
             gap: 15px;
@@ -416,7 +437,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(102,126,234,0.3);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
         }
 
         .btn-outline {
@@ -430,11 +451,16 @@
             color: white;
         }
 
-        /* Print Styles */
         @media print {
-            .navbar, .tabs, .transcript-actions, .footer, .results-header::before {
+
+            .navbar,
+            .tabs,
+            .transcript-actions,
+            .footer,
+            .results-header::before {
                 display: none;
             }
+
             .results-header {
                 background: white;
                 color: black;
@@ -442,22 +468,29 @@
                 padding: 0;
                 margin: 0;
             }
-            .results-header h1, .results-header p {
+
+            .results-header h1,
+            .results-header p {
                 color: black;
             }
-            .gpa-summary, .semester-summary {
+
+            .gpa-summary,
+            .semester-summary {
                 break-inside: avoid;
-                page-break-inside: avoid;
             }
+
             body {
                 background: white;
                 padding: 20px;
             }
+
             .container {
                 max-width: 100%;
                 padding: 0;
             }
-            .results-table th, .results-table td {
+
+            .results-table th,
+            .results-table td {
                 border: 1px solid #ddd;
             }
         }
@@ -474,43 +507,50 @@
             .container {
                 padding: 0 20px;
             }
+
             .navbar .container {
                 flex-direction: column;
             }
+
             .nav-menu {
                 justify-content: center;
                 gap: 0.25rem;
             }
+
             .tabs {
                 justify-content: center;
             }
+
             .semester-header {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            .results-table th, .results-table td {
+
+            .results-table th,
+            .results-table td {
                 font-size: 0.75rem;
                 padding: 8px;
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
+
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
-                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
                 <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
-                <li><a href="exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam Registration</a></li>
+                <li><a href="exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam
+                        Registration</a></li>
                 <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
-                <li><a href="results-view.html" class="nav-link active"><i class="fas fa-chart-line"></i> Results</a></li>
+                <li><a href="results-view.html" class="nav-link active"><i class="fas fa-chart-line"></i> Results</a>
+                </li>
                 <li><a href="alumni-portal.html" class="nav-link"><i class="fas fa-users"></i> Alumni</a></li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -548,42 +588,37 @@
             </div>
         </div>
 
-        <!-- Info/Warning Banners -->
         <div id="infoBanner" style="display: none;"></div>
         <div id="warningBanner" style="display: none;"></div>
 
-        <!-- Tabs -->
         <div class="tabs">
-            <button class="tab-button active" data-tab="semester"><i class="fas fa-calendar-alt"></i> Semester Results</button>
+            <button class="tab-button active" data-tab="semester"><i class="fas fa-calendar-alt"></i> Semester
+                Results</button>
             <button class="tab-button" data-tab="transcript"><i class="fas fa-file-alt"></i> Full Transcript</button>
             <button class="tab-button" data-tab="progress"><i class="fas fa-chart-line"></i> Academic Progress</button>
         </div>
 
-        <!-- Semester Results Tab -->
         <div id="semester" class="tab-content active">
             <div id="semesterResultsContainer">
                 <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading semester results...</div>
             </div>
         </div>
-
-        <!-- Transcript Tab -->
         <div id="transcript" class="tab-content">
             <div id="transcriptContainer">
                 <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading transcript...</div>
             </div>
         </div>
-
-        <!-- Academic Progress Tab -->
         <div id="progress" class="tab-content">
             <div id="progressContainer">
                 <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading academic progress...</div>
             </div>
         </div>
 
-        <!-- Actions -->
         <div class="transcript-actions">
-            <button class="btn btn-primary" onclick="printTranscript()"><i class="fas fa-print"></i> Print Transcript</button>
-            <button class="btn btn-outline" onclick="downloadTranscript()"><i class="fas fa-download"></i> Download PDF</button>
+            <button class="btn btn-primary" onclick="printTranscript()"><i class="fas fa-print"></i> Print
+                Transcript</button>
+            <button class="btn btn-outline" onclick="downloadTranscript()"><i class="fas fa-download"></i> Download
+                PDF</button>
         </div>
     </div>
 
@@ -591,53 +626,288 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-chart-line"></i> Academic Excellence | The Ultimate Journey to Higher Education</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
 
-<script>
-// ========== ROLE CHECK (PUBLIC) ==========
-(function() {
-    const token = localStorage.getItem('access_token');
-    const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
-    // If logged in, stay; if not, allow access.
-})();
-</script>
+        // ========== DATA STORAGE ==========
+        let studentProfile = null;
+        let studentResults = null;    // from /api/students/my-results
+        let academicRecords = [];     // from same endpoint
+        let resultsBySemester = [];
 
+        // ========== LOAD DATA ==========
+        async function loadProfile() {
+            const res = await safeApiCall('/api/students/profile');
+            if (res && res.ok) {
+                studentProfile = await res.json();
+                document.getElementById('studentName').textContent = studentProfile.first_name || 'Student';
+                return true;
+            }
+            return false;
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        async function loadResults() {
+            const res = await safeApiCall('/api/students/my-results');
+            if (res && res.ok) {
+                const data = await res.json();
+                studentResults = data;
+                academicRecords = data.academic_records || [];
+                // Group results by semester/year (using semester from module or academic_record)
+                resultsBySemester = groupResultsBySemester(data.results || []);
+                return true;
+            }
+            return false;
+        }
 
+        function groupResultsBySemester(results) {
+            const semMap = new Map();
+            for (const r of results) {
+                const key = `Year ${r.year_level || 1} - Semester ${r.semester || 1}`;
+                if (!semMap.has(key)) semMap.set(key, []);
+                semMap.get(key).push(r);
+            }
+            // Convert to array and sort by year/sem
+            const sorted = Array.from(semMap.entries()).map(([semName, courses]) => ({ semName, courses }));
+            sorted.sort((a, b) => a.semName.localeCompare(b.semName));
+            return sorted;
+        }
+
+        // ========== GPA HELPER ==========
+        function getClassStanding(gpa) {
+            if (gpa >= 3.6) return { name: 'First Class', class: 'standing-first', desc: 'Excellent Performance' };
+            if (gpa >= 3.0) return { name: 'Second Class Upper', class: 'standing-second', desc: 'Good Performance' };
+            if (gpa >= 2.5) return { name: 'Second Class Lower', class: 'standing-pass', desc: 'Satisfactory Performance' };
+            if (gpa >= 2.0) return { name: 'Pass', class: 'standing-pass', desc: 'Minimum Requirements Met' };
+            return { name: 'Probation', class: 'standing-probation', desc: 'Academic Warning – Seek Support' };
+        }
+
+        function getGradeClass(grade) {
+            if (!grade) return '';
+            if (grade === 'A' || grade === 'A-') return 'grade-A';
+            if (grade === 'B+' || grade === 'B' || grade === 'B-') return 'grade-B';
+            if (grade === 'C+' || grade === 'C' || grade === 'C-') return 'grade-C';
+            if (grade === 'D') return 'grade-D';
+            if (grade === 'F') return 'grade-F';
+            return '';
+        }
+
+        // ========== RENDER FUNCTIONS ==========
+        function renderGPA() {
+            if (!studentResults) return;
+            const currentGPA = studentResults.student?.current_gpa || 0;
+            const cumulative = studentResults.student?.current_gpa || 0;  // same for now, backend might provide separate
+            const credits = studentResults.total_credits_earned || 0;
+            document.getElementById('currentGPA').textContent = currentGPA.toFixed(2);
+            document.getElementById('cumulativeGPA').textContent = cumulative.toFixed(2);
+            document.getElementById('creditsEarned').textContent = credits;
+
+            const standing = getClassStanding(cumulative);
+            const standingSpan = document.getElementById('classStandingValue');
+            standingSpan.textContent = standing.name;
+            standingSpan.className = `class-standing ${standing.class}`;
+            document.getElementById('classStandingDesc').textContent = standing.desc;
+
+            const gpaStatusSpan = document.getElementById('gpaStatus');
+            if (studentResults.student?.academic_status === 'probation') {
+                gpaStatusSpan.innerHTML = '<span style="color:#e53e3e;">⚠️ Academic Probation</span>';
+                document.getElementById('warningBanner').innerHTML = `
+                    <div class="warning-banner"><i class="fas fa-exclamation-triangle"></i> <span><strong>Academic Warning:</strong> Your GPA is below 2.0. Please contact your academic advisor for support.</span></div>
+                `;
+                document.getElementById('warningBanner').style.display = 'block';
+            } else {
+                gpaStatusSpan.innerHTML = '<span style="color:#38a169;">✓ Good Standing</span>';
+            }
+
+            if (studentProfile?.is_government_sponsored) {
+                document.getElementById('infoBanner').innerHTML = `
+                    <div class="info-banner"><i class="fas fa-info-circle"></i> <span>You are a government-sponsored student. Your fees are exempt. Exam fees for supplementary/resit/retake apply separately.</span></div>
+                `;
+                document.getElementById('infoBanner').style.display = 'block';
+            }
+        }
+
+        function renderSemesterResults() {
+            const container = document.getElementById('semesterResultsContainer');
+            if (!resultsBySemester.length) {
+                container.innerHTML = '<div class="info-banner">No semester results available.</div>';
+                return;
+            }
+            let html = '';
+            for (const sem of resultsBySemester) {
+                html += `
+                    <div class="semester-summary">
+                        <div class="semester-header">
+                            <div class="semester-title"><i class="fas fa-calendar-alt"></i> ${escapeHtml(sem.semName)}</div>
+                        </div>
+                        <div class="results-table-container">
+                            <table class="results-table">
+                                <thead><tr><th>Module Code</th><th>Module Name</th><th>Credits</th><th>Grade</th><th>Grade Points</th><th>Status</th></tr></thead>
+                                <tbody>
+                                    ${sem.courses.map(c => `
+                                        <tr>
+                                            <td>${escapeHtml(c.module_code)}</td>
+                                            <td>${escapeHtml(c.module_name)}</td>
+                                            <td>${c.credits}</td>
+                                            <td class="${getGradeClass(c.grade)}">${c.grade || 'N/A'}</td>
+                                            <td>${c.grade_points?.toFixed(2) || '0.00'}</td>
+                                            <td>${c.grade !== 'F' ? '<span class="credit-pass"><i class="fas fa-check-circle"></i> Passed</span>' : '<span class="credit-fail"><i class="fas fa-times-circle"></i> Failed</span>'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderTranscript() {
+            const container = document.getElementById('transcriptContainer');
+            if (!studentProfile || !studentResults) {
+                container.innerHTML = '<div class="info-banner">Transcript not available.</div>';
+                return;
+            }
+            const standing = getClassStanding(studentResults.student?.current_gpa || 0);
+            let transcriptHtml = `
+                <div class="semester-summary">
+                    <div class="semester-header"><div class="semester-title"><i class="fas fa-file-alt"></i> Official Academic Transcript</div></div>
+                    <div style="margin-bottom: 20px;">
+                        <p><strong>Student Name:</strong> ${escapeHtml(studentProfile.first_name)} ${escapeHtml(studentProfile.last_name)}</p>
+                        <p><strong>Student Number:</strong> ${escapeHtml(studentProfile.student_number)}</p>
+                        <p><strong>Program:</strong> ${escapeHtml(studentProfile.program_name)}</p>
+                        <p><strong>Campus:</strong> ${escapeHtml(studentProfile.campus_name)}</p>
+                        <p><strong>Enrollment Year:</strong> ${studentProfile.enrollment_date?.split('-')[0] || 'N/A'}</p>
+                        <p><strong>Cumulative GPA:</strong> ${(studentResults.student?.current_gpa || 0).toFixed(2)}</p>
+                        <p><strong>Class Standing:</strong> ${standing.name}</p>
+                        <p><strong>Total Credits Earned:</strong> ${studentResults.total_credits_earned || 0}</p>
+                        <hr style="margin: 15px 0;">
+                    </div>
+            `;
+            for (const sem of resultsBySemester) {
+                transcriptHtml += `
+                    <div class="semester-summary" style="margin-bottom: 20px;">
+                        <div class="semester-header"><div class="semester-title">${escapeHtml(sem.semName)}</div></div>
+                        <div class="results-table-container">
+                            <table class="results-table">
+                                <thead><tr><th>Code</th><th>Course Name</th><th>Credits</th><th>Grade</th><th>Grade Points</th></tr></thead>
+                                <tbody>
+                                    ${sem.courses.map(c => `
+                                        <tr><td>${escapeHtml(c.module_code)}</td><td>${escapeHtml(c.module_name)}</td><td>${c.credits}</td><td class="${getGradeClass(c.grade)}">${c.grade || 'N/A'}</td><td>${c.grade_points?.toFixed(2) || '0.00'}</td></tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            transcriptHtml += `
+                <hr style="margin: 20px 0;">
+                <div style="text-align: right;"><p><strong>Registrar's Signature:</strong> _________________________</p><p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p><p style="margin-top: 30px; font-size: 0.8rem;">This is an official academic transcript from GIPS College.</p></div>
+            `;
+            container.innerHTML = transcriptHtml;
+        }
+
+        function renderAcademicProgress() {
+            const container = document.getElementById('progressContainer');
+            if (!studentResults || !studentProfile) {
+                container.innerHTML = '<div class="info-banner">Progress data not available.</div>';
+                return;
+            }
+            const earned = studentResults.total_credits_earned || 0;
+            const totalNeeded = studentProfile.program?.total_credits || 480; // fallback
+            const remaining = Math.max(0, totalNeeded - earned);
+            const remainingSem = Math.ceil(remaining / 60);
+            const percent = totalNeeded > 0 ? (earned / totalNeeded * 100).toFixed(1) : 0;
+            const currentGPA = studentResults.student?.current_gpa || 0;
+            const cumulative = currentGPA;
+            const trend = academicRecords.length >= 2 && academicRecords[0].semester_gpa > academicRecords[1].semester_gpa ? '📈 Improving' : (academicRecords[0]?.semester_gpa < academicRecords[1]?.semester_gpa ? '📉 Declining' : '➡️ Stable');
+
+            container.innerHTML = `
+                <div class="semester-summary">
+                    <div class="semester-header"><div class="semester-title"><i class="fas fa-chart-line"></i> Program Completion Progress</div></div>
+                    <div style="margin: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Program Completion</span><span>${percent}% (${earned}/${totalNeeded} credits)</span></div>
+                        <div style="background: #e2e8f0; border-radius: 30px; height: 10px; overflow: hidden;"><div style="width: ${percent}%; background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; border-radius: 30px;"></div></div>
+                    </div>
+                    <div class="info-item"><strong>Credits Earned:</strong> ${earned}</div>
+                    <div class="info-item"><strong>Credits Remaining:</strong> ${remaining}</div>
+                    <div class="info-item"><strong>Estimated Completion:</strong> ${remainingSem} semesters (approx. ${Math.ceil(remainingSem / 2)} years)</div>
+                    <div class="info-item"><strong>Current GPA Trend:</strong> ${trend}</div>
+                </div>
+                <div class="semester-summary">
+                    <div class="semester-header"><div class="semester-title"><i class="fas fa-lightbulb"></i> Academic Recommendations</div></div>
+                    <ul style="margin-left: 20px; color: #4a5568;">
+                        ${cumulative >= 3.5 ? '<li>✓ You are on track for First Class Honors. Maintain your excellent performance!</li>' : ''}
+                        ${cumulative >= 3.0 && cumulative < 3.5 ? '<li>✓ Good performance! Aim for First Class by improving your grades in upcoming semesters.</li>' : ''}
+                        ${cumulative >= 2.0 && cumulative < 3.0 ? '<li>📚 You are meeting minimum requirements. Focus on improving your grades to achieve honors.</li>' : ''}
+                        ${cumulative < 2.0 ? '<li>⚠️ Your GPA is below 2.0. Please schedule a meeting with your academic advisor immediately.</li>' : ''}
+                        <li>📖 Consider joining study groups for challenging courses.</li>
+                        <li>💬 Utilize academic support services and tutoring available at the library.</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        function printTranscript() { window.print(); }
+        function downloadTranscript() { alert('📄 PDF download will be available soon. For now, use Print > Save as PDF.'); window.print(); }
+
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+            tabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.getAttribute('data-tab');
+                    tabs.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    contents.forEach(c => c.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
+        async function init() {
+            await Promise.all([loadProfile(), loadResults()]);
+            if (studentResults && studentProfile) {
+                renderGPA();
+                renderSemesterResults();
+                renderTranscript();
+                renderAcademicProgress();
+            } else {
+                document.getElementById('semesterResultsContainer').innerHTML = '<div class="info-banner">Unable to load results. Please refresh or contact support.</div>';
+            }
+            setupTabs();
+        }
+        init();
+    </script>
 </body>
+
 </html>

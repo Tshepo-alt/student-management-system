@@ -415,7 +415,7 @@ def create_app(config_name=None):
         ('Online Classes', 'backend.routes.online_classes', 'online_classes_bp', '/api/classes'),
         ('Lecturer', 'backend.routes.lecturer', 'lecturer_bp', '/api/lecturer'),
         ('Payments', 'backend.routes.payments', 'payments_bp', '/api/payments'),
-        ('Accommodation', 'backend.routes.accomodation', 'accommodation_bp', '/api/accommodation'),
+        ('Accommodation', 'backend.routes.accommodation', 'accommodation_bp', '/api/accommodation'),  # ✅ corrected spelling
         ('Alumni', 'backend.routes.alumni', 'alumni_bp', '/api/alumni'),
     ]
 

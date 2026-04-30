@@ -2,18 +2,12 @@
 <html lang="en">
 
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -357,13 +351,9 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -528,12 +518,7 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-graduation-cap"></i> Excellence in Higher Learning</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
     <script>
@@ -714,45 +699,6 @@
 
         loadCampuses();
     </script>
-
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
-
-<script>
-// ========== ROLE CHECK (PUBLIC) ==========
-(function() {
-    const token = localStorage.getItem('access_token');
-    const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
-    // If logged in, stay; if not, allow access.
-})();
-</script>
-
-
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
-
 </body>
 
 </html>

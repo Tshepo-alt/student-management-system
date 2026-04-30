@@ -2,18 +2,12 @@
 <html lang="en">
 
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -255,13 +249,9 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
@@ -334,31 +324,64 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-graduation-cap"></i> Alumni Network | Stay Connected</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ---------- AUTH ----------
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
 
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (response.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return response;
+            } catch (error) { console.error(error); return null; }
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        // Load alumni profile & stats (real backend)
+        async function loadProfileAndStats() {
+            // Profile data
+            const profileRes = await safeApiCall('/api/alumni/profile');
+            let firstName = '', lastName = '', jobTitle = '', company = '';
+            if (profileRes && profileRes.ok) {
+                const data = await profileRes.json();
+                const fullName = data.name || 'Alumni Member';
+                document.getElementById('profileName').textContent = fullName;
+                document.getElementById('profileTitle').textContent = data.job_title ? `${data.job_title} at ${data.company || ''}` : 'Update your profile';
+                document.getElementById('profileAvatar').innerHTML = `<i class="fas fa-user-circle"></i>`;
+                // Optionally set initials if you prefer – but icon is fine
+            } else {
+                document.getElementById('profileName').textContent = 'Alumni User';
+                document.getElementById('profileTitle').textContent = 'Member';
+            }
 
+            // Stats
+            const statsRes = await safeApiCall('/api/alumni/stats');
+            if (statsRes && statsRes.ok) {
+                const stats = await statsRes.json();
+                document.getElementById('connectionsCount').textContent = stats.connections || '0';
+                document.getElementById('postsCount').textContent = stats.posts || '0';
+                document.getElementById('followersCount').textContent = stats.followers || '0';
+            } else {
+                document.getElementById('connectionsCount').textContent = '0';
+                document.getElementById('postsCount').textContent = '0';
+                document.getElementById('followersCount').textContent = '0';
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        loadProfileAndStats();
+    </script>
 </body>
 
 </html>

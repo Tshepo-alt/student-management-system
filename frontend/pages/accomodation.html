@@ -2,18 +2,12 @@
 <html lang="en">
 
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -512,13 +506,9 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -651,54 +641,277 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-home"></i> GIPS Student Village | Excellence in Student Living</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ========== AUTH & SAFE API ==========
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
 
-<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#333; color:white; text-align:center; padding:1rem; z-index:9999;">
-    This site uses cookies for essential functionality. By using this site, you accept our use of cookies.
-    <button onclick="acceptCookies()" style="margin-left:1rem; background:#4CAF50; color:white; border:none; padding:0.5rem 1rem; cursor:pointer;">Accept</button>
-</div>
-<script>
-    if (!localStorage.getItem('cookieConsent')) {
-        document.getElementById('cookieBanner').style.display = 'block';
-    }
-    function acceptCookies() {
-        localStorage.setItem('cookieConsent', 'true');
-        document.getElementById('cookieBanner').style.display = 'none';
-    }
-</script>
+        let canApply = false;
 
-<script>
-// ========== ROLE CHECK (PUBLIC) ==========
-(function() {
-    const token = localStorage.getItem('access_token');
-    const userRole = (JSON.parse(localStorage.getItem('user') || '{}')).role || localStorage.getItem('user_role');
-    // If logged in, stay; if not, allow access.
-})();
-</script>
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
 
+        // ========== ELIGIBILITY ==========
+        async function checkEligibility() {
+            const banner = document.getElementById('infoBanner');
+            if (!banner) return;
+            try {
+                const res = await safeApiCall('/api/accommodation/check-eligibility');
+                if (res && res.ok) {
+                    const data = await res.json();
+                    canApply = data.eligible;
+                    if (!canApply) {
+                        banner.style.display = 'block';
+                        banner.innerHTML = `<i class="fas fa-info-circle"></i> ${data.reasons ? data.reasons.join(' ') : 'You are not eligible for accommodation at this time.'}`;
+                    } else {
+                        banner.style.display = 'none';
+                    }
+                } else {
+                    const statusRes = await safeApiCall('/api/students/status');
+                    if (statusRes && statusRes.ok) {
+                        const statusData = await statusRes.json();
+                        canApply = statusData.admission_status === 'accepted' && statusData.can_apply_accommodation === true;
+                        if (!canApply) banner.innerHTML = '<i class="fas fa-info-circle"></i> Your admission is not yet approved or your campus does not offer accommodation.';
+                        else banner.style.display = 'none';
+                    } else {
+                        canApply = true;
+                    }
+                }
+            } catch (err) { console.warn(err); canApply = true; }
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        // ========== ROOM AVAILABILITY ==========
+        async function loadRoomAvailability() {
+            const container = document.getElementById('availableAccommodation');
+            container.innerHTML = '<div class="loading-spinner"></div><p>Loading rooms...</p>';
+            const res = await safeApiCall('/api/accommodation/rooms');
+            if (!res || !res.ok) {
+                container.innerHTML = '<p><i class="fas fa-exclamation-triangle"></i> Unable to load room availability.</p>';
+                return;
+            }
+            const data = await res.json();
+            const blocks = data.blocks || [];
+            document.getElementById('totalRooms').textContent = data.total_rooms || 0;
+            document.getElementById('availableRooms').textContent = data.available_rooms || 0;
+            document.getElementById('occupancyRate').textContent = `${data.occupancy_rate || 0}%`;
+            document.getElementById('applicantsCount').textContent = '--';
 
+            if (!blocks.length) {
+                container.innerHTML = '<p>No accommodation blocks available at this time.</p>';
+                return;
+            }
+            const amenities = ['Kitchen', 'Shower', 'Study Table', 'Bed', '24/7 Security', 'WiFi'];
+            let html = '';
+            for (const block of blocks) {
+                const bachelorRooms = block.rooms.filter(r => r.room_type === 'bachelor_pad');
+                const threeBedRooms = block.rooms.filter(r => r.room_type === 'three_bed');
+                const bachelorAvail = bachelorRooms.filter(r => r.is_available).length;
+                const threeBedAvail = threeBedRooms.filter(r => r.is_available).length;
+                html += `
+                    <div class="accommodation-card">
+                        <div class="card-header"><i class="fas fa-building"></i><h3>Block ${escapeHtml(block.block_name)}</h3></div>
+                        <div class="card-content">
+                            <p>Located at Gaborone Main Campus. Modern, secure housing with all amenities.</p>
+                            <div class="amenities-list">${amenities.map(a => `<span class="amenity-tag"><i class="fas fa-check"></i> ${a}</span>`).join('')}</div>
+                            <div class="info-item"><label>Bachelor Pads:</label><span>${bachelorAvail} / ${bachelorRooms.length} available</span></div>
+                            <div class="info-item"><label>Three-Bed Rooms:</label><span>${threeBedAvail} / ${threeBedRooms.length} available</span></div>
+                            <button class="btn btn-primary" onclick="openApplicationModal('Block ${block.block_name}', '${block.block_name}')" ${(bachelorAvail + threeBedAvail) === 0 ? 'disabled' : ''}>
+                                ${(bachelorAvail + threeBedAvail) > 0 ? '<i class="fas fa-paper-plane"></i> Apply' : '<i class="fas fa-ban"></i> Fully Booked'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // ========== APPLICATION SUBMISSION ==========
+        let selectedBlock = null;
+        window.openApplicationModal = function (blockName, block) {
+            if (!canApply) { alert('You are not eligible to apply for accommodation at this time.'); return; }
+            selectedBlock = block;
+            document.getElementById('accommodationDetails').innerHTML = `<i class="fas fa-info-circle"></i> <strong>Applying for Block ${escapeHtml(blockName)}</strong><br>GIPS Student Village, Gaborone Main Campus.`;
+            document.getElementById('applicationModal').style.display = 'flex';
+        };
+
+        async function submitApplication() {
+            const submitBtn = document.getElementById('submitApplicationBtn');
+            const errorDiv = document.getElementById('applicationError');
+            const successDiv = document.getElementById('applicationSuccess');
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            const roomType = document.getElementById('roomType').value;
+            const blockPref = document.getElementById('blockPreference').value;
+            const emergencyName = document.getElementById('emergencyName').value.trim();
+            const emergencyPhone = document.getElementById('emergencyPhone').value.trim();
+            const emergencyRelation = document.getElementById('emergencyRelation').value;
+            const medicalConditions = document.getElementById('medicalConditions').value;
+            const dietary = document.getElementById('dietaryRequirements').value;
+            const acceptRules = document.getElementById('acceptRules').checked;
+
+            if (!emergencyName || !emergencyPhone) {
+                errorDiv.textContent = 'Please provide emergency contact details';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            if (!acceptRules) {
+                errorDiv.textContent = 'You must accept the accommodation rules and regulations';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+            const payload = {
+                room_type: roomType,
+                block_preference: blockPref || null,
+                emergency_contact_name: emergencyName,
+                emergency_contact_phone: emergencyPhone,
+                emergency_contact_relationship: emergencyRelation || null,
+                medical_conditions: medicalConditions || null,
+                dietary_requirements: dietary || null,
+                has_accepted_rules: acceptRules
+            };
+            const response = await safeApiCall('/api/accommodation/apply', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            if (response && response.ok) {
+                const result = await response.json();
+                successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message || 'Application submitted successfully!'}`;
+                successDiv.style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('applicationModal').style.display = 'none';
+                    loadMyApplication();
+                    document.querySelector('[data-tab="my-application"]').click();
+                }, 2000);
+            } else {
+                let errMsg = 'Failed to submit application. Please try again.';
+                if (response && response.status === 400) {
+                    try { const errData = await response.json(); errMsg = errData.error || errData.message || errMsg; } catch (e) { }
+                }
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errMsg}`;
+                errorDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+            }
+        }
+
+        // ========== LOAD MY APPLICATION ==========
+        async function loadMyApplication() {
+            const container = document.getElementById('myApplication');
+            container.innerHTML = '<div class="loading-spinner"></div><p>Loading your application...</p>';
+            const response = await safeApiCall('/api/accommodation/status');
+            if (response && response.ok) {
+                const data = await response.json();
+                if (data.has_applied) {
+                    const statusClass = data.status === 'pending' ? 'badge-pending' : (data.status === 'approved' ? 'badge-approved' : (data.status === 'allocated' ? 'badge-allocated' : 'badge-rejected'));
+                    container.innerHTML = `
+                        <div class="accommodation-card">
+                            <div class="card-header"><i class="fas fa-clipboard-list"></i><h3>Your Application Status</h3></div>
+                            <div class="card-content">
+                                <div class="info-item"><label>Application ID:</label><span>#${data.application_id}</span></div>
+                                <div class="info-item"><label>Status:</label><span class="badge ${statusClass}">${data.status_display || data.status}</span></div>
+                                <div class="info-item"><label>Room Type:</label><span>${data.room_type_display || data.room_type}</span></div>
+                                <div class="info-item"><label>Block Preference:</label><span>${data.block_preference || 'Any'}</span></div>
+                                ${data.allocated_room_number ? `<div class="info-item"><label>Allocated Room:</label><span>Block ${data.allocated_block} - Room ${data.allocated_room_number}</span></div>` : ''}
+                                <div class="info-item"><label>Applied on:</label><span>${new Date(data.applied_date).toLocaleDateString()}</span></div>
+                                ${data.status === 'pending' ? `<button class="btn btn-danger" onclick="openCancelModal()"><i class="fas fa-trash-alt"></i> Cancel Application</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<div class="accommodation-card"><div class="card-header"><i class="fas fa-file-alt"></i><h3>No Application Found</h3></div><div class="card-content"><p>You have not submitted an accommodation application yet.</p><button class="btn btn-primary" onclick="document.querySelector('[data-tab=\"available\"]').click()"><i class="fas fa-bed"></i> Browse Available Rooms</button></div></div>`;
+                }
+            } else {
+                container.innerHTML = `<div class="accommodation-card"><div class="card-header"><i class="fas fa-file-alt"></i><h3>Unable to Load</h3></div><div class="card-content"><p>Could not fetch your application status. Please refresh.</p></div></div>`;
+            }
+        }
+
+        // ========== RULES ==========
+        function loadRules() {
+            document.getElementById('rulesContent').innerHTML = `
+                <div class="rules-section">
+                    <h3><i class="fas fa-gavel"></i> GIPS Student Village - Rules & Regulations</h3>
+                    <p>All residents must adhere to the following rules to maintain a safe, respectful, and conducive living environment.</p>
+                    <div class="rules-list">
+                        <div class="rule-item"><span class="rule-icon"><i class="fas fa-calendar-alt"></i></span><div><strong>Check-in and Check-out</strong><br>Check-in within 48 hours of arrival; check-out by 10:00 AM on the last day of the semester.</div></div>
+                        <div class="rule-item"><span class="rule-icon"><i class="fas fa-volume-down"></i></span><div><strong>Noise and Conduct</strong><br>Quiet hours 10:00 PM – 7:00 AM. No loud music or disruptive behavior.</div></div>
+                        <div class="rule-item"><span class="rule-icon"><i class="fas fa-users"></i></span><div><strong>Visitors Policy</strong><br>Visitors allowed 8:00 AM – 8:00 PM. Overnight guests require approval.</div></div>
+                        <div class="rule-item"><span class="rule-icon"><i class="fas fa-broom"></i></span><div><strong>Room Maintenance</strong><br>Keep rooms clean. Report maintenance issues immediately.</div></div>
+                        <div class="rule-item"><span class="rule-icon"><i class="fas fa-utensils"></i></span><div><strong>Kitchen Use</strong><br>Clean up after use. Label food items. No dirty dishes overnight.</div></div>
+                        <div class="rule-item"><span class="rule-icon"><i class="fas fa-bolt"></i></span><div><strong>Electricity and Water</strong><br>Turn off lights, fans, appliances when not in use. Report issues.</div></div>
+                        <div class="rule-item"><span class="rule-icon"><i class="fas fa-shield-alt"></i></span><div><strong>Security</strong><br>Always lock your room. Do not share access cards. Report suspicious activity.</div></div>
+                        <div class="rule-item"><span class="rule-icon"><i class="fas fa-smoking-ban"></i></span><div><strong>Smoking and Alcohol</strong><br>Strictly prohibited within residence premises.</div></div>
+                    </div>
+                </div>
+                <div class="rules-section">
+                    <h3><i class="fas fa-info-circle"></i> Room Information</h3>
+                    <div class="info-item"><label>Bachelor Pads:</label><span>2 students per room (16 per block)</span></div>
+                    <div class="info-item"><label>Three-Bed Rooms:</label><span>6 students per room (16 per block)</span></div>
+                    <div class="info-item"><label>Total Blocks:</label><span>5 blocks (A, B, C, D, E)</span></div>
+                    <div class="info-item"><label>Amenities:</label><span>Kitchen, Shower, Study Table, Bed, Chair, 24/7 Security, WiFi</span></div>
+                </div>
+            `;
+        }
+
+        // ========== MODAL HELPERS ==========
+        window.openCancelModal = function () { document.getElementById('cancelModal').style.display = 'flex'; };
+        window.closeModal = function (modalId) { document.getElementById(modalId).style.display = 'none'; };
+        document.getElementById('applicationForm').addEventListener('submit', (e) => { e.preventDefault(); submitApplication(); });
+        document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
+            const resp = await safeApiCall('/api/accommodation/cancel', { method: 'POST' });
+            if (resp && resp.ok) { alert('Application cancelled.'); closeModal('cancelModal'); loadMyApplication(); }
+            else { alert('Failed to cancel. Contact accommodation office.'); closeModal('cancelModal'); }
+        });
+        document.querySelectorAll('.close').forEach(btn => {
+            btn.addEventListener('click', function () { this.closest('.modal').style.display = 'none'; });
+        });
+        window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; });
+        document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
+
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        // ========== TAB SWITCHING ==========
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+            tabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+                    tabs.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    contents.forEach(c => c.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                    if (tabId === 'available') loadRoomAvailability();
+                    else if (tabId === 'my-application') loadMyApplication();
+                    else if (tabId === 'rules') loadRules();
+                });
+            });
+        }
+
+        // ========== INIT ==========
+        async function init() {
+            await checkEligibility();
+            await loadRoomAvailability();
+            await loadMyApplication();
+            loadRules();
+            setupTabs();
+        }
+        init();
+    </script>
 </body>
 
 </html>

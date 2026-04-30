@@ -9,6 +9,7 @@ import traceback
 from werkzeug.utils import secure_filename
 
 from models import db, Student, Module, Program, ExamRegistration, AccommodationRegistration, Registration, Enrollment, Campus, FeesConfig, AcademicRecord, User, Course, AcademicYear, Semester, ProgramModule, OnlineMeeting, Notification, StudentQuery
+from backend.utils.email import EmailService  # <-- ADD THIS IMPORT
 
 # MOODLE INTEGRATION: import the Moodle client and configuration
 from services.moodle_integration import MoodleClient
@@ -958,11 +959,8 @@ def register_semester():
             return jsonify({'error': 'Accommodation is only available for government-sponsored students.'}), 400
 
         # ========== MOODLE INTEGRATION ==========
-        # Sync to Moodle: create/update Moodle user and enrol into selected modules
         try:
-            # Ensure the student has a Moodle user ID
             if not student.moodle_user_id:
-                # Create a temporary password (could be random; student will reset later)
                 temp_password = f"Temp{student.student_number}!"
                 moodle_user_id = moodle.create_user(
                     username=student.student_number,
@@ -973,20 +971,27 @@ def register_semester():
                 )
                 student.moodle_user_id = moodle_user_id
                 db.session.add(student)
-                db.session.flush()  # make sure moodle_user_id is saved before committing
+                db.session.flush()
 
-            # Enrol the student into each selected module (course in Moodle)
             for module in selected_modules:
-                moodle.enrol_user(student.moodle_user_id, module.id, roleid=5)  # roleid 5 = student
+                moodle.enrol_user(student.moodle_user_id, module.id, roleid=5)
         except Exception as moodle_err:
-            # Log error but do NOT rollback the local transaction – decide if you want to fail registration
             current_app.logger.error(f"Moodle sync failed for student {student.id}: {moodle_err}")
-            # Optionally, you could return an error response here:
-            # return jsonify({'error': f'Moodle integration failed: {str(moodle_err)}'}), 500
-            # For now, we continue and only log the error.
-        # ========================================
 
         db.session.commit()
+
+        # ========== SEND EMAIL CONFIRMATION ==========
+        try:
+            semester_name = f"Semester {semester} {academic_year_obj.year_name}"
+            EmailService.send_semester_registration_confirmation(
+                user_email=student.email,
+                first_name=student.first_name,
+                registration_id=registration.id,
+                semester_name=semester_name,
+                total_fees=total_fees
+            )
+        except Exception as email_err:
+            current_app.logger.error(f"Failed to send semester registration email to {student.email}: {email_err}")
 
         return jsonify({
             'success': True,
@@ -1200,8 +1205,6 @@ def get_failed_modules():
         if not student:
             return jsonify({'error': 'Student profile not found'}), 404
 
-        # This is a simplified example – adjust based on your actual grade data
-        # We'll query enrollments where status = 'failed' or grade = 'F'
         failed_enrollments = Enrollment.query.filter(
             Enrollment.student_id == student.id,
             Enrollment.status == 'failed'
@@ -1212,8 +1215,6 @@ def get_failed_modules():
             module = enrollment.module
             if not module:
                 continue
-            # For demo, assume supplementary for first fail, retake for second
-            # You can count attempts from history
             attempts = 1  # placeholder
             exam_type = 'supplementary' if attempts == 1 else 'retake'
             fee = 300 if exam_type == 'supplementary' else 600 if exam_type == 'resit' else 1000
@@ -1256,7 +1257,7 @@ def register_for_exam():
 
         data = request.get_json()
         module_id = data.get('module_id')
-        exam_type = data.get('exam_type')  # 'supplementary', 'resit', 'retake'
+        exam_type = data.get('exam_type')
 
         if not module_id or not exam_type:
             return jsonify({'error': 'module_id and exam_type required'}), 400
@@ -1402,20 +1403,11 @@ def upload_avatar():
         if not file:
             return jsonify({'error': 'No file provided'}), 400
 
-        # You may need to add an 'avatar_path' column to the Student model.
-        # For now, we'll store it under a new field. If the column doesn't exist, you'll need to add it.
-        # Alternatively, you can store the path in the StudentDocument table.
-        # For simplicity, we'll assume you have an 'avatar_path' column.
-        # If not, uncomment the next lines and add the column to models.py:
-        # avatar_path = save_uploaded_file(file, 'avatars')
-        # student.avatar_path = avatar_path
-        # db.session.commit()
-
-        # For demonstration, we'll return a dummy URL.
+        # Placeholder – implement if avatar_path column exists
         return jsonify({
             'success': True,
             'message': 'Avatar updated successfully',
-            'avatar_url': '/uploads/avatars/sample.jpg'  # Replace with actual URL
+            'avatar_url': '/uploads/avatars/sample.jpg'
         }), 200
     except Exception as e:
         db.session.rollback()
@@ -1445,13 +1437,11 @@ def update_student_profile():
         if not data:
             return jsonify({'error': 'Invalid request data'}), 400
 
-        # Track changes that need to be synced to Moodle
         moodle_updates = {}
         old_firstname = student.first_name
         old_lastname = student.last_name
         old_email = user.email
 
-        # Update Student fields
         if 'first_name' in data:
             student.first_name = data['first_name']
             moodle_updates['firstname'] = data['first_name']
@@ -1469,16 +1459,14 @@ def update_student_profile():
         if 'postal_code' in data:
             student.postal_code = data['postal_code']
 
-        # Update User email
         if 'email' in data and data['email'] != user.email:
             existing = User.query.filter_by(email=data['email']).first()
             if existing and existing.id != user.id:
                 return jsonify({'error': 'Email already in use'}), 409
             user.email = data['email']
-            user.username = data['email']  # keep username same as email
+            user.username = data['email']
             moodle_updates['email'] = data['email']
 
-        # Handle password change
         current_pw = data.get('current_password')
         new_pw = data.get('new_password')
         if new_pw:
@@ -1486,27 +1474,21 @@ def update_student_profile():
                 return jsonify({'error': 'Current password required to change password'}), 400
             if not user.check_password(current_pw):
                 return jsonify({'error': 'Current password is incorrect'}), 401
-            # Validate new password strength
             if len(new_pw) < 8:
                 return jsonify({'error': 'New password must be at least 8 characters'}), 400
             if not any(c.isupper() for c in new_pw) or not any(c.islower() for c in new_pw) or not any(c.isdigit() for c in new_pw):
                 return jsonify({'error': 'New password must contain uppercase, lowercase, and digit'}), 400
             user.set_password(new_pw)
-            # Note: Moodle password cannot be updated via standard API easily; you may need to handle separately
 
         student.updated_at = datetime.utcnow()
         user.updated_at = datetime.utcnow()
         db.session.commit()
 
-        # ========== MOODLE INTEGRATION ==========
-        # Update Moodle user if any relevant fields changed and moodle_user_id exists
         if student.moodle_user_id and moodle_updates:
             try:
-                # The update_user method expects an array of user fields
                 moodle.update_user(student.moodle_user_id, **moodle_updates)
             except Exception as moodle_err:
                 current_app.logger.error(f"Failed to update Moodle user {student.moodle_user_id}: {moodle_err}")
-        # ========================================
 
         return jsonify({
             'success': True,

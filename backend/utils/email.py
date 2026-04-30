@@ -156,7 +156,19 @@ class EmailService:
     def generate_verification_token():
         return secrets.token_urlsafe(32)
 
-    # ---------- Registration confirmation ----------
+    # ---------- Generic email sender ----------
+    @staticmethod
+    def send_email(to, subject, html_body, text_body=None):
+        """Generic method to send any email."""
+        try:
+            msg = Message(subject=subject, recipients=[to], html=html_body, body=text_body or html_body)
+            mail.send(msg)
+            return True
+        except Exception as e:
+            logger.error(f"Email send error to {to}: {e}")
+            return False
+
+    # ---------- Registration confirmation (initial application) ----------
     @staticmethod
     def send_registration_confirmation(user_email, first_name, student_number, program_name=None, campus_name=None):
         try:
@@ -186,11 +198,35 @@ class EmailService:
             button_url = f"{EmailService._get_base_url()}/pages/login.html"
             html = EmailService._get_html_template(subject, content, button_text, button_url)
             plain = f"Hello {first_name},\n\nThank you for registering with GIPS College. Your student number is {student_number}.\n\nLog in at {EmailService._get_base_url()}/pages/login.html\n\nBest regards,\nGIPS College"
-            msg = Message(subject=subject, recipients=[user_email], html=html, body=plain)
-            mail.send(msg)
-            return True
+            return EmailService.send_email(user_email, subject, html, plain)
         except Exception as e:
             logger.error(f"Registration email error: {e}")
+            return False
+
+    # ---------- Semester registration confirmation (submitted by student) ----------
+    @staticmethod
+    def send_semester_registration_confirmation(user_email, first_name, registration_id, semester_name, total_fees):
+        try:
+            subject = "[GIPS College] Semester Registration Received"
+            content = f"""
+            <h2>Dear {first_name},</h2>
+            <p>Your semester registration has been submitted successfully and is <strong>pending approval</strong>.</p>
+            <div class="info-box">
+                <strong>Registration details</strong><br>
+                <strong>Registration ID:</strong> {registration_id}<br>
+                <strong>Semester:</strong> {semester_name}<br>
+                <strong>Total Fees:</strong> P{total_fees:,.2f}
+            </div>
+            <p>You will receive another email once the registrar approves your registration.</p>
+            <p>Thank you for choosing GIPS College.</p>
+            """
+            button_text = "View registration status"
+            button_url = f"{EmailService._get_base_url()}/pages/registrar-registrations.html"
+            html = EmailService._get_html_template(subject, content, button_text, button_url)
+            plain = f"Dear {first_name},\n\nYour semester registration (ID: {registration_id}) has been received and is pending approval.\n\nTotal Fees: P{total_fees:,.2f}\n\nGIPS College"
+            return EmailService.send_email(user_email, subject, html, plain)
+        except Exception as e:
+            logger.error(f"Semester registration email error: {e}")
             return False
 
     # ---------- Assignment submission ----------
@@ -213,9 +249,7 @@ class EmailService:
             button_url = f"{EmailService._get_base_url()}/pages/my-modules.html"
             html = EmailService._get_html_template(subject, content, button_text, button_url)
             plain = f"Dear {first_name},\n\nYour assignment '{assignment_title}' has been submitted.\n\nBest regards,\nGIPS College"
-            msg = Message(subject=subject, recipients=[user_email], html=html, body=plain)
-            mail.send(msg)
-            return True
+            return EmailService.send_email(user_email, subject, html, plain)
         except Exception as e:
             logger.error(f"Assignment email error: {e}")
             return False
@@ -241,9 +275,7 @@ class EmailService:
             button_url = f"{EmailService._get_base_url()}/pages/exams.html"
             html = EmailService._get_html_template(subject, content, button_text, button_url)
             plain = f"Dear {first_name},\n\nYou have registered for {exam_type} exam in {course_name}. Fee: P{fee}\n\nBest regards,\nGIPS College"
-            msg = Message(subject=subject, recipients=[user_email], html=html, body=plain)
-            mail.send(msg)
-            return True
+            return EmailService.send_email(user_email, subject, html, plain)
         except Exception as e:
             logger.error(f"Exam email error: {e}")
             return False
@@ -271,9 +303,7 @@ class EmailService:
             button_url = f"{EmailService._get_base_url()}/pages/payments.html"
             html = EmailService._get_html_template(subject, content, button_text, button_url)
             plain = f"Dear {first_name},\n\nYour payment of P{amount} for {payment_type} has been confirmed. Receipt: {receipt_number}\n\nThank you.\nGIPS College"
-            msg = Message(subject=subject, recipients=[user_email], html=html, body=plain)
-            mail.send(msg)
-            return True
+            return EmailService.send_email(user_email, subject, html, plain)
         except Exception as e:
             logger.error(f"Payment email error: {e}")
             return False
@@ -301,9 +331,7 @@ class EmailService:
             button_url = f"{EmailService._get_base_url()}/pages/accommodation-status.html"
             html = EmailService._get_html_template(subject, content, button_text, button_url)
             plain = f"Dear {first_name},\n\nYour accommodation request for {accommodation_name} has been received and is pending approval.\n\nBest regards,\nGIPS College"
-            msg = Message(subject=subject, recipients=[user_email], html=html, body=plain)
-            mail.send(msg)
-            return True
+            return EmailService.send_email(user_email, subject, html, plain)
         except Exception as e:
             logger.error(f"Accommodation email error: {e}")
             return False
@@ -327,9 +355,7 @@ class EmailService:
             button_url = reset_link
             html = EmailService._get_html_template(subject, content, button_text, button_url)
             plain = f"Hello {first_name},\n\nReset your password using this link (valid for 1 hour): {reset_link}\n\nIf you did not request this, please ignore this email.\n\nGIPS College"
-            msg = Message(subject=subject, recipients=[user_email], html=html, body=plain)
-            mail.send(msg)
-            return True
+            return EmailService.send_email(user_email, subject, html, plain)
         except Exception as e:
             logger.error(f"Password reset email error: {e}")
             return False
@@ -353,9 +379,7 @@ class EmailService:
             button_url = verification_link
             html = EmailService._get_html_template(subject, content, button_text, button_url)
             plain = f"Hello {first_name},\n\nVerify your email using this link (valid for 24 hours): {verification_link}\n\nIf you did not create an account, please ignore this email.\n\nGIPS College"
-            msg = Message(subject=subject, recipients=[user_email], html=html, body=plain)
-            mail.send(msg)
-            return True
+            return EmailService.send_email(user_email, subject, html, plain)
         except Exception as e:
             logger.error(f"Email verification error: {e}")
             return False
@@ -385,9 +409,7 @@ class EmailService:
             """
             html = EmailService._get_html_template(subject, content, button_text, button_url)
             plain = f"Dear {first_name},\n\nYour admission decision: {status.upper()}.\n\nPlease log in to your portal for details.\n\nGIPS College"
-            msg = Message(subject=subject, recipients=[user_email], html=html, body=plain)
-            mail.send(msg)
-            return True
+            return EmailService.send_email(user_email, subject, html, plain)
         except Exception as e:
             logger.error(f"Admission decision email error: {e}")
             return False

@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Registrar Dashboard - GIPS College</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/portal-common.css">
     <style>
         * {
             margin: 0;
@@ -121,7 +122,6 @@
             padding: 18px;
             border: 1px solid #e2e8f0;
             transition: 0.2s;
-            position: relative;
         }
 
         .stat-card:hover {
@@ -202,6 +202,7 @@
             border-radius: 24px;
             padding: 20px;
             border: 1px solid #e2e8f0;
+            margin-bottom: 32px;
         }
 
         .pending-card h3 {
@@ -210,6 +211,32 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: none;
+            border: none;
+        }
+
+        .tab-btn.active {
+            background: #3b82f6;
+            color: white;
         }
 
         .approval-item {
@@ -252,7 +279,6 @@
 
         .btn-approve:hover {
             background: #059669;
-            transform: translateY(-1px);
         }
 
         .btn-reject {
@@ -262,6 +288,30 @@
 
         .btn-reject:hover {
             background: #dc2626;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-government {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .badge-private {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .modules-list {
+            font-size: 0.8rem;
+            max-width: 250px;
         }
 
         .loading {
@@ -323,7 +373,6 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
@@ -335,6 +384,8 @@
                 <li><a href="registrar-dashboard.html" class="nav-link active"><i class="fas fa-chalkboard"></i>
                         Dashboard</a></li>
                 <li><a href="registrar-students.html" class="nav-link"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="registrar-registrations.html" class="nav-link"><i class="fas fa-clipboard-list"></i>
+                        Semester Registrations</a></li>
                 <li><a href="registrar-documents.html" class="nav-link"><i class="fas fa-file-alt"></i> Documents</a>
                 </li>
                 <li><a href="registrar-reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
@@ -349,7 +400,7 @@
     <div class="container">
         <div class="dashboard-header">
             <h1><i class="fas fa-user-graduate"></i> Welcome, <span id="registrarName">Registrar</span>!</h1>
-            <p>Manage student admissions, document verification, academic records, and staff queries.</p>
+            <p>Manage student admissions, semester registrations, documents, and reports.</p>
         </div>
 
         <div class="stats-grid" id="statsGrid">
@@ -361,6 +412,10 @@
                 <div class="stat-number" id="pendingAdmissions">--</div>
                 <div class="stat-label"><i class="fas fa-clock"></i> Pending Admissions</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingSemesterReg">--</div>
+                <div class="stat-label"><i class="fas fa-clipboard-list"></i> Pending Semester Registrations</div>
+            </div>
         </div>
 
         <div class="quick-actions">
@@ -368,8 +423,8 @@
             <div class="action-buttons">
                 <a href="registrar-students.html?action=add" class="action-btn"><i class="fas fa-user-plus"></i> Add New
                     Student</a>
-                <a href="registrar-students.html?status=pending" class="action-btn"><i
-                        class="fas fa-clipboard-list"></i> Review Applications</a>
+                <a href="registrar-registrations.html" class="action-btn"><i class="fas fa-check-double"></i> Approve
+                    Semester Registrations</a>
                 <a href="registrar-documents.html" class="action-btn"><i class="fas fa-file-upload"></i> Manage
                     Documents</a>
                 <a href="registrar-reports.html" class="action-btn"><i class="fas fa-chart-line"></i> Generate
@@ -377,10 +432,21 @@
             </div>
         </div>
 
+        <!-- Pending Approvals Tabs -->
         <div class="pending-card">
-            <h3><i class="fas fa-hourglass-half"></i> Pending Admissions</h3>
-            <div id="pendingList">
-                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading pending admissions...</div>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="admissions">Student Admissions</button>
+                <button class="tab-btn" data-tab="registrations">Semester Registrations</button>
+            </div>
+            <div id="admissionsTab" class="tab-content">
+                <div id="pendingList">
+                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading pending admissions...</div>
+                </div>
+            </div>
+            <div id="registrationsTab" class="tab-content" style="display: none;">
+                <div id="pendingRegistrationsList">
+                    <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading semester registrations...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -417,39 +483,43 @@
             } catch (err) { console.error(err); return null; }
         }
 
-        function showMessage(msg, type) {
+        function showMessage(msg, isError = true) {
             const msgDiv = document.createElement('div');
             msgDiv.style.position = 'fixed';
             msgDiv.style.top = '20px';
             msgDiv.style.right = '20px';
             msgDiv.style.zIndex = '2000';
-            msgDiv.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
+            msgDiv.style.backgroundColor = isError ? '#ef4444' : '#10b981';
             msgDiv.style.color = 'white';
             msgDiv.style.padding = '12px 20px';
             msgDiv.style.borderRadius = '12px';
-            msgDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-            msgDiv.style.display = 'flex';
-            msgDiv.style.alignItems = 'center';
-            msgDiv.style.gap = '8px';
-            msgDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${msg}`;
+            msgDiv.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${msg}`;
             document.body.appendChild(msgDiv);
             setTimeout(() => msgDiv.remove(), 3000);
         }
 
         // ========== LOAD STATISTICS ==========
         async function loadStats() {
-            const res = await safeApiCall('/api/admin/stats');
-            if (res && res.ok) {
-                const data = await res.json();
+            const statsRes = await safeApiCall('/api/admin/stats');
+            if (statsRes && statsRes.ok) {
+                const data = await statsRes.json();
                 document.getElementById('totalStudents').textContent = data.total_students || 0;
                 document.getElementById('pendingAdmissions').textContent = data.pending_registrations || 0;
             } else {
                 document.getElementById('totalStudents').textContent = '0';
                 document.getElementById('pendingAdmissions').textContent = '0';
             }
+            // Get pending semester registrations count
+            const pendingRegRes = await safeApiCall('/api/admin/registrations/pending');
+            if (pendingRegRes && pendingRegRes.ok) {
+                const pendingRegs = await pendingRegRes.json();
+                document.getElementById('pendingSemesterReg').textContent = pendingRegs.length;
+            } else {
+                document.getElementById('pendingSemesterReg').textContent = '0';
+            }
         }
 
-        // ========== LOAD PENDING ADMISSIONS ==========
+        // ========== ADMISSIONS (Student Applications) ==========
         async function loadPendingAdmissions() {
             const container = document.getElementById('pendingList');
             container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading pending admissions...</div>';
@@ -469,57 +539,131 @@
                             <small>${escapeHtml(s.program_name || 'N/A')}</small>
                         </div>
                         <div>
-                            <button class="btn-approve" onclick="approveAdmission(${s.id})"><i class="fas fa-check"></i> Approve Admission</button>
+                            <button class="btn-approve" onclick="approveAdmission(${s.id})"><i class="fas fa-check"></i> Approve</button>
                             <button class="btn-reject" onclick="rejectAdmission(${s.id})"><i class="fas fa-times"></i> Reject</button>
                         </div>
                     </div>
                 `).join('');
             } else {
-                container.innerHTML = '<div class="error-message" style="display:block;">Unable to load pending admissions. Please try again later.</div>';
+                container.innerHTML = '<div class="error-message">Unable to load pending admissions.</div>';
             }
         }
 
-        // ========== APPROVE ADMISSION ==========
         async function approveAdmission(studentId) {
             if (!confirm('Approve this student\'s admission?')) return;
             const res = await safeApiCall(`/api/admin/students/${studentId}/approve-admission`, { method: 'POST' });
             if (res && res.ok) {
-                showMessage('✅ Admission approved! Student can now register for semester.', 'success');
+                showMessage('Admission approved! Student can now register.', false);
                 await loadStats();
                 await loadPendingAdmissions();
             } else {
-                let errorMsg = 'Failed to approve admission.';
-                if (res && res.status === 400) {
-                    const err = await res.json();
-                    errorMsg = err.error || errorMsg;
-                }
-                showMessage(errorMsg, 'error');
+                showMessage('Approval failed.', true);
             }
         }
 
-        // ========== REJECT ADMISSION ==========
         async function rejectAdmission(studentId) {
-            if (!confirm('Reject this student\'s admission? This action cannot be undone.')) return;
+            if (!confirm('Reject this student\'s admission?')) return;
             const res = await safeApiCall(`/api/admin/students/${studentId}/reject`, { method: 'POST' });
             if (res && res.ok) {
-                showMessage('❌ Admission rejected.', 'error');
+                showMessage('Admission rejected.', true);
                 await loadStats();
                 await loadPendingAdmissions();
             } else {
-                showMessage('Failed to reject admission.', 'error');
+                showMessage('Rejection failed.', true);
             }
+        }
+
+        // ========== SEMESTER REGISTRATIONS ==========
+        async function loadPendingRegistrations() {
+            const container = document.getElementById('pendingRegistrationsList');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading semester registrations...</div>';
+            const res = await safeApiCall('/api/admin/registrations/pending');
+            if (res && res.ok) {
+                const regs = await res.json();
+                if (regs.length === 0) {
+                    container.innerHTML = '<div class="approval-item"><i class="fas fa-check-circle"></i> No pending semester registrations.</div>';
+                    return;
+                }
+                container.innerHTML = regs.map(r => `
+                    <div class="approval-item">
+                        <div class="approval-info">
+                            <strong>${escapeHtml(r.first_name)} ${escapeHtml(r.last_name)}</strong>
+                            <small>${escapeHtml(r.student_number)} | ${r.sponsorship === 'government' ? 'Government' : 'Private'}</small>
+                            <small>Program: ${escapeHtml(r.program)} | Semester: ${escapeHtml(r.semester)}</small>
+                            <small class="modules-list">Modules: ${r.modules.join(', ')}</small>
+                        </div>
+                        <div>
+                            <button class="btn-approve" onclick="approveRegistration(${r.id})"><i class="fas fa-check"></i> Approve</button>
+                            <button class="btn-reject" onclick="rejectRegistrationPrompt(${r.id})"><i class="fas fa-times"></i> Reject</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="error-message">Unable to load semester registrations.</div>';
+            }
+        }
+
+        async function approveRegistration(id) {
+            if (!confirm('Approve this semester registration?')) return;
+            const res = await safeApiCall(`/api/admin/registrations/${id}/approve`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('Registration approved!', false);
+                await loadStats();
+                await loadPendingRegistrations();
+            } else {
+                showMessage('Approval failed.', true);
+            }
+        }
+
+        function rejectRegistrationPrompt(id) {
+            const reason = prompt('Reason for rejection:');
+            if (!reason) return;
+            rejectRegistration(id, reason);
+        }
+
+        async function rejectRegistration(id, reason) {
+            const res = await safeApiCall(`/api/admin/registrations/${id}/reject`, {
+                method: 'POST',
+                body: JSON.stringify({ reason })
+            });
+            if (res && res.ok) {
+                showMessage('Registration rejected.', true);
+                await loadStats();
+                await loadPendingRegistrations();
+            } else {
+                showMessage('Rejection failed.', true);
+            }
+        }
+
+        // ========== TAB SWITCHING ==========
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const admissionsDiv = document.getElementById('admissionsTab');
+            const registrationsDiv = document.getElementById('registrationsTab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    if (tab.dataset.tab === 'admissions') {
+                        admissionsDiv.style.display = 'block';
+                        registrationsDiv.style.display = 'none';
+                        loadPendingAdmissions();
+                    } else {
+                        admissionsDiv.style.display = 'none';
+                        registrationsDiv.style.display = 'block';
+                        loadPendingRegistrations();
+                    }
+                });
+            });
         }
 
         // ========== LOGOUT ==========
-        const logoutBtn = document.getElementById('logoutLink');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                localStorage.clear();
-                sessionStorage.clear();
-                window.location.href = 'login.html';
-            });
-        }
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        });
 
         function escapeHtml(text) {
             if (!text) return '';
@@ -531,10 +675,13 @@
         // Expose functions for inline onclick
         window.approveAdmission = approveAdmission;
         window.rejectAdmission = rejectAdmission;
+        window.approveRegistration = approveRegistration;
+        window.rejectRegistrationPrompt = rejectRegistrationPrompt;
 
         // ========== INIT ==========
         loadStats();
         loadPendingAdmissions();
+        setupTabs();
     </script>
 </body>
 

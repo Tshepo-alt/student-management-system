@@ -2,18 +2,12 @@
 <html lang="en">
 
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -330,13 +324,9 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -400,31 +390,162 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-file-alt"></i> Document Management</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
 
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        function showMessage(msg, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            msgDiv.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+            const container = document.querySelector('.upload-section');
+            container.parentNode.insertBefore(msgDiv, container.nextSibling);
+            setTimeout(() => msgDiv.remove(), 5000);
+        }
 
+        // ========== UPLOAD DOCUMENT ==========
+        async function uploadDocument(type, docType) {
+            let fileInput, fieldName;
+            if (type === 'bgcse') {
+                fileInput = document.getElementById('bgcseFile');
+                fieldName = 'bgcse_certificate';
+            } else if (type === 'id') {
+                fileInput = document.getElementById('idFile');
+                fieldName = 'id_document';
+            } else {
+                fileInput = document.getElementById('photoFile');
+                fieldName = 'passport_photo';
+            }
+
+            const file = fileInput.files[0];
+            if (!file) {
+                showMessage('Please select a file first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append(fieldName, file);
+            formData.append('document_type', docType);
+
+            const btn = fileInput.nextElementSibling;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Uploading...';
+
+            try {
+                const response = await safeApiCall('/api/students/documents', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response && response.ok) {
+                    showMessage(`${file.name} uploaded successfully!`, 'success');
+                    fileInput.value = '';
+                    document.getElementById(`${type}FileName`).textContent = '';
+                    loadDocuments(); // refresh list
+                } else {
+                    showMessage('Upload failed. Please try again.', 'error');
+                }
+            } catch (err) {
+                showMessage('Network error. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // ========== LOAD DOCUMENTS ==========
+        async function loadDocuments() {
+            const container = document.getElementById('documentsList');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading documents...</div>';
+
+            const response = await safeApiCall('/api/students/documents');
+            if (!response) return;
+
+            if (response.status === 404) {
+                container.innerHTML = '<div class="empty-state">No documents found. Upload your documents above.</div>';
+                return;
+            }
+
+            if (response.ok) {
+                const docs = await response.json();
+                if (!docs.length) {
+                    container.innerHTML = '<div class="empty-state">No documents uploaded yet.</div>';
+                    return;
+                }
+
+                const typeMap = {
+                    'bgcse_certificate': { icon: 'fa-certificate', label: 'BGCSE Certificate' },
+                    'id_document': { icon: 'fa-id-card', label: 'ID / Passport Copy' },
+                    'passport_photo': { icon: 'fa-camera', label: 'Passport Photo' }
+                };
+
+                container.innerHTML = `
+                    <div class="documents-grid">
+                        ${docs.map(doc => `
+                            <div class="doc-card">
+                                <div class="doc-info">
+                                    <div class="doc-name">
+                                        <i class="fas ${typeMap[doc.document_type]?.icon || 'fa-file'}"></i>
+                                        ${typeMap[doc.document_type]?.label || doc.document_type}
+                                    </div>
+                                    <div class="doc-meta">
+                                        ${doc.file_name}<br>
+                                        Uploaded: ${new Date(doc.uploaded_at).toLocaleDateString()}
+                                    </div>
+                                </div>
+                                <div class="doc-actions">
+                                    <a href="${doc.file_url}" class="doc-btn" target="_blank"><i class="fas fa-eye"></i> View</a>
+                                    <a href="${doc.file_url}" download class="doc-btn"><i class="fas fa-download"></i> Download</a>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="error-message">Unable to load documents. Please try again later.</div>';
+            }
+        }
+
+        // Display selected file names
+        document.getElementById('bgcseFile').addEventListener('change', (e) => {
+            const name = e.target.files[0]?.name || '';
+            document.getElementById('bgcseFileName').textContent = name ? `Selected: ${name}` : '';
+        });
+        document.getElementById('idFile').addEventListener('change', (e) => {
+            const name = e.target.files[0]?.name || '';
+            document.getElementById('idFileName').textContent = name ? `Selected: ${name}` : '';
+        });
+        document.getElementById('photoFile').addEventListener('change', (e) => {
+            const name = e.target.files[0]?.name || '';
+            document.getElementById('photoFileName').textContent = name ? `Selected: ${name}` : '';
+        });
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
+        loadDocuments();
+    </script>
 </body>
 
 </html>

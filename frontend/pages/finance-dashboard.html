@@ -8,15 +8,8 @@
     <link rel="manifest" href="/favicon/site.webmanifest">
     <meta name="theme-color" content="#667eea">
     <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
-
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Finance Dashboard - GIPS College</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -32,7 +25,6 @@
             min-height: 100vh;
         }
 
-        /* Navigation */
         .navbar {
             background: white;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
@@ -92,7 +84,6 @@
             color: white;
         }
 
-        /* Dashboard Header */
         .dashboard-header {
             background: linear-gradient(135deg, #10b981, #059669);
             border-radius: 28px;
@@ -116,7 +107,6 @@
             font-size: 0.9rem;
         }
 
-        /* Stats Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -159,7 +149,6 @@
             gap: 5px;
         }
 
-        /* Quick Actions */
         .quick-actions {
             background: white;
             border-radius: 24px;
@@ -212,7 +201,6 @@
             color: white;
         }
 
-        /* Transactions */
         .recent-transactions {
             background: white;
             border-radius: 24px;
@@ -277,6 +265,11 @@
             color: #92400e;
         }
 
+        .status-failed {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
         .loading {
             text-align: center;
             padding: 24px;
@@ -291,6 +284,7 @@
             color: #991b1b;
             font-size: 0.8rem;
             margin: 12px 0;
+            display: none;
         }
 
         .footer {
@@ -339,9 +333,6 @@
 </head>
 
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -351,7 +342,8 @@
                         Dashboard</a></li>
                 <li><a href="finance-records.html" class="nav-link"><i class="fas fa-credit-card"></i> Payment
                         Records</a></li>
-                <li><a href="admin-reports.html" class="nav-link"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="admin-reports.html?type=payments" class="nav-link"><i class="fas fa-file-alt"></i>
+                        Reports</a></li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -363,6 +355,8 @@
             <h1><i class="fas fa-user-circle"></i> Welcome, <span id="financeName">Finance Officer</span>!</h1>
             <p>Manage payments, invoices, and financial reports.</p>
         </div>
+
+        <div id="errorMessage" class="error-message"></div>
 
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
@@ -408,31 +402,116 @@
         <div class="container">
             <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-chart-line"></i> Finance Portal | Financial Management</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+            <div style="margin-top: 8px;"><a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> | <a
+                    href="/contacts"><i class="fas fa-envelope"></i> Contact</a></div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ========== AUTHENTICATION & ROLE CHECK ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userRole = localStorage.getItem('user_role') || user.role;
 
+        if (!token) window.location.href = 'login.html';
+        if (userRole !== 'finance') window.location.href = 'student-dashboard.html';
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        document.getElementById('financeName').textContent = user.first_name || user.username || 'Finance Officer';
 
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return res;
+            } catch (err) {
+                console.error(err);
+                return null;
+            }
+        }
+
+        function showMessage(msg, isError = true) {
+            const errDiv = document.getElementById('errorMessage');
+            errDiv.textContent = msg;
+            errDiv.style.display = 'block';
+            setTimeout(() => errDiv.style.display = 'none', 5000);
+        }
+
+        // ========== LOAD STATISTICS ==========
+        async function loadStats() {
+            const statsDiv = document.getElementById('statsGrid');
+            statsDiv.innerHTML = '<div class="stat-card" style="grid-column:1/-1; text-align:center;">Loading...</div>';
+            const res = await safeApiCall('/api/admin/payments/stats');
+            if (res && res.ok) {
+                const stats = await res.json();
+                document.getElementById('totalRevenue').innerHTML = `P ${(stats.total_revenue || 0).toLocaleString()}<small>/month</small>`;
+                document.getElementById('pendingCount').innerHTML = stats.pending_count || 0;
+                document.getElementById('completedCount').innerHTML = stats.completed_count || 0;
+                document.getElementById('outstandingAmount').innerHTML = `P ${(stats.outstanding_amount || 0).toLocaleString()}`;
+            } else {
+                showMessage('Failed to load payment statistics.');
+                document.getElementById('totalRevenue').innerHTML = '--';
+                document.getElementById('pendingCount').innerHTML = '--';
+                document.getElementById('completedCount').innerHTML = '--';
+                document.getElementById('outstandingAmount').innerHTML = '--';
+            }
+        }
+
+        // ========== LOAD RECENT TRANSACTIONS ==========
+        async function loadRecentTransactions() {
+            const container = document.getElementById('transactionsList');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading transactions...</div>';
+            const res = await safeApiCall('/api/admin/payments?limit=5');
+            if (res && res.ok) {
+                const payments = await res.json();
+                if (!payments.length) {
+                    container.innerHTML = '<div class="transaction-item">No recent transactions found.</div>';
+                    return;
+                }
+                container.innerHTML = payments.map(p => {
+                    const statusClass = p.status === 'completed' ? 'status-completed' : (p.status === 'pending' ? 'status-pending' : 'status-failed');
+                    return `
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <strong>${escapeHtml(p.student_name)}</strong>
+                                <small>${p.receipt_number || 'N/A'} • ${new Date(p.payment_date).toLocaleDateString()}</small>
+                            </div>
+                            <div>
+                                <span class="transaction-status ${statusClass}">${p.status}</span>
+                            </div>
+                            <div class="transaction-amount">P ${p.amount.toLocaleString()}</div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = '<div class="loading">Unable to load transactions. Please refresh.</div>';
+            }
+        }
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+
+        // ========== LOGOUT ==========
+        const logoutBtn = document.getElementById('logoutLink');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            });
+        }
+
+        // ========== INIT ==========
+        loadStats();
+        loadRecentTransactions();
+    </script>
 </body>
 
 </html>

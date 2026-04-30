@@ -2,18 +2,18 @@
 <html lang="en">
 
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Admin Dashboard - GIPS College</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (full styles as in the working version – identical to the one you provided) */
         * {
             margin: 0;
             padding: 0;
@@ -150,12 +150,6 @@
             color: #475569;
             font-size: 0.85rem;
             margin-top: 4px;
-        }
-
-        .admin-profile {
-            display: flex;
-            align-items: center;
-            gap: 16px;
         }
 
         .admin-avatar {
@@ -487,9 +481,7 @@
                         <p>Welcome back, <span id="adminName">Admin</span></p>
                     </div>
                 </div>
-                <div class="admin-profile">
-                    <div class="admin-avatar" id="adminAvatar">A</div>
-                </div>
+                <div class="admin-avatar" id="adminAvatar">A</div>
             </div>
 
             <div id="errorMessage" class="error-banner"></div>
@@ -536,19 +528,23 @@
     </div>
 
     <script>
-        // ========== AUTH & GLOBALS ==========
+        // ========== AUTHENTICATION ==========
         const token = localStorage.getItem('access_token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const userRole = localStorage.getItem('user_role') || user.role;
-        if (!token) window.location.href = 'login.html';
-        if (userRole !== 'admin' && userRole !== 'administrator') window.location.href = 'student-dashboard.html';
+
+        if (!token || (userRole !== 'admin' && userRole !== 'administrator')) {
+            window.location.href = 'login.html';
+        }
 
         document.getElementById('adminName').textContent = user.first_name || user.username || 'Admin';
         const initial = (user.first_name ? user.first_name[0] : (user.username ? user.username[0] : 'A')).toUpperCase();
         document.getElementById('adminAvatar').textContent = initial;
-        document.getElementById('adminAvatar').addEventListener('click', () => window.location.href = 'admin-profile.html');
+        document.getElementById('adminAvatar').addEventListener('click', () => {
+            window.location.href = 'admin-profile.html';
+        });
 
-        // Sidebar toggle
+        // Sidebar toggle for mobile
         const menuToggle = document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
         menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
@@ -558,25 +554,41 @@
             }
         });
 
-        // API Helper
+        // ========== API HELPER ==========
         async function safeApiCall(endpoint, options = {}) {
             try {
                 const res = await fetch(endpoint, {
                     ...options,
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
                 });
-                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                if (res.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
                 return res;
-            } catch (err) { console.error(err); return null; }
+            } catch (err) {
+                console.error('API error:', err);
+                return null;
+            }
         }
 
         function showMessage(msg, type) {
-            const errDiv = document.getElementById('errorMessage'), infoDiv = document.getElementById('infoMessage');
+            const errDiv = document.getElementById('errorMessage');
+            const infoDiv = document.getElementById('infoMessage');
             if (type === 'error') {
-                errDiv.textContent = msg; errDiv.style.display = 'block'; infoDiv.style.display = 'none';
+                errDiv.textContent = msg;
+                errDiv.style.display = 'block';
+                infoDiv.style.display = 'none';
                 setTimeout(() => errDiv.style.display = 'none', 5000);
             } else {
-                infoDiv.textContent = msg; infoDiv.style.display = 'block'; errDiv.style.display = 'none';
+                infoDiv.textContent = msg;
+                infoDiv.style.display = 'block';
+                errDiv.style.display = 'none';
                 setTimeout(() => infoDiv.style.display = 'none', 5000);
             }
         }
@@ -597,12 +609,12 @@
                     <div class="stat-card"><div class="stat-icon"><i class="fas fa-home"></i></div><div class="stat-number">${stats.pending_accommodation || 0}</div><div class="stat-label">Accommodation Apps</div></div>
                 `;
             } else {
-                container.innerHTML = '<div class="error-banner" style="display:block;">Failed to load statistics</div>';
-                showMessage('Could not load dashboard stats.', 'error');
+                container.innerHTML = '<div class="stat-card"><div class="stat-number">—</div><div class="stat-label">Unable to load</div></div>';
+                showMessage('Could not load dashboard statistics. Please refresh.', 'error');
             }
         }
 
-        // ========== PENDING STUDENT REGISTRATIONS ==========
+        // ========== LOAD PENDING STUDENTS ==========
         async function loadPendingStudents() {
             const container = document.getElementById('pendingStudentsList');
             container.innerHTML = '<div class="loading-spinner"></div> Loading student registrations...';
@@ -610,7 +622,10 @@
             if (res && res.ok) {
                 const students = await res.json();
                 const pending = students.filter(s => s.admission_status === 'pending');
-                if (!pending.length) { container.innerHTML = '<div class="approval-item">✅ No pending student registrations.</div>'; return; }
+                if (pending.length === 0) {
+                    container.innerHTML = '<div class="approval-item">✅ No pending student registrations.</div>';
+                    return;
+                }
                 container.innerHTML = pending.map(s => `
                     <div class="approval-item">
                         <div class="approval-info">
@@ -632,7 +647,7 @@
             }
         }
 
-        // ========== PENDING ACCOMMODATION APPLICATIONS ==========
+        // ========== LOAD PENDING ACCOMMODATION ==========
         async function loadPendingAccommodation() {
             const container = document.getElementById('pendingAccommodationList');
             container.innerHTML = '<div class="loading-spinner"></div> Loading accommodation applications...';
@@ -640,7 +655,10 @@
             if (res && res.ok) {
                 const apps = await res.json();
                 const pending = apps.filter(a => a.status === 'pending');
-                if (!pending.length) { container.innerHTML = '<div class="approval-item">✅ No pending accommodation applications.</div>'; return; }
+                if (pending.length === 0) {
+                    container.innerHTML = '<div class="approval-item">✅ No pending accommodation applications.</div>';
+                    return;
+                }
                 container.innerHTML = pending.map(app => `
                     <div class="approval-item">
                         <div class="approval-info">
@@ -650,8 +668,9 @@
                             <small>${app.room_type === 'bachelor_pad' ? 'Bachelor Pad' : 'Three-Bed Room'}</small>
                         </div>
                         <div>
-                            <button class="btn-view" onclick="viewAccommodation(${app.id})"><i class="fas fa-eye"></i> View/Allocate</button>
+                            <button class="btn-approve" onclick="approveAccommodation(${app.id})"><i class="fas fa-check"></i> Approve</button>
                             <button class="btn-reject" onclick="rejectAccommodation(${app.id})"><i class="fas fa-times"></i> Reject</button>
+                            <button class="btn-view" onclick="viewAccommodation(${app.id})"><i class="fas fa-eye"></i> View</button>
                         </div>
                     </div>
                 `).join('');
@@ -660,14 +679,17 @@
             }
         }
 
-        // ========== ACTIONS (Student) ==========
+        // ========== ACTIONS ==========
         async function approveStudent(id) {
             if (!confirm('Approve this student\'s admission?')) return;
             const res = await safeApiCall(`/api/admin/students/${id}/approve-admission`, { method: 'POST' });
             if (res && res.ok) {
                 showMessage('Student admission approved!', 'success');
-                await loadStats(); await loadPendingStudents();
-            } else showMessage('Failed to approve admission.', 'error');
+                await loadStats();
+                await loadPendingStudents();
+            } else {
+                showMessage('Failed to approve student. Check console.', 'error');
+            }
         }
 
         async function rejectStudent(id) {
@@ -675,20 +697,32 @@
             const res = await safeApiCall(`/api/admin/students/${id}/reject`, { method: 'POST' });
             if (res && res.ok) {
                 showMessage('Student admission rejected.', 'error');
-                await loadStats(); await loadPendingStudents();
-            } else showMessage('Failed to reject admission.', 'error');
+                await loadStats();
+                await loadPendingStudents();
+            } else {
+                showMessage('Failed to reject student.', 'error');
+            }
         }
 
-        function viewStudent(id) { window.location.href = `admin-students.html?view=${id}`; }
+        async function approveAccommodation(id) {
+            if (!confirm('Approve this accommodation application?')) return;
+            // Note: There is no standard approve endpoint in admin.py for accommodation;
+            // you may need to implement one. For now, we show a placeholder.
+            alert('Approval endpoint not yet implemented. Use the accommodation management page to allocate rooms.');
+        }
 
-        // ========== ACTIONS (Accommodation) ==========
-        function viewAccommodation(id) { window.location.href = `admin-accommodation.html?view=${id}`; }
         async function rejectAccommodation(id) {
-            const reason = prompt('Reason for rejection:');
-            if (!reason) return;
-            // Note: Your admin.py currently does NOT have a reject endpoint for accommodation.
-            // You may need to add it. For now, we show a placeholder message.
-            alert('Rejection endpoint not yet implemented. You would call PUT /api/admin/accommodation/applications/' + id + '/reject');
+            if (!confirm('Reject this accommodation application?')) return;
+            // Reject endpoint missing – fallback to manual.
+            alert('Rejection endpoint not yet implemented. Please handle via accommodation management page.');
+        }
+
+        function viewStudent(id) {
+            window.location.href = `admin-students.html?view=${id}`;
+        }
+
+        function viewAccommodation(id) {
+            window.location.href = `admin-accommodation.html?view=${id}`;
         }
 
         // ========== TABS ==========
@@ -711,29 +745,36 @@
             });
         }
 
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
 
-        // Logout
+        // ========== LOGOUT ==========
         document.getElementById('logoutLink').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.clear();
+            sessionStorage.clear();
             window.location.href = 'login.html';
         });
 
-        // Make functions globally accessible for inline onclick
+        // Expose functions for dynamic buttons
         window.approveStudent = approveStudent;
         window.rejectStudent = rejectStudent;
+        window.approveAccommodation = approveAccommodation;
+        window.rejectAccommodation = rejectAccommodation;
         window.viewStudent = viewStudent;
         window.viewAccommodation = viewAccommodation;
-        window.rejectAccommodation = rejectAccommodation;
 
-        // Initial load
+        // ========== INIT ==========
         loadStats();
         loadPendingStudents();
         loadPendingAccommodation();
         setupTabs();
 
-        // Optional auto-refresh every 60 seconds
+        // Auto-refresh every 60 seconds
         setInterval(() => {
             loadStats();
             const activeTab = document.querySelector('.pending-tab.active')?.dataset.tab;

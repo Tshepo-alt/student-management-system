@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +30,7 @@
         /* Navigation */
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -157,8 +152,8 @@
             gap: 15px;
             flex-wrap: wrap;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .filter-bar select,
@@ -175,7 +170,7 @@
         .filter-bar input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .filter-bar input {
@@ -194,14 +189,14 @@
             background: white;
             border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             transition: all 0.3s;
         }
 
         .assignment-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .assignment-title {
@@ -272,7 +267,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -340,22 +335,22 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
+
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
                 <li><a href="lecturer-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="lecturer-courses.html" class="nav-link"><i class="fas fa-book"></i> My Courses</a></li>
-                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
-                <li><a href="lecturer-grades.html" class="nav-link active"><i class="fas fa-chart-line"></i> Grading</a></li>
+                <li><a href="lecturer-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+                </li>
+                <li><a href="lecturer-grades.html" class="nav-link active"><i class="fas fa-chart-line"></i> Grading</a>
+                </li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -395,30 +390,235 @@
         <div class="container">
             <p><i class="fas fa-graduation-cap"></i> &copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-chalkboard-teacher"></i> Lecturer Portal | Grading Dashboard</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+        if (!token) {
+            window.location.href = 'login.html';
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        if (user.role !== 'lecturer') {
+            window.location.href = 'student-dashboard.html';
+        }
 
+        // ============================================
+        // DEMO DATA (assignments with submissions)
+        // ============================================
+        let assignments = [
+            {
+                id: 1,
+                title: 'Programming Assignment 1',
+                courseId: 1,
+                courseName: 'CS101 - Introduction to Programming',
+                dueDate: '2026-04-15',
+                maxPoints: 100,
+                submissions: [
+                    { studentId: 1, studentName: 'John Doe', submittedAt: '2026-04-10', grade: null },
+                    { studentId: 2, studentName: 'Jane Smith', submittedAt: '2026-04-12', grade: null }
+                ]
+            },
+            {
+                id: 2,
+                title: 'Database Design Project',
+                courseId: 2,
+                courseName: 'CS201 - Database Systems',
+                dueDate: '2026-04-20',
+                maxPoints: 100,
+                submissions: [
+                    { studentId: 1, studentName: 'John Doe', submittedAt: '2026-04-18', grade: 85 }
+                ]
+            },
+            {
+                id: 3,
+                title: 'JavaScript Quiz',
+                courseId: 3,
+                courseName: 'CS301 - Web Development',
+                dueDate: '2026-04-10',
+                maxPoints: 50,
+                submissions: [
+                    { studentId: 2, studentName: 'Jane Smith', submittedAt: '2026-04-09', grade: 42 }
+                ]
+            }
+        ];
+
+        let courses = [
+            { id: 1, name: 'CS101 - Introduction to Programming' },
+            { id: 2, name: 'CS201 - Database Systems' },
+            { id: 3, name: 'CS301 - Web Development' }
+        ];
+
+        // ============================================
+        // Helper: Render Assignment Cards
+        // ============================================
+        function renderAssignments() {
+            const container = document.getElementById('assignmentsContainer');
+            const courseFilter = document.getElementById('courseFilter').value;
+            const searchTerm = document.getElementById('searchAssignments').value.toLowerCase();
+
+            let filtered = assignments;
+            if (courseFilter !== 'all') {
+                filtered = filtered.filter(a => a.courseId == courseFilter);
+            }
+            if (searchTerm) {
+                filtered = filtered.filter(a => a.title.toLowerCase().includes(searchTerm));
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading">No assignments found.</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(assignment => {
+                const totalSubmissions = assignment.submissions.length;
+                const gradedCount = assignment.submissions.filter(s => s.grade !== null).length;
+                const averageGrade = totalSubmissions > 0
+                    ? (assignment.submissions.reduce((sum, s) => sum + (s.grade || 0), 0) / totalSubmissions).toFixed(1)
+                    : 0;
+
+                return `
+                    <div class="assignment-card">
+                        <div class="assignment-title">${escapeHtml(assignment.title)}</div>
+                        <div class="assignment-course">
+                            <i class="fas fa-book-open"></i> ${assignment.courseName}
+                        </div>
+                        <div class="assignment-stats">
+                            <span><i class="fas fa-calendar-alt"></i> Due: ${assignment.dueDate}</span>
+                            <span><i class="fas fa-star"></i> Max: ${assignment.maxPoints} pts</span>
+                        </div>
+                        <div class="assignment-stats">
+                            <span><i class="fas fa-inbox"></i> Submissions: ${totalSubmissions}</span>
+                            <span><i class="fas fa-check-circle"></i> Graded: ${gradedCount}</span>
+                            <span><i class="fas fa-chart-line"></i> Avg: ${averageGrade}</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="gradeAssignment(${assignment.id})">
+                            <i class="fas fa-edit"></i> Grade Submissions
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================================
+        // Grade Assignment (show modal)
+        // ============================================
+        window.gradeAssignment = function (assignmentId) {
+            const assignment = assignments.find(a => a.id === assignmentId);
+            if (!assignment) return;
+
+            const modal = document.getElementById('submissionsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.innerHTML = `<i class="fas fa-edit"></i> Grade Submissions: ${escapeHtml(assignment.title)}`;
+
+            if (assignment.submissions.length === 0) {
+                modalBody.innerHTML = '<p>No submissions yet.</p>';
+            } else {
+                modalBody.innerHTML = `
+                    <div>
+                        ${assignment.submissions.map(sub => `
+                            <div class="submission-item" data-student-id="${sub.studentId}" data-assignment-id="${assignment.id}">
+                                <div>
+                                    <strong><i class="fas fa-user-graduate"></i> ${escapeHtml(sub.studentName)}</strong><br>
+                                    <small><i class="fas fa-clock"></i> Submitted: ${sub.submittedAt}</small>
+                                </div>
+                                <div>
+                                    <input type="number" class="grade-input" placeholder="Grade" value="${sub.grade !== null ? sub.grade : ''}" step="1" min="0" max="${assignment.maxPoints}">
+                                    <button class="btn btn-primary btn-sm" onclick="saveGrade(${assignment.id}, ${sub.studentId}, this)">
+                                        <i class="fas fa-save"></i> Save
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            modal.style.display = 'flex';
+        };
+
+        // ============================================
+        // Save Grade
+        // ============================================
+        window.saveGrade = function (assignmentId, studentId, button) {
+            const item = button.closest('.submission-item');
+            const gradeInput = item.querySelector('.grade-input');
+            const grade = parseInt(gradeInput.value, 10);
+            if (isNaN(grade)) {
+                alert('Please enter a valid grade.');
+                return;
+            }
+            const assignment = assignments.find(a => a.id === assignmentId);
+            if (!assignment) return;
+            const submission = assignment.submissions.find(s => s.studentId === studentId);
+            if (submission) {
+                submission.grade = grade;
+                alert(`Grade saved: ${submission.studentName} - ${grade}/${assignment.maxPoints}`);
+                renderAssignments(); // refresh the cards to update counts and average
+            }
+        };
+
+        // ============================================
+        // Populate course filter
+        // ============================================
+        function populateCourseFilter() {
+            const filterSelect = document.getElementById('courseFilter');
+            filterSelect.innerHTML = '<option value="all">All Courses</option>' +
+                courses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        // ============================================
+        // Filter listeners
+        // ============================================
+        document.getElementById('courseFilter').addEventListener('change', renderAssignments);
+        document.getElementById('searchAssignments').addEventListener('input', renderAssignments);
+
+        // ============================================
+        // Modal close
+        // ============================================
+        function closeModal() {
+            document.getElementById('submissionsModal').style.display = 'none';
+        }
+        window.closeModal = closeModal;
+        window.onclick = function (e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        };
+
+        // ============================================
+        // Logout
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // Helper
+        // ============================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // Initialise
+        // ============================================
+        populateCourseFilter();
+        renderAssignments();
+
+        console.log('✅ Lecturer Grading page loaded');
+    </script>
 </body>
+
 </html>

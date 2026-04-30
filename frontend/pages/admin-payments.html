@@ -2,18 +2,12 @@
 <html lang="en">
 
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -465,13 +459,9 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
-
-
-
     <div class="admin-wrapper">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -479,22 +469,19 @@
                 <h3>Admin Portal</h3>
                 <p>GIPS College</p>
             </div>
-            
-
-<div class="sidebar-menu">
-    <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> Dashboard</a>
-    <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
-    <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
-    <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
-    <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
-    <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i> Accommodation</a>
-    <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
-    <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
-    <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
-    <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
-</div>
-
-
+            <div class="sidebar-menu">
+                <a href="admin-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                <a href="admin-students.html" class="sidebar-menu-item"><i class="fas fa-users"></i> Students</a>
+                <a href="admin-staff.html" class="sidebar-menu-item"><i class="fas fa-user-tie"></i> Staff</a>
+                <a href="admin-programs.html" class="sidebar-menu-item"><i class="fas fa-book-open"></i> Programs</a>
+                <a href="admin-modules.html" class="sidebar-menu-item"><i class="fas fa-layer-group"></i> Modules</a>
+                <a href="admin-accommodation.html" class="sidebar-menu-item"><i class="fas fa-building"></i>
+                    Accommodation</a>
+                <a href="admin-payments.html" class="sidebar-menu-item active"><i class="fas fa-credit-card"></i>
+                    Payments</a>
+                <a href="admin-tickets.html" class="sidebar-menu-item"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Reports</a>
+                <div style="margin: 12px 20px; border-top: 1px solid #334155;"></div>
                 <a href="admin-api.html" class="sidebar-menu-item"><i class="fas fa-plug"></i> API</a>
                 <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i> Settings</a>
                 <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -624,23 +611,277 @@
 
     <div class="footer">© 2026 GIPS College. All rights reserved.</div>
 
-    
+    <script>
+        // ========== AUTHENTICATION & SIDEBAR ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+        if (!token) window.location.href = 'login.html';
+        // Only admin/administrator allowed (finance uses their own dashboard)
+        if (user.role !== 'admin' && user.role !== 'administrator') {
+            window.location.href = user.role === 'finance' ? 'finance-dashboard.html' : 'student-dashboard.html';
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        document.getElementById('adminAvatar').textContent = (user.first_name?.[0] || user.username?.[0] || 'A').toUpperCase();
+        document.getElementById('adminAvatar').addEventListener('click', () => window.location.href = 'admin-profile.html');
 
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // ========== DATA & API ==========
+        let payments = [];
+        let students = [];
+
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, { ...options, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers } });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
+
+        async function loadStudents() {
+            const res = await safeApiCall('/api/admin/students');
+            if (res && res.ok) {
+                const data = await res.json();
+                students = data.map(s => ({ id: s.id, name: `${s.first_name} ${s.last_name}`, number: s.student_number }));
+            } else {
+                // demo
+                students = [
+                    { id: 1, name: 'John Doe', number: 'GIPS/2026/00001' },
+                    { id: 2, name: 'Jane Smith', number: 'GIPS/2026/00002' },
+                    { id: 3, name: 'Mike Johnson', number: 'GIPS/2026/00003' }
+                ];
+            }
+        }
+
+        async function loadPayments() {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = '<tr><td colspan="9"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading payments...</div></td></tr>';
+            const res = await safeApiCall('/api/admin/payments');
+            if (res && res.ok) {
+                payments = await res.json();
+            } else {
+                // demo data
+                payments = [
+                    { id: 1, receipt_number: 'REC-2026-001', payment_date: '2026-03-15', student_name: 'John Doe', student_number: 'GIPS/2026/00001', description: 'Semester Fees', amount: 8500, payment_method: 'card', status: 'completed' },
+                    { id: 2, receipt_number: 'REC-2026-002', payment_date: '2026-03-14', student_name: 'Jane Smith', student_number: 'GIPS/2026/00002', description: 'Accommodation', amount: 5000, payment_method: 'mobile_money', status: 'pending' },
+                    { id: 3, receipt_number: 'REC-2026-003', payment_date: '2026-03-13', student_name: 'Mike Johnson', student_number: 'GIPS/2026/00003', description: 'Exam Fees', amount: 2000, payment_method: 'cash', status: 'completed' }
+                ];
+            }
+            displayPayments();
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0);
+            const pending = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0);
+            const completed = payments.filter(p => p.status === 'completed').length;
+            document.getElementById('totalRevenue').textContent = `P ${total.toLocaleString()}`;
+            document.getElementById('pendingAmount').textContent = `P ${pending.toLocaleString()}`;
+            document.getElementById('totalTransactions').textContent = payments.length;
+            document.getElementById('completedPayments').textContent = completed;
+        }
+
+        function displayPayments(search = '', status = 'all') {
+            const tbody = document.getElementById('paymentsTableBody');
+            let filtered = payments;
+            if (search) {
+                const term = search.toLowerCase();
+                filtered = filtered.filter(p => (p.student_name || '').toLowerCase().includes(term) || (p.receipt_number || '').toLowerCase().includes(term) || (p.student_number || '').includes(term));
+            }
+            if (status !== 'all') filtered = filtered.filter(p => p.status === status);
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="9">No payments found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filtered.map(p => {
+                const date = p.payment_date ? new Date(p.payment_date).toLocaleDateString() : 'N/A';
+                const method = (p.payment_method || 'N/A').replace('_', ' ').toUpperCase();
+                const statusClass = p.status === 'completed' ? 'status-paid' : (p.status === 'pending' ? 'status-pending' : 'status-failed');
+                const statusText = p.status ? p.status.toUpperCase() : 'UNKNOWN';
+                return `
+                <tr>
+                    <td><strong>${p.receipt_number || 'N/A'}</strong></td>
+                    <td>${date}</td>
+                    <td>${p.student_name || 'Unknown'}</td>
+                    <td>${p.student_number || 'N/A'}</td>
+                    <td>${p.description || p.notes || 'Fee Payment'}</td>
+                    <td style="font-weight:bold; color:#10b981;">P ${(p.amount || 0).toLocaleString()}</td>
+                    <td>${method}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="viewReceipt(${p.id})" style="margin-right:5px"><i class="fas fa-receipt"></i> Receipt</button>
+                        ${p.status === 'pending' ? `<button class="btn btn-success" onclick="markAsPaid(${p.id})"><i class="fas fa-check"></i> Mark Paid</button>` : ''}
+                    </td>
+                </tr>
+            `;
+            }).join('');
+        }
+
+        function searchPayments() {
+            const search = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            displayPayments(search, status);
+        }
+
+        // ========== RECORD PAYMENT ==========
+        function openRecordPaymentModal() {
+            const select = document.getElementById('studentSelect');
+            select.innerHTML = students.map(s => `<option value="${s.id}">${s.name} (${s.number})</option>`).join('');
+            document.getElementById('recordPaymentModal').style.display = 'flex';
+        }
+
+        async function recordPayment(paymentData) {
+            const res = await safeApiCall('/api/admin/payments', { method: 'POST', body: JSON.stringify(paymentData) });
+            if (res && res.ok) {
+                const newPayment = await res.json();
+                payments.unshift(newPayment);
+                displayPayments();
+                updateStats();
+                alert(`Payment recorded! Receipt: ${newPayment.receipt_number}`);
+                return true;
+            } else {
+                // demo
+                const newId = payments.length + 1;
+                const student = students.find(s => s.id === paymentData.student_id);
+                const newPayment = {
+                    id: newId,
+                    receipt_number: `REC-${new Date().getFullYear()}-${String(newId).padStart(3, '0')}`,
+                    payment_date: new Date().toISOString().split('T')[0],
+                    student_name: student?.name || 'Unknown',
+                    student_number: student?.number || 'N/A',
+                    description: paymentData.description || 'Fee Payment',
+                    amount: paymentData.amount,
+                    payment_method: paymentData.payment_method,
+                    status: paymentData.status || 'completed'
+                };
+                payments.unshift(newPayment);
+                displayPayments();
+                updateStats();
+                alert(`Payment recorded! Receipt: ${newPayment.receipt_number} (Demo Mode)`);
+                return true;
+            }
+        }
+
+        document.getElementById('recordPaymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const studentId = parseInt(document.getElementById('studentSelect').value);
+            const paymentData = {
+                student_id: studentId,
+                amount: parseFloat(document.getElementById('amount').value),
+                payment_method: document.getElementById('paymentMethod').value,
+                description: document.getElementById('paymentDesc').value || 'Fee Payment',
+                status: document.getElementById('paymentStatus').value
+            };
+            await recordPayment(paymentData);
+            closeModal('recordPaymentModal');
+            document.getElementById('recordPaymentForm').reset();
+        });
+
+        // ========== RECEIPT & MARK PAID ==========
+        function viewReceipt(id) {
+            const payment = payments.find(p => p.id === id);
+            if (!payment) return;
+            const receiptHtml = `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2>GIPS College</h2>
+                <p>Official Payment Receipt</p>
+                <hr>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <p><strong>Receipt Number:</strong> ${payment.receipt_number}</p>
+                <p><strong>Date:</strong> ${payment.payment_date ? new Date(payment.payment_date).toLocaleDateString() : 'N/A'}</p>
+                <p><strong>Student:</strong> ${payment.student_name}</p>
+                <p><strong>Student Number:</strong> ${payment.student_number}</p>
+                <hr>
+                <p><strong>Description:</strong> ${payment.description || 'Fee Payment'}</p>
+                <p><strong>Amount:</strong> <span style="font-size: 1.2rem; color: #10b981;">P ${(payment.amount || 0).toLocaleString()}</span></p>
+                <p><strong>Payment Method:</strong> ${(payment.payment_method || 'N/A').replace('_', ' ').toUpperCase()}</p>
+                <p><strong>Status:</strong> <span class="status-${payment.status}">${payment.status ? payment.status.toUpperCase() : 'UNKNOWN'}</span></p>
+                <hr>
+                <p style="text-align: center; margin-top: 20px;">Thank you for your payment!</p>
+                <p style="text-align: center; font-size: 0.8rem;">This is a computer-generated receipt. No signature required.</p>
+            </div>
+        `;
+            document.getElementById('receiptContent').innerHTML = receiptHtml;
+            document.getElementById('receiptModal').style.display = 'flex';
+        }
+
+        function printReceipt() {
+            const printContent = document.getElementById('receiptContent').innerHTML;
+            const original = document.body.innerHTML;
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = original;
+            location.reload();
+        }
+
+        async function markAsPaid(id) {
+            if (!confirm('Mark this payment as completed?')) return;
+            const res = await safeApiCall(`/api/admin/payments/${id}/update-status`, { method: 'PUT', body: JSON.stringify({ status: 'completed' }) });
+            if (res && res.ok) {
+                const payment = payments.find(p => p.id === id);
+                if (payment) payment.status = 'completed';
+                displayPayments();
+                updateStats();
+                alert('Payment marked as completed!');
+            } else {
+                const payment = payments.find(p => p.id === id);
+                if (payment) payment.status = 'completed';
+                displayPayments();
+                updateStats();
+                alert('Payment marked as completed! (Demo Mode)');
+            }
+        }
+
+        function exportPayments() {
+            let csv = 'Receipt #,Date,Student,Student #,Description,Amount,Method,Status\n';
+            payments.forEach(p => {
+                csv += `"${p.receipt_number || ''}",${p.payment_date || ''},"${p.student_name || ''}","${p.student_number || ''}","${p.description || ''}",${p.amount || 0},${p.payment_method || ''},${p.status || ''}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `payments_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('Payments exported!');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
+        async function init() {
+            await loadStudents();
+            await loadPayments();
+        }
+        init();
+
+        window.searchPayments = searchPayments;
+        window.openRecordPaymentModal = openRecordPaymentModal;
+        window.viewReceipt = viewReceipt;
+        window.printReceipt = printReceipt;
+        window.markAsPaid = markAsPaid;
+        window.exportPayments = exportPayments;
+        window.closeModal = closeModal;
+    </script>
 </body>
 
 </html>

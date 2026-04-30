@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -52,7 +47,7 @@
         .sidebar-header {
             padding: 25px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header img {
@@ -74,7 +69,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             transition: all 0.3s;
         }
@@ -86,7 +81,7 @@
 
         .sidebar-menu-item:hover,
         .sidebar-menu-item.active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
         }
 
@@ -105,8 +100,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .page-title h1 {
@@ -138,8 +133,8 @@
             background: white;
             border-radius: 24px;
             padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             margin-bottom: 25px;
         }
 
@@ -207,7 +202,7 @@
 
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(102,126,234,0.3);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
         }
 
         .btn-success {
@@ -233,7 +228,8 @@
             border-collapse: collapse;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
@@ -274,7 +270,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
             z-index: 2000;
             align-items: center;
@@ -289,7 +285,7 @@
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
         }
 
         .form-group {
@@ -328,48 +324,51 @@
             .sidebar {
                 width: 70px;
             }
+
             .sidebar-header h3,
             .sidebar-menu-item span {
                 display: none;
             }
+
             .sidebar-menu-item i {
                 margin: 0 auto;
             }
+
             .main-content {
                 margin-left: 70px;
             }
+
             .search-bar {
                 flex-direction: column;
                 align-items: stretch;
             }
+
             .stats-row {
                 grid-template-columns: 1fr;
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
+
 <body>
-
-
-
     <div class="admin-wrapper">
         <div class="sidebar">
             <div class="sidebar-header">
                 <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
                 <h3>Finance Portal</h3>
             </div>
-            
-
-<div class="sidebar-menu">
-    <a href="finance-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i> Dashboard</a>
-    <a href="admin-payments.html" class="sidebar-menu-item"><i class="fas fa-credit-card"></i> Payments</a>
-    <a href="finance-reports.html" class="sidebar-menu-item"><i class="fas fa-chart-bar"></i> Reports</a>
-    <a href="staff-queries.html" class="sidebar-menu-item"><i class="fas fa-question-circle"></i> Staff Queries</a>
-    <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
-</div>
-
-
+            <div class="sidebar-menu">
+                <a href="finance-dashboard.html" class="sidebar-menu-item"><i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span></a>
+                <a href="finance-records.html" class="sidebar-menu-item active"><i class="fas fa-credit-card"></i>
+                    <span>Payment Records</span></a>
+                <a href="admin-reports.html" class="sidebar-menu-item"><i class="fas fa-file-alt"></i>
+                    <span>Reports</span></a>
+                <a href="admin-settings.html" class="sidebar-menu-item"><i class="fas fa-cog"></i>
+                    <span>Settings</span></a>
+                <a href="#" id="logoutLink" class="sidebar-menu-item"><i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span></a>
+            </div>
         </div>
 
         <div class="main-content">
@@ -382,10 +381,22 @@
             </div>
 
             <div class="stats-row">
-                <div class="stat-box"><h3 id="totalRevenue">P 0</h3><p>Total Revenue</p></div>
-                <div class="stat-box"><h3 id="pendingAmount">P 0</h3><p>Pending Payments</p></div>
-                <div class="stat-box"><h3 id="totalTransactions">0</h3><p>Transactions</p></div>
-                <div class="stat-box"><h3 id="completedPayments">0</h3><p>Completed</p></div>
+                <div class="stat-box">
+                    <h3 id="totalRevenue">P 0</h3>
+                    <p>Total Revenue</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="pendingAmount">P 0</h3>
+                    <p>Pending Payments</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="totalTransactions">0</h3>
+                    <p>Transactions</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="completedPayments">0</h3>
+                    <p>Completed</p>
+                </div>
             </div>
 
             <div class="content-card">
@@ -398,19 +409,32 @@
                             <option value="completed">Completed</option>
                             <option value="pending">Pending</option>
                         </select>
-                        <button class="btn btn-primary" onclick="searchPayments()"><i class="fas fa-search"></i> Search</button>
-                        <button class="btn btn-success" onclick="exportPayments()"><i class="fas fa-download"></i> Export CSV</button>
-                        <button class="btn btn-primary" onclick="openRecordPaymentModal()"><i class="fas fa-plus"></i> Record Payment</button>
+                        <button class="btn btn-primary" onclick="searchPayments()"><i class="fas fa-search"></i>
+                            Search</button>
+                        <button class="btn btn-success" onclick="exportPayments()"><i class="fas fa-download"></i>
+                            Export CSV</button>
+                        <button class="btn btn-primary" onclick="openRecordPaymentModal()"><i class="fas fa-plus"></i>
+                            Record Payment</button>
                     </div>
                 </div>
                 <div style="overflow-x: auto;">
                     证
-                        <thead>
-                            的人
-                                <th>Receipt #</th><th>Date</th><th>Student</th><th>Student #</th><th>Description</th><th>Amount</th><th>Method</th><th>Status</th><th>Actions</th>
-                            </thead>
-                        <tbody id="paymentsTableBody">
-                            72<td colspan="9"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading payments...</div>72</tbody>
+                    <thead>
+                        的人
+                        <th>Receipt #</th>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Student #</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </thead>
+                    <tbody id="paymentsTableBody">
+                        72<td colspan="9">
+                            <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading payments...</div>72
+                    </tbody>
                     证
                 </div>
             </div>
@@ -423,7 +447,8 @@
             <h2><i class="fas fa-plus-circle"></i> Record New Payment</h2>
             <form id="recordPaymentForm">
                 <div class="form-group"><label>Student *</label><select id="studentSelect" required></select></div>
-                <div class="form-group"><label>Amount *</label><input type="number" id="amount" required placeholder="P 0.00" step="0.01"></div>
+                <div class="form-group"><label>Amount *</label><input type="number" id="amount" required
+                        placeholder="P 0.00" step="0.01"></div>
                 <div class="form-group"><label>Payment Method *</label>
                     <select id="paymentMethod">
                         <option value="card"><i class="fas fa-credit-card"></i> Credit/Debit Card</option>
@@ -432,14 +457,16 @@
                         <option value="cash"><i class="fas fa-money-bill-wave"></i> Cash</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Description</label><input type="text" id="paymentDesc" placeholder="e.g., Semester Fees, Accommodation"></div>
+                <div class="form-group"><label>Description</label><input type="text" id="paymentDesc"
+                        placeholder="e.g., Semester Fees, Accommodation"></div>
                 <div class="form-group"><label>Status</label>
                     <select id="paymentStatus">
                         <option value="completed">Completed</option>
                         <option value="pending">Pending</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-check"></i> Record Payment</button>
+                <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-check"></i> Record
+                    Payment</button>
             </form>
         </div>
     </div>
@@ -448,26 +475,292 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('receiptModal')">&times;</span>
             <div id="receiptContent"></div>
-            <button class="btn btn-primary" onclick="printReceipt()" style="width:100%; margin-top:15px;"><i class="fas fa-print"></i> Print Receipt</button>
+            <button class="btn btn-primary" onclick="printReceipt()" style="width:100%; margin-top:15px;"><i
+                    class="fas fa-print"></i> Print Receipt</button>
         </div>
     </div>
 
-    
+    <script>
+        // ========== AUTHENTICATION & ROLE CHECK (Finance Only) ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+        if (!token) {
+            window.location.href = 'login.html';
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        // Only allow 'finance' role (admins should use admin-payments.html)
+        if (user.role !== 'finance') {
+            window.location.href = 'student-dashboard.html';
+        }
 
+        // Avatar
+        const initial = (user.first_name ? user.first_name.charAt(0) : (user.username ? user.username.charAt(0) : 'F')).toUpperCase();
+        document.getElementById('adminAvatar').textContent = initial;
+
+        // ========== GLOBAL DATA ==========
+        let payments = [];
+        let students = [];
+
+        // ========== SAFE API CALL ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(endpoint, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            } catch (error) {
+                console.error(`API call error to ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== LOAD PAYMENTS & STUDENTS ==========
+        async function loadStudents() {
+            const response = await safeApiCall('/api/admin/students');
+            if (response && response.ok) {
+                const data = await response.json();
+                students = data.map(s => ({ id: s.id, name: `${s.first_name} ${s.last_name}`, number: s.student_number }));
+            } else {
+                students = [
+                    { id: 1, name: 'John Doe', number: 'GIPS/2026/00001' },
+                    { id: 2, name: 'Jane Smith', number: 'GIPS/2026/00002' },
+                    { id: 3, name: 'Mike Johnson', number: 'GIPS/2026/00003' }
+                ];
+            }
+        }
+
+        async function loadPayments() {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = '的人<td colspan="9"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading payments...</div> </tbody>';
+
+            const response = await safeApiCall('/api/admin/payments');
+            if (response && response.ok) {
+                payments = await response.json();
+                displayPayments();
+                updateStats();
+            } else {
+                // Demo data
+                payments = [
+                    { id: 1, receipt_number: 'REC-2026-001', payment_date: '2026-03-15', student_name: 'John Doe', student_number: 'GIPS/2026/00001', description: 'Semester Fees', amount: 8500, payment_method: 'card', status: 'completed' },
+                    { id: 2, receipt_number: 'REC-2026-002', payment_date: '2026-03-14', student_name: 'Jane Smith', student_number: 'GIPS/2026/00002', description: 'Accommodation', amount: 5000, payment_method: 'mobile_money', status: 'pending' },
+                    { id: 3, receipt_number: 'REC-2026-003', payment_date: '2026-03-13', student_name: 'Mike Johnson', student_number: 'GIPS/2026/00003', description: 'Exam Fees', amount: 2000, payment_method: 'cash', status: 'completed' }
+                ];
+                displayPayments();
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            const total = payments.reduce((sum, p) => sum + (p.status === 'completed' ? (p.amount || 0) : 0), 0);
+            const pending = payments.reduce((sum, p) => sum + (p.status === 'pending' ? (p.amount || 0) : 0), 0);
+            const completed = payments.filter(p => p.status === 'completed').length;
+            document.getElementById('totalRevenue').textContent = `P ${total.toLocaleString()}`;
+            document.getElementById('pendingAmount').textContent = `P ${pending.toLocaleString()}`;
+            document.getElementById('totalTransactions').textContent = payments.length;
+            document.getElementById('completedPayments').textContent = completed;
+        }
+
+        function displayPayments(search = '', status = 'all') {
+            const tbody = document.getElementById('paymentsTableBody');
+            let filtered = payments;
+            if (search) {
+                const term = search.toLowerCase();
+                filtered = filtered.filter(p => (p.student_name || '').toLowerCase().includes(term) || (p.receipt_number || '').toLowerCase().includes(term) || (p.student_number || '').includes(term));
+            }
+            if (status !== 'all') filtered = filtered.filter(p => p.status === status);
+            if (!filtered.length) {
+                tbody.innerHTML = '的人<td colspan="9">No payments found</tbody>';
+                return;
+            }
+            tbody.innerHTML = filtered.map(p => {
+                const paymentDate = p.payment_date ? new Date(p.payment_date).toLocaleDateString() : 'N/A';
+                const amount = p.amount || 0;
+                const method = (p.payment_method || p.method || 'N/A').replace('_', ' ').toUpperCase();
+                const statusClass = p.status === 'completed' ? 'status-paid' : 'status-pending';
+                const statusText = p.status ? p.status.toUpperCase() : 'UNKNOWN';
+                return `
+                     <tr>
+                         <td><strong>${escapeHtml(p.receipt_number || p.receipt || 'N/A')}</strong></td>
+                         <td>${paymentDate}</td>
+                         <td>${escapeHtml(p.student_name || 'Unknown')}</td>
+                         <td>${escapeHtml(p.student_number || 'N/A')}</td>
+                         <td>${escapeHtml(p.description || p.notes || 'Fee Payment')}</td>
+                         <td style="font-weight:bold; color:#38a169;">P ${amount.toLocaleString()}</td>
+                         <td>${method}</td>
+                         <td><span class="${statusClass}">${statusText}</span></td>
+                         <td>
+                             <button class="btn btn-warning" onclick="viewReceipt(${p.id})" style="margin-right:5px"><i class="fas fa-receipt"></i> Receipt</button>
+                             ${p.status === 'pending' ? `<button class="btn btn-success" onclick="markAsPaid(${p.id})"><i class="fas fa-check"></i> Mark Paid</button>` : ''}
+                         </td>
+                     </tr>
+                `;
+            }).join('');
+        }
+
+        function searchPayments() {
+            const term = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            displayPayments(term, status);
+        }
+
+        // ========== PAYMENT ACTIONS ==========
+        async function recordPayment(paymentData) {
+            const response = await safeApiCall('/api/admin/payments', {
+                method: 'POST',
+                body: JSON.stringify(paymentData)
+            });
+            if (response && response.ok) {
+                const newPayment = await response.json();
+                payments.unshift(newPayment);
+                displayPayments();
+                updateStats();
+                alert(`Payment recorded! Receipt: ${newPayment.receipt_number || newPayment.receipt}`);
+                return true;
+            } else {
+                // Demo mode
+                const newId = payments.length + 1;
+                const newPayment = {
+                    id: newId,
+                    receipt_number: `REC-${new Date().getFullYear()}-${String(newId).padStart(3, '0')}`,
+                    payment_date: new Date().toISOString().split('T')[0],
+                    ...paymentData,
+                    student_name: students.find(s => s.id === paymentData.student_id)?.name || 'Unknown',
+                    student_number: students.find(s => s.id === paymentData.student_id)?.number || 'N/A'
+                };
+                payments.unshift(newPayment);
+                displayPayments();
+                updateStats();
+                alert(`Payment recorded! Receipt: ${newPayment.receipt_number} (Demo Mode)`);
+                return true;
+            }
+        }
+
+        async function markAsPaid(id) {
+            if (!confirm('Mark this payment as completed?')) return;
+            const response = await safeApiCall(`/api/admin/payments/${id}/update-status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: 'completed' })
+            });
+            if (response && response.ok) {
+                const payment = payments.find(p => p.id === id);
+                if (payment) { payment.status = 'completed'; displayPayments(); updateStats(); alert(`Payment ${payment.receipt_number || payment.receipt} marked as completed!`); }
+            } else {
+                const payment = payments.find(p => p.id === id);
+                if (payment) { payment.status = 'completed'; displayPayments(); updateStats(); alert(`Payment ${payment.receipt_number || payment.receipt} marked as completed! (Demo Mode)`); }
+            }
+        }
+
+        function viewReceipt(id) {
+            const payment = payments.find(p => p.id === id);
+            if (payment) {
+                const receiptHtml = `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2>GIPS College</h2>
+                        <p>Official Payment Receipt</p>
+                        <hr>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <p><strong>Receipt Number:</strong> ${escapeHtml(payment.receipt_number || payment.receipt)}</p>
+                        <p><strong>Date:</strong> ${payment.payment_date ? new Date(payment.payment_date).toLocaleDateString() : 'N/A'}</p>
+                        <p><strong>Student:</strong> ${escapeHtml(payment.student_name || 'Unknown')}</p>
+                        <p><strong>Student Number:</strong> ${escapeHtml(payment.student_number || 'N/A')}</p>
+                        <hr>
+                        <p><strong>Description:</strong> ${escapeHtml(payment.description || payment.notes || 'Fee Payment')}</p>
+                        <p><strong>Amount:</strong> <span style="font-size: 1.2rem; color: #38a169;">P ${(payment.amount || 0).toLocaleString()}</span></p>
+                        <p><strong>Payment Method:</strong> ${(payment.payment_method || payment.method || 'N/A').replace('_', ' ').toUpperCase()}</p>
+                        <p><strong>Status:</strong> <span class="status-${payment.status}">${payment.status ? payment.status.toUpperCase() : 'UNKNOWN'}</span></p>
+                        <hr>
+                        <p style="text-align: center; margin-top: 20px;">Thank you for your payment!</p>
+                        <p style="text-align: center; font-size: 0.8rem;">This is a computer-generated receipt. No signature required.</p>
+                    </div>
+                `;
+                document.getElementById('receiptContent').innerHTML = receiptHtml;
+                document.getElementById('receiptModal').style.display = 'flex';
+            }
+        }
+
+        function printReceipt() {
+            const printContent = document.getElementById('receiptContent').innerHTML;
+            const originalContent = document.body.innerHTML;
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            location.reload();
+        }
+
+        function exportPayments() {
+            let csv = 'Receipt #,Date,Student,Student #,Description,Amount,Method,Status\n';
+            payments.forEach(p => {
+                csv += `"${p.receipt_number || p.receipt}",${p.payment_date || ''},"${p.student_name || ''}","${p.student_number || ''}","${p.description || p.notes || ''}",${p.amount || 0},${p.payment_method || p.method || ''},${p.status || ''}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `payments_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('Payments exported successfully!');
+        }
+
+        // ========== MODAL FUNCTIONS ==========
+        function openRecordPaymentModal() {
+            const studentSelect = document.getElementById('studentSelect');
+            studentSelect.innerHTML = students.map(s => `<option value="${s.id}">${s.name} (${s.number})</option>`).join('');
+            document.getElementById('recordPaymentModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        document.getElementById('recordPaymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const studentId = parseInt(document.getElementById('studentSelect').value);
+            const paymentData = {
+                student_id: studentId,
+                amount: parseFloat(document.getElementById('amount').value),
+                payment_method: document.getElementById('paymentMethod').value,
+                description: document.getElementById('paymentDesc').value || 'Fee Payment',
+                status: document.getElementById('paymentStatus').value
+            };
+            await recordPayment(paymentData);
+            closeModal('recordPaymentModal');
+            document.getElementById('recordPaymentForm').reset();
+        });
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
+        async function init() {
+            await loadStudents();
+            await loadPayments();
+        }
+        init();
+    </script>
 </body>
+
 </html>

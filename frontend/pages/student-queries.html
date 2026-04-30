@@ -2,18 +2,12 @@
 <html lang="en">
 
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -371,13 +365,9 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -457,31 +447,184 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-question-circle"></i> We're here to help | Response within 48 hours</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
 
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        function showMessage(msg, type, containerSelector = '.form-card') {
+            const container = document.querySelector(containerSelector);
+            const msgDiv = document.createElement('div');
+            msgDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            msgDiv.style.cssText = 'margin-top: 16px; padding: 12px; border-radius: 16px;';
+            container.insertBefore(msgDiv, container.querySelector('form')?.nextSibling);
+            setTimeout(() => msgDiv.remove(), 5000);
+        }
 
+        // ========== LOAD QUERIES FROM BACKEND ==========
+        async function loadQueries() {
+            const container = document.getElementById('queriesContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading queries...</div>';
+
+            const res = await safeApiCall('/api/students/queries');
+            if (res && res.ok) {
+                const queries = await res.json();
+                if (!queries.length) {
+                    container.innerHTML = '<div class="loading">No queries submitted yet.</div>';
+                    return;
+                }
+                // Sort by date descending (newest first)
+                queries.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                container.innerHTML = queries.map(q => {
+                    let statusClass = 'pending';
+                    if (q.status === 'resolved') statusClass = 'resolved';
+                    else if (q.status === 'in-progress') statusClass = 'in-progress';
+                    return `
+                        <div class="query-item" onclick="viewQuery(${q.id})">
+                            <div class="query-info">
+                                <div class="query-title">
+                                    <strong>${escapeHtml(q.subject)}</strong>
+                                    <span class="badge badge-${statusClass}">${getStatusText(q.status)}</span>
+                                </div>
+                                <div class="query-meta">
+                                    <span><i class="fas fa-tag"></i> ${escapeHtml(q.category || 'General')}</span>
+                                    <span><i class="fas fa-calendar-alt"></i> ${formatDate(q.created_at)}</span>
+                                </div>
+                            </div>
+                            <div class="query-date"><i class="fas fa-chevron-right"></i></div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = '<div class="loading">Unable to load queries. Please try again later.</div>';
+            }
+        }
+
+        function getStatusText(status) {
+            const map = { 'pending': 'Pending', 'in-progress': 'In Progress', 'resolved': 'Resolved' };
+            return map[status] || status;
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ========== VIEW QUERY DETAILS ==========
+        async function viewQuery(id) {
+            const res = await safeApiCall(`/api/students/queries/${id}`);
+            if (!res || !res.ok) {
+                showMessage('Could not load query details', 'error', '.queries-list');
+                return;
+            }
+            const q = await res.json();
+
+            let responsesHtml = '';
+            if (q.responses && q.responses.length) {
+                responsesHtml = '<h4 style="margin-top: 15px;">Responses</h4>';
+                q.responses.forEach(r => {
+                    responsesHtml += `
+                        <div class="response-item">
+                            <div class="response-staff">${escapeHtml(r.staff_name || 'Staff')}</div>
+                            <div>${escapeHtml(r.message)}</div>
+                            <div class="response-date">${formatDate(r.created_at)}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                responsesHtml = '<p><i class="fas fa-info-circle"></i> No responses yet. Our team will get back to you soon.</p>';
+            }
+
+            const modalBody = `
+                <div><strong>Category:</strong> ${escapeHtml(q.category || 'General')}</div>
+                <div><strong>Submitted:</strong> ${formatDate(q.created_at)}</div>
+                <div><strong>Status:</strong> <span class="badge badge-${q.status === 'pending' ? 'pending' : (q.status === 'resolved' ? 'resolved' : 'in-progress')}">${getStatusText(q.status)}</span></div>
+                <div style="margin: 15px 0;"><strong>Message:</strong><br>${escapeHtml(q.message)}</div>
+                <hr>
+                ${responsesHtml}
+            `;
+            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-envelope-open-text"></i> ${escapeHtml(q.subject)}`;
+            document.getElementById('modalBody').innerHTML = modalBody;
+            document.getElementById('queryModal').style.display = 'flex';
+        }
+
+        // ========== SUBMIT NEW QUERY ==========
+        document.getElementById('queryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('queryTitle').value.trim();
+            const category = document.getElementById('queryCategory').value;
+            const message = document.getElementById('queryMessage').value.trim();
+
+            if (!title || !message) {
+                showMessage('Please fill in both title and message.', 'error');
+                return;
+            }
+
+            const payload = { subject: title, category: category, message: message };
+
+            const res = await safeApiCall('/api/students/queries', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if (res && res.ok) {
+                showMessage('Query submitted successfully!', 'success');
+                document.getElementById('queryTitle').value = '';
+                document.getElementById('queryMessage').value = '';
+                document.getElementById('queryCategory').selectedIndex = 0;
+                loadQueries(); // refresh list
+            } else {
+                showMessage('Failed to submit query. Please try again.', 'error');
+            }
+        });
+
+        // ========== MODAL HELPERS ==========
+        function closeModal() {
+            document.getElementById('queryModal').style.display = 'none';
+        }
+
+        window.viewQuery = viewQuery;
+        window.closeModal = closeModal;
+
+        // Close modal on outside click
+        window.onclick = function (e) {
+            if (e.target === document.getElementById('queryModal')) closeModal();
+        };
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== HELPER ==========
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== INIT ==========
+        loadQueries();
+    </script>
 </body>
 
 </html>

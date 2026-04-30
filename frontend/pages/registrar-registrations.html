@@ -9,10 +9,11 @@
     <meta name="theme-color" content="#667eea">
     <meta name="msapplication-TileColor" content="#667eea">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Approvals - Registrar | GIPS College</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Registrar - Semester Registrations | GIPS College</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* (keep all existing styles – unchanged) */
         * {
             margin: 0;
             padding: 0;
@@ -48,15 +49,24 @@
             gap: 15px;
         }
 
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
         .navbar-brand img {
-            height: 50px;
+            height: 45px;
             width: auto;
         }
 
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 1rem;
+            gap: 0.5rem;
             flex-wrap: wrap;
         }
 
@@ -73,24 +83,48 @@
             gap: 8px;
         }
 
+        .nav-link i {
+            font-size: 1rem;
+        }
+
         .nav-link:hover,
         .nav-link.active {
-            color: #3b82f6;
+            color: #667eea;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
         }
 
         .page-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border-radius: 20px;
-            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 30px 35px;
             margin: 30px 0;
             color: white;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         .page-header::before {
-            content: '\f45c';
-            font-family: 'Font Awesome 6 Free';
+            content: "\f2f5";
+            font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
             bottom: 20px;
@@ -101,9 +135,7 @@
 
         .page-header h1 {
             font-size: 1.8rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            margin-bottom: 8px;
         }
 
         .tabs {
@@ -113,6 +145,7 @@
             background: white;
             padding: 6px;
             border-radius: 20px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .tab-btn {
@@ -120,17 +153,20 @@
             background: none;
             border: none;
             cursor: pointer;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #718096;
             border-radius: 16px;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .tab-btn.active {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .tab-content {
@@ -163,6 +199,7 @@
             gap: 15px;
             flex-wrap: wrap;
             align-items: center;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .filter-group {
@@ -171,11 +208,17 @@
             gap: 10px;
         }
 
+        .filter-group label {
+            font-weight: 500;
+            color: #4a5568;
+        }
+
         .filter-group select,
         .filter-group input {
             padding: 6px 12px;
             border: 1px solid #e2e8f0;
             border-radius: 20px;
+            background: #f9fafb;
         }
 
         .export-btn {
@@ -185,6 +228,8 @@
             padding: 8px 20px;
             border-radius: 30px;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -193,12 +238,15 @@
 
         .export-btn:hover {
             background: #218838;
+            transform: translateY(-1px);
         }
 
         .table-container {
             background: white;
             border-radius: 20px;
             overflow-x: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         table {
@@ -216,6 +264,7 @@
         th {
             background: #f9fafb;
             font-weight: 600;
+            color: #4a5568;
         }
 
         tr:hover {
@@ -225,6 +274,11 @@
         .modules-list {
             font-size: 0.8rem;
             max-width: 250px;
+        }
+
+        .results-list {
+            font-size: 0.75rem;
+            color: #2d3748;
         }
 
         .badge {
@@ -245,6 +299,11 @@
             color: #c53030;
         }
 
+        .badge-pending {
+            background: #feebc8;
+            color: #c05621;
+        }
+
         .btn-approve {
             background: #38a169;
             color: white;
@@ -253,6 +312,7 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.7rem;
+            transition: all 0.2s;
         }
 
         .btn-reject {
@@ -262,35 +322,21 @@
             padding: 4px 12px;
             border-radius: 20px;
             cursor: pointer;
-            margin-left: 8px;
             font-size: 0.7rem;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-approve:hover,
+        .btn-reject:hover {
+            transform: translateY(-1px);
+            filter: brightness(0.9);
         }
 
         .loading {
             text-align: center;
             padding: 40px;
             color: #a0aec0;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
         }
 
         .message {
@@ -303,11 +349,13 @@
         .error-message {
             background: #fed7d7;
             color: #c53030;
+            border-left: 4px solid #e53e3e;
         }
 
         .success-message {
             background: #c6f6d5;
             color: #276749;
+            border-left: 4px solid #38a169;
         }
 
         .footer {
@@ -327,6 +375,16 @@
                 flex-direction: column;
             }
 
+            .nav-menu {
+                justify-content: center;
+                gap: 0.25rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
             .filters {
                 flex-direction: column;
                 align-items: stretch;
@@ -337,107 +395,287 @@
                 width: 100%;
                 justify-content: center;
             }
+
+            th,
+            td {
+                white-space: nowrap;
+            }
         }
     </style>
     <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
-                    onerror="this.style.display='none'"></div>
+            <div class="navbar-brand">
+                <img src="../images/gipslogo.jpg" alt="GIPS College" onerror="this.style.display='none'">
+                <span>Registrar Portal</span>
+            </div>
             <ul class="nav-menu">
                 <li><a href="registrar-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
                 </li>
-                <li><a href="registrar-students.html" class="nav-link"><i class="fas fa-users"></i> Students</a></li>
                 <li><a href="registrar-registrations.html" class="nav-link active"><i class="fas fa-clipboard-list"></i>
                         Registrations</a></li>
-                <li><a href="registrar-documents.html" class="nav-link"><i class="fas fa-file-alt"></i> Documents</a>
+                <li><a href="admin-students.html" class="nav-link"><i class="fas fa-user-graduate"></i> Students</a>
                 </li>
+                <li><a href="admin-programs.html" class="nav-link"><i class="fas fa-book-open"></i> Programs</a></li>
                 <li><a href="registrar-reports.html" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
-                <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li><button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
             </ul>
         </div>
     </nav>
 
     <div class="container">
         <div class="page-header">
-            <h1><i class="fas fa-clipboard-list"></i> Semester Registration Approvals</h1>
-            <p>Review and approve student course registrations for the current semester.</p>
+            <h1><i class="fas fa-clipboard-list"></i> Semester Registrations</h1>
+            <p>Review and approve student registrations. Export government-sponsored data for DTEF.</p>
         </div>
+
         <div class="tabs">
             <button class="tab-btn active" data-tab="pending"><i class="fas fa-clock"></i> Pending</button>
             <button class="tab-btn" data-tab="approved"><i class="fas fa-check-circle"></i> Approved</button>
             <button class="tab-btn" data-tab="rejected"><i class="fas fa-times-circle"></i> Rejected</button>
         </div>
+
         <div class="filters">
-            <div class="filter-group"><label>Sponsorship:</label><select id="sponsorFilter">
+            <div class="filter-group">
+                <label><i class="fas fa-filter"></i> Sponsorship:</label>
+                <select id="sponsorFilter">
                     <option value="all">All</option>
-                    <option value="government">Government</option>
+                    <option value="government">Government Sponsored</option>
                     <option value="private">Private</option>
-                </select></div>
-            <div class="filter-group"><label>Search:</label><input type="text" id="searchInput"
-                    placeholder="Student name or number"></div>
-            <button id="exportGovBtn" class="export-btn"><i class="fas fa-download"></i> Export Government Data</button>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-search"></i> Search:</label>
+                <input type="text" id="searchInput" placeholder="Student name or number">
+            </div>
+            <button id="exportGovBtn" class="export-btn"><i class="fas fa-download"></i> Export Government Data
+                (DTEF)</button>
         </div>
+
         <div id="pending" class="tab-content active">
             <div id="pendingTableContainer" class="table-container">
-                <div class="loading">Loading pending registrations...</div>
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading registrations...</div>
             </div>
         </div>
         <div id="approved" class="tab-content">
             <div id="approvedTableContainer" class="table-container">
-                <div class="loading">Loading approved registrations...</div>
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading approved...</div>
             </div>
         </div>
         <div id="rejected" class="tab-content">
             <div id="rejectedTableContainer" class="table-container">
-                <div class="loading">Loading rejected registrations...</div>
+                <div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading rejected...</div>
             </div>
-        </div>
-    </div>
-
-    <!-- Rejection Modal -->
-    <div id="rejectModal" class="modal">
-        <div class="modal-content">
-            <h3><i class="fas fa-exclamation-triangle"></i> Reject Registration</h3>
-            <p>Please provide a reason for rejection:</p>
-            <textarea id="rejectReason" rows="3"
-                style="width:100%; margin:15px 0; padding:10px; border-radius:12px; border:1px solid #ccc;"></textarea>
-            <button id="confirmRejectBtn" class="btn-approve" style="background:#e53e3e;"><i class="fas fa-times"></i>
-                Confirm Rejection</button>
-            <button onclick="closeModal()" style="margin-left:10px; padding:6px 12px;">Cancel</button>
         </div>
     </div>
 
     <footer class="footer">
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
-            <div style="margin-top:8px;"><a href="/privacy">Privacy</a> | <a href="/contacts">Contact</a></div>
+            <p><i class="fas fa-clipboard-list"></i> Registrar | Student Registrations</p>
         </div>
     </footer>
 
-    
+    <script>
+        // ========== AUTHENTICATION & ROLE CHECK ==========
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = 'login.html';
+        if (user.role !== 'registrar') window.location.href = 'student-dashboard.html';
 
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            const res = await fetch(endpoint, {
+                ...options,
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
+            });
+            if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+            return res;
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        function showMessage(msg, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            msgDiv.style.display = 'block';
+            document.querySelector('.container').prepend(msgDiv);
+            setTimeout(() => msgDiv.remove(), 4000);
+        }
 
+        // ========== DATA STORAGE ==========
+        let registrationsData = { pending: [], approved: [], rejected: [] };
+        let currentTab = 'pending';
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // ========== LOAD DATA FROM BACKEND ==========
+        async function loadTab(tab) {
+            const containerId = `${tab}TableContainer`;
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading registrations...</div>';
+            const res = await safeApiCall(`/api/admin/registrations/${tab}`);
+            if (res && res.ok) {
+                registrationsData[tab] = await res.json();
+                renderTab(tab);
+            } else {
+                container.innerHTML = '<div class="loading">Failed to load data. Please refresh.</div>';
+            }
+        }
+
+        // ========== RENDER TABLE ==========
+        function renderTab(tab) {
+            let list = registrationsData[tab] || [];
+            let filtered = list.filter(r => {
+                if (currentFilter !== 'all' && r.sponsorship !== currentFilter) return false;
+                if (currentSearch) {
+                    const full = `${r.first_name} ${r.last_name} ${r.student_number}`.toLowerCase();
+                    if (!full.includes(currentSearch.toLowerCase())) return false;
+                }
+                return true;
+            });
+            const container = document.getElementById(`${tab}TableContainer`);
+            if (!filtered.length) {
+                container.innerHTML = '<div class="loading">No registrations found.</div>';
+                return;
+            }
+            const actions = (tab === 'pending');
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student #</th><th>Name</th><th>Program</th><th>Year/Semester</th><th>Sponsorship</th><th>Modules (Registered)</th><th>Previous Results</th>${actions ? '<th>Actions</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(r => `
+                            <tr>
+                                <td>${escapeHtml(r.student_number)}</td>
+                                <td>${escapeHtml(r.first_name)} ${escapeHtml(r.last_name)}</td>
+                                <td>${escapeHtml(r.program)}</td>
+                                <td>${escapeHtml(r.semester)} (Year ${r.year_of_study})</td>
+                                <td><span class="badge ${r.sponsorship === 'government' ? 'badge-government' : 'badge-private'}">${r.sponsorship === 'government' ? 'Government' : 'Private'}</span></td>
+                                <td class="modules-list"><ul style="margin:0; padding-left:1rem;">${r.modules.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ul></td>
+                                <td class="results-list">${r.previous_results && r.previous_results.length ? `GPA: ${r.gpa || 'N/A'}<br>Semester GPA: ${r.previous_results[0]?.semester_gpa || 'N/A'}` : 'First year'}</td>
+                                ${actions ? `<td><button class="btn-approve" onclick="approveReg(${r.id})">Approve</button> <button class="btn-reject" onclick="openRejectModal(${r.id})">Reject</button></td>` : ''}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            container.innerHTML = html;
+        }
+
+        // ========== APPROVE / REJECT (with modal for reject) ==========
+        window.approveReg = async (id) => {
+            if (!confirm('Approve this registration?')) return;
+            const res = await safeApiCall(`/api/admin/registrations/${id}/approve`, { method: 'POST' });
+            if (res && res.ok) {
+                showMessage('Registration approved.', 'success');
+                // Refresh all tabs
+                await Promise.all([loadTab('pending'), loadTab('approved'), loadTab('rejected')]);
+                renderTab(currentTab);
+            } else {
+                showMessage('Approval failed.', 'error');
+            }
+        };
+
+        // Reject modal (prompt for reason)
+        function openRejectModal(id) {
+            const reason = prompt('Reason for rejection:');
+            if (!reason) return;
+            rejectRegistration(id, reason);
+        }
+
+        async function rejectRegistration(id, reason) {
+            const res = await safeApiCall(`/api/admin/registrations/${id}/reject`, {
+                method: 'POST',
+                body: JSON.stringify({ reason })
+            });
+            if (res && res.ok) {
+                showMessage('Registration rejected.', 'error');
+                await Promise.all([loadTab('pending'), loadTab('approved'), loadTab('rejected')]);
+                renderTab(currentTab);
+            } else {
+                showMessage('Rejection failed.', 'error');
+            }
+        }
+
+        // ========== EXPORT GOVERNMENT DATA ==========
+        async function exportGovernmentData() {
+            // Combine pending and approved government registrations
+            const combined = [...(registrationsData.pending || []), ...(registrationsData.approved || [])];
+            const govList = combined.filter(r => r.sponsorship === 'government');
+            if (!govList.length) {
+                showMessage('No government sponsored registrations found.', 'error');
+                return;
+            }
+            const headers = ['Student Number', 'Full Name', 'Program', 'Semester', 'Year of Study', 'Modules', 'GPA'];
+            const rows = govList.map(r => [
+                r.student_number,
+                `${r.first_name} ${r.last_name}`,
+                r.program,
+                r.semester,
+                r.year_of_study,
+                r.modules.join('; '),
+                r.gpa || (r.previous_results?.[0]?.semester_gpa || 'N/A')
+            ]);
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dtef_government_students_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('Export complete.', 'success');
+        }
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+
+        // ========== FILTERS & TABS ==========
+        document.getElementById('sponsorFilter').addEventListener('change', (e) => {
+            currentFilter = e.target.value;
+            renderTab(currentTab);
+        });
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderTab(currentTab);
+        });
+        document.getElementById('exportGovBtn').addEventListener('click', exportGovernmentData);
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                if (tab === currentTab) return;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(tab).classList.add('active');
+                currentTab = tab;
+                renderTab(tab);
+            });
+        });
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INITIAL LOAD ==========
+        (async () => {
+            await Promise.all([loadTab('pending'), loadTab('approved'), loadTab('rejected')]);
+            renderTab('pending');
+        })();
+
+        // Expose functions for inline onclick
+        window.approveReg = approveReg;
+        window.openRejectModal = openRejectModal;
+    </script>
 </body>
 
 </html>

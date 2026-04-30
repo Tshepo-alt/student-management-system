@@ -2,18 +2,12 @@
 <html lang="en">
 
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -372,13 +366,9 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand"><img src="../images/gipslogo.jpg" alt="GIPS College"
@@ -491,31 +481,171 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-user-circle"></i> Student Profile | Update Your Information</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ========== AUTHENTICATION ==========
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = 'login.html';
 
+        // ========== API HELPER ==========
+        async function safeApiCall(endpoint, options = {}) {
+            try {
+                const res = await fetch(endpoint, {
+                    ...options,
+                    headers: { 'Authorization': `Bearer ${token}`, ...options.headers }
+                });
+                if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+                return res;
+            } catch (err) { console.error(err); return null; }
+        }
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+            msgDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
 
+        // ========== LOAD PROFILE ==========
+        async function loadProfile() {
+            const res = await safeApiCall('/api/students/profile');
+            if (res && res.ok) {
+                const data = await res.json();
+                document.getElementById('firstName').value = data.first_name || '';
+                document.getElementById('lastName').value = data.last_name || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('phone').value = data.phone || '';
+                document.getElementById('bio').value = data.bio || '';
+                document.getElementById('address').value = data.address || '';
+                document.getElementById('city').value = data.city || '';
+                document.getElementById('postalCode').value = data.postal_code || '';
+                document.getElementById('linkedin').value = data.linkedin || '';
+                document.getElementById('github').value = data.github || '';
+                document.getElementById('twitter').value = data.twitter || '';
+                document.getElementById('website').value = data.website || '';
+
+                const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Student';
+                document.getElementById('profileName').textContent = fullName;
+                document.getElementById('profileRole').textContent = data.role ? data.role.toUpperCase() : 'STUDENT';
+
+                if (data.avatar_url) {
+                    document.getElementById('avatarImage').src = data.avatar_url;
+                    document.getElementById('avatarImage').style.display = 'block';
+                    document.querySelector('.profile-avatar i').style.display = 'none';
+                }
+            } else {
+                showMessage('Could not load profile data. Please refresh.', 'error');
+            }
+        }
+
+        // ========== SAVE PROFILE ==========
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                bio: document.getElementById('bio').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                postal_code: document.getElementById('postalCode').value,
+                linkedin: document.getElementById('linkedin').value,
+                github: document.getElementById('github').value,
+                twitter: document.getElementById('twitter').value,
+                website: document.getElementById('website').value
+            };
+
+            const currentPw = document.getElementById('currentPassword').value;
+            const newPw = document.getElementById('newPassword').value;
+            const confirmPw = document.getElementById('confirmPassword').value;
+
+            if (newPw && !currentPw) {
+                showMessage('Please enter your current password to change it.', 'error');
+                return;
+            }
+            if (newPw && newPw !== confirmPw) {
+                showMessage('New passwords do not match.', 'error');
+                return;
+            }
+            if (newPw) {
+                payload.current_password = currentPw;
+                payload.new_password = newPw;
+            }
+
+            const res = await safeApiCall('/api/students/profile', {
+                method: 'PUT',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (res && res.ok) {
+                showMessage('Profile updated successfully!', 'success');
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                loadProfile(); // refresh
+            } else {
+                showMessage('Failed to update profile. Please try again.', 'error');
+            }
+        });
+
+        // ========== AVATAR UPLOAD ==========
+        document.getElementById('avatarUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            const res = await safeApiCall('/api/students/avatar', {
+                method: 'POST',
+                body: formData,
+                headers: {} // let browser set content-type
+            });
+
+            if (res && res.ok) {
+                const data = await res.json();
+                document.getElementById('avatarImage').src = data.avatar_url;
+                document.getElementById('avatarImage').style.display = 'block';
+                document.querySelector('.profile-avatar i').style.display = 'none';
+                showMessage('Avatar updated!', 'success');
+            } else {
+                // Local preview only (since backend may not be ready)
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    document.getElementById('avatarImage').src = ev.target.result;
+                    document.getElementById('avatarImage').style.display = 'block';
+                    document.querySelector('.profile-avatar i').style.display = 'none';
+                    showMessage('Avatar updated (local preview).', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ========== RESET ==========
+        function resetForm() {
+            loadProfile();
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            showMessage('Form reset.', 'success');
+        }
+
+        // ========== LOGOUT ==========
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ========== INIT ==========
+        loadProfile();
+        window.resetForm = resetForm;
+    </script>
 </body>
 
 </html>

@@ -14,7 +14,7 @@ from sqlalchemy import func, text
 # Add backend directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from models import db, User, Student, Program, Module, Accommodation, Registration, Payment, Notification, TokenBlocklist, Campus, AccommodationRegistration, AccommodationRoom, AcademicRecord, ExamRegistration, FeesConfig, Course, Enrollment, StaffQuery, SystemConfig
+from models import db, User, Student, Program, Module, Accommodation, Registration, Payment, Notification, TokenBlocklist, Campus, AccommodationRegistration, AccommodationRoom, AcademicRecord, ExamRegistration, FeesConfig, Course, Enrollment, StaffQuery, SystemConfig, ProgramModule
 
 # ========== MOODLE INTEGRATION IMPORTS ==========
 from services.moodle_integration import MoodleClient
@@ -29,11 +29,10 @@ def is_admin(user_id):
     user = User.query.get(user_id)
     if not user:
         return False
-    # Allow admin, administrator, registrar, and finance for dashboard access
     return user.role in ['admin', 'administrator', 'registrar', 'finance']
 
 def admin_required(f):
-    """Decorator to check admin/registrar/finance access (for read operations)"""
+    """Decorator to check admin/registrar/finance access"""
     from functools import wraps
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -44,12 +43,10 @@ def admin_required(f):
     return decorated_function
 
 # ==================== DASHBOARD STATISTICS ====================
-
 @admin_bp.route('/stats', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_stats():
-    """Get system statistics for admin dashboard"""
     try:
         stats = {
             'total_users': User.query.count(),
@@ -65,11 +62,11 @@ def get_stats():
             'staff': User.query.filter_by(role='staff').count(),
             'government_sponsored': Student.query.filter_by(is_government_sponsored=True).count(),
             'self_sponsored': Student.query.filter_by(is_government_sponsored=False).count(),
-            'pending_registrations': Registration.query.filter_by(registration_status='pending').count() if hasattr(Registration, 'registration_status') else 0,
+            'pending_registrations': Registration.query.filter_by(registration_status='pending').count(),
             'pending_payments': Payment.query.filter_by(status='pending').count(),
             'open_tickets': Notification.query.filter_by(notification_type='ticket', is_read=False).count() if Notification else 0,
-            'available_rooms': AccommodationRoom.query.filter_by(is_available=True).count() if AccommodationRoom else 0,
-            'pending_accommodation': AccommodationRegistration.query.filter_by(status='pending').count() if AccommodationRegistration else 0,
+            'available_rooms': AccommodationRoom.query.filter_by(is_available=True).count(),
+            'pending_accommodation': AccommodationRegistration.query.filter_by(status='pending').count(),
             'wants_accommodation': Student.query.filter_by(wants_accommodation=True).count()
         }
         return jsonify(stats), 200
@@ -79,12 +76,10 @@ def get_stats():
         return jsonify({'error': str(e)}), 500
 
 # ==================== USER MANAGEMENT ====================
-
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_users():
-    """Get all users"""
     try:
         users = User.query.all()
         result = []
@@ -112,14 +107,11 @@ def get_users():
 @jwt_required()
 @admin_required
 def update_user(user_id):
-    """Update user details"""
     try:
         user = User.query.get(user_id)
         if not user:
             return jsonify({'error': 'User not found'}), 404
-        
         data = request.get_json()
-        
         if 'first_name' in data or 'last_name' in data:
             student = Student.query.filter_by(user_id=user_id).first()
             if student:
@@ -127,7 +119,6 @@ def update_user(user_id):
                     student.first_name = data['first_name']
                 if 'last_name' in data:
                     student.last_name = data['last_name']
-        
         if 'email' in data:
             user.email = data['email']
             user.username = data['email']
@@ -135,7 +126,6 @@ def update_user(user_id):
             user.role = data['role']
         if 'is_active' in data:
             user.is_active = data['is_active']
-        
         db.session.commit()
         return jsonify({'message': 'User updated successfully'}), 200
     except Exception as e:
@@ -147,12 +137,10 @@ def update_user(user_id):
 @jwt_required()
 @admin_required
 def delete_user(user_id):
-    """Delete user (soft delete)"""
     try:
         user = User.query.get(user_id)
         if not user:
             return jsonify({'error': 'User not found'}), 404
-        
         user.is_active = False
         db.session.commit()
         return jsonify({'message': 'User deactivated successfully'}), 200
@@ -161,19 +149,16 @@ def delete_user(user_id):
         return jsonify({'error': str(e)}), 500
 
 # ==================== STUDENT MANAGEMENT ====================
-
 @admin_bp.route('/students', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_students():
-    """Get all students (filter by admission_status if provided)"""
     try:
         status = request.args.get('status')
         query = Student.query
         if status:
             query = query.filter_by(admission_status=status)
         students = query.all()
-        
         result = []
         for student in students:
             program = Program.query.get(student.program_id) if student.program_id else None
@@ -193,12 +178,12 @@ def get_students():
                 'admission_status': getattr(student, 'admission_status', 'pending'),
                 'academic_status': getattr(student, 'academic_status', 'active'),
                 'current_year': getattr(student, 'current_year', 1),
-                'current_gpa': float(student.current_gpa) if hasattr(student, 'current_gpa') and student.current_gpa else None,
+                'current_gpa': float(student.current_gpa) if student.current_gpa else None,
                 'total_credits_earned': getattr(student, 'total_credits_earned', 0),
                 'is_government_sponsored': student.is_government_sponsored,
                 'wants_accommodation': student.wants_accommodation,
-                'enrollment_date': student.enrollment_date.isoformat() if hasattr(student, 'enrollment_date') and student.enrollment_date else None,
-                'created_at': student.created_at.isoformat() if hasattr(student, 'created_at') and student.created_at else None,
+                'enrollment_date': student.enrollment_date.isoformat() if student.enrollment_date else None,
+                'created_at': student.created_at.isoformat() if student.created_at else None,
                 'moodle_user_id': student.moodle_user_id if hasattr(student, 'moodle_user_id') else None
             })
         return jsonify(result), 200
@@ -211,15 +196,10 @@ def get_students():
 @jwt_required()
 @admin_required
 def create_student():
-    """Create a new student"""
     try:
         data = request.get_json()
-        
-        # Check if email exists
         if User.query.filter_by(email=data['email']).first():
             return jsonify({'error': 'Email already exists'}), 409
-        
-        # Create user
         user = User(
             username=data['email'],
             email=data['email'],
@@ -229,13 +209,9 @@ def create_student():
         )
         db.session.add(user)
         db.session.flush()
-        
-        # Generate student number
         year = datetime.now().year
         student_count = Student.query.count() + 1
         student_number = f"GIPS/{year}/{student_count:05d}"
-        
-        # Create student
         student = Student(
             user_id=user.id,
             student_number=student_number,
@@ -251,13 +227,10 @@ def create_student():
             admission_status='accepted'
         )
         db.session.add(student)
-        
-        # ========== MOODLE INTEGRATION ==========
-        # Create the same user in Moodle and store the Moodle user ID
         try:
             moodle = MoodleClient(MOODLE_URL, MOODLE_API_TOKEN)
             moodle_user_id = moodle.create_user(
-                username=student_number,  # use student number as username for uniqueness
+                username=student_number,
                 password=data.get('password', 'Student123!'),
                 firstname=student.first_name,
                 lastname=student.last_name,
@@ -266,12 +239,8 @@ def create_student():
             student.moodle_user_id = moodle_user_id
             current_app.logger.info(f"Moodle user created for {student.email} with ID {moodle_user_id}")
         except Exception as e:
-            # Log error but continue – the local student is still created
             current_app.logger.error(f"Moodle user creation failed for {student.email}: {e}")
-        # ======================================
-        
         db.session.commit()
-        
         return jsonify({
             'message': 'Student created successfully',
             'student_id': student.id,
@@ -287,16 +256,12 @@ def create_student():
 @jwt_required()
 @admin_required
 def approve_student(student_id):
-    """Approve student registration (semester registration approval)"""
     try:
         student = Student.query.get(student_id)
         if not student:
             return jsonify({'error': 'Student not found'}), 404
-        
         student.admission_status = 'accepted'
         db.session.commit()
-        
-        # Create notification
         if Notification:
             notification = Notification(
                 user_id=student.user_id,
@@ -306,18 +271,15 @@ def approve_student(student_id):
             )
             db.session.add(notification)
             db.session.commit()
-        
         return jsonify({'message': 'Student approved successfully'}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-# ==================== NEW: APPROVE ADMISSION (for initial application) ====================
 @admin_bp.route('/students/<int:student_id>/approve-admission', methods=['POST'])
 @jwt_required()
 @admin_required
 def approve_student_admission(student_id):
-    """Approve student's admission (change admission_status from pending to accepted)"""
     try:
         student = Student.query.get(student_id)
         if not student:
@@ -326,7 +288,6 @@ def approve_student_admission(student_id):
             return jsonify({'error': f'Admission status is already {student.admission_status}'}), 400
         student.admission_status = 'accepted'
         db.session.commit()
-        # Create notification
         if Notification:
             notification = Notification(
                 user_id=student.user_id,
@@ -340,21 +301,17 @@ def approve_student_admission(student_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-# =========================================================================================
 
 @admin_bp.route('/students/<int:student_id>/reject', methods=['POST'])
 @jwt_required()
 @admin_required
 def reject_student(student_id):
-    """Reject student registration"""
     try:
         student = Student.query.get(student_id)
         if not student:
             return jsonify({'error': 'Student not found'}), 404
-        
         student.admission_status = 'rejected'
         db.session.commit()
-        
         return jsonify({'message': 'Student rejected'}), 200
     except Exception as e:
         db.session.rollback()
@@ -364,18 +321,11 @@ def reject_student(student_id):
 @jwt_required()
 @admin_required
 def get_student_results(student_id):
-    """Get student results for admin view"""
     try:
         student = Student.query.get(student_id)
         if not student:
             return jsonify({'error': 'Student not found'}), 404
-        
-        # Get enrollments with grades
-        enrollments = Enrollment.query.filter_by(
-            student_id=student.id,
-            status='completed'
-        ).order_by(Enrollment.created_at.desc()).all()
-        
+        enrollments = Enrollment.query.filter_by(student_id=student.id, status='completed').order_by(Enrollment.created_at.desc()).all()
         results = []
         for enrollment in enrollments:
             if enrollment.module:
@@ -391,22 +341,14 @@ def get_student_results(student_id):
                     'is_resit': enrollment.is_resit,
                     'is_retake': enrollment.is_retake
                 })
-        
-        # Get academic records
-        academic_records = AcademicRecord.query.filter_by(
-            student_id=student.id
-        ).order_by(AcademicRecord.created_at.desc()).all()
-        
-        records = []
-        for record in academic_records:
-            records.append({
-                'semester_gpa': float(record.semester_gpa) if record.semester_gpa else 0,
-                'cumulative_gpa': float(record.cumulative_gpa) if record.cumulative_gpa else 0,
-                'academic_status': record.academic_status,
-                'dean_list': record.dean_list,
-                'created_at': record.created_at.isoformat()
-            })
-        
+        academic_records = AcademicRecord.query.filter_by(student_id=student.id).order_by(AcademicRecord.created_at.desc()).all()
+        records = [{
+            'semester_gpa': float(rec.semester_gpa) if rec.semester_gpa else 0,
+            'cumulative_gpa': float(rec.cumulative_gpa) if rec.cumulative_gpa else 0,
+            'academic_status': rec.academic_status,
+            'dean_list': rec.dean_list,
+            'created_at': rec.created_at.isoformat()
+        } for rec in academic_records]
         return jsonify({
             'student': {
                 'id': student.id,
@@ -422,33 +364,28 @@ def get_student_results(student_id):
             'results': results,
             'academic_records': records
         }), 200
-        
     except Exception as e:
         print(f"Get student results error: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ==================== CAMPUS MANAGEMENT ====================
-
 @admin_bp.route('/campuses', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_campuses():
-    """Get all campuses"""
     try:
         campuses = Campus.query.all()
-        result = []
-        for campus in campuses:
-            result.append({
-                'id': campus.id,
-                'campus_code': campus.campus_code,
-                'campus_name': campus.campus_name,
-                'campus_location': campus.campus_location,
-                'campus_address': campus.campus_address,
-                'has_accommodation': campus.has_accommodation,
-                'is_main_campus': campus.is_main_campus,
-                'program_count': Program.query.filter_by(campus_id=campus.id).count(),
-                'student_count': Student.query.filter_by(campus_id=campus.id).count()
-            })
+        result = [{
+            'id': c.id,
+            'campus_code': c.campus_code,
+            'campus_name': c.campus_name,
+            'campus_location': c.campus_location,
+            'campus_address': c.campus_address,
+            'has_accommodation': c.has_accommodation,
+            'is_main_campus': c.is_main_campus,
+            'program_count': Program.query.filter_by(campus_id=c.id).count(),
+            'student_count': Student.query.filter_by(campus_id=c.id).count()
+        } for c in campuses]
         return jsonify(result), 200
     except Exception as e:
         print(f"Get campuses error: {e}")
@@ -458,10 +395,8 @@ def get_campuses():
 @jwt_required()
 @admin_required
 def create_campus():
-    """Create a new campus"""
     try:
         data = request.get_json()
-        
         campus = Campus(
             campus_code=data['campus_code'],
             campus_name=data['campus_name'],
@@ -472,11 +407,7 @@ def create_campus():
         )
         db.session.add(campus)
         db.session.commit()
-        
-        return jsonify({
-            'message': 'Campus created successfully',
-            'campus_id': campus.id
-        }), 201
+        return jsonify({'message': 'Campus created successfully', 'campus_id': campus.id}), 201
     except Exception as e:
         db.session.rollback()
         print(f"Create campus error: {e}")
@@ -486,14 +417,11 @@ def create_campus():
 @jwt_required()
 @admin_required
 def update_campus(campus_id):
-    """Update campus details"""
     try:
         campus = Campus.query.get(campus_id)
         if not campus:
             return jsonify({'error': 'Campus not found'}), 404
-        
         data = request.get_json()
-        
         if 'campus_code' in data:
             campus.campus_code = data['campus_code']
         if 'campus_name' in data:
@@ -506,7 +434,6 @@ def update_campus(campus_id):
             campus.has_accommodation = data['has_accommodation']
         if 'is_main_campus' in data:
             campus.is_main_campus = data['is_main_campus']
-        
         db.session.commit()
         return jsonify({'message': 'Campus updated successfully'}), 200
     except Exception as e:
@@ -514,29 +441,24 @@ def update_campus(campus_id):
         return jsonify({'error': str(e)}), 500
 
 # ==================== PROGRAM MANAGEMENT ====================
-
 @admin_bp.route('/programs', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_programs():
-    """Get all programs"""
     try:
         programs = Program.query.all()
-        result = []
-        for program in programs:
-            campus = Campus.query.get(program.campus_id) if program.campus_id else None
-            result.append({
-                'id': program.id,
-                'program_code': program.program_code,
-                'program_name': program.program_name,
-                'duration_years': getattr(program, 'duration_years', 3),
-                'total_credits': getattr(program, 'total_credits', 0),
-                'min_bgcse_points': program.min_bgcse_points,
-                'description': getattr(program, 'description', ''),
-                'campus_id': program.campus_id,
-                'campus_name': campus.campus_name if campus else None,
-                'is_active': getattr(program, 'is_active', True)
-            })
+        result = [{
+            'id': p.id,
+            'program_code': p.program_code,
+            'program_name': p.program_name,
+            'duration_years': getattr(p, 'duration_years', 3),
+            'total_credits': getattr(p, 'total_credits', 0),
+            'min_bgcse_points': p.min_bgcse_points,
+            'description': getattr(p, 'description', ''),
+            'campus_id': p.campus_id,
+            'campus_name': p.campus.campus_name if p.campus else None,
+            'is_active': getattr(p, 'is_active', True)
+        } for p in programs]
         return jsonify(result), 200
     except Exception as e:
         print(f"Get programs error: {e}")
@@ -546,10 +468,8 @@ def get_programs():
 @jwt_required()
 @admin_required
 def create_program():
-    """Create a new program"""
     try:
         data = request.get_json()
-        
         program = Program(
             program_code=data['program_code'],
             program_name=data['program_name'],
@@ -562,11 +482,7 @@ def create_program():
         )
         db.session.add(program)
         db.session.commit()
-        
-        return jsonify({
-            'message': 'Program created successfully',
-            'program_id': program.id
-        }), 201
+        return jsonify({'message': 'Program created successfully', 'program_id': program.id}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
@@ -575,14 +491,11 @@ def create_program():
 @jwt_required()
 @admin_required
 def update_program(program_id):
-    """Update program details"""
     try:
         program = Program.query.get(program_id)
         if not program:
             return jsonify({'error': 'Program not found'}), 404
-        
         data = request.get_json()
-        
         if 'program_code' in data:
             program.program_code = data['program_code']
         if 'program_name' in data:
@@ -599,7 +512,6 @@ def update_program(program_id):
             program.description = data['description']
         if 'is_active' in data:
             program.is_active = data['is_active']
-        
         db.session.commit()
         return jsonify({'message': 'Program updated successfully'}), 200
     except Exception as e:
@@ -610,16 +522,12 @@ def update_program(program_id):
 @jwt_required()
 @admin_required
 def delete_program(program_id):
-    """Delete a program"""
     try:
         program = Program.query.get(program_id)
         if not program:
             return jsonify({'error': 'Program not found'}), 404
-        
-        # Check if program has enrolled students
         if Student.query.filter_by(program_id=program_id).first():
             return jsonify({'error': 'Cannot delete program with enrolled students'}), 400
-        
         db.session.delete(program)
         db.session.commit()
         return jsonify({'message': 'Program deleted successfully'}), 200
@@ -628,29 +536,25 @@ def delete_program(program_id):
         return jsonify({'error': str(e)}), 500
 
 # ==================== MODULE MANAGEMENT ====================
-
 @admin_bp.route('/modules', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_modules():
-    """Get all modules"""
     try:
         modules = Module.query.all()
-        result = []
-        for module in modules:
-            result.append({
-                'id': module.id,
-                'module_code': module.module_code,
-                'module_name': module.module_name,
-                'credits': module.credits,
-                'year_level': getattr(module, 'year_level', 1),
-                'semester': getattr(module, 'semester', 1),
-                'module_type': getattr(module, 'module_type', 'core'),
-                'has_practicals': getattr(module, 'has_practicals', False),
-                'description': getattr(module, 'description', ''),
-                'prerequisites': getattr(module, 'prerequisites', ''),
-                'moodle_course_id': getattr(module, 'moodle_course_id', None)
-            })
+        result = [{
+            'id': m.id,
+            'module_code': m.module_code,
+            'module_name': m.module_name,
+            'credits': m.credits,
+            'year_level': getattr(m, 'year_level', 1),
+            'semester': getattr(m, 'semester', 1),
+            'module_type': getattr(m, 'module_type', 'core'),
+            'has_practicals': getattr(m, 'has_practicals', False),
+            'description': getattr(m, 'description', ''),
+            'prerequisites': getattr(m, 'prerequisites', ''),
+            'moodle_course_id': getattr(m, 'moodle_course_id', None)
+        } for m in modules]
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -659,10 +563,8 @@ def get_modules():
 @jwt_required()
 @admin_required
 def create_module():
-    """Create a new module and optionally create a Moodle course"""
     try:
         data = request.get_json()
-        
         module = Module(
             module_code=data['module_code'],
             module_name=data['module_name'],
@@ -675,52 +577,174 @@ def create_module():
             prerequisites=data.get('prerequisites', '')
         )
         db.session.add(module)
-        db.session.flush()  # get the module.id
-        
-        # ========== MOODLE INTEGRATION ==========
-        # Create a corresponding course in Moodle
+        db.session.flush()
         try:
             moodle = MoodleClient(MOODLE_URL, MOODLE_API_TOKEN)
             moodle_course_id = moodle.create_course(
                 fullname=module.module_name,
                 shortname=module.module_code,
-                categoryid=1  # default category, change as needed
+                categoryid=1
             )
             module.moodle_course_id = moodle_course_id
             current_app.logger.info(f"Moodle course created for module {module.module_code} with ID {moodle_course_id}")
         except Exception as e:
             current_app.logger.error(f"Moodle course creation failed for module {module.module_code}: {e}")
-        # ======================================
-        
         db.session.commit()
-        
+        return jsonify({'message': 'Module created successfully', 'module_id': module.id, 'moodle_course_id': module.moodle_course_id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/modules/<int:module_id>', methods=['PUT'])
+@jwt_required()
+@admin_required
+def update_module(module_id):
+    try:
+        module = Module.query.get(module_id)
+        if not module:
+            return jsonify({'error': 'Module not found'}), 404
+        data = request.get_json()
+        if 'module_code' in data:
+            module.module_code = data['module_code']
+        if 'module_name' in data:
+            module.module_name = data['module_name']
+        if 'credits' in data:
+            module.credits = data['credits']
+        if 'year_level' in data:
+            module.year_level = data['year_level']
+        if 'semester' in data:
+            module.semester = data['semester']
+        if 'module_type' in data:
+            module.module_type = data['module_type']
+        if 'description' in data:
+            module.description = data['description']
+        if 'prerequisites' in data:
+            module.prerequisites = data['prerequisites']
+        if 'has_practicals' in data:
+            module.has_practicals = data['has_practicals']
+        db.session.commit()
         return jsonify({
-            'message': 'Module created successfully',
+            'id': module.id,
+            'module_code': module.module_code,
+            'module_name': module.module_name,
+            'credits': module.credits,
+            'year_level': module.year_level,
+            'semester': module.semester,
+            'module_type': module.module_type,
+            'description': module.description,
+            'prerequisites': module.prerequisites,
+            'has_practicals': module.has_practicals
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/modules/<int:module_id>', methods=['DELETE'])
+@jwt_required()
+@admin_required
+def delete_module(module_id):
+    try:
+        module = Module.query.get(module_id)
+        if not module:
+            return jsonify({'error': 'Module not found'}), 404
+        if ProgramModule.query.filter_by(module_id=module_id).first():
+            return jsonify({'error': 'Cannot delete module – it is assigned to one or more programs.'}), 400
+        db.session.delete(module)
+        db.session.commit()
+        return jsonify({'message': 'Module deleted'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+# ==================== PROGRAM-MODULE MAPPING ====================
+@admin_bp.route('/program-modules', methods=['GET'])
+@jwt_required()
+@admin_required
+def get_program_modules():
+    try:
+        mappings = db.session.query(ProgramModule, Program, Module).join(
+            Program, ProgramModule.program_id == Program.id
+        ).join(Module, ProgramModule.module_id == Module.id).all()
+        result = [{
+            'id': pm.id,
+            'program_id': prog.id,
+            'program_name': prog.program_name,
+            'module_id': mod.id,
+            'module_code': mod.module_code,
+            'module_name': mod.module_name,
+            'credits': mod.credits,
+            'compulsory': pm.is_compulsory
+        } for pm, prog, mod in mappings]
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/program-modules', methods=['POST'])
+@jwt_required()
+@admin_required
+def create_program_module():
+    try:
+        data = request.get_json()
+        program_id = data.get('program_id')
+        module_id = data.get('module_id')
+        is_compulsory = data.get('is_compulsory', True)
+        if not program_id or not module_id:
+            return jsonify({'error': 'program_id and module_id required'}), 400
+        existing = ProgramModule.query.filter_by(program_id=program_id, module_id=module_id).first()
+        if existing:
+            return jsonify({'error': 'Module already assigned to this program'}), 409
+        pm = ProgramModule(
+            program_id=program_id,
+            module_id=module_id,
+            is_compulsory=is_compulsory
+        )
+        db.session.add(pm)
+        db.session.commit()
+        program = Program.query.get(program_id)
+        module = Module.query.get(module_id)
+        return jsonify({
+            'id': pm.id,
+            'program_id': program.id,
+            'program_name': program.program_name,
             'module_id': module.id,
-            'moodle_course_id': module.moodle_course_id if hasattr(module, 'moodle_course_id') else None
+            'module_code': module.module_code,
+            'module_name': module.module_name,
+            'credits': module.credits,
+            'compulsory': pm.is_compulsory
         }), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-# ==================== LECTURER & COURSE ASSIGNMENT ====================
+@admin_bp.route('/program-modules/<int:pm_id>', methods=['DELETE'])
+@jwt_required()
+@admin_required
+def delete_program_module(pm_id):
+    try:
+        pm = ProgramModule.query.get(pm_id)
+        if not pm:
+            return jsonify({'error': 'Mapping not found'}), 404
+        db.session.delete(pm)
+        db.session.commit()
+        return jsonify({'message': 'Mapping removed'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
+# ==================== LECTURER & COURSE ASSIGNMENT ====================
 @admin_bp.route('/lecturers', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_lecturers():
-    """Get all users with role lecturer or staff"""
     try:
         lecturers = User.query.filter(User.role.in_(['lecturer', 'staff'])).all()
-        result = []
-        for lec in lecturers:
-            result.append({
-                'id': lec.id,
-                'username': lec.username,
-                'email': lec.email,
-                'role': lec.role,
-                'is_active': lec.is_active
-            })
+        result = [{
+            'id': lec.id,
+            'username': lec.username,
+            'email': lec.email,
+            'role': lec.role,
+            'is_active': lec.is_active
+        } for lec in lecturers]
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -729,22 +753,17 @@ def get_lecturers():
 @jwt_required()
 @admin_required
 def get_unassigned_courses():
-    """Get courses that have no lecturer assigned"""
     try:
-        courses = Course.query.filter(
-            (Course.lecturer_id == None) | (Course.lecturer_id == 0)
-        ).all()
-        result = []
-        for course in courses:
-            result.append({
-                'id': course.id,
-                'course_code': course.course_code,
-                'course_name': course.course_name,
-                'credits': course.credits,
-                'semester': course.semester,
-                'year_level': course.year_level,
-                'program_name': course.program.program_name if course.program else None
-            })
+        courses = Course.query.filter((Course.lecturer_id == None) | (Course.lecturer_id == 0)).all()
+        result = [{
+            'id': c.id,
+            'course_code': c.course_code,
+            'course_name': c.course_name,
+            'credits': c.credits,
+            'semester': c.semester,
+            'year_level': c.year_level,
+            'program_name': c.program.program_name if c.program else None
+        } for c in courses]
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -753,24 +772,19 @@ def get_unassigned_courses():
 @jwt_required()
 @admin_required
 def assign_lecturer_to_course(course_id):
-    """Assign a lecturer to a course"""
     try:
         data = request.get_json()
         lecturer_id = data.get('lecturer_id')
         if not lecturer_id:
             return jsonify({'error': 'lecturer_id required'}), 400
-        
         course = Course.query.get(course_id)
         if not course:
             return jsonify({'error': 'Course not found'}), 404
-        
         lecturer = User.query.get(lecturer_id)
         if not lecturer or lecturer.role not in ['lecturer', 'staff']:
-            return jsonify({'error': 'Invalid lecturer ID or user is not a lecturer'}), 400
-        
+            return jsonify({'error': 'Invalid lecturer ID'}), 400
         course.lecturer_id = lecturer_id
         db.session.commit()
-        
         return jsonify({
             'message': f'Course {course.course_code} assigned to {lecturer.username}',
             'course_id': course.id,
@@ -785,35 +799,29 @@ def assign_lecturer_to_course(course_id):
 @jwt_required()
 @admin_required
 def get_courses_by_lecturer(lecturer_id):
-    """Get all courses assigned to a specific lecturer"""
     try:
         courses = Course.query.filter_by(lecturer_id=lecturer_id).all()
-        result = []
-        for course in courses:
-            result.append({
-                'id': course.id,
-                'course_code': course.course_code,
-                'course_name': course.course_name,
-                'credits': course.credits,
-                'semester': course.semester,
-                'year_level': course.year_level,
-                'enrolled_students': len(course.student_courses) if course.student_courses else 0
-            })
+        result = [{
+            'id': c.id,
+            'course_code': c.course_code,
+            'course_name': c.course_name,
+            'credits': c.credits,
+            'semester': c.semester,
+            'year_level': c.year_level,
+            'enrolled_students': len(c.student_courses) if c.student_courses else 0
+        } for c in courses]
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ==================== PAYMENT MANAGEMENT (for finance dashboard) ====================
-
+# ==================== PAYMENT MANAGEMENT ====================
 @admin_bp.route('/payments', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_all_payments():
-    """Get all payments (with optional limit for dashboard)"""
     try:
         limit = request.args.get('limit', default=10, type=int)
         payments = Payment.query.order_by(Payment.created_at.desc()).limit(limit).all()
-        
         result = []
         for payment in payments:
             student = Student.query.get(payment.student_id)
@@ -839,21 +847,11 @@ def get_all_payments():
 @jwt_required()
 @admin_required
 def get_payment_stats():
-    """Get payment statistics for finance dashboard"""
     try:
-        # Total revenue (completed payments)
         total_revenue = db.session.query(func.sum(Payment.amount)).filter(Payment.status == 'completed').scalar() or 0
-        
-        # Count of completed payments
         completed_count = Payment.query.filter_by(status='completed').count()
-        
-        # Pending payments total amount
         pending_total = db.session.query(func.sum(Payment.amount)).filter(Payment.status == 'pending').scalar() or 0
-        
-        # Count of pending payments
         pending_count = Payment.query.filter_by(status='pending').count()
-        
-        # Today's collections
         today = datetime.utcnow().date()
         today_start = datetime(today.year, today.month, today.day)
         today_end = today_start + timedelta(days=1)
@@ -862,33 +860,23 @@ def get_payment_stats():
             Payment.payment_date >= today_start,
             Payment.payment_date < today_end
         ).scalar() or 0
-        
-        # This month's collections
         month_start = datetime(today.year, today.month, 1)
         month_collections = db.session.query(func.sum(Payment.amount)).filter(
             Payment.status == 'completed',
             Payment.payment_date >= month_start
         ).scalar() or 0
-        
-        # By payment type
         by_type = {}
         type_results = db.session.query(Payment.payment_type, func.sum(Payment.amount)).filter(Payment.status == 'completed').group_by(Payment.payment_type).all()
         for ptype, total in type_results:
             by_type[ptype] = float(total)
-        
-        # Recent transactions (last 5)
         recent = Payment.query.order_by(Payment.created_at.desc()).limit(5).all()
-        recent_list = []
-        for p in recent:
-            student = Student.query.get(p.student_id)
-            recent_list.append({
-                'student_name': f"{student.first_name} {student.last_name}" if student else 'Unknown',
-                'amount': float(p.amount),
-                'status': p.status,
-                'date': p.created_at.isoformat(),
-                'id': p.id
-            })
-        
+        recent_list = [{
+            'student_name': f"{Student.query.get(p.student_id).first_name} {Student.query.get(p.student_id).last_name}" if p.student_id else 'Unknown',
+            'amount': float(p.amount),
+            'status': p.status,
+            'date': p.created_at.isoformat(),
+            'id': p.id
+        } for p in recent]
         stats = {
             'total_revenue': float(total_revenue),
             'completed_count': completed_count,
@@ -907,28 +895,24 @@ def get_payment_stats():
         return jsonify({'error': str(e)}), 500
 
 # ==================== ACCOMMODATION MANAGEMENT ====================
-
 @admin_bp.route('/accommodations', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_accommodations():
-    """Get all accommodations"""
     try:
-        accommodations = Accommodation.query.all()
-        result = []
-        for acc in accommodations:
-            result.append({
-                'id': acc.id,
-                'name': acc.name,
-                'code': acc.code,
-                'location': acc.location,
-                'price_per_semester': float(acc.price_per_semester) if acc.price_per_semester else 0,
-                'total_rooms': acc.total_rooms,
-                'available_rooms': acc.available_rooms,
-                'description': getattr(acc, 'description', ''),
-                'amenities': getattr(acc, 'amenities', []),
-                'is_active': getattr(acc, 'is_active', True)
-            })
+        accs = Accommodation.query.all()
+        result = [{
+            'id': a.id,
+            'name': a.name,
+            'code': a.code,
+            'location': a.location,
+            'price_per_semester': float(a.price_per_semester) if a.price_per_semester else 0,
+            'total_rooms': a.total_rooms,
+            'available_rooms': a.available_rooms,
+            'description': getattr(a, 'description', ''),
+            'amenities': getattr(a, 'amenities', []),
+            'is_active': getattr(a, 'is_active', True)
+        } for a in accs]
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -937,24 +921,21 @@ def get_accommodations():
 @jwt_required()
 @admin_required
 def get_accommodation_rooms():
-    """Get all accommodation rooms"""
     try:
         rooms = AccommodationRoom.query.all()
-        result = []
-        for room in rooms:
-            result.append({
-                'id': room.id,
-                'block_name': room.block_name,
-                'room_number': room.room_number,
-                'room_type': room.room_type,
-                'capacity': room.capacity,
-                'current_occupants': room.current_occupants,
-                'is_available': room.is_available,
-                'has_kitchen': room.has_kitchen,
-                'has_shower': room.has_shower,
-                'has_study_table': room.has_study_table,
-                'has_bed': room.has_bed
-            })
+        result = [{
+            'id': r.id,
+            'block_name': r.block_name,
+            'room_number': r.room_number,
+            'room_type': r.room_type,
+            'capacity': r.capacity,
+            'current_occupants': r.current_occupants,
+            'is_available': r.is_available,
+            'has_kitchen': r.has_kitchen,
+            'has_shower': r.has_shower,
+            'has_study_table': r.has_study_table,
+            'has_bed': r.has_bed
+        } for r in rooms]
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -963,11 +944,10 @@ def get_accommodation_rooms():
 @jwt_required()
 @admin_required
 def get_accommodation_registrations():
-    """Get all accommodation applications"""
     try:
-        applications = AccommodationRegistration.query.order_by(AccommodationRegistration.created_at.desc()).all()
+        apps = AccommodationRegistration.query.order_by(AccommodationRegistration.created_at.desc()).all()
         result = []
-        for app in applications:
+        for app in apps:
             student = Student.query.get(app.student_id)
             result.append({
                 'id': app.id,
@@ -990,35 +970,25 @@ def get_accommodation_registrations():
 @jwt_required()
 @admin_required
 def allocate_accommodation(app_id):
-    """Allocate accommodation room to student"""
     try:
         data = request.get_json()
         application = AccommodationRegistration.query.get(app_id)
         if not application:
             return jsonify({'error': 'Application not found'}), 404
-        
         room_id = data.get('room_id')
         room = AccommodationRoom.query.get(room_id)
         if not room:
             return jsonify({'error': 'Room not found'}), 404
-        
         if not room.is_available:
             return jsonify({'error': 'Room not available'}), 400
-        
-        # Update application
         application.status = 'allocated'
         application.allocated_room_id = room.id
         application.allocated_room_number = room.room_number
         application.allocated_block = room.block_name
-        
-        # Update room occupancy
         room.current_occupants += 1
         if room.current_occupants >= room.capacity:
             room.is_available = False
-        
         db.session.commit()
-        
-        # Create notification
         if application.student and application.student.user_id:
             notification = Notification(
                 user_id=application.student.user_id,
@@ -1028,29 +998,21 @@ def allocate_accommodation(app_id):
             )
             db.session.add(notification)
             db.session.commit()
-        
-        return jsonify({
-            'message': 'Accommodation allocated successfully',
-            'room_number': room.room_number,
-            'block': room.block_name
-        }), 200
+        return jsonify({'message': 'Accommodation allocated successfully', 'room_number': room.room_number, 'block': room.block_name}), 200
     except Exception as e:
         db.session.rollback()
         print(f"Allocate accommodation error: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ==================== STAFF QUERIES MANAGEMENT ====================
-
 @admin_bp.route('/tickets', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_staff_queries():
-    """Get all staff queries (tickets) with optional filters"""
     try:
         status = request.args.get('status')
         priority = request.args.get('priority')
         limit = request.args.get('limit', type=int)
-        
         query = StaffQuery.query.order_by(StaffQuery.created_at.desc())
         if status:
             query = query.filter_by(status=status)
@@ -1058,7 +1020,6 @@ def get_staff_queries():
             query = query.filter_by(priority=priority)
         if limit:
             query = query.limit(limit)
-        
         queries = query.all()
         return jsonify([q.to_dict() for q in queries]), 200
     except Exception as e:
@@ -1070,7 +1031,6 @@ def get_staff_queries():
 @jwt_required()
 @admin_required
 def get_staff_query(ticket_id):
-    """Get a single staff query by ID"""
     try:
         ticket = StaffQuery.query.get(ticket_id)
         if not ticket:
@@ -1082,29 +1042,21 @@ def get_staff_query(ticket_id):
 @admin_bp.route('/tickets', methods=['POST'])
 @jwt_required()
 def create_staff_query():
-    """Create a new staff query (used by staff)"""
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(int(current_user_id))
         if not user:
             return jsonify({'error': 'User not found'}), 404
-        
         data = request.get_json()
-        required = ['subject', 'message']
-        missing = [f for f in required if not data.get(f)]
-        if missing:
-            return jsonify({'error': f'Missing fields: {missing}'}), 400
-        
-        # Get staff details (assuming staff have a Student record? or use user info)
+        if not data.get('subject') or not data.get('message'):
+            return jsonify({'error': 'Missing fields'}), 400
         student = Student.query.filter_by(user_id=user.id).first()
         staff_name = f"{student.first_name} {student.last_name}" if student else user.username
-        staff_email = user.email
         department = data.get('department') or (student.program.program_name if student and student.program else 'General')
-        
         ticket = StaffQuery(
             staff_id=user.id,
             staff_name=staff_name,
-            staff_email=staff_email,
+            staff_email=user.email,
             department=department,
             subject=data['subject'],
             message=data['message'],
@@ -1114,7 +1066,6 @@ def create_staff_query():
         )
         db.session.add(ticket)
         db.session.commit()
-        
         return jsonify(ticket.to_dict()), 201
     except Exception as e:
         db.session.rollback()
@@ -1125,21 +1076,17 @@ def create_staff_query():
 @jwt_required()
 @admin_required
 def respond_to_ticket(ticket_id):
-    """Add a response to a ticket (admin/registrar)"""
     try:
         ticket = StaffQuery.query.get(ticket_id)
         if not ticket:
             return jsonify({'error': 'Ticket not found'}), 404
-        
         data = request.get_json()
         message = data.get('message')
         if not message:
             return jsonify({'error': 'Response message required'}), 400
-        
         current_user_id = get_jwt_identity()
         user = User.query.get(int(current_user_id))
         admin_name = user.username or 'Registrar'
-        
         response_entry = {
             'admin': admin_name,
             'message': message,
@@ -1150,7 +1097,6 @@ def respond_to_ticket(ticket_id):
         ticket.responses.append(response_entry)
         ticket.updated_at = datetime.utcnow()
         db.session.commit()
-        
         return jsonify({'message': 'Response added', 'responses': ticket.responses}), 200
     except Exception as e:
         db.session.rollback()
@@ -1160,7 +1106,6 @@ def respond_to_ticket(ticket_id):
 @jwt_required()
 @admin_required
 def resolve_ticket(ticket_id):
-    """Mark a ticket as resolved"""
     try:
         ticket = StaffQuery.query.get(ticket_id)
         if not ticket:
@@ -1177,51 +1122,31 @@ def resolve_ticket(ticket_id):
 @jwt_required()
 @admin_required
 def get_ticket_stats():
-    """Get ticket statistics"""
     try:
         total = StaffQuery.query.count()
         pending = StaffQuery.query.filter_by(status='pending').count()
         resolved = StaffQuery.query.filter_by(status='resolved').count()
         high_priority = StaffQuery.query.filter_by(priority='high', status='pending').count()
-        return jsonify({
-            'total': total,
-            'pending': pending,
-            'resolved': resolved,
-            'high_priority': high_priority
-        }), 200
+        return jsonify({'total': total, 'pending': pending, 'resolved': resolved, 'high_priority': high_priority}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 # ==================== REGISTRATION MANAGEMENT (REGISTRAR) ====================
-
 @admin_bp.route('/registrations/pending', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_pending_registrations():
-    """Get all semester registrations with status 'pending' for approval."""
     try:
-        registrations = Registration.query.filter_by(registration_status='pending') \
-            .order_by(Registration.created_at.desc()).all()
+        registrations = Registration.query.filter_by(registration_status='pending').order_by(Registration.created_at.desc()).all()
         result = []
         for reg in registrations:
             student = Student.query.get(reg.student_id)
             if not student:
                 continue
-            # Get enrolled modules for this registration
             enrollments = Enrollment.query.filter_by(registration_id=reg.id, status='registered').all()
-            modules = []
-            for e in enrollments:
-                if e.module:
-                    modules.append(f"{e.module.module_code} - {e.module.module_name}")
-            # Get previous academic record (if any)
-            prev_records = AcademicRecord.query.filter_by(student_id=student.id) \
-                .order_by(AcademicRecord.created_at.desc()).first()
-            prev_results = []
-            if prev_records:
-                prev_results = [{
-                    'semester_gpa': float(prev_records.semester_gpa) if prev_records.semester_gpa else 0,
-                    'academic_status': prev_records.academic_status
-                }]
+            modules = [f"{e.module.module_code} - {e.module.module_name}" for e in enrollments if e.module]
+            prev_records = AcademicRecord.query.filter_by(student_id=student.id).order_by(AcademicRecord.created_at.desc()).first()
+            prev_results = [{'semester_gpa': float(prev_records.semester_gpa) if prev_records else 0, 'academic_status': prev_records.academic_status if prev_records else 'N/A'}] if prev_records else []
             result.append({
                 'id': reg.id,
                 'student_number': student.student_number,
@@ -1242,15 +1167,12 @@ def get_pending_registrations():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
-
 @admin_bp.route('/registrations/approved', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_approved_registrations():
-    """Get all registrations with status 'approved'."""
     try:
-        registrations = Registration.query.filter_by(registration_status='approved') \
-            .order_by(Registration.created_at.desc()).all()
+        registrations = Registration.query.filter_by(registration_status='approved').order_by(Registration.created_at.desc()).all()
         result = []
         for reg in registrations:
             student = Student.query.get(reg.student_id)
@@ -1275,15 +1197,12 @@ def get_approved_registrations():
         print(f"Error fetching approved registrations: {e}")
         return jsonify({'error': str(e)}), 500
 
-
 @admin_bp.route('/registrations/rejected', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_rejected_registrations():
-    """Get all registrations with status 'rejected'."""
     try:
-        registrations = Registration.query.filter_by(registration_status='rejected') \
-            .order_by(Registration.created_at.desc()).all()
+        registrations = Registration.query.filter_by(registration_status='rejected').order_by(Registration.created_at.desc()).all()
         result = []
         for reg in registrations:
             student = Student.query.get(reg.student_id)
@@ -1308,48 +1227,35 @@ def get_rejected_registrations():
         print(f"Error fetching rejected registrations: {e}")
         return jsonify({'error': str(e)}), 500
 
-
 @admin_bp.route('/registrations/<int:reg_id>/approve', methods=['POST'])
 @jwt_required()
 @admin_required
 def approve_registration(reg_id):
-    """Approve a pending semester registration."""
     try:
         registration = Registration.query.get(reg_id)
         if not registration:
             return jsonify({'error': 'Registration not found'}), 404
         if registration.registration_status != 'pending':
             return jsonify({'error': f'Registration already {registration.registration_status}'}), 400
-
         registration.registration_status = 'approved'
         registration.approved_by = get_jwt_identity()
         registration.approved_at = datetime.utcnow()
         db.session.commit()
-
-        # Notify student
         student = Student.query.get(registration.student_id)
         if student and student.user_id:
-            notification = Notification(
-                user_id=student.user_id,
-                title='Registration Approved',
-                message=f'Your semester registration has been approved. You can now access your courses.',
-                notification_type='success'
-            )
+            notification = Notification(user_id=student.user_id, title='Registration Approved', message='Your semester registration has been approved.', notification_type='success')
             db.session.add(notification)
             db.session.commit()
-
         return jsonify({'message': 'Registration approved successfully'}), 200
     except Exception as e:
         db.session.rollback()
         print(f"Error approving registration: {e}")
         return jsonify({'error': str(e)}), 500
 
-
 @admin_bp.route('/registrations/<int:reg_id>/reject', methods=['POST'])
 @jwt_required()
 @admin_required
 def reject_registration(reg_id):
-    """Reject a pending semester registration with a reason."""
     try:
         data = request.get_json()
         reason = data.get('reason', 'No reason provided')
@@ -1358,36 +1264,25 @@ def reject_registration(reg_id):
             return jsonify({'error': 'Registration not found'}), 404
         if registration.registration_status != 'pending':
             return jsonify({'error': f'Registration already {registration.registration_status}'}), 400
-
         registration.registration_status = 'rejected'
         registration.notes = f"Rejected by Registrar: {reason}"
         db.session.commit()
-
-        # Notify student
         student = Student.query.get(registration.student_id)
         if student and student.user_id:
-            notification = Notification(
-                user_id=student.user_id,
-                title='Registration Rejected',
-                message=f'Your semester registration was rejected. Reason: {reason}. Please contact the Registrar\'s office.',
-                notification_type='error'
-            )
+            notification = Notification(user_id=student.user_id, title='Registration Rejected', message=f'Your semester registration was rejected. Reason: {reason}.', notification_type='error')
             db.session.add(notification)
             db.session.commit()
-
         return jsonify({'message': 'Registration rejected'}), 200
     except Exception as e:
         db.session.rollback()
         print(f"Error rejecting registration: {e}")
         return jsonify({'error': str(e)}), 500
 
-# ==================== SYSTEM SETTINGS (EXISTING FEE SETTINGS) ====================
-
+# ==================== SYSTEM SETTINGS ====================
 @admin_bp.route('/settings', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_settings():
-    """Get system settings"""
     try:
         settings = {
             'academic_year': '2025/2026',
@@ -1413,56 +1308,40 @@ def get_settings():
 @jwt_required()
 @admin_required
 def update_settings():
-    """Update system settings"""
     try:
         data = request.get_json()
-        
-        # Update FeesConfig if provided
         if 'supplementary_exam_fee' in data:
             fee = FeesConfig.query.filter_by(fee_type='supplementary').first()
             if fee:
                 fee.amount = data['supplementary_exam_fee']
-        
         if 'resit_exam_fee' in data:
             fee = FeesConfig.query.filter_by(fee_type='resit').first()
             if fee:
                 fee.amount = data['resit_exam_fee']
-        
         if 'retake_exam_fee' in data:
             fee = FeesConfig.query.filter_by(fee_type='retake').first()
             if fee:
                 fee.amount = data['retake_exam_fee']
-        
         db.session.commit()
         return jsonify({'message': 'Settings updated successfully'}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-# ==================== PERSISTENT SYSTEM CONFIGURATION (FEATURE TOGGLES) ====================
-
+# ==================== PERSISTENT SYSTEM CONFIGURATION ====================
 @admin_bp.route('/config', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_system_config():
-    """Get all persisted system configuration (feature toggles, etc.)"""
     try:
         configs = SystemConfig.query.all()
         result = {}
         for cfg in configs:
             result[cfg.config_key] = cfg.get_value()
-        # Provide default values if not set
-        defaults = {
-            'ENABLE_2FA_FOR_STAFF': False,
-            'ENABLE_EMAIL_VERIFICATION': True,
-            'ENABLE_CHATBOT': True,
-            'ENABLE_ONLINE_CLASSES': True,
-            'SESSION_TIMEOUT_MINUTES': 30,
-            'MAX_LOGIN_ATTEMPTS': 5
-        }
-        for key, default_value in defaults.items():
-            if key not in result:
-                result[key] = default_value
+        defaults = {'ENABLE_2FA_FOR_STAFF': False, 'ENABLE_EMAIL_VERIFICATION': True, 'ENABLE_CHATBOT': True, 'ENABLE_ONLINE_CLASSES': True, 'SESSION_TIMEOUT_MINUTES': 30, 'MAX_LOGIN_ATTEMPTS': 5}
+        for k, v in defaults.items():
+            if k not in result:
+                result[k] = v
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -1471,13 +1350,11 @@ def get_system_config():
 @jwt_required()
 @admin_required
 def update_system_config():
-    """Update or create system configuration values"""
     try:
         data = request.get_json()
         for key, value in data.items():
             cfg = SystemConfig.query.filter_by(config_key=key).first()
             if not cfg:
-                # Determine config_type heuristically
                 if isinstance(value, bool):
                     cfg_type = 'boolean'
                 elif isinstance(value, int):
@@ -1488,11 +1365,7 @@ def update_system_config():
                     cfg_type = 'json'
                 else:
                     cfg_type = 'string'
-                cfg = SystemConfig(
-                    config_key=key,
-                    config_type=cfg_type,
-                    updated_by=get_jwt_identity()
-                )
+                cfg = SystemConfig(config_key=key, config_type=cfg_type, updated_by=get_jwt_identity())
                 db.session.add(cfg)
             cfg.set_value(value)
             cfg.updated_at = datetime.utcnow()
@@ -1504,58 +1377,20 @@ def update_system_config():
         return jsonify({'error': str(e)}), 500
 
 # ==================== CSV EXPORTS ====================
-
 @admin_bp.route('/export/government-sponsored', methods=['GET'])
 @jwt_required()
 @admin_required
 def export_government_sponsored():
-    """Export government sponsored students data to CSV"""
     try:
-        students = Student.query.filter_by(
-            is_government_sponsored=True,
-            is_active=True
-        ).all()
-        
+        students = Student.query.filter_by(is_government_sponsored=True, is_active=True).all()
         output = io.StringIO()
         writer = csv.writer(output)
-        
-        writer.writerow([
-            'Student Number', 'First Name', 'Last Name', 'Email', 'Phone',
-            'Program', 'Campus', 'Current Year', 'Current GPA', 'Previous Semester GPA',
-            'Enrollment Date', 'Academic Status', 'DTEF Sponsor Number'
-        ])
-        
-        for student in students:
-            # Get previous semester GPA
-            previous_record = AcademicRecord.query.filter_by(
-                student_id=student.id
-            ).order_by(AcademicRecord.created_at.desc()).first()
-            
-            writer.writerow([
-                student.student_number,
-                student.first_name,
-                student.last_name,
-                student.email,
-                student.phone or '',
-                student.program.program_name if student.program else '',
-                student.campus.campus_name if student.campus else '',
-                student.current_year,
-                float(student.current_gpa) if student.current_gpa else 0,
-                float(previous_record.semester_gpa) if previous_record and previous_record.semester_gpa else 0,
-                student.enrollment_date.isoformat() if student.enrollment_date else '',
-                student.academic_status,
-                student.dtef_sponsor_number or ''
-            ])
-        
+        writer.writerow(['Student Number','First Name','Last Name','Email','Phone','Program','Campus','Current Year','Current GPA','Previous Semester GPA','Enrollment Date','Academic Status','DTEF Sponsor Number'])
+        for s in students:
+            prev = AcademicRecord.query.filter_by(student_id=s.id).order_by(AcademicRecord.created_at.desc()).first()
+            writer.writerow([s.student_number, s.first_name, s.last_name, s.email, s.phone or '', s.program.program_name if s.program else '', s.campus.campus_name if s.campus else '', s.current_year, float(s.current_gpa) if s.current_gpa else 0, float(prev.semester_gpa) if prev else 0, s.enrollment_date.isoformat() if s.enrollment_date else '', s.academic_status, s.dtef_sponsor_number or ''])
         output.seek(0)
-        
-        return send_file(
-            io.BytesIO(output.getvalue().encode('utf-8-sig')),
-            mimetype='text/csv',
-            as_attachment=True,
-            download_name=f'government_sponsored_students_{datetime.now().strftime("%Y%m%d")}.csv'
-        )
-        
+        return send_file(io.BytesIO(output.getvalue().encode('utf-8-sig')), mimetype='text/csv', as_attachment=True, download_name=f'government_sponsored_students_{datetime.now().strftime("%Y%m%d")}.csv')
     except Exception as e:
         print(f"Export error: {e}")
         traceback.print_exc()
@@ -1565,56 +1400,18 @@ def export_government_sponsored():
 @jwt_required()
 @admin_required
 def export_self_sponsored():
-    """Export self sponsored students data to CSV"""
     try:
-        students = Student.query.filter_by(
-            is_government_sponsored=False,
-            is_active=True
-        ).all()
-        
+        students = Student.query.filter_by(is_government_sponsored=False, is_active=True).all()
         output = io.StringIO()
         writer = csv.writer(output)
-        
-        writer.writerow([
-            'Student Number', 'First Name', 'Last Name', 'Email', 'Phone',
-            'Program', 'Campus', 'Current Year', 'Current GPA', 'Previous Semester GPA',
-            'Enrollment Date', 'Academic Status', 'Outstanding Balance'
-        ])
-        
-        for student in students:
-            # Get outstanding balance
-            registrations = Registration.query.filter_by(student_id=student.id).all()
+        writer.writerow(['Student Number','First Name','Last Name','Email','Phone','Program','Campus','Current Year','Current GPA','Previous Semester GPA','Enrollment Date','Academic Status','Outstanding Balance'])
+        for s in students:
+            registrations = Registration.query.filter_by(student_id=s.id).all()
             outstanding = sum((reg.total_fees or 0) - (reg.paid_amount or 0) for reg in registrations)
-            
-            previous_record = AcademicRecord.query.filter_by(
-                student_id=student.id
-            ).order_by(AcademicRecord.created_at.desc()).first()
-            
-            writer.writerow([
-                student.student_number,
-                student.first_name,
-                student.last_name,
-                student.email,
-                student.phone or '',
-                student.program.program_name if student.program else '',
-                student.campus.campus_name if student.campus else '',
-                student.current_year,
-                float(student.current_gpa) if student.current_gpa else 0,
-                float(previous_record.semester_gpa) if previous_record and previous_record.semester_gpa else 0,
-                student.enrollment_date.isoformat() if student.enrollment_date else '',
-                student.academic_status,
-                f"P{outstanding:,.2f}"
-            ])
-        
+            prev = AcademicRecord.query.filter_by(student_id=s.id).order_by(AcademicRecord.created_at.desc()).first()
+            writer.writerow([s.student_number, s.first_name, s.last_name, s.email, s.phone or '', s.program.program_name if s.program else '', s.campus.campus_name if s.campus else '', s.current_year, float(s.current_gpa) if s.current_gpa else 0, float(prev.semester_gpa) if prev else 0, s.enrollment_date.isoformat() if s.enrollment_date else '', s.academic_status, f"P{outstanding:,.2f}"])
         output.seek(0)
-        
-        return send_file(
-            io.BytesIO(output.getvalue().encode('utf-8-sig')),
-            mimetype='text/csv',
-            as_attachment=True,
-            download_name=f'self_sponsored_students_{datetime.now().strftime("%Y%m%d")}.csv'
-        )
-        
+        return send_file(io.BytesIO(output.getvalue().encode('utf-8-sig')), mimetype='text/csv', as_attachment=True, download_name=f'self_sponsored_students_{datetime.now().strftime("%Y%m%d")}.csv')
     except Exception as e:
         print(f"Export error: {e}")
         traceback.print_exc()
@@ -1624,96 +1421,47 @@ def export_self_sponsored():
 @jwt_required()
 @admin_required
 def export_accommodation_applicants():
-    """Export accommodation applicants data to CSV"""
     try:
-        applications = AccommodationRegistration.query.filter_by(
-            status='pending'
-        ).all()
-        
+        apps = AccommodationRegistration.query.filter_by(status='pending').all()
         output = io.StringIO()
         writer = csv.writer(output)
-        
-        writer.writerow([
-            'Student Number', 'Student Name', 'Program', 'Campus', 'Room Type',
-            'Block Preference', 'Emergency Contact', 'Medical Conditions',
-            'Application Date', 'Status'
-        ])
-        
-        for app in applications:
-            student = Student.query.get(app.student_id)
-            writer.writerow([
-                student.student_number if student else '',
-                f"{student.first_name} {student.last_name}" if student else '',
-                student.program.program_name if student and student.program else '',
-                student.campus.campus_name if student and student.campus else '',
-                app.room_type,
-                app.block_preference or '',
-                f"{app.emergency_contact_name} ({app.emergency_contact_phone})" if app.emergency_contact_name else '',
-                app.medical_conditions or '',
-                app.created_at.strftime('%Y-%m-%d'),
-                app.status
-            ])
-        
+        writer.writerow(['Student Number','Student Name','Program','Campus','Room Type','Block Preference','Emergency Contact','Medical Conditions','Application Date','Status'])
+        for a in apps:
+            s = Student.query.get(a.student_id)
+            writer.writerow([s.student_number if s else '', f"{s.first_name} {s.last_name}" if s else '', s.program.program_name if s and s.program else '', s.campus.campus_name if s and s.campus else '', a.room_type, a.block_preference or '', f"{a.emergency_contact_name} ({a.emergency_contact_phone})", a.medical_conditions or '', a.created_at.strftime('%Y-%m-%d'), a.status])
         output.seek(0)
-        
-        return send_file(
-            io.BytesIO(output.getvalue().encode('utf-8-sig')),
-            mimetype='text/csv',
-            as_attachment=True,
-            download_name=f'accommodation_applicants_{datetime.now().strftime("%Y%m%d")}.csv'
-        )
-        
+        return send_file(io.BytesIO(output.getvalue().encode('utf-8-sig')), mimetype='text/csv', as_attachment=True, download_name=f'accommodation_applicants_{datetime.now().strftime("%Y%m%d")}.csv')
     except Exception as e:
         print(f"Export error: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 # ==================== REPORTS ====================
-
 @admin_bp.route('/reports/students', methods=['GET'])
 @jwt_required()
 @admin_required
 def get_student_report():
-    """Generate student enrollment report"""
     try:
-        students = Student.query.all()
-        programs = Program.query.all()
-        campuses = Campus.query.all()
-        
         report = {
-            'total_students': len(students),
+            'total_students': Student.query.count(),
             'government_sponsored': Student.query.filter_by(is_government_sponsored=True).count(),
             'self_sponsored': Student.query.filter_by(is_government_sponsored=False).count(),
             'by_program': {},
             'by_campus': {},
             'by_year': {},
             'by_status': {},
-            'by_admission': {},
-            'enrollment_trend': []
+            'by_admission': {}
         }
-        
-        for program in programs:
-            count = Student.query.filter_by(program_id=program.id).count()
-            report['by_program'][program.program_name] = count
-        
-        for campus in campuses:
-            count = Student.query.filter_by(campus_id=campus.id).count()
-            report['by_campus'][campus.campus_name] = count
-        
-        for year in range(1, 5):
-            count = Student.query.filter_by(current_year=year).count()
-            report['by_year'][f'Year {year}'] = count
-        
-        statuses = ['good_standing', 'probation', 'suspended', 'graduated']
-        for status in statuses:
-            count = Student.query.filter_by(academic_status=status).count()
-            report['by_status'][status] = count
-        
-        admission_statuses = ['accepted', 'pending', 'rejected', 'deferred', 'graduated']
-        for status in admission_statuses:
-            count = Student.query.filter_by(admission_status=status).count()
-            report['by_admission'][status] = count
-        
+        for p in Program.query.all():
+            report['by_program'][p.program_name] = Student.query.filter_by(program_id=p.id).count()
+        for c in Campus.query.all():
+            report['by_campus'][c.campus_name] = Student.query.filter_by(campus_id=c.id).count()
+        for y in range(1,5):
+            report['by_year'][f'Year {y}'] = Student.query.filter_by(current_year=y).count()
+        for s in ['good_standing','probation','suspended','graduated']:
+            report['by_status'][s] = Student.query.filter_by(academic_status=s).count()
+        for a in ['accepted','pending','rejected','deferred','graduated']:
+            report['by_admission'][a] = Student.query.filter_by(admission_status=a).count()
         return jsonify(report), 200
     except Exception as e:
         print(f"Report error: {e}")
@@ -1723,70 +1471,42 @@ def get_student_report():
 @jwt_required()
 @admin_required
 def get_payment_report():
-    """Generate payment report"""
     try:
         payments = Payment.query.all()
-        
         total_revenue = sum(p.amount for p in payments if p.status == 'completed')
         pending_amount = sum(p.amount for p in payments if p.status == 'pending')
-        
         report = {
             'total_revenue': float(total_revenue),
             'pending_amount': float(pending_amount),
             'total_transactions': len(payments),
             'completed_transactions': len([p for p in payments if p.status == 'completed']),
             'by_method': {},
-            'by_payment_type': {},
-            'monthly_trend': []
+            'by_payment_type': {}
         }
-        
-        methods = ['cash', 'bank_transfer', 'card', 'mobile_money']
-        for method in methods:
+        for method in ['cash','bank_transfer','card','mobile_money']:
             total = sum(p.amount for p in payments if p.payment_method == method and p.status == 'completed')
             report['by_method'][method] = float(total)
-        
-        payment_types = ['registration', 'tuition', 'supplementary', 'resit', 'retake', 'accommodation']
-        for ptype in payment_types:
-            if hasattr(Payment, 'payment_type'):
-                total = sum(p.amount for p in payments if getattr(p, 'payment_type', '') == ptype and p.status == 'completed')
-                report['by_payment_type'][ptype] = float(total)
-        
+        for ptype in ['registration','tuition','supplementary','resit','retake','accommodation']:
+            total = sum(p.amount for p in payments if getattr(p, 'payment_type', '') == ptype and p.status == 'completed')
+            report['by_payment_type'][ptype] = float(total)
         return jsonify(report), 200
     except Exception as e:
         print(f"Payment report error: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ==================== SYSTEM HEALTH ====================
-
 @admin_bp.route('/health', methods=['GET'])
 @jwt_required()
 @admin_required
 def system_health():
-    """Get system health status"""
     try:
-        # Check database connection
+        db.session.execute(text('SELECT 1'))
         db_status = 'connected'
-        try:
-            db.session.execute(text('SELECT 1'))
-        except Exception as e:
-            db_status = f'disconnected: {str(e)}'
-        
-        # Get counts
-        users = User.query.count()
-        students = Student.query.count()
-        
-        return jsonify({
-            'status': 'healthy' if db_status == 'connected' else 'degraded',
-            'database': db_status,
-            'users': users,
-            'students': students,
-            'timestamp': datetime.now().isoformat()
-        }), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        db_status = f'disconnected: {str(e)}'
+    return jsonify({'status': 'healthy' if db_status == 'connected' else 'degraded', 'database': db_status, 'users': User.query.count(), 'students': Student.query.count(), 'timestamp': datetime.now().isoformat()}), 200
 
 # ==================== ERROR HANDLERS ====================
-
 @admin_bp.errorhandler(500)
 def admin_internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500

@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-TileColor" content="#667eea">
-    <!-- Favicon -->
-    
-    
-    
-    
-    
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -35,7 +30,7 @@
         /* Navigation (same as dashboard) */
         .navbar {
             background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -121,7 +116,7 @@
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         .page-header::before {
@@ -155,7 +150,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
-            border: 1px solid rgba(102,126,234,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .week-selector {
@@ -208,8 +203,8 @@
             background: white;
             border-radius: 20px;
             overflow-x: auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid rgba(102,126,234,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .timetable {
@@ -276,7 +271,7 @@
             border-radius: 16px;
             padding: 15px 20px;
             margin-top: 25px;
-            border: 1px solid rgba(102,126,234,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .legend h3 {
@@ -320,67 +315,83 @@
             .container {
                 padding: 0 20px;
             }
+
             .navbar .container {
                 flex-direction: column;
             }
+
             .nav-menu {
                 justify-content: center;
                 gap: 0.25rem;
             }
-            .timetable th, .timetable td {
+
+            .timetable th,
+            .timetable td {
                 padding: 8px;
                 font-size: 0.8rem;
             }
+
             .time-slot {
                 width: 70px;
             }
+
             .course-details {
                 font-size: 0.7rem;
             }
         }
 
         @media print {
-            .navbar, .timetable-controls, .legend, .footer {
+
+            .navbar,
+            .timetable-controls,
+            .legend,
+            .footer {
                 display: none;
             }
+
             body {
                 background: white;
                 padding: 20px;
             }
+
             .timetable-container {
                 box-shadow: none;
                 border: 1px solid #ddd;
             }
+
             .page-header {
                 background: white;
                 color: black;
                 box-shadow: none;
                 padding: 0 0 20px 0;
             }
+
             .page-header::before {
                 display: none;
             }
         }
     </style>
-    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
+
 <body>
-
-
-
     <nav class="navbar">
         <div class="container">
             <div class="navbar-brand">
-                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage" onerror="this.style.display='none'">
+                <img src="../images/gipslogo.jpg" alt="GIPS College Logo" id="logoImage"
+                    onerror="this.style.display='none'">
             </div>
             <ul class="nav-menu">
-                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a></li>
+                <li><a href="student-dashboard.html" class="nav-link"><i class="fas fa-chalkboard"></i> Dashboard</a>
+                </li>
                 <li><a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a></li>
-                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam Registration</a></li>
+                <li><a href="student-exam-registration.html" class="nav-link"><i class="fas fa-file-signature"></i> Exam
+                        Registration</a></li>
                 <li><a href="accomodation.html" class="nav-link"><i class="fas fa-building"></i> Accommodation</a></li>
-                <li><a href="student-timetables.html" class="nav-link active"><i class="fas fa-calendar-week"></i> Timetable</a></li>
+                <li><a href="student-timetables.html" class="nav-link active"><i class="fas fa-calendar-week"></i>
+                        Timetable</a></li>
                 <li><a href="results-view.html" class="nav-link"><i class="fas fa-chart-line"></i> Results</a></li>
-                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a></li>
+                <li><a href="student-queries.html" class="nav-link"><i class="fas fa-question-circle"></i> Queries</a>
+                </li>
                 <li><a href="chatbot.html" class="nav-link"><i class="fas fa-headset"></i> Support</a></li>
                 <li><a href="#" id="logoutLink" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -416,7 +427,10 @@
                 </thead>
                 <tbody id="timetableBody">
                     <!-- Filled by JS -->
-                    <tr><td colspan="6" class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading timetable...</td></tr>
+                    <tr>
+                        <td colspan="6" class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading timetable...
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -424,10 +438,18 @@
         <div class="legend">
             <h3><i class="fas fa-info-circle"></i> Legend</h3>
             <div class="legend-items">
-                <div class="legend-item"><div class="legend-color" style="background: #667eea;"></div> Lecture</div>
-                <div class="legend-item"><div class="legend-color" style="background: #48bb78;"></div> Lab / Practical</div>
-                <div class="legend-item"><div class="legend-color" style="background: #ed8936;"></div> Tutorial</div>
-                <div class="legend-item"><div class="legend-color" style="background: #fbbf24;"></div> Online Class</div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #667eea;"></div> Lecture
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #48bb78;"></div> Lab / Practical
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ed8936;"></div> Tutorial
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fbbf24;"></div> Online Class
+                </div>
                 <div class="legend-item"><i class="fas fa-map-marker-alt"></i> Venue</div>
                 <div class="legend-item"><i class="fas fa-chalkboard-user"></i> Lecturer</div>
             </div>
@@ -438,30 +460,133 @@
         <div class="container">
             <p>&copy; 2026 GIPS College. All rights reserved.</p>
             <p><i class="fas fa-calendar-week"></i> Stay on schedule | Timetable subject to change</p>
-        
-            <div style="margin-top: 8px;">
-                <a href="/privacy"><i class="fas fa-shield-alt"></i> Privacy Notice</a> |
-                <a href="/contacts"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-</div>
+        </div>
     </footer>
 
-    
+    <script>
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
 
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('Logged in user:', user);
 
-<script>
-(function() {
-    function doLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    }
-    const logoutElements = document.querySelectorAll('#logoutLink, .logout-link, .logout-btn, [data-logout]');
-    logoutElements.forEach(el => el.addEventListener('click', doLogout));
-    window.logout = doLogout;
-})();
-</script>
+        // ============================================
+        // DEMO TIMETABLE DATA (would come from API)
+        // ============================================
+        // Format: [day (0=Mon), startTime, endTime, courseCode, courseName, type, venue, lecturer]
+        const timetableData = [
+            { day: 0, start: "08:00", end: "10:00", code: "CS301", name: "Artificial Intelligence", type: "Lecture", venue: "Room 201, ICT Building", lecturer: "Dr. T. Motsamai" },
+            { day: 0, start: "14:00", end: "16:00", code: "CS303", name: "Web Application Development", type: "Lab", venue: "Lab 3, ICT Building", lecturer: "Mr. K. Modise" },
+            { day: 1, start: "10:00", end: "12:00", code: "CS302", name: "Database Management Systems", type: "Lecture", venue: "Room 105, ICT Building", lecturer: "Dr. P. Ndlovu" },
+            { day: 1, start: "15:00", end: "17:00", code: "CS305", name: "Mobile App Development", type: "Lab", venue: "Lab 2, ICT Building", lecturer: "Ms. B. Dube" },
+            { day: 2, start: "09:00", end: "11:00", code: "CS304", name: "Cyber Security Fundamentals", type: "Lecture", venue: "Room 201, ICT Building", lecturer: "Dr. T. Motsamai" },
+            { day: 2, start: "13:00", end: "15:00", code: "CS301", name: "Artificial Intelligence", type: "Tutorial", venue: "Room 105, ICT Building", lecturer: "TA: John Doe" },
+            { day: 3, start: "11:00", end: "13:00", code: "CS302", name: "Database Management Systems", type: "Lab", venue: "Lab 1, ICT Building", lecturer: "Mr. K. Modise" },
+            { day: 3, start: "14:00", end: "16:00", code: "CS303", name: "Web Application Development", type: "Online", venue: "Zoom Link: https://zoom.us/j/123456", lecturer: "Ms. B. Dube" },
+            { day: 4, start: "10:00", end: "12:00", code: "CS305", name: "Mobile App Development", type: "Lecture", venue: "Room 105, ICT Building", lecturer: "Dr. P. Ndlovu" },
+            { day: 4, start: "14:00", end: "16:00", code: "CS304", name: "Cyber Security Fundamentals", type: "Tutorial", venue: "Room 201, ICT Building", lecturer: "TA: Jane Smith" }
+        ];
 
+        // Timeslots to display (in order)
+        const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+
+        // Helper to check if a course covers a given time slot
+        function courseAtTime(course, time) {
+            const startHour = parseInt(course.start.split(':')[0]);
+            const startMin = parseInt(course.start.split(':')[1]);
+            const endHour = parseInt(course.end.split(':')[0]);
+            const endMin = parseInt(course.end.split(':')[1]);
+            const timeHour = parseInt(time.split(':')[0]);
+            const timeMin = parseInt(time.split(':')[1]);
+            const startTotal = startHour * 60 + startMin;
+            const endTotal = endHour * 60 + endMin;
+            const timeTotal = timeHour * 60 + timeMin;
+            return timeTotal >= startTotal && timeTotal < endTotal;
+        }
+
+        function renderTimetable(weekOffset = 0) {
+            // For demo, we ignore weekOffset; could be used to fetch different weeks from API
+            const tbody = document.getElementById('timetableBody');
+            if (!tbody) return;
+
+            // Build table rows for each time slot
+            let html = '';
+            for (let time of timeSlots) {
+                html += '<tr>';
+                html += `<td class="time-slot">${time}</td>`;
+                for (let day = 0; day < 5; day++) {
+                    const course = timetableData.find(c => c.day === day && courseAtTime(c, time));
+                    if (course) {
+                        let typeClass = '';
+                        if (course.type === 'Lecture') typeClass = 'background: rgba(102,126,234,0.1);';
+                        else if (course.type === 'Lab') typeClass = 'background: rgba(72,187,120,0.1);';
+                        else if (course.type === 'Tutorial') typeClass = 'background: rgba(237,137,54,0.1);';
+                        else if (course.type === 'Online') typeClass = 'background: rgba(251,191,36,0.1);';
+                        html += `<td style="${typeClass}">
+                            <div class="course-title">${course.code} - ${course.name}</div>
+                            <div class="course-details">
+                                <div><i class="fas fa-chalkboard-user"></i> ${course.lecturer}</div>
+                                <div><i class="fas fa-map-marker-alt"></i> ${course.venue}</div>
+                                <div><i class="fas fa-clock"></i> ${course.start} – ${course.end}</div>
+                            </div>
+                        </td>`;
+                    } else {
+                        html += `<td class="no-class"><i class="far fa-clock"></i> No class</td>`;
+                    }
+                }
+                html += '</tr>';
+            }
+            tbody.innerHTML = html;
+        }
+
+        // Update week display (demo – static)
+        function updateWeekDisplay(offset = 0) {
+            const now = new Date();
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1)); // Monday
+            startOfWeek.setDate(startOfWeek.getDate() + offset * 7);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 4);
+            const options = { month: 'short', day: 'numeric' };
+            const weekStr = `Week of ${startOfWeek.toLocaleDateString('en-US', options)} – ${endOfWeek.toLocaleDateString('en-US', options)}`;
+            document.getElementById('currentWeek').textContent = weekStr;
+        }
+
+        // Simple week navigation (demo)
+        let currentWeekOffset = 0;
+        document.getElementById('prevWeekBtn').addEventListener('click', () => {
+            currentWeekOffset--;
+            updateWeekDisplay(currentWeekOffset);
+            // In a real app, you'd fetch data for the new week here
+            renderTimetable(currentWeekOffset);
+        });
+        document.getElementById('nextWeekBtn').addEventListener('click', () => {
+            currentWeekOffset++;
+            updateWeekDisplay(currentWeekOffset);
+            renderTimetable(currentWeekOffset);
+        });
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        renderTimetable(0);
+        updateWeekDisplay(0);
+        console.log('✅ Timetable page loaded');
+    </script>
 </body>
+
 </html>

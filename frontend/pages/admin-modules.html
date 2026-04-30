@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Module Management - Admin | GIPS College</title>
+    <title>Module & Course Management - Admin | GIPS College</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -424,6 +424,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/css/portal-common.css">
 </head>
 
 <body>
@@ -459,7 +460,7 @@
                     <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
                     <div class="page-title">
                         <h1><i class="fas fa-layer-group"></i> Module Management</h1>
-                        <p>Manage course modules, credits, and curriculum structure</p>
+                        <p>Manage course modules, credits, curriculum – and assign lecturers</p>
                     </div>
                 </div>
                 <div class="admin-avatar" id="adminAvatar">A</div>
@@ -532,6 +533,26 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- ========== LECTURER ASSIGNMENT (NEW) ========== -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chalkboard-user"></i> Assign Module to Lecturer</h2>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Select Module (Course without lecturer)</label>
+                        <select id="assignCourseId" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Lecturer</label>
+                        <select id="assignLecturerId" class="form-control"></select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="assignLecturerToCourse()"><i class="fas fa-link"></i> Assign
+                    Lecturer</button>
+                <div id="assignMessage" class="message" style="margin-top:15px;"></div>
             </div>
         </div>
     </div>
@@ -661,11 +682,6 @@
             }
         });
 
-        // ========== GLOBAL DATA ==========
-        let modules = [];
-        let programs = [];
-        let programModules = [];
-
         // ========== API HELPER ==========
         async function safeApiCall(endpoint, options = {}) {
             try {
@@ -678,34 +694,32 @@
             } catch (err) { console.error(err); return null; }
         }
 
-        // ========== LOAD DATA ==========
+        function showMessage(msg, isError = false) {
+            const msgDiv = document.getElementById('assignMessage');
+            msgDiv.innerHTML = `<span style="color:${isError ? '#e53e3e' : '#10b981'};">${msg}</span>`;
+            setTimeout(() => msgDiv.innerHTML = '', 4000);
+        }
+
+        // ========== MODULE MANAGEMENT ==========
+        let modules = [];
+        let programs = [];
+        let programModules = [];
+
         async function loadModules() {
             const tbody = document.getElementById('modulesTableBody');
             tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><i class="fas fa-spinner fa-pulse"></i> Loading modules...</div></td></tr>';
             const res = await safeApiCall('/api/admin/modules');
             if (res && res.ok) {
                 modules = await res.json();
+                displayModules();
             } else {
-                // Demo data
-                modules = [
-                    { id: 1, module_code: 'CS101', module_name: 'Introduction to Programming', credits: 12, year_level: 1, semester: 1, module_type: 'core', description: 'Fundamentals of programming using Python.', prerequisites: 'None', has_practicals: true },
-                    { id: 2, module_code: 'CS102', module_name: 'Object-Oriented Programming', credits: 12, year_level: 1, semester: 2, module_type: 'core', description: 'OOP concepts using Java.', prerequisites: 'CS101', has_practicals: true },
-                    { id: 3, module_code: 'CS201', module_name: 'Database Systems', credits: 12, year_level: 2, semester: 1, module_type: 'core', description: 'SQL and database design.', prerequisites: 'CS101', has_practicals: true }
-                ];
+                tbody.innerHTML = '<tr><td colspan="8">Failed to load modules. Please refresh.</td></tr>';
             }
-            displayModules();
         }
 
         async function loadPrograms() {
             const res = await safeApiCall('/api/admin/programs');
-            if (res && res.ok) {
-                programs = await res.json();
-            } else {
-                programs = [
-                    { id: 1, program_code: 'BSC-CS', program_name: 'Bachelor of Computer Science' },
-                    { id: 2, program_code: 'BBA-BM', program_name: 'Bachelor of Business Administration' }
-                ];
-            }
+            if (res && res.ok) programs = await res.json();
         }
 
         async function loadProgramModules() {
@@ -714,13 +728,10 @@
             const res = await safeApiCall('/api/admin/program-modules');
             if (res && res.ok) {
                 programModules = await res.json();
+                displayMappings();
             } else {
-                programModules = [
-                    { id: 1, program_id: 1, program_name: 'Computer Science', module_id: 1, module_code: 'CS101', module_name: 'Introduction to Programming', credits: 12, compulsory: true },
-                    { id: 2, program_id: 1, program_name: 'Computer Science', module_id: 2, module_code: 'CS102', module_name: 'Object-Oriented Programming', credits: 12, compulsory: true }
-                ];
+                tbody.innerHTML = '<tr><td colspan="6">Failed to load program-module mappings.</td></tr>';
             }
-            displayMappings();
         }
 
         function displayModules(search = '') {
@@ -730,10 +741,7 @@
                 const term = search.toLowerCase();
                 filtered = modules.filter(m => (m.module_code || '').toLowerCase().includes(term) || (m.module_name || '').toLowerCase().includes(term));
             }
-            if (!filtered.length) {
-                tbody.innerHTML = '<tr><td colspan="8">No modules found</td></tr>';
-                return;
-            }
+            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8">No modules found.</td></tr>'; return; }
             tbody.innerHTML = filtered.map(m => `
                 <tr>
                     <td>${m.id}</td>
@@ -753,10 +761,7 @@
 
         function displayMappings() {
             const tbody = document.getElementById('mappingTableBody');
-            if (!programModules.length) {
-                tbody.innerHTML = '<tr><td colspan="6">No modules assigned to programs</td></tr>';
-                return;
-            }
+            if (!programModules.length) { tbody.innerHTML = '<tr><td colspan="6">No modules assigned to programs.</td></tr>'; return; }
             tbody.innerHTML = programModules.map(pm => `
                 <tr>
                     <td><strong>${escapeHtml(pm.program_name)}</strong></td>
@@ -769,136 +774,18 @@
             `).join('');
         }
 
-        // ========== SEARCH ==========
-        function searchModules() {
-            const term = document.getElementById('searchInput').value;
-            displayModules(term);
-        }
+        window.searchModules = function () { displayModules(document.getElementById('searchInput').value); };
 
         // ========== MODULE CRUD ==========
-        async function addModule(moduleData) {
-            const res = await safeApiCall('/api/admin/modules', { method: 'POST', body: JSON.stringify(moduleData) });
-            if (res && res.ok) {
-                const newModule = await res.json();
-                modules.push(newModule);
-                displayModules();
-                alert(`Module "${moduleData.module_code} - ${moduleData.module_name}" created!`);
-                return true;
-            } else {
-                // Demo mode
-                const newId = modules.length + 1;
-                modules.push({ id: newId, ...moduleData });
-                displayModules();
-                alert(`Module "${moduleData.module_code} - ${moduleData.module_name}" created! (Demo Mode)`);
-                return true;
-            }
-        }
-
-        async function updateModule(id, moduleData) {
-            const res = await safeApiCall(`/api/admin/modules/${id}`, { method: 'PUT', body: JSON.stringify(moduleData) });
-            if (res && res.ok) {
-                const updated = await res.json();
-                const idx = modules.findIndex(m => m.id === id);
-                if (idx !== -1) modules[idx] = updated;
-                displayModules();
-                programModules = programModules.map(pm => pm.module_id === id ? { ...pm, module_code: updated.module_code, module_name: updated.module_name, credits: updated.credits } : pm);
-                displayMappings();
-                alert('Module updated!');
-                return true;
-            } else {
-                const idx = modules.findIndex(m => m.id === id);
-                if (idx !== -1) {
-                    modules[idx] = { ...modules[idx], ...moduleData };
-                    displayModules();
-                    programModules = programModules.map(pm => pm.module_id === id ? { ...pm, module_code: moduleData.module_code, module_name: moduleData.module_name, credits: moduleData.credits } : pm);
-                    displayMappings();
-                    alert('Module updated! (Demo Mode)');
-                }
-                return true;
-            }
-        }
-
-        async function deleteModule(id) {
-            if (!confirm('Delete this module? It will be removed from all programs.')) return;
-            const res = await safeApiCall(`/api/admin/modules/${id}`, { method: 'DELETE' });
-            if (res && res.ok) {
-                modules = modules.filter(m => m.id !== id);
-                programModules = programModules.filter(pm => pm.module_id !== id);
-                displayModules();
-                displayMappings();
-                alert('Module deleted!');
-            } else {
-                modules = modules.filter(m => m.id !== id);
-                programModules = programModules.filter(pm => pm.module_id !== id);
-                displayModules();
-                displayMappings();
-                alert('Module deleted! (Demo Mode)');
-            }
-        }
-
-        async function removeMapping(id) {
-            if (!confirm('Remove this module from the program?')) return;
-            const res = await safeApiCall(`/api/admin/program-modules/${id}`, { method: 'DELETE' });
-            if (res && res.ok) {
-                programModules = programModules.filter(pm => pm.id !== id);
-                displayMappings();
-                alert('Module removed from program!');
-            } else {
-                programModules = programModules.filter(pm => pm.id !== id);
-                displayMappings();
-                alert('Module removed from program! (Demo Mode)');
-            }
-        }
-
-        async function assignModuleToProgram(programId, moduleId, isCompulsory) {
-            const res = await safeApiCall('/api/admin/program-modules', {
-                method: 'POST',
-                body: JSON.stringify({ program_id: programId, module_id: moduleId, is_compulsory: isCompulsory === 'yes' })
-            });
-            if (res && res.ok) {
-                const newMapping = await res.json();
-                programModules.push(newMapping);
-                displayMappings();
-                alert('Module assigned to program!');
-                return true;
-            } else {
-                const program = programs.find(p => p.id === programId);
-                const module = modules.find(m => m.id === moduleId);
-                if (programModules.some(pm => pm.program_id === programId && pm.module_id === moduleId)) {
-                    alert('Already assigned!');
-                    return false;
-                }
-                programModules.push({
-                    id: Date.now(),
-                    program_id: programId,
-                    program_name: program.program_name,
-                    module_id: moduleId,
-                    module_code: module.module_code,
-                    module_name: module.module_name,
-                    credits: module.credits,
-                    compulsory: isCompulsory === 'yes'
-                });
-                displayMappings();
-                alert(`Module "${module.module_code}" assigned to ${program.program_name}! (Demo Mode)`);
-                return true;
-            }
-        }
-
-        // ========== MODAL HANDLERS ==========
-        function openAddModuleModal() {
-            document.getElementById('addModuleForm').reset();
-            document.getElementById('addModuleModal').style.display = 'flex';
-        }
-
-        function openAssignModuleModal() {
-            const programSelect = document.getElementById('programSelect');
-            const moduleSelect = document.getElementById('moduleSelect');
-            programSelect.innerHTML = programs.map(p => `<option value="${p.id}">${escapeHtml(p.program_name)}</option>`).join('');
-            moduleSelect.innerHTML = modules.map(m => `<option value="${m.id}">${escapeHtml(m.module_code)} - ${escapeHtml(m.module_name)}</option>`).join('');
+        window.openAddModuleModal = () => { document.getElementById('addModuleForm').reset(); document.getElementById('addModuleModal').style.display = 'flex'; };
+        window.openAssignModuleModal = () => {
+            const progSel = document.getElementById('programSelect');
+            const modSel = document.getElementById('moduleSelect');
+            progSel.innerHTML = programs.map(p => `<option value="${p.id}">${escapeHtml(p.program_name)}</option>`).join('');
+            modSel.innerHTML = modules.map(m => `<option value="${m.id}">${escapeHtml(m.module_code)} - ${escapeHtml(m.module_name)}</option>`).join('');
             document.getElementById('assignModuleModal').style.display = 'flex';
-        }
-
-        function editModule(id) {
+        };
+        window.editModule = (id) => {
             const m = modules.find(m => m.id === id);
             if (m) {
                 document.getElementById('editModuleId').value = m.id;
@@ -913,16 +800,12 @@
                 document.getElementById('editHasPracticals').value = m.has_practicals ? 'yes' : 'no';
                 document.getElementById('editModuleModal').style.display = 'flex';
             }
-        }
+        };
+        window.closeModal = (modalId) => document.getElementById(modalId).style.display = 'none';
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // ========== FORM SUBMISSIONS ==========
         document.getElementById('addModuleForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const moduleData = {
+            const data = {
                 module_code: document.getElementById('moduleCode').value.toUpperCase(),
                 module_name: document.getElementById('moduleName').value,
                 credits: parseInt(document.getElementById('credits').value),
@@ -933,14 +816,20 @@
                 prerequisites: document.getElementById('prerequisites').value,
                 has_practicals: document.getElementById('hasPracticals').value === 'yes'
             };
-            await addModule(moduleData);
-            closeModal('addModuleModal');
+            const res = await safeApiCall('/api/admin/modules', { method: 'POST', body: JSON.stringify(data) });
+            if (res && res.ok) {
+                const newMod = await res.json();
+                modules.push(newMod);
+                displayModules();
+                alert('Module created!');
+                closeModal('addModuleModal');
+            } else alert('Creation failed.');
         });
 
         document.getElementById('editModuleForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = parseInt(document.getElementById('editModuleId').value);
-            const moduleData = {
+            const data = {
                 module_code: document.getElementById('editModuleCode').value.toUpperCase(),
                 module_name: document.getElementById('editModuleName').value,
                 credits: parseInt(document.getElementById('editCredits').value),
@@ -951,18 +840,99 @@
                 prerequisites: document.getElementById('editPrerequisites').value,
                 has_practicals: document.getElementById('editHasPracticals').value === 'yes'
             };
-            await updateModule(id, moduleData);
-            closeModal('editModuleModal');
+            const res = await safeApiCall(`/api/admin/modules/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+            if (res && res.ok) {
+                const updated = await res.json();
+                const idx = modules.findIndex(m => m.id === id);
+                if (idx !== -1) modules[idx] = updated;
+                displayModules();
+                alert('Module updated!');
+                closeModal('editModuleModal');
+            } else alert('Update failed.');
         });
+
+        window.deleteModule = async (id) => {
+            if (!confirm('Delete this module? It will be removed from all programs.')) return;
+            const res = await safeApiCall(`/api/admin/modules/${id}`, { method: 'DELETE' });
+            if (res && res.ok) {
+                modules = modules.filter(m => m.id !== id);
+                programModules = programModules.filter(pm => pm.module_id !== id);
+                displayModules();
+                displayMappings();
+                alert('Module deleted.');
+            } else alert('Delete failed.');
+        };
+
+        window.removeMapping = async (id) => {
+            if (!confirm('Remove this module from the program?')) return;
+            const res = await safeApiCall(`/api/admin/program-modules/${id}`, { method: 'DELETE' });
+            if (res && res.ok) {
+                programModules = programModules.filter(pm => pm.id !== id);
+                displayMappings();
+                alert('Mapping removed.');
+            } else alert('Removal failed.');
+        };
 
         document.getElementById('assignModuleForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const programId = parseInt(document.getElementById('programSelect').value);
             const moduleId = parseInt(document.getElementById('moduleSelect').value);
-            const isCompulsory = document.getElementById('isCompulsory').value;
-            await assignModuleToProgram(programId, moduleId, isCompulsory);
-            closeModal('assignModuleModal');
+            const isCompulsory = document.getElementById('isCompulsory').value === 'yes';
+            const res = await safeApiCall('/api/admin/program-modules', {
+                method: 'POST',
+                body: JSON.stringify({ program_id: programId, module_id: moduleId, is_compulsory: isCompulsory })
+            });
+            if (res && res.ok) {
+                const newMap = await res.json();
+                programModules.push(newMap);
+                displayMappings();
+                alert('Module assigned to program!');
+                closeModal('assignModuleModal');
+            } else alert('Assignment failed.');
         });
+
+        // ========== LECTURER ASSIGNMENT (NEW) ==========
+        async function loadUnassignedCourses() {
+            const res = await safeApiCall('/api/admin/courses/unassigned');
+            if (res && res.ok) {
+                const courses = await res.json();
+                const select = document.getElementById('assignCourseId');
+                select.innerHTML = courses.map(c => `<option value="${c.id}">${c.course_code} - ${c.course_name}</option>`).join('');
+            } else {
+                showMessage('Failed to load unassigned courses.', true);
+            }
+        }
+
+        async function loadLecturers() {
+            const res = await safeApiCall('/api/admin/lecturers');
+            if (res && res.ok) {
+                const lecturers = await res.json();
+                const select = document.getElementById('assignLecturerId');
+                select.innerHTML = lecturers.map(l => `<option value="${l.id}">${l.username} (${l.email})</option>`).join('');
+            } else {
+                showMessage('Failed to load lecturers.', true);
+            }
+        }
+
+        window.assignLecturerToCourse = async function () {
+            const courseId = document.getElementById('assignCourseId').value;
+            const lecturerId = document.getElementById('assignLecturerId').value;
+            if (!courseId || !lecturerId) {
+                showMessage('Please select both a course and a lecturer.', true);
+                return;
+            }
+            const res = await safeApiCall(`/api/admin/courses/${courseId}/assign-lecturer`, {
+                method: 'POST',
+                body: JSON.stringify({ lecturer_id: parseInt(lecturerId) })
+            });
+            if (res && res.ok) {
+                const data = await res.json();
+                showMessage(data.message || 'Lecturer assigned successfully!', false);
+                loadUnassignedCourses();  // refresh the list (assigned course will disappear)
+            } else {
+                showMessage('Assignment failed. Please try again.', true);
+            }
+        };
 
         // ========== LOGOUT ==========
         document.getElementById('logoutLink').addEventListener('click', (e) => {
@@ -971,30 +941,17 @@
             window.location.href = 'login.html';
         });
 
-        // ========== HELPER ==========
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
         // ========== INIT ==========
         async function init() {
             await loadPrograms();
             await loadModules();
             await loadProgramModules();
+            await loadUnassignedCourses();
+            await loadLecturers();
         }
         init();
-
-        // Make functions global for inline onclick
-        window.searchModules = searchModules;
-        window.openAddModuleModal = openAddModuleModal;
-        window.openAssignModuleModal = openAssignModuleModal;
-        window.editModule = editModule;
-        window.deleteModule = deleteModule;
-        window.removeMapping = removeMapping;
-        window.closeModal = closeModal;
     </script>
 </body>
 

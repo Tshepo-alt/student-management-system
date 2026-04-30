@@ -475,6 +475,193 @@ def get_all_rooms_admin():
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================
+# ADMIN ROOM MANAGEMENT (CRUD)
+# ============================================
+
+@accommodation_bp.route('/admin/rooms', methods=['POST'])
+@jwt_required()
+def create_room():
+    """Create a new accommodation room (Admin only)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        if not is_admin_user(user_id):
+            return jsonify({'error': 'Admin access required'}), 403
+
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 415
+
+        data = request.get_json()
+        required = ['block_name', 'room_number', 'room_type', 'capacity']
+        missing = [f for f in required if not data.get(f)]
+        if missing:
+            return jsonify({'error': f'Missing fields: {", ".join(missing)}'}), 400
+
+        # Check for duplicate (block_name + room_number)
+        existing = AccommodationRoom.query.filter_by(
+            block_name=data['block_name'],
+            room_number=data['room_number']
+        ).first()
+        if existing:
+            return jsonify({'error': 'Room already exists in this block'}), 409
+
+        new_room = AccommodationRoom(
+            block_name=data['block_name'],
+            room_number=data['room_number'],
+            room_type=data['room_type'],
+            capacity=data['capacity'],
+            current_occupants=data.get('current_occupants', 0),
+            is_available=data.get('is_available', True),
+            has_kitchen=data.get('has_kitchen', True),
+            has_shower=data.get('has_shower', True),
+            has_study_table=data.get('has_study_table', True),
+            has_bed=data.get('has_bed', True)
+        )
+        db.session.add(new_room)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Room created successfully',
+            'room': {
+                'id': new_room.id,
+                'block_name': new_room.block_name,
+                'room_number': new_room.room_number,
+                'room_type': new_room.room_type,
+                'is_available': new_room.is_available
+            }
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error creating room: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@accommodation_bp.route('/admin/rooms/<int:room_id>', methods=['PUT'])
+@jwt_required()
+def update_room(room_id):
+    """Update an existing room (Admin only)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        if not is_admin_user(user_id):
+            return jsonify({'error': 'Admin access required'}), 403
+
+        room = AccommodationRoom.query.get(room_id)
+        if not room:
+            return jsonify({'error': 'Room not found'}), 404
+
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # Update allowed fields
+        if 'block_name' in data:
+            room.block_name = data['block_name']
+        if 'room_number' in data:
+            room.room_number = data['room_number']
+        if 'room_type' in data:
+            room.room_type = data['room_type']
+        if 'capacity' in data:
+            room.capacity = data['capacity']
+        if 'current_occupants' in data:
+            room.current_occupants = data['current_occupants']
+        if 'is_available' in data:
+            room.is_available = data['is_available']
+        if 'has_kitchen' in data:
+            room.has_kitchen = data['has_kitchen']
+        if 'has_shower' in data:
+            room.has_shower = data['has_shower']
+        if 'has_study_table' in data:
+            room.has_study_table = data['has_study_table']
+        if 'has_bed' in data:
+            room.has_bed = data['has_bed']
+
+        room.updated_at = datetime.utcnow()
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Room updated successfully',
+            'room': {
+                'id': room.id,
+                'block_name': room.block_name,
+                'room_number': room.room_number,
+                'room_type': room.room_type,
+                'is_available': room.is_available
+            }
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error updating room: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@accommodation_bp.route('/admin/rooms/<int:room_id>', methods=['DELETE'])
+@jwt_required()
+def delete_room(room_id):
+    """Delete a room (Admin only) – only if no active registrations assigned"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        if not is_admin_user(user_id):
+            return jsonify({'error': 'Admin access required'}), 403
+
+        room = AccommodationRoom.query.get(room_id)
+        if not room:
+            return jsonify({'error': 'Room not found'}), 404
+
+        # Check if any active registration is allocated to this room
+        active_reg = AccommodationRegistration.query.filter_by(
+            allocated_room_id=room_id,
+            status='allocated'
+        ).first()
+        if active_reg:
+            return jsonify({'error': 'Cannot delete room with active allocation'}), 400
+
+        db.session.delete(room)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': 'Room deleted successfully'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting room: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@accommodation_bp.route('/admin/rooms/<int:room_id>/maintenance', methods=['PUT'])
+@jwt_required()
+def update_room_maintenance(room_id):
+    """Toggle room availability (maintenance mode)"""
+    try:
+        current_user_id = get_jwt_identity()
+        user_id = int(current_user_id) if current_user_id else None
+        if not is_admin_user(user_id):
+            return jsonify({'error': 'Admin access required'}), 403
+        data = request.get_json()
+        is_available = data.get('is_available')
+        if is_available is None:
+            return jsonify({'error': 'is_available required'}), 400
+        room = AccommodationRoom.query.get(room_id)
+        if not room:
+            return jsonify({'error': 'Room not found'}), 404
+        room.is_available = is_available
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Room {"available" if is_available else "unavailable for maintenance"}'}), 200
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error updating room maintenance: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @accommodation_bp.route('/admin/applications/<int:application_id>/approve', methods=['POST'])
 @jwt_required()
 def approve_application(application_id):
@@ -566,31 +753,6 @@ def reject_application(application_id):
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error rejecting application: {e}")
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
-
-
-@accommodation_bp.route('/admin/rooms/<int:room_id>/maintenance', methods=['PUT'])
-@jwt_required()
-def update_room_maintenance(room_id):
-    try:
-        current_user_id = get_jwt_identity()
-        user_id = int(current_user_id) if current_user_id else None
-        if not is_admin_user(user_id):
-            return jsonify({'error': 'Admin access required'}), 403
-        data = request.get_json()
-        is_available = data.get('is_available')
-        if is_available is None:
-            return jsonify({'error': 'is_available required'}), 400
-        room = AccommodationRoom.query.get(room_id)
-        if not room:
-            return jsonify({'error': 'Room not found'}), 404
-        room.is_available = is_available
-        db.session.commit()
-        return jsonify({'success': True, 'message': f'Room {"available" if is_available else "unavailable for maintenance"}'}), 200
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Error updating room maintenance: {e}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 

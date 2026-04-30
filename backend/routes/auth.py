@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import requests
+import threading
 
 # OAuth2 imports - only what's needed
 from authlib.integrations.flask_oauth2 import AuthorizationServer
@@ -222,23 +223,17 @@ def validate_password(password):
 def register():
     """Register a new applicant (student application) - WITH EMAIL CONFIRMATION & FILE UPLOADS"""
     try:
-        # Get form data (supports multipart/form-data)
         data = request.form.to_dict()
         files = request.files
 
         logger.info(f"Registration data received: {data}")
         logger.info(f"Files received: {list(files.keys())}")
 
-        # Required text fields
-        required_fields = [
-            'email', 'password', 'first_name', 'last_name', 'phone',
-            'program_id', 'campus_id'
-        ]
+        required_fields = ['email', 'password', 'first_name', 'last_name', 'phone', 'program_id', 'campus_id']
         missing_fields = [field for field in required_fields if not data.get(field)]
         if missing_fields:
             return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
 
-        # Required document files
         required_files = ['bgcse_certificate', 'id_document', 'passport_photo']
         missing_files = []
         for f in required_files:
@@ -247,7 +242,6 @@ def register():
         if missing_files:
             return jsonify({'error': f'Missing required documents: {", ".join(missing_files)}'}), 400
 
-        # Validate email & password
         if not validate_email(data['email']):
             return jsonify({'error': 'Invalid email format'}), 400
 
@@ -255,11 +249,9 @@ def register():
         if not is_valid:
             return jsonify({'error': msg}), 400
 
-        # Check if email already exists
         if User.query.filter_by(email=data['email']).first():
             return jsonify({'error': 'Email already registered'}), 409
 
-        # Validate program
         try:
             program_id = int(data['program_id'])
             program = Program.query.get(program_id)
@@ -268,7 +260,6 @@ def register():
         if not program:
             return jsonify({'error': 'Program not found'}), 404
 
-        # Validate campus
         try:
             campus_id = int(data['campus_id'])
             campus = Campus.query.get(campus_id)
@@ -277,11 +268,9 @@ def register():
         if not campus:
             return jsonify({'error': 'Campus not found'}), 404
 
-        # Check program is offered at campus
         if program.campus_id != campus_id:
             return jsonify({'error': 'Program not offered at selected campus'}), 400
 
-        # BGCSE points & OVC
         try:
             bgcse_points = int(data.get('bgcse_points', 0))
         except ValueError:
@@ -295,7 +284,6 @@ def register():
         if bgcse_points < min_points and not is_ovc:
             return jsonify({'error': f'Minimum {min_points} points required or OVC status'}), 400
 
-        # Save uploaded files
         try:
             bgcse_cert_path = save_uploaded_file(files.get('bgcse_certificate'), 'bgcse')
             id_doc_path = save_uploaded_file(files.get('id_document'), 'ids')
@@ -306,7 +294,6 @@ def register():
             logger.error(f"File save error: {e}")
             return jsonify({'error': 'Failed to save uploaded files. Please try again.'}), 500
 
-        # Create user
         user = User(
             username=data.get('username', data['email']),
             email=data['email'],
@@ -318,12 +305,10 @@ def register():
         db.session.add(user)
         db.session.flush()
 
-        # Generate student number
         year = datetime.now().year
         student_count = Student.query.count() + 1
         student_number = f"GIPS/{year}/{student_count:05d}"
 
-        # Parse date of birth
         date_of_birth = None
         if data.get('date_of_birth'):
             try:
@@ -331,7 +316,6 @@ def register():
             except:
                 pass
 
-        # Create student record
         student = Student(
             user_id=user.id,
             student_number=student_number,
@@ -371,7 +355,6 @@ def register():
         db.session.add(student)
         db.session.commit()
 
-        # Send confirmation email
         email_sent = False
         try:
             email_sent = EmailService.send_registration_confirmation(
@@ -446,7 +429,6 @@ def login():
         db.session.commit()
         logger.info(f"Successful login for user: {email}")
 
-        # Normalise role: 'administrator' -> 'admin'
         role = user.role
         if role == 'administrator':
             role = 'admin'
@@ -463,7 +445,6 @@ def login():
         if role in role_map:
             redirect_url = role_map[role]
         else:
-            # Student or fallback
             student = Student.query.filter_by(user_id=user.id).first()
             if student:
                 if student.admission_status == 'pending':
@@ -665,6 +646,10 @@ def change_password():
         logger.error(f"Change password error: {e}")
         return jsonify({'error': str(e)}), 500
 
+# ============================================
+# FORGOT PASSWORD (ASYNC to prevent 502 timeout)
+# ============================================
+
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     try:
@@ -674,34 +659,42 @@ def forgot_password():
         email = data.get('email')
         if not email:
             return jsonify({'error': 'Email required'}), 400
+
         user = User.query.filter_by(email=email).first()
         if user:
-            try:
-                reset_token = EmailService.generate_verification_token()
-                user.reset_token = reset_token
-                user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
-                db.session.commit()
-                student = Student.query.filter_by(user_id=user.id).first()
-                student_name = f"{student.first_name} {student.last_name}" if student else user.username
-                email_sent = EmailService.send_password_reset(
-                    user_email=email,
-                    first_name=student_name.split()[0],
-                    reset_token=reset_token,
-                    user_id=user.id
-                )
-                if email_sent:
-                    logger.info(f"Password reset email sent to {email}")
-                else:
-                    logger.warning(f"Failed to send password reset email to {email}")
-            except Exception as e:
-                logger.error(f"Error sending password reset email: {e}")
+            reset_token = EmailService.generate_verification_token()
+            user.reset_token = reset_token
+            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+            db.session.commit()
+
+            student = Student.query.filter_by(user_id=user.id).first()
+            student_name = f"{student.first_name} {student.last_name}" if student else user.username
+            first_name = student_name.split()[0] if student_name else "User"
+
+            # Asynchronous email sending to avoid request timeout
+            def send_async():
+                with current_app.app_context():
+                    EmailService.send_password_reset(
+                        user_email=email,
+                        first_name=first_name,
+                        reset_token=reset_token,
+                        user_id=user.id
+                    )
+            thread = threading.Thread(target=send_async)
+            thread.start()
+
         return jsonify({
             'success': True,
             'message': 'If an account exists with that email, you will receive password reset instructions.'
         }), 200
+
     except Exception as e:
         logger.error(f"Forgot password error: {e}")
         return jsonify({'error': str(e)}), 500
+
+# ============================================
+# RESET PASSWORD
+# ============================================
 
 @auth_bp.route('/reset-password/<token>', methods=['POST'])
 def reset_password(token):
@@ -737,6 +730,10 @@ def reset_password(token):
         logger.error(f"Reset password error: {e}")
         return jsonify({'error': str(e)}), 500
 
+# ============================================
+# EMAIL VERIFICATION
+# ============================================
+
 @auth_bp.route('/verify-email/<token>', methods=['POST'])
 def verify_email(token):
     try:
@@ -766,6 +763,10 @@ def verify_email(token):
         db.session.rollback()
         logger.error(f"Email verification error: {e}")
         return jsonify({'error': str(e)}), 500
+
+# ============================================
+# ADMIN CREATION (optional)
+# ============================================
 
 @auth_bp.route('/admin/create', methods=['POST'])
 def create_admin():
@@ -807,6 +808,10 @@ def create_admin():
         db.session.rollback()
         logger.error(f"Create admin error: {e}")
         return jsonify({'error': str(e)}), 500
+
+# ============================================
+# CAMPUS ROUTES
+# ============================================
 
 @auth_bp.route('/campuses', methods=['GET'])
 def get_campuses():

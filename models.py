@@ -399,7 +399,8 @@ class Student(db.Model):
     documents = db.relationship('StudentDocument', backref='student', cascade='all, delete-orphan')
     registrations = db.relationship('Registration', backref='student', cascade='all, delete-orphan')
     enrollments = db.relationship('Enrollment', backref='student', cascade='all, delete-orphan')
-    payments = db.relationship('Payment', foreign_keys='Payment.student_id', backref='student', cascade='all, delete-orphan')
+    # FIXED: Use back_populates instead of backref to avoid conflict
+    payments = db.relationship('Payment', foreign_keys='Payment.student_id', back_populates='student', cascade='all, delete-orphan')
     academic_records = db.relationship('AcademicRecord', backref='student', cascade='all, delete-orphan')
     research_projects = db.relationship('ResearchProject', backref='student', cascade='all, delete-orphan')
     attachments = db.relationship('Attachment', backref='student', cascade='all, delete-orphan')
@@ -725,9 +726,9 @@ class Payment(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
-    registration_id = db.Column(db.Integer, db.ForeignKey('registrations.id'), nullable=True)   # FIXED: nullable True
+    registration_id = db.Column(db.Integer, db.ForeignKey('registrations.id'), nullable=True)
     amount = db.Column(db.Numeric(10,2), nullable=False)
-    payment_date = db.Column(db.Date, nullable=True)      # FIXED: nullable True
+    payment_date = db.Column(db.Date, nullable=True)
     payment_method = db.Column(db.Enum('cash', 'bank_transfer', 'card', 'mobile_money'), nullable=False)
     transaction_id = db.Column(db.String(100))
     receipt_number = db.Column(db.String(100), unique=True)
@@ -747,9 +748,9 @@ class Payment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     currency = db.Column(db.String(10), default='BWP')
 
-    # Relationships – only define registration here; student relationship already exists via Student.payments
+    # Explicit relationship with back_populates – no conflict
+    student = db.relationship('Student', foreign_keys=[student_id], back_populates='payments')
     registration = db.relationship('Registration', foreign_keys=[registration_id], backref='payment_records')
-    # NOTE: No 'student = ...' line here – it comes from Student.payments backref='student'
 
 
 # ==================== ACADEMIC RECORDS ====================

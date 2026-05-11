@@ -399,8 +399,7 @@ class Student(db.Model):
     documents = db.relationship('StudentDocument', backref='student', cascade='all, delete-orphan')
     registrations = db.relationship('Registration', backref='student', cascade='all, delete-orphan')
     enrollments = db.relationship('Enrollment', backref='student', cascade='all, delete-orphan')
-    # FIXED: Use back_populates instead of backref to avoid conflict
-    payments = db.relationship('Payment', foreign_keys='Payment.student_id', back_populates='student', cascade='all, delete-orphan')
+    payments = db.relationship('Payment', foreign_keys='Payment.student_id', backref='student', cascade='all, delete-orphan')
     academic_records = db.relationship('AcademicRecord', backref='student', cascade='all, delete-orphan')
     research_projects = db.relationship('ResearchProject', backref='student', cascade='all, delete-orphan')
     attachments = db.relationship('Attachment', backref='student', cascade='all, delete-orphan')
@@ -603,7 +602,8 @@ class Registration(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     enrollments = db.relationship('Enrollment', backref='registration', cascade='all, delete-orphan')
-    payments = db.relationship('Payment', foreign_keys='Payment.registration_id', backref='registration', cascade='all, delete-orphan')
+    # FIXED: use back_populates instead of backref to avoid conflict with Payment.registration
+    payments = db.relationship('Payment', foreign_keys='Payment.registration_id', back_populates='registration', cascade='all, delete-orphan')
     academic_records = db.relationship('AcademicRecord', backref='registration', cascade='all, delete-orphan')
     research_projects = db.relationship('ResearchProject', backref='registration', cascade='all, delete-orphan')
     attachments = db.relationship('Attachment', backref='registration', cascade='all, delete-orphan')
@@ -748,9 +748,9 @@ class Payment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     currency = db.Column(db.String(10), default='BWP')
 
-    # Explicit relationship with back_populates – no conflict
-    student = db.relationship('Student', foreign_keys=[student_id], back_populates='payments')
-    registration = db.relationship('Registration', foreign_keys=[registration_id], backref='payment_records')
+    # FIXED: use back_populates to match Registration.payments
+    student = db.relationship('Student', foreign_keys=[student_id], backref='payment_records')
+    registration = db.relationship('Registration', foreign_keys=[registration_id], back_populates='payments')
 
 
 # ==================== ACADEMIC RECORDS ====================

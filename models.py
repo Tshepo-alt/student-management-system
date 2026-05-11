@@ -732,7 +732,6 @@ class Payment(db.Model):
     transaction_id = db.Column(db.String(100))
     receipt_number = db.Column(db.String(100), unique=True)
     status = db.Column(db.Enum('pending', 'completed', 'failed', 'refunded'), default='completed')
-    # FIXED: extended enum to include values used in payments.py
     payment_type = db.Column(
         db.Enum(
             'registration', 'tuition', 'supplementary', 'resit', 'retake', 
@@ -746,11 +745,11 @@ class Payment(db.Model):
     notes = db.Column(db.Text)
     processed_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    currency = db.Column(db.String(10), default='BWP')    # optional for Stripe
+    currency = db.Column(db.String(10), default='BWP')
 
-    # Keep relationships consistent
-    student = db.relationship('Student', foreign_keys=[student_id], backref='payment_records')
+    # Relationships – only define registration here; student relationship already exists via Student.payments
     registration = db.relationship('Registration', foreign_keys=[registration_id], backref='payment_records')
+    # NOTE: No 'student = ...' line here – it comes from Student.payments backref='student'
 
 
 # ==================== ACADEMIC RECORDS ====================

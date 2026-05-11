@@ -602,8 +602,7 @@ class Registration(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     enrollments = db.relationship('Enrollment', backref='registration', cascade='all, delete-orphan')
-    # FIXED: use back_populates instead of backref to avoid conflict with Payment.registration
-    payments = db.relationship('Payment', foreign_keys='Payment.registration_id', back_populates='registration', cascade='all, delete-orphan')
+    payments = db.relationship('Payment', foreign_keys='Payment.registration_id', backref='registration', cascade='all, delete-orphan')
     academic_records = db.relationship('AcademicRecord', backref='registration', cascade='all, delete-orphan')
     research_projects = db.relationship('ResearchProject', backref='registration', cascade='all, delete-orphan')
     attachments = db.relationship('Attachment', backref='registration', cascade='all, delete-orphan')
@@ -719,38 +718,27 @@ class FeesConfig(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-# ==================== PAYMENT MODELS (FIXED) ====================
+# ==================== PAYMENT MODELS ====================
 
 class Payment(db.Model):
     __tablename__ = 'payments'
     
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
-    registration_id = db.Column(db.Integer, db.ForeignKey('registrations.id'), nullable=True)
+    registration_id = db.Column(db.Integer, db.ForeignKey('registrations.id'), nullable=False)
     amount = db.Column(db.Numeric(10,2), nullable=False)
-    payment_date = db.Column(db.Date, nullable=True)
+    payment_date = db.Column(db.Date, nullable=False)
     payment_method = db.Column(db.Enum('cash', 'bank_transfer', 'card', 'mobile_money'), nullable=False)
     transaction_id = db.Column(db.String(100))
     receipt_number = db.Column(db.String(100), unique=True)
     status = db.Column(db.Enum('pending', 'completed', 'failed', 'refunded'), default='completed')
-    payment_type = db.Column(
-        db.Enum(
-            'registration', 'tuition', 'supplementary', 'resit', 'retake', 
-            'accommodation', 'exam', 'full', 'installment_plan'
-        ), 
-        nullable=False
-    )
+    payment_type = db.Column(db.Enum('registration', 'tuition', 'supplementary', 'resit', 'retake', 'accommodation'), nullable=False)
     is_government_payment = db.Column(db.Boolean, default=False)
     payment_reference = db.Column(db.String(100))
     stripe_payment_intent_id = db.Column(db.String(255))
     notes = db.Column(db.Text)
     processed_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    currency = db.Column(db.String(10), default='BWP')
-
-    # FIXED: use back_populates to match Registration.payments
-    student = db.relationship('Student', foreign_keys=[student_id], backref='payment_records')
-    registration = db.relationship('Registration', foreign_keys=[registration_id], back_populates='payments')
 
 
 # ==================== ACADEMIC RECORDS ====================

@@ -1,6 +1,4 @@
-# app.py – Full corrected version
-# (Everything above the "if __name__ == '__main__'" stays exactly as you wrote it.
-# I'll show the complete file with the fix at the bottom.)
+# app.py – Original version (as you sent it)
 
 # ============================================
 # FIX MODULE PATH: Add project root to sys.path
@@ -700,54 +698,6 @@ def create_app(config_name=None):
             'response_time': 'Immediate for FAQs, 2-48 hours for tickets'
         }), 200
 
-    # ==================== SIMPLE PAYMENTS TEST PAGE (ADDED FOR TESTING) ====================
-    @app.route('/payments-test')
-    def payments_test():
-        """Simple HTML page to test payment API – you can remove this later."""
-        return '''
-        <!DOCTYPE html>
-        <html>
-        <head><title>Payments Test</title><script src="https://js.stripe.com/v3/"></script></head>
-        <body>
-            <h2>Test Payment Page</h2>
-            <p>This page calls your /api/payments/config and /api/payments/create-payment-intent endpoints.</p>
-            <button id="payBtn">Pay 100 BWP (Test)</button>
-            <pre id="result"></pre>
-            <script>
-                document.getElementById('payBtn').onclick = async () => {
-                    const token = localStorage.getItem('access_token');
-                    if (!token) {
-                        document.getElementById('result').innerText = 'No access token. Please login first.';
-                        return;
-                    }
-                    try {
-                        const configRes = await fetch('/api/payments/config');
-                        const configData = await configRes.json();
-                        const stripe = Stripe(configData.publicKey);
-                        const intentRes = await fetch('/api/payments/create-payment-intent', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                            body: JSON.stringify({ amount: 100, payment_type: 'tuition', currency: 'bwp' })
-                        });
-                        const intentData = await intentRes.json();
-                        if (intentData.clientSecret) {
-                            const { error } = await stripe.confirmCardPayment(intentData.clientSecret, {
-                                payment_method: { card: { token: 'tok_visa' } } // dummy – replace with real card element
-                            });
-                            if (error) document.getElementById('result').innerText = 'Error: ' + error.message;
-                            else document.getElementById('result').innerText = 'Payment succeeded!';
-                        } else {
-                            document.getElementById('result').innerText = 'Failed to create payment intent: ' + JSON.stringify(intentData);
-                        }
-                    } catch(e) {
-                        document.getElementById('result').innerText = 'Error: ' + e.message;
-                    }
-                };
-            </script>
-        </body>
-        </html>
-        '''
-
     # ==================== ERROR HANDLERS ====================
 
     @app.errorhandler(404)
@@ -806,16 +756,9 @@ def create_app(config_name=None):
     return app
 
 
-# ============================================
-# CRITICAL FIX: Create app instance for Gunicorn
-# ============================================
-app = create_app()
-
-
-# ============================================
-# RUN SERVER (only when executed directly)
-# ============================================
 if __name__ == '__main__':
+    app = create_app()
+
     print("\n" + "="*70)
     print("🎓 GIPS College Student Portal - Backend Server")
     print("="*70)
@@ -833,7 +776,6 @@ if __name__ == '__main__':
     print("   📞 http://localhost:5000/contacts          - Contacts Page")
     print("   ⚖️  http://localhost:5000/terms             - Terms of Service")
     print("   ℹ️  http://localhost:5000/about             - About Us")
-    print("   💳 http://localhost:5000/payments-test     - Payments Test Page")
     print("\n📌 Core API Endpoints:")
     print("   💚 GET  /api/health        - Health Check")
     print("   💚 GET  /api              - API Root")
